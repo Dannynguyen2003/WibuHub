@@ -1,0 +1,44 @@
+﻿@* @model IEnumerable<WibuHub.ApplicationCore.Entities.Category> *@
+@model IEnumerable<WibuHub.MVC.ViewModels.CategoryVM>
+
+<h1>Category List</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th width="10%">
+                @Html.DisplayNameFor(model => model.Position)
+            </th>
+            <th width="20%">
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th width="40%">
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th width="30%"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Position)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    @* <a asp-action="Delete" asp-route-id="@item.Id">Delete</a> *@
+                    <button type="button" class="btn btn-danger" onclick="openModalDeleteCategory('@item.Id');">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
