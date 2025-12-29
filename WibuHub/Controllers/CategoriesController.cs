@@ -50,14 +50,24 @@ namespace WibuHub.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Description")] CategoryVM categoryVM)
+        //public async Task<IActionResult> Create([Bind("Id,Name,Description")] CategoryVM categoryVM)
+            public async Task<IActionResult> Create(CategoryVM categoryVM)
         {
             if (ModelState.IsValid)
             {
-                categoryVM.Id = Guid.NewGuid();
-                _context.Add(categoryVM);
+                //categoryVM.Id = Guid.NewGuid();
+                //_context.Add(categoryVM);
+                var countCategory = await _context.Categories.CountAsync();
+                var category = new Category
+                {
+                    //Id = Guid.NewGuid(),
+                    Name = categoryVM.Name.Trim(),
+                    Description = categoryVM.Description?.Trim(),
+                    Position = ++countCategory
+                };
+                _context.Categories.Add(category);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Create));
             }
             return View(categoryVM);
         }
@@ -70,12 +80,27 @@ namespace WibuHub.Controllers
                 return NotFound();
             }
 
-            var categoryVM = await _context.Categories.FindAsync(id);
+            //var categoryVM = await _context.Categories.FindAsync(id);
+            //if (categoryVM == null)
+            //{
+            //    return NotFound();
+            //}
+            var categoryVM = await _context.Categories
+                .Where(c => c.Id == id)
+                .Select(c => new CategoryVM
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    Description = c.Description,
+                    Position = c.Position
+                })
+                .SingleOrDefaultAsync();
             if (categoryVM == null)
             {
-                return NotFound();
+                return BadRequest();
             }
-            return View(categoryVM);
+            //return View(category);
+            return View(nameof(Create), categoryVM);
         }
 
         // POST: Categories/Edit/5
@@ -108,7 +133,7 @@ namespace WibuHub.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Create));
             }
             return View(categoryVM);
         }

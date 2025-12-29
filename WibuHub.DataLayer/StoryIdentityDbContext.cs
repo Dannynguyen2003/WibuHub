@@ -15,6 +15,7 @@ namespace WibuHub.DataLayer
         public DbSet<StoryRole> StoryRoles { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<StoryUser>(img =>
             {
                 img.Property(s => s.FullName)

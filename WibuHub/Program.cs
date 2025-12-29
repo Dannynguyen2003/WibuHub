@@ -15,7 +15,7 @@ builder.Services.AddDbContext<StoryDbContext>(options =>
 builder.Services.AddDbContext<StoryIdentityDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("StoryIdentityConnection")));
 
-//builder.Services.AddDefaultIdentity<IdentityUser>(options => 
+//builder.Services.AddDefaultIdentity<StoryUser>(options => 
 builder.Services.AddIdentity<StoryUser, StoryRole>(options =>
 {
     options.SignIn.RequireConfirmedAccount = true;

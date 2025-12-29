@@ -1,7 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WibuHub.ApplicationCore.Entities
 {
+    [PrimaryKey(nameof(UserId), nameof(ComicId))]
     public class Follow
     {
         // UserId: Guid

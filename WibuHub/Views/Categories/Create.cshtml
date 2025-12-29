@@ -1,38 +1,60 @@
 ﻿@model WibuHub.ApplicationCore.Entities.Category
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Thêm mới Danh mục";
+    bool isCreate = Model == null || Model.Id == Guid.Empty;
+    string actionString = isCreate ? "Create" : "Edit";
+    string buttonString = isCreate ? "Create" : "Update";
 }
 
-<h1>Create</h1>
+<div class="container mt-4">
+    <h1>Thêm mới Danh mục</h1>
+    <hr />
 
-<h4>Category</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+    <div class="row">
+        <div class="col-md-6">
+            <form asp-action="@actionString">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                @if (!isCreate)
+                {
+                    <input asp-for="Id" type="hidden" />
+                    <input asp-for="Position" type="hidden" />
+                }
+
+                @* 1. Tên danh mục *@
+                <div class="form-group mb-3">
+                    <label asp-for="Name" class="control-label fw-bold">Tên danh mục</label>
+                    <input asp-for="Name" class="form-control" placeholder="Ví dụ: Hành động, Ngôn tình..." autofocus />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                @* 2. Mô tả (Dùng TextArea thay vì Input thường) *@
+                <div class="form-group mb-3">
+                    <label asp-for="Description" class="control-label fw-bold">Mô tả</label>
+                    <textarea asp-for="Description" class="form-control" rows="3" placeholder="Mô tả ngắn về danh mục này..."></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                @* 3. Vị trí sắp xếp (Position)
+                <div class="form-group mb-3">
+                    <label asp-for="Position" class="control-label fw-bold">Vị trí hiển thị</label>
+                    <input asp-for="Position" class="form-control" type="number" min="0" value="0" />
+                    <small class="form-text text-muted">Số càng nhỏ hiển thị càng cao.</small>
+                    <span asp-validation-for="Position" class="text-danger"></span>
+                </div> *@
+
+                @* Buttons *@
+                <div class="form-group" style="text-align: center; margin-top: 10px;">
+                    <input type="submit" value="@buttonString" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

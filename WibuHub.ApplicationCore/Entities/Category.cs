@@ -16,7 +16,7 @@ namespace WibuHub.ApplicationCore.Entities
         [MaxLength(MaxLengths.DESCRIPTION)]
         public string? Description { get; set; }
         public int Position { get; set; }
-        public bool IsHidden { get; set; } = false;
+        
         // 1 Category có nhiều Story
         public virtual ICollection<Story> Stories { get; set; } = new Collection<Story>();
         public virtual ICollection<Comment> Comments { get; set; } = new Collection<Comment>();

@@ -1,44 +1,47 @@
-﻿@* @model IEnumerable<WibuHub.ApplicationCore.Entities.Category> *@
-@model IEnumerable<WibuHub.MVC.ViewModels.CategoryVM>
+﻿@model IEnumerable<WibuHub.ApplicationCore.Entities.Category>
 
-<h1>Category List</h1>
-
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
 <table class="table">
     <thead>
         <tr>
-            <th width="10%">
-                @Html.DisplayNameFor(model => model.Position)
-            </th>
-            <th width="20%">
+            <th>
                 @Html.DisplayNameFor(model => model.Name)
             </th>
-            <th width="40%">
+            <th>
                 @Html.DisplayNameFor(model => model.Description)
             </th>
-            <th width="30%"></th>
+            <th>
+                @Html.DisplayNameFor(model => model.Position)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsHidden)
+            </th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Position)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Description)
-                </td>
-                
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                    @* <a asp-action="Delete" asp-route-id="@item.Id">Delete</a> *@
-                    <button type="button" class="btn btn-danger" onclick="openModalDeleteCategory('@item.Id');">Delete</button>
-                </td>
-            </tr>
-        }
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Position)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsHidden)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
     </tbody>
 </table>
