@@ -194,7 +194,7 @@ namespace WibuHub.DataLayer.MigrationsIdentity
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("ComicId")
+                    b.Property<Guid>("StoryId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Content")
@@ -227,7 +227,7 @@ namespace WibuHub.DataLayer.MigrationsIdentity
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ComicId");
+                    b.HasIndex("StoryId");
 
                     b.ToTable("Chapter");
                 });
@@ -260,7 +260,7 @@ namespace WibuHub.DataLayer.MigrationsIdentity
                     b.Property<Guid?>("ChapterId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("ComicId")
+                    b.Property<Guid>("StoryId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Content")
@@ -289,7 +289,7 @@ namespace WibuHub.DataLayer.MigrationsIdentity
 
                     b.HasIndex("ChapterId");
 
-                    b.HasIndex("ComicId");
+                    b.HasIndex("StoryId");
 
                     b.HasIndex("ParentId");
 
@@ -303,7 +303,7 @@ namespace WibuHub.DataLayer.MigrationsIdentity
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("ComicId")
+                    b.Property<Guid>("StoryId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreateDate")
@@ -315,9 +315,9 @@ namespace WibuHub.DataLayer.MigrationsIdentity
                     b.Property<int>("UnreadCount")
                         .HasColumnType("int");
 
-                    b.HasKey("UserId", "ComicId");
+                    b.HasKey("UserId", "StoryId");
 
-                    b.HasIndex("ComicId");
+                    b.HasIndex("StoryId");
 
                     b.HasIndex("StoryUserId");
 
@@ -333,7 +333,7 @@ namespace WibuHub.DataLayer.MigrationsIdentity
                     b.Property<Guid>("ChapterId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("ComicId")
+                    b.Property<Guid>("StoryId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("DeviceId")
@@ -353,7 +353,7 @@ namespace WibuHub.DataLayer.MigrationsIdentity
 
                     b.HasIndex("ChapterId");
 
-                    b.HasIndex("ComicId");
+                    b.HasIndex("StoryId");
 
                     b.HasIndex("StoryUserId");
 
@@ -405,7 +405,7 @@ namespace WibuHub.DataLayer.MigrationsIdentity
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("ComicId")
+                    b.Property<Guid>("StoryId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreateDate")
@@ -426,7 +426,7 @@ namespace WibuHub.DataLayer.MigrationsIdentity
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ComicId");
+                    b.HasIndex("StoryId");
 
                     b.HasIndex("StoryUserId");
 
@@ -662,7 +662,7 @@ namespace WibuHub.DataLayer.MigrationsIdentity
                 {
                     b.HasOne("WibuHub.ApplicationCore.Entities.Story", "Story")
                         .WithMany("Chapters")
-                        .HasForeignKey("ComicId")
+                        .HasForeignKey("StoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -681,7 +681,7 @@ namespace WibuHub.DataLayer.MigrationsIdentity
 
                     b.HasOne("WibuHub.ApplicationCore.Entities.Story", "Story")
                         .WithMany("Comments")
-                        .HasForeignKey("ComicId")
+                        .HasForeignKey("StoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -704,7 +704,7 @@ namespace WibuHub.DataLayer.MigrationsIdentity
                 {
                     b.HasOne("WibuHub.ApplicationCore.Entities.Story", "Story")
                         .WithMany()
-                        .HasForeignKey("ComicId")
+                        .HasForeignKey("StoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -725,7 +725,7 @@ namespace WibuHub.DataLayer.MigrationsIdentity
 
                     b.HasOne("WibuHub.ApplicationCore.Entities.Story", "Story")
                         .WithMany()
-                        .HasForeignKey("ComicId")
+                        .HasForeignKey("StoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -749,7 +749,7 @@ namespace WibuHub.DataLayer.MigrationsIdentity
                 {
                     b.HasOne("WibuHub.ApplicationCore.Entities.Story", "Story")
                         .WithMany()
-                        .HasForeignKey("ComicId")
+                        .HasForeignKey("StoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

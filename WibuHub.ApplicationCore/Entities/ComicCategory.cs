@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WibuHub.ApplicationCore.Entities
 {
-    public class ComicCategory
+    public class StoryCategory
     {
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();

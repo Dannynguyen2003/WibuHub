@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WibuHub.ApplicationCore.Entities
 {
@@ -23,9 +18,9 @@ namespace WibuHub.ApplicationCore.Entities
 
         // ComicId: Guid (Truyện nào)
         [Required]
-        public Guid ComicId { get; set; }
+        public Guid StoryId { get; set; }
 
-        [ForeignKey("ComicId")]
+        [ForeignKey("StoryId")]
         public virtual Story Story { get; set; } = null!;
 
         // ChapterId: Guid (Chap gần nhất đã đọc)

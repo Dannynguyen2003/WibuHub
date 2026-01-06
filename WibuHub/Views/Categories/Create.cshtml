@@ -29,7 +29,7 @@
                     <span asp-validation-for="Name" class="text-danger"></span>
                 </div>
 
-                @* 2. Mô tả (Dùng TextArea thay vì Input thường) *@
+                @* 2. Mô tả*@
                 <div class="form-group mb-3">
                     <label asp-for="Description" class="control-label fw-bold">Mô tả</label>
                     <textarea asp-for="Description" class="form-control" rows="3" placeholder="Mô tả ngắn về danh mục này..."></textarea>
@@ -50,6 +50,9 @@
                 </div>
             </form>
         </div>
+        <div id="divCategoryList" class="col-md-8">
+            @await Component.InvokeAsync("CategoryList")
+        </div>
     </div>
 </div>
 
@@ -57,4 +60,92 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script>
+        // openModal();
+        function openModalDeleteCategory(idCategory){
+            // let inputToken = document.querySelector("input[name='__RequestVerificationToken']");
+            $.ajax({
+                url: '/Categories/Delete',
+                type: 'GET',                     // Hoặc 'GET'
+                data: { id: idCategory },            // Dữ liệu gửi lên server
+                // contentType: 'application/x-www-form-urlencoded; charset=UTF-8', // Loại dữ liệu gửi lên (default)
+                // dataType: 'json',                 // Kiểu dữ liệu nhận về (json, html, text, script)
+                beforeSend: function () {
+                    // Trước khi gửi request nên làm gì?
+                    //=== Thường dùng để hiện thanh loading, hoặc vô hiệu nút nhấn ===//
+                    console.log("Sending...");
+                },
+                success: function (responseHTML) {
+                    // Xử lý khi gọi hàm Thành công
+                    //=== Lấy PartialView Delete bỏ vào Modal và hiện Modal ===//
+                    openModal("Category Delete", responseHTML, "modal-lg");
+                },
+                error: function (xhr, status, error) {
+                    // Lỗi => Dùng để hiển thị thông báo lỗi
+                    console.error("Error:", status, error);
+                },
+                complete: function () {
+                    // Luôn gọi dù thành công hay thất bại
+                    //=== Thường dùng để tắt thanh loading, hoặc bật lại khả năng click của nút nhấn ===//
+                    console.log("Request completed");
+                },
+                timeout: 10000  // Giới hạn thời gian (ms)
+            });
+        }
+
+        function deleteCategory(idCategory){
+            let inputToken = document.querySelector("input[name='__RequestVerificationToken']");
+            $.ajax({
+                url: '/Categories/Delete',
+                type: 'POST',
+                data: { id: idCategory, __RequestVerificationToken: inputToken.value },
+                beforeSend: function () {
+                    console.log("Sending...");
+                },
+                success: function (response) {
+                    console.log("Success:", {response});
+                    if(response.isOK){
+                         //=== Đóng Modal lại ===//
+                        closeModal();
+                        //=== Load lại danh sách Category mới ===//
+                        refreshCategoryList();
+                    }
+
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error:", status, error);
+                },
+                complete: function () {
+                    console.log("Request completed");
+                },
+                timeout: 10000  // Giới hạn thời gian (ms)
+            });
+        }
+
+        function refreshCategoryList(){
+            $.ajax({
+                url: '/Categories/Reload',
+                type: 'GET',
+                // data: { id: idCategory },
+                beforeSend: function () {
+                    console.log("Sending...");
+                },
+                success: function (response) {
+                    let divCategoryList = document.getElementById("divCategoryList");
+                    if(divCategoryList){
+                        divCategoryList.innerHTML = response;
+                    }
+
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error:", status, error);
+                },
+                complete: function () {
+                    console.log("Request completed");
+                },
+                timeout: 10000  // Giới hạn thời gian (ms)
+            });
+        }
+    </script>
 }

@@ -15,10 +15,10 @@ namespace WibuHub.ApplicationCore.Entities
 
         // ComicId: Guid (Khóa ngoại trỏ về Story)
         [Required]
-        public Guid ComicId { get; set; }
+        public Guid StoryId { get; set; }
 
         // Navigation property: Liên kết ngược lại với Story
-        [ForeignKey("ComicId")]
+        [ForeignKey("StoryId")]
         public virtual Story? Story { get; set; }
 
         // Name: nvarchar(150)
@@ -52,6 +52,7 @@ namespace WibuHub.ApplicationCore.Entities
         // UnlockPrice: money
         // Dùng decimal cho tiền tệ trong C#, map sang "money" trong SQL
         [Column(TypeName = "money")]
-        public decimal UnlockPrice { get; set; } = 0;
+        public decimal Price { get; set; } = 0;
+        public decimal Discount { get; set; }
     }
 }

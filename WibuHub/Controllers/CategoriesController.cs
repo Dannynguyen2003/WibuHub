@@ -58,6 +58,10 @@ namespace WibuHub.Controllers
                 //categoryVM.Id = Guid.NewGuid();
                 //_context.Add(categoryVM);
                 var countCategory = await _context.Categories.CountAsync();
+                var categories = _context.Categories.Where(c => c.Name == categoryVM.Name).ToList();
+
+                if(categories.Count > 0) return View(categoryVM);
+
                 var category = new Category
                 {
                     //Id = Guid.NewGuid(),

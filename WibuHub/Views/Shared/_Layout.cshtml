@@ -67,28 +67,87 @@
         @RenderBody()
     </main>
 
-    <div id="footer" class="footer border-top pt-2">
-        <div class="container">
-            <div class="row">
-                <div class="col-12 text-center">
-                    <strong>WibuHub</strong> - Đọc truyện online.
+    <button type="button" id="btnModal" class="btn btn-primary" style="display: none;" data-bs-toggle="modal" data-bs-target="#divModal">
+        Mở Modal
+    </button>
+
+    <!-- Modal -->
+    <div class="modal fade" id="divModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <!-- Header -->
+                <div class="modal-header">
+                    <h5 class="modal-title" id="h5ModalTitle">Tiêu đề Modal</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
                 </div>
+
+                <!-- Body -->
+                <div id="divModalBody" class="modal-body">
+                    Đây là nội dung bên trong modal.
+                </div>
+
+                <!-- Footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary">Lưu thay đổi</button>
+                </div>
+
             </div>
         </div>
     </div>
 
-    <script src="~/js/jquery.min.js"></script>
-    <script src="~/js/popper.min.js"></script>
-    <script src="~/js/bootstrap.min.js"></script>
-    <script src="~/js/app.js"></script>
-    <script src="~/js/common.js"></script>
-
-    <div id="loadingPage" class="loading-full">
-        <div class="loading-full_icon">
-            <div class="spinner-grow"><span class="visually-hidden">Loading...</span></div>
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2025 - WibuHub.MVC - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
-    </div>
+    </footer>
 
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        function openModal(title, bodyHTML, size = "") {
+            console.log("openModal called");
+            // Lấy modal theo ID
+            const divModal = document.getElementById('divModal');
+            if(divModal){
+                // Tạo instance Bootstrap Modal
+                const myModal = new bootstrap.Modal(divModal, {
+                    backdrop: 'static',   // không đóng khi click ra ngoài (tùy chọn)
+                    keyboard: false       // không đóng bằng phím ESC (tùy chọn)
+                });
+
+                let h5ModalTitle = divModal.querySelector('#h5ModalTitle');
+                if(h5ModalTitle){
+                    h5ModalTitle.innerText = title;
+                }
+
+                let divModalBody = document.getElementById('divModalBody');
+                if(divModalBody){
+                    divModalBody.innerHTML = bodyHTML;
+                }
+                // Gọi hiển thị modal
+                myModal.show();
+            }
+        }
+
+        function closeModal() {
+            // const divModal = document.getElementById('divModal');
+            // if(divModal){
+            //     const myModal = new bootstrap.Modal(divModal, {
+            //         backdrop: 'static',   // không đóng khi click ra ngoài (tùy chọn)
+            //         keyboard: false       // không đóng bằng phím ESC (tùy chọn)
+            //     });
+            //     myModal.hide();
+            // }
+
+            let btnModal = document.getElementById('btnModal');
+            if(btnModal){
+                btnModal.click();
+            }
+        }
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 
 </body>

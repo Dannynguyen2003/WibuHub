@@ -66,7 +66,7 @@ namespace WibuHub.ApplicationCore.Entities
         public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
 
         // Many-to-Many: Thể loại truyện (Fixed: use ComicGenre)
-        public virtual ICollection<ComicCategory> Genres { get; set; } = new List<ComicCategory>();
+        public virtual ICollection<StoryCategory> Genres { get; set; } = new List<StoryCategory>();
     }
 
     // Helper Enum để quản lý trạng thái dễ dàng hơn trong code

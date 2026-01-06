@@ -50,7 +50,7 @@ namespace WibuHub.Controllers
         public IActionResult Create()
         {
             ViewData["ChapterId"] = new SelectList(_context.Chapters, "Id", "Name");
-            ViewData["ComicId"] = new SelectList(_context.Stories, "Id", "Title");
+            ViewData["ComicId"] = new SelectList(_context.Chapteres, "Id", "Title");
             return View();
         }
 
@@ -68,7 +68,7 @@ namespace WibuHub.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["ChapterId"] = new SelectList(_context.Chapters, "Id", "Name", report.ChapterId);
-            ViewData["ComicId"] = new SelectList(_context.Stories, "Id", "Title", report.ComicId);
+            ViewData["ComicId"] = new SelectList(_context.Chapteres, "Id", "Title", report.ComicId);
             return View(report);
         }
 
@@ -86,7 +86,7 @@ namespace WibuHub.Controllers
                 return NotFound();
             }
             ViewData["ChapterId"] = new SelectList(_context.Chapters, "Id", "Name", report.ChapterId);
-            ViewData["ComicId"] = new SelectList(_context.Stories, "Id", "Title", report.ComicId);
+            ViewData["ComicId"] = new SelectList(_context.Chapteres, "Id", "Title", report.ComicId);
             return View(report);
         }
 
@@ -123,7 +123,7 @@ namespace WibuHub.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["ChapterId"] = new SelectList(_context.Chapters, "Id", "Name", report.ChapterId);
-            ViewData["ComicId"] = new SelectList(_context.Stories, "Id", "Title", report.ComicId);
+            ViewData["ComicId"] = new SelectList(_context.Chapteres, "Id", "Title", report.ComicId);
             return View(report);
         }
 

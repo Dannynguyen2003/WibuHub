@@ -48,7 +48,7 @@ namespace WibuHub.Controllers
         // GET: Follows/Create
         public IActionResult Create()
         {
-            ViewData["ComicId"] = new SelectList(_context.Stories, "Id", "Title");
+            ViewData["ComicId"] = new SelectList(_context.Chapteres, "Id", "Title");
             return View();
         }
 
@@ -66,7 +66,7 @@ namespace WibuHub.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ComicId"] = new SelectList(_context.Stories, "Id", "Title", follow.ComicId);
+            ViewData["ComicId"] = new SelectList(_context.Chapteres, "Id", "Title", follow.ComicId);
             return View(follow);
         }
 
@@ -83,7 +83,7 @@ namespace WibuHub.Controllers
             {
                 return NotFound();
             }
-            ViewData["ComicId"] = new SelectList(_context.Stories, "Id", "Title", follow.ComicId);
+            ViewData["ComicId"] = new SelectList(_context.Chapteres, "Id", "Title", follow.ComicId);
             return View(follow);
         }
 
@@ -119,7 +119,7 @@ namespace WibuHub.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ComicId"] = new SelectList(_context.Stories, "Id", "Title", follow.ComicId);
+            ViewData["ComicId"] = new SelectList(_context.Chapteres, "Id", "Title", follow.ComicId);
             return View(follow);
         }
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WibuHub.ApplicationCore.Entities;
+using WibuHub.Common.Contants;
 
 namespace WibuHub.DataLayer
 {
@@ -10,12 +11,12 @@ namespace WibuHub.DataLayer
         }
 
         // --- Khai báo toàn bộ các bảng ---
-        public DbSet<Story> Stories { get; set; }
+        public DbSet<Story> Chapteres { get; set; }
         public DbSet<Chapter> Chapters { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Author> Authors { get; set; }
 
-        public DbSet<ComicCategory> Genres { get; set; }
+        public DbSet<StoryCategory> Genres { get; set; }
 
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Follow> Follows { get; set; }
@@ -50,7 +51,7 @@ namespace WibuHub.DataLayer
             });
 
             
-            modelBuilder.Entity<ComicCategory>(entity =>
+            modelBuilder.Entity<StoryCategory>(entity =>
             {
                 entity.ToTable("Genres");
                 entity.HasKey(g => g.Id);
@@ -66,7 +67,7 @@ namespace WibuHub.DataLayer
                 entity.HasKey(s => s.Id);
                 entity.Property(s => s.Title).HasMaxLength(255).IsRequired();
 
-                // Đã bỏ cấu hình Slug
+                
 
                 entity.Property(s => s.Thumbnail).HasColumnType("varchar(500)");
                 entity.Property(s => s.Status).HasColumnType("tinyint");
@@ -97,16 +98,20 @@ namespace WibuHub.DataLayer
 
                 // Đã bỏ cấu hình Slug
 
-                entity.Property(c => c.UnlockPrice).HasColumnType("money");
-
+                entity.Property(c => c.Price).HasColumnType("money")
+                      .HasPrecision(9, 2);
                 // Index kép
-                entity.HasIndex(c => new { c.ComicId, c.Number });
+                entity.HasIndex(c => new { c.StoryId, c.Number });
 
                 // Xóa Story -> Xóa hết Chapter
                 entity.HasOne(c => c.Story)
                       .WithMany(s => s.Chapters)
-                      .HasForeignKey(c => c.ComicId)
+                      .HasForeignKey(c => c.StoryId)
                       .OnDelete(DeleteBehavior.Cascade);
+
+                entity.Property(s => s.Discount)
+                      .HasPrecision(5, 2);
+
             });
 
             // 6. Cấu hình Comment
@@ -123,7 +128,7 @@ namespace WibuHub.DataLayer
 
                 entity.HasOne(c => c.Story)
                       .WithMany(s => s.Comments)
-                      .HasForeignKey(c => c.ComicId)
+                      .HasForeignKey(c => c.StoryId)
                       .OnDelete(DeleteBehavior.Cascade);
             });
 
@@ -131,11 +136,11 @@ namespace WibuHub.DataLayer
             modelBuilder.Entity<Follow>(entity =>
             {
                 entity.ToTable("Follows");
-                entity.HasKey(f => new { f.UserId, f.ComicId });
+                entity.HasKey(f => new { f.UserId, f.StoryId });
 
                 entity.HasOne(f => f.Story)
                       .WithMany()
-                      .HasForeignKey(f => f.ComicId)
+                      .HasForeignKey(f => f.StoryId)
                       .OnDelete(DeleteBehavior.Cascade);
             });
 
@@ -145,7 +150,7 @@ namespace WibuHub.DataLayer
                 entity.ToTable("Ratings");
                 entity.HasKey(r => r.Id);
                 entity.Property(r => r.Score).HasColumnType("tinyint");
-                entity.HasIndex(r => new { r.UserId, r.ComicId }).IsUnique();
+                entity.HasIndex(r => new { r.UserId, r.StoryId }).IsUnique();
             });
 
             // 9. Cấu hình History
@@ -156,6 +161,14 @@ namespace WibuHub.DataLayer
                 entity.Property(h => h.DeviceId).HasColumnType("varchar(100)");
                 entity.HasIndex(h => new { h.UserId, h.ReadTime });
                 entity.HasIndex(h => new { h.DeviceId, h.ReadTime });
+                entity.HasOne(h => h.Story)
+                      .WithMany() 
+                      .HasForeignKey(h => h.StoryId)
+                      .OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(h => h.Chapter)
+                      .WithMany()
+                      .HasForeignKey(h => h.ChapterId)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
 
             // 10. Cấu hình Notification

@@ -18,7 +18,7 @@ namespace WibuHub.Controllers
         // GET: Stories
         public async Task<IActionResult> Index()
         {
-            var StoryDbContext = _context.Stories.Include(s => s.Author).Include(s => s.Category);
+            var StoryDbContext = _context.Chapteres.Include(s => s.Author).Include(s => s.Category);
             return View(await StoryDbContext.ToListAsync());
         }
 
@@ -30,7 +30,7 @@ namespace WibuHub.Controllers
                 return NotFound();
             }
 
-            var story = await _context.Stories
+            var story = await _context.Chapteres
                 .Include(s => s.Author)
                 .Include(s => s.Category)
                 .FirstOrDefaultAsync(m => m.Id == id);
@@ -77,7 +77,7 @@ namespace WibuHub.Controllers
                 return NotFound();
             }
 
-            var story = await _context.Stories.FindAsync(id);
+            var story = await _context.Chapteres.FindAsync(id);
             if (story == null)
             {
                 return NotFound();
@@ -132,7 +132,7 @@ namespace WibuHub.Controllers
                 return NotFound();
             }
 
-            var story = await _context.Stories
+            var story = await _context.Chapteres
                 .Include(s => s.Author)
                 .Include(s => s.Category)
                 .FirstOrDefaultAsync(m => m.Id == id);
@@ -149,10 +149,10 @@ namespace WibuHub.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var story = await _context.Stories.FindAsync(id);
+            var story = await _context.Chapteres.FindAsync(id);
             if (story != null)
             {
-                _context.Stories.Remove(story);
+                _context.Chapteres.Remove(story);
             }
 
             await _context.SaveChangesAsync();
@@ -161,7 +161,7 @@ namespace WibuHub.Controllers
 
         private bool StoryExists(Guid id)
         {
-            return _context.Stories.Any(e => e.Id == id);
+            return _context.Chapteres.Any(e => e.Id == id);
         }
     }
 }

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WibuHub.ApplicationCore.Entities
 {
-    [PrimaryKey(nameof(UserId), nameof(ComicId))]
+    [PrimaryKey(nameof(UserId), nameof(StoryId))]
     public class Follow
     {
         // UserId: Guid
@@ -13,9 +13,9 @@ namespace WibuHub.ApplicationCore.Entities
 
         // ComicId: Guid
         // Khóa ngoại trỏ đến bảng Story (Comic)
-        public Guid ComicId { get; set; }
+        public Guid StoryId { get; set; }
 
-        [ForeignKey("ComicId")]
+        [ForeignKey("StoryId")]
         public virtual Story Story { get; set; } = null!;
 
         // CreateDate: DateTime (Ngày bắt đầu theo dõi)

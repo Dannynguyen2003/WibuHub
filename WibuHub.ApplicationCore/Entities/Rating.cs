@@ -15,9 +15,9 @@ namespace WibuHub.ApplicationCore.Entities
 
         // ComicId: Guid (Đánh giá truyện nào)
         [Required]
-        public Guid ComicId { get; set; }
+        public Guid StoryId { get; set; }
 
-        [ForeignKey("ComicId")]
+        [ForeignKey("StoryId")]
         public virtual Story Story { get; set; } = null!;
 
         // Score: tinyint (1 đến 5 sao)

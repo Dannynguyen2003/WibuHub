@@ -17,9 +17,9 @@ namespace WibuHub.ApplicationCore.Entities
         // ComicId: Guid (Bình luận ở truyện nào)
         // Map ComicId khóa ngoại trỏ tới bảng Story
         [Required]
-        public Guid ComicId { get; set; }
+        public Guid StoryId { get; set; }
 
-        [ForeignKey("ComicId")]
+        [ForeignKey("StoryId")]
         public virtual Story Story { get; set; } = null!;
 
         // ChapterId: Guid? (Bình luận cụ thể ở chap nào - có thể null)

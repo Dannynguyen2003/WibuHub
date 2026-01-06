@@ -260,7 +260,7 @@ namespace WibuHub.DataLayer.MigrationsIdentity
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ComicId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
                     Number = table.Column<double>(type: "float", nullable: false),
                     Slug = table.Column<string>(type: "varchar(150)", maxLength: 150, nullable: false),
@@ -274,8 +274,8 @@ namespace WibuHub.DataLayer.MigrationsIdentity
                 {
                     table.PrimaryKey("PK_Chapter", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Chapter_Story_ComicId",
-                        column: x => x.ComicId,
+                        name: "FK_Chapter_Story_StoryId",
+                        column: x => x.StoryId,
                         principalTable: "Story",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -310,22 +310,22 @@ namespace WibuHub.DataLayer.MigrationsIdentity
                 columns: table => new
                 {
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ComicId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreateDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UnreadCount = table.Column<int>(type: "int", nullable: false),
                     StoryUserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Follow", x => new { x.UserId, x.ComicId });
+                    table.PrimaryKey("PK_Follow", x => new { x.UserId, x.StoryId });
                     table.ForeignKey(
                         name: "FK_Follow_AspNetUsers_StoryUserId",
                         column: x => x.StoryUserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Follow_Story_ComicId",
-                        column: x => x.ComicId,
+                        name: "FK_Follow_Story_StoryId",
+                        column: x => x.StoryId,
                         principalTable: "Story",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -337,7 +337,7 @@ namespace WibuHub.DataLayer.MigrationsIdentity
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ComicId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Score = table.Column<byte>(type: "tinyint", nullable: false),
                     Note = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     CreateDate = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -352,8 +352,8 @@ namespace WibuHub.DataLayer.MigrationsIdentity
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Rating_Story_ComicId",
-                        column: x => x.ComicId,
+                        name: "FK_Rating_Story_StoryId",
+                        column: x => x.StoryId,
                         principalTable: "Story",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -365,7 +365,7 @@ namespace WibuHub.DataLayer.MigrationsIdentity
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ComicId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ChapterId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Content = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
                     ParentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
@@ -398,8 +398,8 @@ namespace WibuHub.DataLayer.MigrationsIdentity
                         principalTable: "Comment",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Comment_Story_ComicId",
-                        column: x => x.ComicId,
+                        name: "FK_Comment_Story_StoryId",
+                        column: x => x.StoryId,
                         principalTable: "Story",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -412,7 +412,7 @@ namespace WibuHub.DataLayer.MigrationsIdentity
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     DeviceId = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
-                    ComicId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ChapterId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ReadTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     StoryUserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
@@ -432,8 +432,8 @@ namespace WibuHub.DataLayer.MigrationsIdentity
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_History_Story_ComicId",
-                        column: x => x.ComicId,
+                        name: "FK_History_Story_StoryId",
+                        column: x => x.StoryId,
                         principalTable: "Story",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -479,9 +479,9 @@ namespace WibuHub.DataLayer.MigrationsIdentity
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Chapter_ComicId",
+                name: "IX_Chapter_StoryId",
                 table: "Chapter",
-                column: "ComicId");
+                column: "StoryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ComicCategoryStory_StoriesId",
@@ -499,9 +499,9 @@ namespace WibuHub.DataLayer.MigrationsIdentity
                 column: "ChapterId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Comment_ComicId",
+                name: "IX_Comment_StoryId",
                 table: "Comment",
-                column: "ComicId");
+                column: "StoryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Comment_ParentId",
@@ -514,9 +514,9 @@ namespace WibuHub.DataLayer.MigrationsIdentity
                 column: "StoryUserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Follow_ComicId",
+                name: "IX_Follow_StoryId",
                 table: "Follow",
-                column: "ComicId");
+                column: "StoryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Follow_StoryUserId",
@@ -529,9 +529,9 @@ namespace WibuHub.DataLayer.MigrationsIdentity
                 column: "ChapterId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_History_ComicId",
+                name: "IX_History_StoryId",
                 table: "History",
-                column: "ComicId");
+                column: "StoryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_History_StoryUserId",
@@ -544,9 +544,9 @@ namespace WibuHub.DataLayer.MigrationsIdentity
                 column: "StoryUserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Rating_ComicId",
+                name: "IX_Rating_StoryId",
                 table: "Rating",
-                column: "ComicId");
+                column: "StoryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Rating_StoryUserId",

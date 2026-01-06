@@ -52,7 +52,7 @@ namespace WibuHub.Controllers
         {
             ViewData["ChapterId"] = new SelectList(_context.Chapters, "Id", "Name");
             ViewData["ParentId"] = new SelectList(_context.Comments, "Id", "Content");
-            ViewData["ComicId"] = new SelectList(_context.Stories, "Id", "Title");
+            ViewData["ComicId"] = new SelectList(_context.Chapteres, "Id", "Title");
             return View();
         }
 
@@ -72,7 +72,7 @@ namespace WibuHub.Controllers
             }
             ViewData["ChapterId"] = new SelectList(_context.Chapters, "Id", "Name", comment.ChapterId);
             ViewData["ParentId"] = new SelectList(_context.Comments, "Id", "Content", comment.ParentId);
-            ViewData["ComicId"] = new SelectList(_context.Stories, "Id", "Title", comment.ComicId);
+            ViewData["ComicId"] = new SelectList(_context.Chapteres, "Id", "Title", comment.ComicId);
             return View(comment);
         }
 
@@ -91,7 +91,7 @@ namespace WibuHub.Controllers
             }
             ViewData["ChapterId"] = new SelectList(_context.Chapters, "Id", "Name", comment.ChapterId);
             ViewData["ParentId"] = new SelectList(_context.Comments, "Id", "Content", comment.ParentId);
-            ViewData["ComicId"] = new SelectList(_context.Stories, "Id", "Title", comment.ComicId);
+            ViewData["ComicId"] = new SelectList(_context.Chapteres, "Id", "Title", comment.ComicId);
             return View(comment);
         }
 
@@ -129,7 +129,7 @@ namespace WibuHub.Controllers
             }
             ViewData["ChapterId"] = new SelectList(_context.Chapters, "Id", "Name", comment.ChapterId);
             ViewData["ParentId"] = new SelectList(_context.Comments, "Id", "Content", comment.ParentId);
-            ViewData["ComicId"] = new SelectList(_context.Stories, "Id", "Title", comment.ComicId);
+            ViewData["ComicId"] = new SelectList(_context.Chapteres, "Id", "Title", comment.ComicId);
             return View(comment);
         }
 
