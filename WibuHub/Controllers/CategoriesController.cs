@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WibuHub.ApplicationCore.Entities;
 using WibuHub.DataLayer;
@@ -7,6 +8,7 @@ using WibuHub.MVC.ViewModels;
 
 namespace WibuHub.MVC.Controllers
 {
+    [Authorize]
     public class CategoriesController : Controller
     {
         private readonly StoryDbContext _context;

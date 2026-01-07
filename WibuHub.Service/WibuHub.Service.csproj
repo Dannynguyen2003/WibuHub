@@ -1,13 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\WibuHub\WibuHub.MVC.csproj" />
+	  <ProjectReference Include="..\WibuHub\WibuHub.MVC.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Class\" />
   </ItemGroup>
 
 </Project>
