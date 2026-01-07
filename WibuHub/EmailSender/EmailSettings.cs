@@ -1,4 +1,4 @@
-﻿namespace WibuHub.Service.Models
+﻿namespace WibuHub.MVC.EmailSender
 {
     public class EmailSettings
     {

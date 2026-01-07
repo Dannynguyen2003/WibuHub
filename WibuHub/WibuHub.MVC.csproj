@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\WibuHub.DataLayer\WibuHub.DataLayer.csproj" />
+	 
   </ItemGroup>
 
   <ItemGroup>

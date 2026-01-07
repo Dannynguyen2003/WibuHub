@@ -7,11 +7,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-	  <ProjectReference Include="..\WibuHub\WibuHub.MVC.csproj" />
+    <Folder Include="Class\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Class\" />
+    <PackageReference Include="MailKit" Version="4.14.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.22" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.22" />
+    <PackageReference Include="MimeKit" Version="4.14.0" />
   </ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\WibuHub\WibuHub.MVC.csproj" />
+	</ItemGroup>
 
 </Project>

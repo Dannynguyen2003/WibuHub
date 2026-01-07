@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using WibuHub.ApplicationCore.Entities;
 using WibuHub.DataLayer;
-using WibuHub.Service.Models;
+using WibuHub.MVC.EmailSender;
 
 var builder = WebApplication.CreateBuilder(args);
 
