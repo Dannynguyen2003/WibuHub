@@ -2,9 +2,10 @@
 using Microsoft.EntityFrameworkCore;
 using WibuHub.ApplicationCore.Entities;
 using WibuHub.DataLayer;
+using WibuHub.MVC.ViewComponents;
 using WibuHub.MVC.ViewModels;
 
-namespace WibuHub.Controllers
+namespace WibuHub.MVC.Controllers
 {
     public class CategoriesController : Controller
     {
@@ -51,7 +52,7 @@ namespace WibuHub.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         //public async Task<IActionResult> Create([Bind("Id,Name,Description")] CategoryVM categoryVM)
-            public async Task<IActionResult> Create(CategoryVM categoryVM)
+        public async Task<IActionResult> Create(CategoryVM categoryVM)
         {
             if (ModelState.IsValid)
             {
@@ -60,7 +61,7 @@ namespace WibuHub.Controllers
                 var countCategory = await _context.Categories.CountAsync();
                 var categories = _context.Categories.Where(c => c.Name == categoryVM.Name).ToList();
 
-                if(categories.Count > 0) return View(categoryVM);
+                if (categories.Count > 0) return View(categoryVM);
 
                 var category = new Category
                 {
@@ -112,34 +113,49 @@ namespace WibuHub.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Name,Description")] CategoryVM categoryVM)
+        public async Task<IActionResult> Edit(Guid id, CategoryVM categoryVM)
         {
             if (id != categoryVM.Id)
             {
-                return NotFound();
+                //return NotFound();
+                return BadRequest();
             }
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(categoryVM);
+                    //var category = await _context.Categories.FindAsync(id);
+                    var category = await _context.Categories
+                        //.Where(c => c.Id == id)
+                        .Where(c => c.Id.Equals(id))
+                        .SingleOrDefaultAsync();
+
+                    if (category == null)
+                    {
+                        return BadRequest();
+                    }
+                    category.Name = categoryVM.Name.Trim();
+                    category.Description = categoryVM.Description?.Trim();
+                    //_context.Update(category);
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Create));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
                     if (!CategoryExists(categoryVM.Id))
                     {
-                        return NotFound();
+                        //return NotFound();
+                        return BadRequest();
                     }
                     else
                     {
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Create));
             }
-            return View(categoryVM);
+            //return View("Create", category);
+            return View(nameof(Create), categoryVM);
         }
 
         // GET: Categories/Delete/5
@@ -165,14 +181,41 @@ namespace WibuHub.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var categoryVM = await _context.Categories.FindAsync(id);
-            if (categoryVM != null)
+            bool isOK = false;
+            string message = string.Empty;
+            try
             {
-                _context.Categories.Remove(categoryVM);
+                var category = await _context.Categories.FindAsync(id);
+                if (category != null)
+                {
+                    var listCategory = await _context.Categories
+                        .Where(c => c.Position > category.Position)
+                        .ToListAsync();
+                    foreach (var cat in listCategory)
+                    {
+                        cat.Position--;
+                        //cat.Position = cat.Position - 1;
+                    }
+                    _context.Categories.Remove(category);
+                }
+
+                await _context.SaveChangesAsync();
+                isOK = true;
+                message = "Xóa thành công!";
+            }
+            catch (Exception)
+            {
+                message = "Lỗi thực thi!";
             }
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            //return RedirectToAction(nameof(Create));
+            return Json(new { isOK = isOK, message = message });
+        }
+
+        public IActionResult Reload()
+        {
+            //return ViewComponent("CategoryList");
+            return ViewComponent(nameof(CategoryList));
         }
 
         private bool CategoryExists(Guid id)

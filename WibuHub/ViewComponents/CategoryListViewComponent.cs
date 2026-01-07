@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using WibuHub.DataLayer;
 using WibuHub.MVC.ViewModels;
 
-namespace WibuHub.ViewComponents
+namespace WibuHub.MVC.ViewComponents
 {
     public class CategoryList : ViewComponent
     {

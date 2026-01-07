@@ -48,7 +48,7 @@ namespace WibuHub.Controllers
         // GET: Ratings/Create
         public IActionResult Create()
         {
-            ViewData["ComicId"] = new SelectList(_context.Chapteres, "Id", "Title");
+            ViewData["StoryId"] = new SelectList(_context.Chapteres, "Id", "Title");
             return View();
         }
 
@@ -57,7 +57,7 @@ namespace WibuHub.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,UserId,ComicId,Score,Note,CreateDate")] Rating rating)
+        public async Task<IActionResult> Create([Bind("Id,UserId,StoryId,Score,Note,CreateDate")] Rating rating)
         {
             if (ModelState.IsValid)
             {
@@ -66,7 +66,7 @@ namespace WibuHub.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ComicId"] = new SelectList(_context.Chapteres, "Id", "Title", rating.ComicId);
+            ViewData["StoryId"] = new SelectList(_context.Chapteres, "Id", "Title", rating.StoryId);
             return View(rating);
         }
 
@@ -83,7 +83,7 @@ namespace WibuHub.Controllers
             {
                 return NotFound();
             }
-            ViewData["ComicId"] = new SelectList(_context.Chapteres, "Id", "Title", rating.ComicId);
+            ViewData["StoryId"] = new SelectList(_context.Chapteres, "Id", "Title", rating.StoryId);
             return View(rating);
         }
 
@@ -92,7 +92,7 @@ namespace WibuHub.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Id,UserId,ComicId,Score,Note,CreateDate")] Rating rating)
+        public async Task<IActionResult> Edit(Guid id, [Bind("Id,UserId,StoryId,Score,Note,CreateDate")] Rating rating)
         {
             if (id != rating.Id)
             {
@@ -119,7 +119,7 @@ namespace WibuHub.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ComicId"] = new SelectList(_context.Chapteres, "Id", "Title", rating.ComicId);
+            ViewData["StoryId"] = new SelectList(_context.Chapteres, "Id", "Title", rating.StoryId);
             return View(rating);
         }
 

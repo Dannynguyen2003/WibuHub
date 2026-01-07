@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using WibuHub.ApplicationCore.Entities;
 using WibuHub.DataLayer;
 
-namespace WibuHub.Controllers
+namespace WibuHub.MVC.Controllers
 {
     public class CommentsController : Controller
     {
@@ -52,7 +52,7 @@ namespace WibuHub.Controllers
         {
             ViewData["ChapterId"] = new SelectList(_context.Chapters, "Id", "Name");
             ViewData["ParentId"] = new SelectList(_context.Comments, "Id", "Content");
-            ViewData["ComicId"] = new SelectList(_context.Chapteres, "Id", "Title");
+            ViewData["StoryId"] = new SelectList(_context.Chapteres, "Id", "Title");
             return View();
         }
 
@@ -61,7 +61,7 @@ namespace WibuHub.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,UserId,ComicId,ChapterId,Content,ParentId,CreateDate,LikeCount")] Comment comment)
+        public async Task<IActionResult> Create([Bind("Id,UserId,StorySId,ChapterId,Content,ParentId,CreateDate,LikeCount")] Comment comment)
         {
             if (ModelState.IsValid)
             {
@@ -72,7 +72,7 @@ namespace WibuHub.Controllers
             }
             ViewData["ChapterId"] = new SelectList(_context.Chapters, "Id", "Name", comment.ChapterId);
             ViewData["ParentId"] = new SelectList(_context.Comments, "Id", "Content", comment.ParentId);
-            ViewData["ComicId"] = new SelectList(_context.Chapteres, "Id", "Title", comment.ComicId);
+            ViewData["StoryId"] = new SelectList(_context.Chapteres, "Id", "Title", comment.StoryId);
             return View(comment);
         }
 
@@ -91,7 +91,7 @@ namespace WibuHub.Controllers
             }
             ViewData["ChapterId"] = new SelectList(_context.Chapters, "Id", "Name", comment.ChapterId);
             ViewData["ParentId"] = new SelectList(_context.Comments, "Id", "Content", comment.ParentId);
-            ViewData["ComicId"] = new SelectList(_context.Chapteres, "Id", "Title", comment.ComicId);
+            ViewData["StoryId"] = new SelectList(_context.Chapteres, "Id", "Title", comment.StoryId);
             return View(comment);
         }
 
@@ -100,7 +100,7 @@ namespace WibuHub.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Id,UserId,ComicId,ChapterId,Content,ParentId,CreateDate,LikeCount")] Comment comment)
+        public async Task<IActionResult> Edit(Guid id, [Bind("Id,UserId,StoryId,ChapterId,Content,ParentId,CreateDate,LikeCount")] Comment comment)
         {
             if (id != comment.Id)
             {
@@ -129,7 +129,7 @@ namespace WibuHub.Controllers
             }
             ViewData["ChapterId"] = new SelectList(_context.Chapters, "Id", "Name", comment.ChapterId);
             ViewData["ParentId"] = new SelectList(_context.Comments, "Id", "Content", comment.ParentId);
-            ViewData["ComicId"] = new SelectList(_context.Chapteres, "Id", "Title", comment.ComicId);
+            ViewData["StoryId"] = new SelectList(_context.Chapteres, "Id", "Title", comment.StoryId);
             return View(comment);
         }
 

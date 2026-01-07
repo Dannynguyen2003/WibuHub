@@ -50,7 +50,7 @@ namespace WibuHub.MVC.Controllers
                 else
                 {
                     // Video chưa có trong giỏ hàng, thêm mới
-                    var chapter = await _context.Chapteres.FindAsync(idChapter);
+                    var chapter = await _context.Chapters.FindAsync(idChapter);
                     if (chapter != null)
                     {
                         cart.Items.Add(new CartItem
@@ -59,6 +59,7 @@ namespace WibuHub.MVC.Controllers
                             CartId = cart.Id,
                             ChapterId = idChapter,
                             ChapterName = chapter.Name,
+                            StoryTitle = chapter.Story?.Title ?? "",
                             Quantity = quantity,
                             Price = chapter.Price // Giá tiền có thể được lấy từ cơ sở dữ liệu hoặc dịch vụ khác
                         });
@@ -78,7 +79,7 @@ namespace WibuHub.MVC.Controllers
                 };
 
                 //cart.Items = new List<CartItem>();
-                var chapter = await _context.Chapteres.FindAsync(idChapter);
+                var chapter = await _context.Chapters.FindAsync(idChapter);
                 if (chapter != null)
                 {
                     cart.Items.Add(new CartItem

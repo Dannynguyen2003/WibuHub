@@ -11,9 +11,9 @@ namespace WibuHub.ApplicationCore.Entities
 
         // ComicId: Guid
         [Required]
-        public Guid ComicId { get; set; }
+        public Guid StoryId { get; set; }
 
-        [ForeignKey("ComicId")]
+        [ForeignKey("StoryId")]
         public virtual Story Story { get; set; } = null!;
 
         // ChapterId: Guid? (Có thể null nếu lỗi chung của truyện, không phải lỗi chap cụ thể)

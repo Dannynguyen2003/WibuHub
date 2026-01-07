@@ -1,4 +1,4 @@
-namespace WibuHub.Models
+namespace WibuHub.MVC.Models
 {
     public class ErrorViewModel
     {

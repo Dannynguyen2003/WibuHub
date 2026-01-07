@@ -1,8 +1,8 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using WibuHub.Models;
+using System.Diagnostics;
+using WibuHub.MVC.Models;
 
-namespace WibuHub.Controllers
+namespace WibuHub.MVC.Controllers
 {
     public class HomeController : Controller
     {

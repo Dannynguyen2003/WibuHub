@@ -50,7 +50,7 @@ namespace WibuHub.Controllers
         public IActionResult Create()
         {
             ViewData["ChapterId"] = new SelectList(_context.Chapters, "Id", "Name");
-            ViewData["ComicId"] = new SelectList(_context.Chapteres, "Id", "Title");
+            ViewData["StoryId"] = new SelectList(_context.Chapteres, "Id", "Title");
             return View();
         }
 
@@ -59,7 +59,7 @@ namespace WibuHub.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,ComicId,ChapterId,Content,Status,CreateDate")] Report report)
+        public async Task<IActionResult> Create([Bind("Id,StoryId,ChapterId,Content,Status,CreateDate")] Report report)
         {
             if (ModelState.IsValid)
             {
@@ -68,7 +68,7 @@ namespace WibuHub.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["ChapterId"] = new SelectList(_context.Chapters, "Id", "Name", report.ChapterId);
-            ViewData["ComicId"] = new SelectList(_context.Chapteres, "Id", "Title", report.ComicId);
+            ViewData["StoryId"] = new SelectList(_context.Chapteres, "Id", "Title", report.StoryId);
             return View(report);
         }
 
@@ -86,7 +86,7 @@ namespace WibuHub.Controllers
                 return NotFound();
             }
             ViewData["ChapterId"] = new SelectList(_context.Chapters, "Id", "Name", report.ChapterId);
-            ViewData["ComicId"] = new SelectList(_context.Chapteres, "Id", "Title", report.ComicId);
+            ViewData["StoryId"] = new SelectList(_context.Chapteres, "Id", "Title", report.StoryId);
             return View(report);
         }
 
@@ -95,7 +95,7 @@ namespace WibuHub.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,ComicId,ChapterId,Content,Status,CreateDate")] Report report)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,StoryId,ChapterId,Content,Status,CreateDate")] Report report)
         {
             if (id != report.Id)
             {
@@ -123,7 +123,7 @@ namespace WibuHub.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["ChapterId"] = new SelectList(_context.Chapters, "Id", "Name", report.ChapterId);
-            ViewData["ComicId"] = new SelectList(_context.Chapteres, "Id", "Title", report.ComicId);
+            ViewData["StoryId"] = new SelectList(_context.Chapteres, "Id", "Title", report.StoryId);
             return View(report);
         }
 

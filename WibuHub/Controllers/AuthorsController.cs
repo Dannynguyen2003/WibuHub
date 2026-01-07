@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using WibuHub.ApplicationCore.Entities;
 using WibuHub.DataLayer;
 
-namespace WibuHub.Controllers
+namespace WibuHub.MVC.Controllers
 {
     public class AuthorsController : Controller
     {
