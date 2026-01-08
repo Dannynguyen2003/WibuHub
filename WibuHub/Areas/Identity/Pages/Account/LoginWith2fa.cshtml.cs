@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using WibuHub.ApplicationCore.Entities;
+using WibuHub.ApplicationCore.Entities.Identity;
 
 namespace WibuHub.MVC.Areas.Identity.Pages.Account
 {

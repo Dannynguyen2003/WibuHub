@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using WibuHub.ApplicationCore.Entities;
+using WibuHub.ApplicationCore.Entities.Identity;
 
 namespace WibuHub.MVC.Areas.Identity.Pages.Account
 {
@@ -19,12 +20,14 @@ namespace WibuHub.MVC.Areas.Identity.Pages.Account
     public class RegisterConfirmationModel : PageModel
     {
         private readonly UserManager<StoryUser> _userManager;
-        private readonly IEmailSender _sender;
+        //private readonly IEmailSender _sender;
 
-        public RegisterConfirmationModel(UserManager<StoryUser> userManager, IEmailSender sender)
+        //public RegisterConfirmationModel(UserManager<StoryUser> userManager, IEmailSender sender)
+        public RegisterConfirmationModel(UserManager<StoryUser> userManager)
+
         {
             _userManager = userManager;
-            _sender = sender;
+            //_sender = sender;
         }
 
         /// <summary>
@@ -60,7 +63,7 @@ namespace WibuHub.MVC.Areas.Identity.Pages.Account
             }
 
             Email = email;
-            // Once you add a real email sender, you should remove this code that lets you confirm the account
+            //            // Once you add a real email sender, you should remove this code that lets you confirm the account
             DisplayConfirmAccountLink = true;
             if (DisplayConfirmAccountLink)
             {

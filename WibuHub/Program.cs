@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
-using WibuHub.ApplicationCore.Entities;
+using WibuHub.ApplicationCore.Entities.Identity;
 using WibuHub.DataLayer;
-using WibuHub.MVC.EmailSender;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,23 +19,34 @@ builder.Services.AddDbContext<StoryIdentityDbContext>(options =>
 builder.Services.AddIdentity<StoryUser, StoryRole>(options =>
 {
     options.SignIn.RequireConfirmedAccount = true;
+    // Password settings 
+    options.Password.RequireDigit = true;
     options.Password.RequiredLength = 8;
+    options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireUppercase = true;
     options.Password.RequireLowercase = true;
-    options.Password.RequireDigit = true;
+    // Lockout settings 
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.AllowedForNewUsers = true;
+    // User settings 
+    options.User.RequireUniqueEmail = true;
+    // Sign-in settings 
+    options.SignIn.RequireConfirmedEmail = false;
+    options.SignIn.RequireConfirmedPhoneNumber = false;
 })
-.AddEntityFrameworkStores<StoryIdentityDbContext>()
-.AddDefaultTokenProviders();
+    .AddEntityFrameworkStores<StoryIdentityDbContext>()
+    .AddDefaultTokenProviders();
 
-// Cookie
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Identity/Account/Login";
     options.AccessDeniedPath = "/Identity/Account/AccessDenied";
 });
 
-// Session
+// 1. Memory Cache (bắt buộc cho Session)
 builder.Services.AddDistributedMemoryCache();
+// 2. Add Session
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(60);
@@ -45,21 +54,30 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
-// 🔥 EMAIL – QUAN TRỌNG
-builder.Services.Configure<EmailSettings>(
-    builder.Configuration.GetSection("EmailSettings"));
-
-builder.Services.AddTransient<IEmailSender, EmailSender>();
-
+builder.Services.AddAuthentication();
+builder.Services.AddAuthorization();
 builder.Services.AddRazorPages();
+
+builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
+// Configure the HTTP request pipeline.
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Home/Error");
+    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseHsts();
+}
+
+// 3. Use Session (phải trước MapControllers)
 app.UseSession();
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -68,4 +86,5 @@ app.MapControllerRoute(
     pattern: "{controller=Categories}/{action=Create}/{id?}");
 
 app.MapRazorPages();
+
 app.Run();

@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using WibuHub.ApplicationCore.Entities;
+using WibuHub.ApplicationCore.Entities.Identity;
 
 namespace WibuHub.MVC.Areas.Identity.Pages.Account.Manage
 {

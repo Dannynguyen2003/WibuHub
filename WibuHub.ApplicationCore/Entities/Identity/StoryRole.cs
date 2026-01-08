@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace WibuHub.ApplicationCore.Entities
+namespace WibuHub.ApplicationCore.Entities.Identity
 {
     
     public class StoryRole : IdentityRole

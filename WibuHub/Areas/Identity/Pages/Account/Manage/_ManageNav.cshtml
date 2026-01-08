@@ -1,4 +1,4 @@
-﻿@using WibuHub.ApplicationCore.Entities
+﻿@using WibuHub.ApplicationCore.Entities.Identity
 @inject SignInManager<StoryUser> SignInManager
 @{
     var hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace WibuHub.ApplicationCore.Entities
+namespace WibuHub.ApplicationCore.Entities.Identity
 {
     // Kế thừa IdentityUser (dùng Guid cho đồng bộ với code cũ của bạn)
     public class StoryUser : IdentityUser
