@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
 VisualStudioVersion = 18.1.11312.151
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WibuHub.MVC", "WibuHub\WibuHub.MVC.csproj", "{01B94497-4851-424F-AA9E-71B51637CFF0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WibuHub.MVC.Admin", "WibuHub\WibuHub.MVC.Admin.csproj", "{01B94497-4851-424F-AA9E-71B51637CFF0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WibuHub.DataLayer", "WibuHub.DataLayer\WibuHub.DataLayer.csproj", "{00B1BC8E-1371-4137-A3EB-B3343BDD9046}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WibuHub.Common", "WibuHub.Common\WibuHub.Common.csproj", "{97ACC45E-5929-410F-92A5-FD484396A9AD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WibuHub.Service", "WibuHub.Service\WibuHub.Service.csproj", "{2DBB21E1-B580-45A3-A038-1FC72A182AC4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WibuHub.MVC.Customer", "WibuHub.MVC.Customer\WibuHub.MVC.Customer.csproj", "{C3F1D0BB-B83D-4AAE-AD71-3F3EA9C2FF8D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{2DBB21E1-B580-45A3-A038-1FC72A182AC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2DBB21E1-B580-45A3-A038-1FC72A182AC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2DBB21E1-B580-45A3-A038-1FC72A182AC4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C3F1D0BB-B83D-4AAE-AD71-3F3EA9C2FF8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C3F1D0BB-B83D-4AAE-AD71-3F3EA9C2FF8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C3F1D0BB-B83D-4AAE-AD71-3F3EA9C2FF8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C3F1D0BB-B83D-4AAE-AD71-3F3EA9C2FF8D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

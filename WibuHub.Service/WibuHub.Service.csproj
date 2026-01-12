@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\WibuHub\WibuHub.MVC.csproj" />
+    <ProjectReference Include="..\WibuHub\WibuHub.MVC.Admin.csproj" />
   </ItemGroup>
 
 </Project>
