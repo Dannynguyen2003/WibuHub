@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace WibuHub.ApplicationCore.Entities
 {
+    [Index(nameof(StoryId), nameof(Number))]
+    [Index(nameof(Slug), IsUnique = true)]
     public class Chapter
     {
         [Key]
@@ -46,6 +45,7 @@ namespace WibuHub.ApplicationCore.Entities
         // ServerId: int (Lưu server ảnh: 1=Google, 2=Imgur...)
         public int ServerId { get; set; } = 1;
 
+
         // CreateDate: DateTime
         public DateTime CreateDate { get; set; } = DateTime.UtcNow;
 
@@ -54,5 +54,9 @@ namespace WibuHub.ApplicationCore.Entities
         [Column(TypeName = "money")]
         public decimal Price { get; set; } = 0;
         public decimal Discount { get; set; }
+
+        //public Guid? ImageId { get; set; }
+        //public virtual Image? Image { get; set; }
+        
     }
 }

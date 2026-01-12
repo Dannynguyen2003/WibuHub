@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WibuHub.ApplicationCore.Entities;
 using WibuHub.DataLayer;
+using WibuHub.MVC.ViewModels;
 
 namespace WibuHub.Controllers
 {
@@ -57,18 +58,33 @@ namespace WibuHub.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,AlternativeName,Description,Thumbnail,Status,ViewCount,FollowCount,RatingScore,DateCreated,UpdateDate,AuthorId,CategoryId")] Story story)
+        public async Task<IActionResult> Create( StoryVM storyVM)
         {
             if (ModelState.IsValid)
             {
-                story.Id = Guid.NewGuid();
-                _context.Add(story);
+                var story = new Story
+                {
+                    Title = storyVM.Title,
+                    AlternativeName = storyVM.AlternativeName,
+                    Description = storyVM.Description,
+                    Thumbnail = storyVM.Thumbnail,
+                    Status = storyVM.Status,
+                    ViewCount = storyVM.ViewCount,
+                    FollowCount = storyVM.FollowCount,
+                    RatingScore = storyVM.RatingScore,
+                    DateCreated = DateTime.UtcNow,
+                    UpdateDate = DateTime.UtcNow,
+                    AuthorId = storyVM.AuthorId,
+                    CategoryId = storyVM.CategoryId
+                };
+                storyVM.Id = Guid.NewGuid();
+                _context.Add(storyVM);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["AuthorId"] = new SelectList(_context.Authors, "Id", "Name", story.AuthorId);
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", story.CategoryId);
-            return View(story);
+            ViewData["AuthorId"] = new SelectList(_context.Authors, "Id", "Name", storyVM.AuthorId);
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", storyVM.CategoryId);
+            return View(storyVM);
         }
 
         // GET: Stories/Edit/5
@@ -94,9 +110,9 @@ namespace WibuHub.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Title,AlternativeName,Description,Thumbnail,Status,ViewCount,FollowCount,RatingScore,DateCreated,UpdateDate,AuthorId,CategoryId")] Story story)
+        public async Task<IActionResult> Edit(Guid id, StoryVM storyVM)
         {
-            if (id != story.Id)
+            if (id != storyVM.Id)
             {
                 return NotFound();
             }
@@ -105,12 +121,12 @@ namespace WibuHub.Controllers
             {
                 try
                 {
-                    _context.Update(story);
+                    _context.Update(storyVM);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!StoryExists(story.Id))
+                    if (!StoryExists(storyVM.Id))
                     {
                         return NotFound();
                     }
@@ -121,9 +137,9 @@ namespace WibuHub.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["AuthorId"] = new SelectList(_context.Authors, "Id", "Name", story.AuthorId);
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", story.CategoryId);
-            return View(story);
+            ViewData["AuthorId"] = new SelectList(_context.Authors, "Id", "Name", storyVM.AuthorId);
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", storyVM.CategoryId);
+            return View(storyVM);
         }
 
         // GET: Stories/Delete/5

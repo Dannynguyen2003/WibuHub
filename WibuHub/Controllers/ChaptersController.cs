@@ -1,13 +1,17 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using FileTypeChecker;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using WibuHub.ApplicationCore.Entities;
 using WibuHub.DataLayer;
+using WibuHub.MVC.ViewModels;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace WibuHub.Controllers
 {
@@ -59,17 +63,93 @@ namespace WibuHub.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,StoryId,Name,Number,Slug,ViewCount,Content,ServerId,CreateDate,UnlockPrice")] Chapter chapter)
+        public async Task<IActionResult> Create( ChapterVM chapterVM)
         {
             if (ModelState.IsValid)
             {
-                chapter.Id = Guid.NewGuid();
-                _context.Add(chapter);
+                var chapter = new Chapter
+                {
+                    StoryId = chapterVM.StoryId,
+                    Name = chapterVM.Name,
+                    Number = chapterVM.Number,
+                    Slug = chapterVM.Slug,
+                    ViewCount = chapterVM.ViewCount,
+                    Content = chapterVM.Content,
+                    ServerId = chapterVM.ServerId,
+                    CreateDate = chapterVM.CreateDate,
+                    Price = chapterVM.Price,
+                    Discount = chapterVM.Discount,
+
+                };
+                //chapter.Id = Guid.NewGuid();
+                //_context.Add(chapter);
+                await _context.Chapters.AddAsync(chapter);
+
+                //=== Xử lý file ===//
+                //var file = chapterVM.Image;
+                //if (file == null || file.Length == 0)
+                //{
+                //    ViewBag.Message = "Error: No file selected.";
+                //    return View(chapterVM); // Return to the upload page with an error
+                //}
+
+                //// 1. Get the path to the "uploads" folder in wwwroot
+                ////    _environment.WebRootPath gives you the path to the wwwroot folder
+                //string uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads");
+
+                //// 2. Create the folder if it doesn't exist
+                //if (!Directory.Exists(uploadsFolder))
+                //{
+                //    Directory.CreateDirectory(uploadsFolder);
+                //}
+
+                //// 3. Create a unique file name to prevent overwriting
+                ////    (SECURITY: Never use the user's file name directly)
+                //string extension = Path.GetExtension(file.FileName);
+
+                ////string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(file.FileName);
+                //string uniqueFileName = Guid.NewGuid().ToString() + extension;
+                //string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                //await using var stream = file.OpenReadStream();
+                //if (!FileTypeValidator.IsImage(stream))
+                //{
+                //    ModelState.AddModelError("File", "The uploaded file is not a valid image.");
+                //    return BadRequest(ModelState);
+                //}
+                ////if (!(FileTypeValidator.IsTypePng(stream) || FileTypeValidator.IsTypeJpg(stream)))
+                ////{
+                ////     }
+
+                //// 4. Save the file to the server
+                //try
+                //{
+                //    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                //    {
+                //        await file.CopyToAsync(fileStream);
+                //    }
+
+                //    ViewBag.Message = "File uploaded successfully!";
+                //    // You can store 'uniqueFileName' or '/uploads/' + uniqueFileName in your database
+
+                //    var newImage = new Image
+                //    {
+                //        Name = file.Name,
+                //        FileName = uniqueFileName,
+                //        Extension = extension
+                //    };
+                //    await _context.Images.AddAsync(newImage);
+                //    chapter.ImageId = newImage.Id;
+                //}
+                //catch (Exception ex)
+                //{
+                //    ViewBag.Message = "Error: " + ex.Message;
+                //}
+
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["StoryId"] = new SelectList(_context.Chapteres, "Id", "Title", chapter.StoryId);
-            return View(chapter);
+            ViewData["StoryId"] = new SelectList(_context.Chapteres, "Id", "Title", chapterVM.StoryId);
+            return View(chapterVM);
         }
 
         // GET: Chapters/Edit/5
@@ -94,9 +174,9 @@ namespace WibuHub.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Id,StoryId,Name,Number,Slug,ViewCount,Content,ServerId,CreateDate,UnlockPrice")] Chapter chapter)
+        public async Task<IActionResult> Edit(Guid id,  ChapterVM chapterVM)
         {
-            if (id != chapter.Id)
+            if (id != chapterVM.Id)
             {
                 return NotFound();
             }
@@ -105,12 +185,12 @@ namespace WibuHub.Controllers
             {
                 try
                 {
-                    _context.Update(chapter);
+                    _context.Update(chapterVM);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ChapterExists(chapter.Id))
+                    if (!ChapterExists(chapterVM.Id))
                     {
                         return NotFound();
                     }
@@ -121,8 +201,8 @@ namespace WibuHub.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["StoryId"] = new SelectList(_context.Chapteres, "Id", "Title", chapter.StoryId);
-            return View(chapter);
+            ViewData["StoryId"] = new SelectList(_context.Chapteres, "Id", "Title", chapterVM.StoryId);
+            return View(chapterVM);
         }
 
         // GET: Chapters/Delete/5

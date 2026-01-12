@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using WibuHub.ApplicationCore.Entities.Identity;
 using WibuHub.DataLayer;
 using WibuHub.MVC.ExtensionsMethod;
 using WibuHub.MVC.ViewModels.ShoppingCart;
@@ -12,6 +14,8 @@ namespace WibuHub.MVC.Controllers
         private readonly StoryDbContext _context;
         private readonly string CartSessionKey = "CartSession";
         private readonly IHttpContextAccessor _httpContext;
+        private readonly UserManager<StoryUser> _userManager;
+        private readonly SignInManager<StoryUser> _signInManager;
 
         public ShoppingCartController(StoryDbContext context, IHttpContextAccessor httpContext)
         {
@@ -94,6 +98,7 @@ namespace WibuHub.MVC.Controllers
             }
             HttpContext.Session.SetObject(CartSessionKey, cart);
 
+            var quantityReturn = cart.Items.Sum(it => it.Quantity);
             return Content(cart.Items.Count.ToString());
         }
 
@@ -112,6 +117,54 @@ namespace WibuHub.MVC.Controllers
             return Content(cart.Items.Count.ToString());
         }
 
+        public async Task<IActionResult> MakeThePayment()
+        {
+            bool isOK = false;
+            string message = "Chưa thực thi";
+
+            var cart = HttpContext.Session.GetObject<Cart>(CartSessionKey);
+            if (cart != null)
+            {
+                var items = cart.Items.ToList();
+                if (items.Count > 0)
+                {
+                    var newOrder = new Order
+                    {
+                        UserId = cart.UserId,
+                        Phone = "",
+                        Email = "",
+                        Note = "",
+                        ShippingAddress = "",
+                        Amount = 0,
+                        Tax = 0,
+                        TotalAmount = 0,
+                    };
+                    await _context.Orders.AddAsync(newOrder);
+                    var amount = 0.0M;
+                    foreach (var item in items)
+                    {
+                        var position = 1;
+                        var subAmount = item.Quantity * item.UnitPrice;
+                        amount += subAmount;
+                        var newOderDetail = new OrderDetail
+                        {
+                            OrderId = newOrder.Id,
+                            VideoId = item.VideoId,
+                            Quantity = item.Quantity,
+                            UnitPrice = item.UnitPrice,
+                            Amount = subAmount,
+                            Discount = 0,
+                        };
+                        await _context.OrderDetails.AddAsync(newOderDetail);
+                    }
+                    newOrder.Amount = amount;
+                    newOrder.Tax = amount * (decimal)0.1;
+                    newOrder.TotalAmount = newOrder.Amount + newOrder.Tax;
+                }
+            }
+
+            return Json(new { isOK, message });
+        }
 
     }
 }
