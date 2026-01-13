@@ -47,8 +47,8 @@ namespace WibuHub.MVC.Admin.Controllers
             var profileDto = new
             {
                 user.Id,
-                user.Fullname,
-                user.AvatarUrl,
+                user.FullName,
+                user.Avatar,
                 user.Email,
                 Level = user.Level,     // Cấp độ tu tiên
                 CoinBalance = balance,  // Số xu hiện có (quan trọng với người mua)
@@ -66,8 +66,8 @@ namespace WibuHub.MVC.Admin.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
 
-            user.Fullname = request.Fullname;
-            user.AvatarUrl = request.AvatarUrl;
+            user.FullName = request.Fullname;
+            user.Avatar = request.Avatar;
 
             var result = await _userManager.UpdateAsync(user);
             if (!result.Succeeded) return BadRequest(result.Errors);

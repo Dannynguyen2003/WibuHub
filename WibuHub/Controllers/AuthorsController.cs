@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using WibuHub.ApplicationCore.Entities;
 using WibuHub.DataLayer;
+using WibuHub.MVC.ViewModels;
 
 namespace WibuHub.MVC.Controllers
 {
@@ -89,9 +90,9 @@ namespace WibuHub.MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Name")] Author author)
+        public async Task<IActionResult> Edit(Guid id, AuthorVM authorVM)
         {
-            if (id != author.Id)
+            if (id != authorVM.Id)
             {
                 return NotFound();
             }
@@ -100,12 +101,12 @@ namespace WibuHub.MVC.Controllers
             {
                 try
                 {
-                    _context.Update(author);
+                    _context.Update(authorVM);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!AuthorExists(author.Id))
+                    if (!AuthorExists(authorVM.Id))
                     {
                         return NotFound();
                     }
@@ -116,7 +117,7 @@ namespace WibuHub.MVC.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(author);
+            return View(authorVM);
         }
 
         // GET: Authors/Delete/5
