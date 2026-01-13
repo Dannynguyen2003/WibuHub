@@ -1,172 +1,80 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
 using WibuHub.ApplicationCore.Entities.Identity;
 
 namespace WibuHub.MVC.Admin.Controllers
 {
-    [Route("api/customer")]
+    [Route("api/admin/customers")]
     [ApiController]
-    [Authorize] // Bắt buộc đăng nhập mới gọi được
+    [Authorize(Roles = "Admin,SuperAdmin")]
     public class CustomerController : ControllerBase
     {
         private readonly UserManager<StoryUser> _userManager;
-        private readonly ICustomerService _customerService; // Xử lý nghiệp vụ đọc truyện/follow
-        private readonly IWalletService _walletService;     // Xử lý nghiệp vụ tiền nong
+        private readonly RoleManager<StoryRole> _roleManager; // <--- THÊM CÁI NÀY
 
         public CustomerController(
             UserManager<StoryUser> userManager,
-            ICustomerService customerService,
-            IWalletService walletService)
+            RoleManager<StoryRole> roleManager) // <--- Inject vào đây
         {
             _userManager = userManager;
-            _customerService = customerService;
-            _walletService = walletService;
+            _roleManager = roleManager;
         }
 
+        // ... Các hàm GetUsers, LockUser giữ nguyên ...
+
         // ==========================================================
-        // NHÓM 1: HỒ SƠ NGƯỜI ĐỌC (PROFILE)
+        // QUẢN LÝ ROLE CỦA USER (Assign Role)
         // ==========================================================
 
         /// <summary>
-        /// Lấy thông tin cá nhân & Số dư ví
+        /// Lấy tất cả các Role đang có trong hệ thống (để hiện dropdown chọn)
         /// </summary>
-        [HttpGet("profile")]
-        public async Task<IActionResult> GetProfile()
+        [HttpGet("roles")]
+        public async Task<IActionResult> GetAllRoles()
         {
-            var userId = GetCurrentUserId();
-
-            // Lấy thông tin cơ bản
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null) return NotFound("Tài khoản không tồn tại.");
-
-            // Lấy số dư ví hiện tại
-            var balance = await _walletService.GetBalanceAsync(userId);
-
-            var profileDto = new
-            {
-                user.Id,
-                user.FullName,
-                user.Avatar,
-                user.Email,
-                Level = user.Level,     // Cấp độ tu tiên
-                CoinBalance = balance,  // Số xu hiện có (quan trọng với người mua)
-                IsVip = user.IsVip      // Trạng thái VIP (nếu có)
-            };
-
-            return Ok(profileDto);
+            var roles = await _roleManager.Roles
+                .Select(r => new { r.Id, r.Name, r.Description }) // Giả sử StoryRole có Description
+                .ToListAsync();
+            return Ok(roles);
         }
 
         /// <summary>
-        /// Cập nhật hồ sơ (Avatar, Nickname)
+        /// Cấp quyền cho User (Ví dụ: Thăng chức làm Uploader)
         /// </summary>
-        [HttpPut("profile")]
-        public async Task<IActionResult> UpdateProfile([FromBody] UpdateCustomerProfileDto request)
+        [HttpPost("{userId}/roles")]
+        public async Task<IActionResult> AddRoleToUser(string userId, [FromBody] UpdateRoleDto request)
         {
-            var user = await _userManager.GetUserAsync(User);
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return NotFound("User không tồn tại");
 
-            user.FullName = request.Fullname;
-            user.Avatar = request.Avatar;
+            // 1. Kiểm tra Role có tồn tại trong hệ thống không
+            var roleExists = await _roleManager.RoleExistsAsync(request.RoleName);
+            if (!roleExists) return BadRequest($"Role '{request.RoleName}' không tồn tại.");
 
-            var result = await _userManager.UpdateAsync(user);
+            // 2. Thêm Role cho User
+            var result = await _userManager.AddToRoleAsync(user, request.RoleName);
+
             if (!result.Succeeded) return BadRequest(result.Errors);
 
-            return Ok("Cập nhật hồ sơ thành công.");
-        }
-
-        // ==========================================================
-        // NHÓM 2: TỦ TRUYỆN (LIBRARY / BOOKMARKS)
-        // ==========================================================
-
-        /// <summary>
-        /// Lấy danh sách truyện đang theo dõi
-        /// </summary>
-        [HttpGet("library")]
-        public async Task<IActionResult> GetLibrary([FromQuery] int page = 1, [FromQuery] string? status = null)
-        {
-            // status: Reading, Completed, OnHold...
-            var userId = GetCurrentUserId();
-            var library = await _customerService.GetFollowedSeriesAsync(userId, page, status);
-            return Ok(library);
+            return Ok($"Đã thêm quyền {request.RoleName} cho user {user.UserName}.");
         }
 
         /// <summary>
-        /// Theo dõi / Bỏ theo dõi truyện
+        /// Gỡ quyền của User (Ví dụ: Hạ chức)
         /// </summary>
-        [HttpPost("library/toggle")]
-        public async Task<IActionResult> ToggleFollow([FromBody] ToggleFollowDto request)
+        [HttpDelete("{userId}/roles")]
+        public async Task<IActionResult> RemoveRoleFromUser(string userId, [FromBody] UpdateRoleDto request)
         {
-            var userId = GetCurrentUserId();
-            // Hàm này tự động check: Nếu chưa follow thì thêm, nếu có rồi thì xóa (hoặc update status)
-            var result = await _customerService.ToggleFollowAsync(userId, request.StoryId);
-            return Ok(new { Message = result ? "Đã theo dõi" : "Đã bỏ theo dõi", IsFollowing = result });
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return NotFound();
+
+            var result = await _userManager.RemoveFromRoleAsync(user, request.RoleName);
+
+            if (!result.Succeeded) return BadRequest(result.Errors);
+
+            return Ok($"Đã gỡ quyền {request.RoleName} khỏi user.");
         }
-
-        // ==========================================================
-        // NHÓM 3: LỊCH SỬ ĐỌC (READING HISTORY)
-        // ==========================================================
-
-        /// <summary>
-        /// Lấy danh sách truyện vừa đọc gần đây
-        /// </summary>
-        [HttpGet("history")]
-        public async Task<IActionResult> GetReadingHistory([FromQuery] int limit = 20)
-        {
-            var userId = GetCurrentUserId();
-            var history = await _customerService.GetReadingHistoryAsync(userId, limit);
-            return Ok(history);
-        }
-
-        /// <summary>
-        /// Lưu tiến độ đọc (Gọi khi user mở 1 chapter)
-        /// </summary>
-        [HttpPost("history")]
-        public async Task<IActionResult> SaveReadingProgress([FromBody] ReadingProgressDto request)
-        {
-            var userId = GetCurrentUserId();
-            await _customerService.SaveProgressAsync(userId, request.StoryId, request.ChapterId);
-            return Ok();
-        }
-
-        // ==========================================================
-        // NHÓM 4: VÍ & MUA TRUYỆN (WALLET & PURCHASE)
-        // ==========================================================
-
-        /// <summary>
-        /// Mua (Mở khóa) một Chapter tính phí
-        /// </summary>
-        [HttpPost("buy-chapter")]
-        public async Task<IActionResult> BuyChapter([FromBody] BuyChapterDto request)
-        {
-            var userId = GetCurrentUserId();
-
-            // Gọi Service xử lý giao dịch:
-            // 1. Check số dư đủ không?
-            // 2. Trừ tiền user -> Cộng tiền hệ thống/uploader
-            // 3. Lưu vào bảng PurchasedChapters để lần sau vào đọc không mất tiền nữa
-            var result = await _walletService.PurchaseChapterAsync(userId, request.ChapterId);
-
-            if (!result.Success)
-                return BadRequest(new { Error = result.Message }); // "Số dư không đủ"
-
-            return Ok(new { Message = "Mở khóa thành công", NewBalance = result.RemainingBalance });
-        }
-
-        /// <summary>
-        /// Xem lịch sử giao dịch (Nạp tiền / Mua truyện)
-        /// </summary>
-        [HttpGet("transactions")]
-        public async Task<IActionResult> GetTransactionHistory([FromQuery] int page = 1)
-        {
-            var userId = GetCurrentUserId();
-            var transactions = await _walletService.GetTransactionHistoryAsync(userId, page);
-            return Ok(transactions);
-        }
-
-        // ==========================================================
-        // HELPER
-        // ==========================================================
-        private string GetCurrentUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier);
     }
 }
