@@ -21,4 +21,11 @@ namespace WibuHub.ApplicationCore.Entities
         public virtual ICollection<Story> Stories { get; set; } = new Collection<Story>();
         public virtual ICollection<Comment> Comments { get; set; } = new Collection<Comment>();
     }
+
+    public enum CategoryStatus
+    {
+        Ongoing = 0,    // Đang tiến hành
+        Completed = 1,  // Hoàn thành
+        Paused = 2      // Tạm ngưng
+    }
 }

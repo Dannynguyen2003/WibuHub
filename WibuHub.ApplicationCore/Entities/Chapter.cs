@@ -59,4 +59,11 @@ namespace WibuHub.ApplicationCore.Entities
         //public virtual Image? Image { get; set; }
         
     }
+
+    public enum ChapterStatus
+    {
+        Ongoing = 0,    // Đang tiến hành
+        Completed = 1,  // Hoàn thành
+        Paused = 2      // Tạm ngưng
+    }
 }
