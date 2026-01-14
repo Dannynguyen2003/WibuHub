@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WibuHub.ApplicationCore.Entities.Identity;
+using static WibuHub.ApplicationCore.DTOs.Customer.Customer;
 
 namespace WibuHub.MVC.Admin.Controllers
 {
