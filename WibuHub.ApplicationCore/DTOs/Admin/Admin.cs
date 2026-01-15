@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WibuHub.ApplicationCore.Entities;
 
 namespace WibuHub.ApplicationCore.DTOs.Admin
 {
@@ -21,5 +22,24 @@ namespace WibuHub.ApplicationCore.DTOs.Admin
 
         // DTO rút tiền
         public record WithdrawDto(decimal Amount, string BankInfo);
+
+        public class PublisherStatsDto
+        {
+            public int TotalStories { get; set; }
+            public long TotalViews { get; set; }
+            public int TotalFollowers { get; set; }
+            public decimal MonthlyIncome { get; set; }
+        }
+
+        // DTO hiển thị danh sách truyện
+        public class StoryDto
+        {
+            public int Id { get; set; }
+            public string Title { get; set; }
+            public string CoverImageUrl { get; set; }
+            public StoryStatus Status { get; set; }
+            public long ViewCount { get; set; }
+            public DateTime UpdatedAt { get; set; }
+        }
     }
 }

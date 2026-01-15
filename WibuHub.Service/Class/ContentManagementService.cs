@@ -1,7 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WibuHub.ApplicationCore.Entities; // Nơi chứa Story, Chapter
 using WibuHub.ApplicationCore.Interface;
-using WibuHub.DataLayer; // Nơi chứa StoryDbContext
+using WibuHub.DataLayer;
+using static WibuHub.ApplicationCore.DTOs.Admin.Admin; // Nơi chứa StoryDbContext
 
 namespace WibuHub.Service
 {
