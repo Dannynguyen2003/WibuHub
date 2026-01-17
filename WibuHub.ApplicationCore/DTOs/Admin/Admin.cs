@@ -23,7 +23,7 @@ namespace WibuHub.ApplicationCore.DTOs.Admin
         // DTO rút tiền
         public record WithdrawDto(decimal Amount, string BankInfo);
 
-        public class PublisherStatsDto
+        public class StatsDto
         {
             public int TotalStories { get; set; }
             public long TotalViews { get; set; }

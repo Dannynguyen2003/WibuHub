@@ -18,7 +18,7 @@ namespace WibuHub.Service
         // ==========================================================
         // 1. THỐNG KÊ (STATS)
         // ==========================================================
-        public async Task<PublisherStatsDto> GetCreatorStatsAsync(string userId)
+        public async Task<StatsDto> GetCreatorStatsAsync(string userId)
         {
             // Lấy tất cả truyện của user này
             var stories = _context.Stories.Where(s => s.OwnerId == userId);
@@ -38,7 +38,7 @@ namespace WibuHub.Service
             // Nếu chưa làm bảng Doanh thu thì tạm thời để 0 hoặc query bảng Transactions
             var monthlyIncome = 0;
 
-            return new PublisherStatsDto
+            return new StatsDto
             {
                 TotalStories = totalStories,
                 TotalViews = totalViews,

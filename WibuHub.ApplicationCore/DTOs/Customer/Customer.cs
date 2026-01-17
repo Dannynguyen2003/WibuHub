@@ -13,7 +13,7 @@ namespace WibuHub.ApplicationCore.DTOs.Customer
         {
             [StringLength(50, ErrorMessage = "Nickname không được quá 50 ký tự")]
             public string? Nickname { get; set; }
-
+            public string? RoleName { get; set; } // Tên Role muốn gán
             public string? Fullname { get; set; }
 
             public string? Avatar { get; set; } // URL ảnh
