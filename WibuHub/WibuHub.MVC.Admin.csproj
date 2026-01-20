@@ -22,12 +22,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\WibuHub.DataLayer\WibuHub.DataLayer.csproj" />
-	 
+    <Folder Include="Areas\Identity\Data\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Areas\Identity\Data\" />
+    <ProjectReference Include="..\WibuHub.DataLayer\WibuHub.DataLayer.csproj" />
   </ItemGroup>
 
 </Project>

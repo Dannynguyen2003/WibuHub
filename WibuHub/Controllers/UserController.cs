@@ -3,10 +3,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using WibuHub.ApplicationCore.Entities.Identity;
-using WibuHub.ApplicationCore.Interface;
 using static WibuHub.ApplicationCore.DTOs.Admin.Admin;
 // using WibuHub.Application.DTOs.Management;
 // using WibuHub.Application.Services.Management;
+
 
 namespace WibuHub.MVC.Areas.Admin.Controllers
 {
@@ -18,16 +18,16 @@ namespace WibuHub.MVC.Areas.Admin.Controllers
     {
         private readonly UserManager<StoryUser> _userManager;
         private readonly IContentManagementService _contentService; // Service chuyên quản lý nội dung
-        private readonly IRevenueService _revenueService; // Service tính tiền/doanh thu
+        //private readonly IRevenueService _revenueService; // Service tính tiền/doanh thu
 
         public UserController(
-            UserManager<StoryUser> userManager,
-            IContentManagementService contentService,
-            IRevenueService revenueService)
+            UserManager<StoryUser> userManager)
+            //IContentManagementService contentService
+            //IRevenueService revenueService)
         {
             _userManager = userManager;
             _contentService = contentService;
-            _revenueService = revenueService;
+            //_revenueService = revenueService;
         }
 
         // ==========================================================
@@ -132,27 +132,27 @@ namespace WibuHub.MVC.Areas.Admin.Controllers
         /// <summary>
         /// Xem lịch sử doanh thu (Ai mua truyện nào, ngày nào)
         /// </summary>
-        [HttpGet("revenue-history")]
-        public async Task<IActionResult> GetRevenueHistory([FromQuery] DateRangeDto dateRange)
-        {
-            var userId = GetCurrentUserId();
-            var history = await _revenueService.GetCreatorRevenueAsync(userId, dateRange.From, dateRange.To);
-            return Ok(history);
-        }
+        //[HttpGet("revenue-history")]
+        //public async Task<IActionResult> GetRevenueHistory([FromQuery] DateRangeDto dateRange)
+        //{
+        //    var userId = GetCurrentUserId();
+        //    var history = await _revenueService.GetCreatorRevenueAsync(userId, dateRange.From, dateRange.To);
+        //    return Ok(history);
+        //}
 
         /// <summary>
         /// Yêu cầu rút tiền (Withdraw)
         /// </summary>
-        [HttpPost("withdraw-request")]
-        public async Task<IActionResult> RequestWithdraw([FromBody] WithdrawDto request)
-        {
-            var userId = GetCurrentUserId();
-            // Kiểm tra số dư khả dụng
-            var result = await _revenueService.CreateWithdrawRequestAsync(userId, request.Amount, request.BankInfo);
+        //[HttpPost("withdraw-request")]
+        //public async Task<IActionResult> RequestWithdraw([FromBody] WithdrawDto request)
+        //{
+        //    var userId = GetCurrentUserId();
+        //    // Kiểm tra số dư khả dụng
+        //    var result = await _revenueService.CreateWithdrawRequestAsync(userId, request.Amount, request.BankInfo);
 
-            if (!result.Success) return BadRequest(result.Message);
-            return Ok("Đã gửi yêu cầu rút tiền.");
-        }
+        //    if (!result.Success) return BadRequest(result.Message);
+        //    return Ok("Đã gửi yêu cầu rút tiền.");
+        //}
 
         // ==========================================================
         // HELPER

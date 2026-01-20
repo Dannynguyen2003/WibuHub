@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace WibuHub.ApplicationCore.DTOs.Shared
 {
-    public class PagingResultDto
+    public class ServiceResult
     {
     }
 }

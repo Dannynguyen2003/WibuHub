@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using WibuHub.ApplicationCore.DTOs.Shared;
 using static WibuHub.ApplicationCore.DTOs.Admin.Admin;
 
-namespace WibuHub.ApplicationCore.Interface
+namespace WibuHub.Service.Interface
 {
     public interface IContentManagementService
     {
@@ -18,7 +14,7 @@ namespace WibuHub.ApplicationCore.Interface
         Task UpdateStoryAsync(int storyId, UpdateStoryDto request);
         Task<bool> IsStoryOwnerAsync(int storyId, string userId); // Hàm check quyền quan trọng
 
-        // 3. Quản lý Chapter
+        //// 3. Quản lý Chapter
         Task AddChapterAsync(int storyId, UploadChapterDto request);
         Task<ServiceResult> SetChapterPriceAsync(string userId, int chapterId, decimal price);
     }
