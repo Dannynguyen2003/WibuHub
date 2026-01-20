@@ -1,6 +1,41 @@
-@WibuHub.API_HostAddress = http://localhost:5126
+@WibuHub.API_HostAddress = https://localhost:7267
+# Thay th? chu?i bên dý?i b?ng Cookie th?c t? b?n l?y ðý?c t? tr?nh duy?t (F12 -> Network -> Headers)
+# Nó b?t ð?u b?ng .AspNetCore.Identity.Application=...
+@AuthCookie = .AspNetCore.Identity.Application=CfDJ8DOdJZ3TZwdDmOt4lZSlqUhs0v88w--C1q9IUq-jq7ZvILYpeSHhdwbLFcQWqb4LUnA76qnYkqUrUwgZhH1fJSdwIRtxvBpD48DFGBt1YRXhXnr5_pG6yzkCnOQQRUgWtYVr2fUIeAINRX23hBD2fYxzYpu11vTkgvZUHTXGX2Df8gCGmfeO0HI7st0QzKLsPrsurNWPnuYfnGwkSaPOlxRV_lxAIIYiwt71fOCaY73ex6SUUUKSZwHXHANH3tcWdy__2NebTulYR4oMgIs7w-pA5ZawMaXa7IdUMZ9am7t_2mM498peQj6vEkTUGcKn93ZDJmLnPN1bsjAjGtbz9nPralQu2lBAly7uMTuVbHDKWBzxWlHvU25YzfgGHshDhZ3wHLBs6A07oIjlXM6apxYgLNG3HHrYHndHrlwnIn9po7giGrnZzvlt6VrYvPP4EKBNfhp_jumggZn2RSJ6MZAuOcybDNvTZlXhchJ3ewFuOroCZHPsoIbSCgGmzwwFzdLH-u1qMFfah60G-K5Gbo7ryHJTLJLAyYwHiYpGTLhgkmKYJP4GDPH9Io0R86QKfQTnyI-gvLj_abMqa7jayAXqx2clJApmo_UpieO8TPxKxEMPI-19LzDL7tq23XYZVJMgn1FtU7vvI027viQtTF5DlFpsdk-MortN4sumqPeKzvQxEa6LwXo7m04sd3Wb8apTOR6sMyi0x5N1TGjZziu7iGmSHux-010yDPjJK0Xf
 
-GET {{WibuHub.API_HostAddress}}/weatherforecast/
+### 1. L?y t?t c? danh m?c
+GET {{WibuHub.API_HostAddress}}/api/categories
 Accept: application/json
+# Cookie: {{AuthCookie}}
 
-###
+### 2. L?y chi ti?t 1 danh m?c (Thay ID b?ng GUID th?c t? trong DB)
+GET {{WibuHub.API_HostAddress}}/api/categories/YOUR-GUID-HERE
+Accept: application/json
+# Cookie: {{AuthCookie}}
+
+### 3. T?o m?i danh m?c
+POST {{WibuHub.API_HostAddress}}/api/categories
+Content-Type: application/json
+# Cookie: {{AuthCookie}}
+
+{
+  "name": "Isekai 2024",
+  "description": "Truy?n chuy?n sinh th? gi?i khác"
+}
+
+### 4. C?p nh?t danh m?c (Thay ID cho kh?p c? trên URL và trong Body)
+@id_to_edit = YOUR-GUID-HERE
+
+PUT {{WibuHub.API_HostAddress}}/api/categories/{{id_to_edit}}
+Content-Type: application/json
+# Cookie: {{AuthCookie}}
+
+{
+  "id": "{{id_to_edit}}",
+  "name": "Isekai Update",
+  "description": "Ð? ch?nh s?a mô t?"
+}
+
+### 5. Xóa danh m?c
+DELETE {{WibuHub.API_HostAddress}}/api/categories/YOUR-GUID-HERE
+# Cookie: {{AuthCookie}}

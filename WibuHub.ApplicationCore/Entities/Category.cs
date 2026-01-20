@@ -16,16 +16,11 @@ namespace WibuHub.ApplicationCore.Entities
         [MaxLength(MaxLengths.DESCRIPTION)]
         public string? Description { get; set; }
         public int Position { get; set; }
-        
+
+        public bool IsDeleted { get; set; } = false;
         // 1 Category có nhiều Story
         public virtual ICollection<Story> Stories { get; set; } = new Collection<Story>();
         public virtual ICollection<Comment> Comments { get; set; } = new Collection<Comment>();
-    }
 
-    public enum CategoryStatus
-    {
-        Ongoing = 0,    // Đang tiến hành
-        Completed = 1,  // Hoàn thành
-        Paused = 2      // Tạm ngưng
     }
 }
