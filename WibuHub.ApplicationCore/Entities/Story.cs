@@ -59,6 +59,8 @@ namespace WibuHub.ApplicationCore.Entities
         public Guid CategoryId { get; set; }
         public virtual Category? Category { get; set; }
 
+        public bool IsDeleted { get; set; } = false;
+
         // 1 Story có nhiều Chapter
         public virtual ICollection<Chapter> Chapters { get; set; } = new List<Chapter>();
 

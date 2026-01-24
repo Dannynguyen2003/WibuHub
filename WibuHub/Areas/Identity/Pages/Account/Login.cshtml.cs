@@ -14,10 +14,9 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
-using WibuHub.ApplicationCore.Entities;
 using WibuHub.ApplicationCore.Entities.Identity;
 
-namespace WibuHub.MVC.Areas.Identity.Pages.Account
+namespace WibuHub.MVC.Admin.Areas.Identity.Pages.Account
 {
     public class LoginModel : PageModel
     {
@@ -128,11 +127,14 @@ namespace WibuHub.MVC.Areas.Identity.Pages.Account
                     _logger.LogWarning("User account locked out.");
                     return RedirectToPage("./Lockout");
                 }
-                else
+                if (result.IsNotAllowed)
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    ModelState.AddModelError(string.Empty, "Please confirm your email before logging in.");
                     return Page();
                 }
+
+                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                return Page();
             }
 
             // If we got this far, something failed, redisplay form

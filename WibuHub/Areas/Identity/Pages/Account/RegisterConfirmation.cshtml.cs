@@ -11,10 +11,9 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
-using WibuHub.ApplicationCore.Entities;
 using WibuHub.ApplicationCore.Entities.Identity;
 
-namespace WibuHub.MVC.Areas.Identity.Pages.Account
+namespace WibuHub.MVC.Admin.Areas.Identity.Pages.Account
 {
     [AllowAnonymous]
     public class RegisterConfirmationModel : PageModel
@@ -24,7 +23,6 @@ namespace WibuHub.MVC.Areas.Identity.Pages.Account
 
         //public RegisterConfirmationModel(UserManager<StoryUser> userManager, IEmailSender sender)
         public RegisterConfirmationModel(UserManager<StoryUser> userManager)
-
         {
             _userManager = userManager;
             //_sender = sender;
@@ -63,8 +61,8 @@ namespace WibuHub.MVC.Areas.Identity.Pages.Account
             }
 
             Email = email;
-            //            // Once you add a real email sender, you should remove this code that lets you confirm the account
-            DisplayConfirmAccountLink = true;
+            //Once you add a real email sender, you should remove this code that lets you confirm the account
+           DisplayConfirmAccountLink = true;
             if (DisplayConfirmAccountLink)
             {
                 var userId = await _userManager.GetUserIdAsync(user);

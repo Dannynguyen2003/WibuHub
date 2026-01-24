@@ -1,21 +1,19 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WibuHub.ApplicationCore.Entities.Identity;
 using WibuHub.DataLayer;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// MVC
-builder.Services.AddControllersWithViews();
-
-// DbContext
+// Add services to the container.
 builder.Services.AddDbContext<StoryDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("StoryConnection")));
-
+    options.UseSqlServer(builder.Configuration.GetConnectionString("StoryConnection"))
+);
 builder.Services.AddDbContext<StoryIdentityDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("StoryIdentityConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("StoryIdentityConnection"))
+);
 
-// Identity
+//builder.Services.AddDefaultIdentity<VideoUser>(options =>
 builder.Services.AddIdentity<StoryUser, StoryRole>(options =>
 {
     options.SignIn.RequireConfirmedAccount = true;
@@ -32,7 +30,7 @@ builder.Services.AddIdentity<StoryUser, StoryRole>(options =>
     // User settings 
     options.User.RequireUniqueEmail = true;
     // Sign-in settings 
-    options.SignIn.RequireConfirmedEmail = false;
+    options.SignIn.RequireConfirmedEmail = true;
     options.SignIn.RequireConfirmedPhoneNumber = false;
 })
     .AddEntityFrameworkStores<StoryIdentityDbContext>()

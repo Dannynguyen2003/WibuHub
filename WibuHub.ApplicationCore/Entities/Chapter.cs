@@ -55,15 +55,9 @@ namespace WibuHub.ApplicationCore.Entities
         public decimal Price { get; set; } = 0;
         public decimal Discount { get; set; }
 
+        public bool IsDeleted { get; set; } = false;
         //public Guid? ImageId { get; set; }
         //public virtual Image? Image { get; set; }
-        
-    }
 
-    public enum ChapterStatus
-    {
-        Ongoing = 0,    // Đang tiến hành
-        Completed = 1,  // Hoàn thành
-        Paused = 2      // Tạm ngưng
     }
 }

@@ -2,26 +2,16 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Text.Encodings.Web;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Logging;
-using WibuHub.ApplicationCore.Entities;
+using System.ComponentModel.DataAnnotations;
+using System.Text;
 using WibuHub.ApplicationCore.Entities.Identity;
 
-namespace WibuHub.MVC.Areas.Identity.Pages.Account
+namespace WibuHub.MVC.Admin.Areas.Identity.Pages.Account
 {
     public class RegisterModel : PageModel
     {
@@ -37,7 +27,7 @@ namespace WibuHub.MVC.Areas.Identity.Pages.Account
             IUserStore<StoryUser> userStore,
             SignInManager<StoryUser> signInManager,
             ILogger<RegisterModel> logger)
-            //IEmailSender emailSender)
+        //IEmailSender emailSender)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -134,7 +124,7 @@ namespace WibuHub.MVC.Areas.Identity.Pages.Account
                         protocol: Request.Scheme);
 
                     //await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                    //    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                    //$"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {

@@ -12,8 +12,8 @@ using WibuHub.DataLayer;
 namespace WibuHub.DataLayer.MigrationsIdentity
 {
     [DbContext(typeof(StoryIdentityDbContext))]
-    [Migration("20260108070220_TaoDatabaseIdentity20260108")]
-    partial class TaoDatabaseIdentity20260108
+    [Migration("20260124061234_Identity_24012025")]
+    partial class Identity_24012025
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
