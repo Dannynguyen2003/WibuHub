@@ -50,7 +50,7 @@ namespace WibuHub.Controllers
         // GET: Ratings/Create
         public IActionResult Create()
         {
-            ViewData["StoryId"] = new SelectList(_context.Chapteres, "Id", "Title");
+            ViewData["StoryId"] = new SelectList(_context.Chapters, "Id", "Title");
             return View();
         }
 
@@ -68,7 +68,7 @@ namespace WibuHub.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["StoryId"] = new SelectList(_context.Chapteres, "Id", "Title", rating.StoryId);
+            ViewData["StoryId"] = new SelectList(_context.Chapters, "Id", "Title", rating.StoryId);
             return View(rating);
         }
 
@@ -85,7 +85,7 @@ namespace WibuHub.Controllers
             {
                 return NotFound();
             }
-            ViewData["StoryId"] = new SelectList(_context.Chapteres, "Id", "Title", rating.StoryId);
+            ViewData["StoryId"] = new SelectList(_context.Chapters, "Id", "Title", rating.StoryId);
             return View(rating);
         }
 
@@ -121,7 +121,7 @@ namespace WibuHub.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["StoryId"] = new SelectList(_context.Chapteres, "Id", "Title", rating.StoryId);
+            ViewData["StoryId"] = new SelectList(_context.Chapters, "Id", "Title", rating.StoryId);
             return View(rating);
         }
 

@@ -1,4 +1,6 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using WibuHub.Common.Contants;
 
@@ -21,6 +23,5 @@ namespace WibuHub.ApplicationCore.Entities
         // 1 Category có nhiều Story
         public virtual ICollection<Story> Stories { get; set; } = new Collection<Story>();
         public virtual ICollection<Comment> Comments { get; set; } = new Collection<Comment>();
-
     }
 }

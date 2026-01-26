@@ -21,7 +21,7 @@ namespace WibuHub.Controllers
         // GET: Stories
         public async Task<IActionResult> Index()
         {
-            var StoryDbContext = _context.Chapteres.Include(s => s.Author).Include(s => s.Category);
+            var StoryDbContext = _context.Chapters.Include(s => s.Author).Include(s => s.Category);
             return View(await StoryDbContext.ToListAsync());
         }
 
@@ -33,7 +33,7 @@ namespace WibuHub.Controllers
                 return NotFound();
             }
 
-            var story = await _context.Chapteres
+            var story = await _context.Chapters
                 .Include(s => s.Author)
                 .Include(s => s.Category)
                 .FirstOrDefaultAsync(m => m.Id == id);
@@ -95,7 +95,7 @@ namespace WibuHub.Controllers
                 return NotFound();
             }
 
-            var story = await _context.Chapteres.FindAsync(id);
+            var story = await _context.Chapters.FindAsync(id);
             if (story == null)
             {
                 return NotFound();
@@ -150,7 +150,7 @@ namespace WibuHub.Controllers
                 return NotFound();
             }
 
-            var story = await _context.Chapteres
+            var story = await _context.Chapters
                 .Include(s => s.Author)
                 .Include(s => s.Category)
                 .FirstOrDefaultAsync(m => m.Id == id);
@@ -167,7 +167,7 @@ namespace WibuHub.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var story = await _context.Chapteres.FindAsync(id);
+            var story = await _context.Chapters.FindAsync(id);
             if (story != null)
             {
                 _context.Chapteres.Remove(story);
@@ -179,7 +179,7 @@ namespace WibuHub.Controllers
 
         private bool StoryExists(Guid id)
         {
-            return _context.Chapteres.Any(e => e.Id == id);
+            return _context.Chapters.Any(e => e.Id == id); 
         }
     }
 }
