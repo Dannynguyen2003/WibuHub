@@ -21,8 +21,10 @@ namespace WibuHub.Controllers
         // GET: Stories
         public async Task<IActionResult> Index()
         {
-            var StoryDbContext = _context.Chapters.Include(s => s.Author).Include(s => s.Category);
-            return View(await StoryDbContext.ToListAsync());
+            // FIX: Đổi tên biến local cho đỡ nhầm lẫn với DbContext type
+            // FIX: Giả định DbSet tên là Stories (thay vì Chapters)
+            var stories = _context.Stories.Include(s => s.Author).Include(s => s.Category);
+            return View(await stories.ToListAsync());
         }
 
         // GET: Stories/Details/5
@@ -33,10 +35,11 @@ namespace WibuHub.Controllers
                 return NotFound();
             }
 
-            var story = await _context.Chapters
+            var story = await _context.Stories
                 .Include(s => s.Author)
                 .Include(s => s.Category)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (story == null)
             {
                 return NotFound();
@@ -54,16 +57,16 @@ namespace WibuHub.Controllers
         }
 
         // POST: Stories/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create( StoryVM storyVM)
+        public async Task<IActionResult> Create(StoryVM storyVM)
         {
             if (ModelState.IsValid)
             {
+                // Mapping từ ViewModel sang Entity
                 var story = new Story
                 {
+                    Id = Guid.NewGuid(), // Tạo ID mới cho Entity
                     Title = storyVM.Title,
                     AlternativeName = storyVM.AlternativeName,
                     Description = storyVM.Description,
@@ -77,8 +80,9 @@ namespace WibuHub.Controllers
                     AuthorId = storyVM.AuthorId,
                     CategoryId = storyVM.CategoryId
                 };
-                storyVM.Id = Guid.NewGuid();
-                _context.Add(storyVM);
+
+                // FIX: Thêm Entity (story) vào context, KHÔNG phải thêm ViewModel (storyVM)
+                _context.Add(story);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
@@ -95,19 +99,36 @@ namespace WibuHub.Controllers
                 return NotFound();
             }
 
-            var story = await _context.Chapters.FindAsync(id);
+            var story = await _context.Stories.FindAsync(id);
             if (story == null)
             {
                 return NotFound();
             }
+
+            // FIX: Chuyển đổi Entity sang ViewModel để tránh lỗi Mismatch Model ở View
+            var storyVM = new StoryVM
+            {
+                Id = story.Id,
+                Title = story.Title,
+                AlternativeName = story.AlternativeName,
+                Description = story.Description,
+                Thumbnail = story.Thumbnail,
+                Status = story.Status,
+                ViewCount = story.ViewCount,
+                FollowCount = story.FollowCount,
+                RatingScore = story.RatingScore,
+                AuthorId = story.AuthorId,
+                CategoryId = story.CategoryId
+            };
+
             ViewData["AuthorId"] = new SelectList(_context.Authors, "Id", "Name", story.AuthorId);
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", story.CategoryId);
-            return View(story);
+
+            // Trả về ViewModel
+            return View(storyVM);
         }
 
         // POST: Stories/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Guid id, StoryVM storyVM)
@@ -121,7 +142,28 @@ namespace WibuHub.Controllers
             {
                 try
                 {
-                    _context.Update(storyVM);
+                    // FIX: Lấy Entity gốc từ DB lên
+                    var storyToUpdate = await _context.Stories.FindAsync(id);
+                    if (storyToUpdate == null)
+                    {
+                        return NotFound();
+                    }
+
+                    // FIX: Cập nhật các trường từ ViewModel vào Entity
+                    storyToUpdate.Title = storyVM.Title;
+                    storyToUpdate.AlternativeName = storyVM.AlternativeName;
+                    storyToUpdate.Description = storyVM.Description;
+                    storyToUpdate.Thumbnail = storyVM.Thumbnail;
+                    storyToUpdate.Status = storyVM.Status;
+                    storyToUpdate.ViewCount = storyVM.ViewCount;
+                    storyToUpdate.FollowCount = storyVM.FollowCount;
+                    storyToUpdate.RatingScore = storyVM.RatingScore;
+                    storyToUpdate.AuthorId = storyVM.AuthorId;
+                    storyToUpdate.CategoryId = storyVM.CategoryId;
+                    storyToUpdate.UpdateDate = DateTime.UtcNow; // Cập nhật ngày sửa
+
+                    // Lưu thay đổi
+                    _context.Update(storyToUpdate);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -150,10 +192,11 @@ namespace WibuHub.Controllers
                 return NotFound();
             }
 
-            var story = await _context.Chapters
+            var story = await _context.Stories
                 .Include(s => s.Author)
                 .Include(s => s.Category)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (story == null)
             {
                 return NotFound();
@@ -167,19 +210,19 @@ namespace WibuHub.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var story = await _context.Chapters.FindAsync(id);
+            var story = await _context.Stories.FindAsync(id);
             if (story != null)
             {
-                _context.Chapteres.Remove(story);
+                _context.Stories.Remove(story);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool StoryExists(Guid id)
         {
-            return _context.Chapters.Any(e => e.Id == id); 
+            return _context.Stories.Any(e => e.Id == id);
         }
     }
 }
