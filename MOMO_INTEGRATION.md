@@ -71,8 +71,6 @@ The MoMo payment integration allows customers to pay for chapters using MoMo e-w
     "deeplinkMiniApp": "https://..."
   }
 }
-  }
-}
 ```
 
 **Response (Error):**
