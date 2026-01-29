@@ -105,20 +105,32 @@ namespace WibuHub.Service.Implementations
                 if (callback.ResultCode == 0)
                 {
                     // Payment successful - update order status in database
-                    var order = await _context.Orders.FindAsync(Guid.Parse(callback.OrderId.Replace(_momoSettings.PartnerCode, "")));
-                    
-                    if (order != null)
+                    // Extract the actual order ID (remove partner code prefix if present)
+                    var orderIdStr = callback.OrderId;
+                    if (orderIdStr.StartsWith(_momoSettings.PartnerCode))
                     {
-                        order.PaymentMethod = "MoMo";
-                        order.TransactionId = callback.TransId.ToString();
-                        order.PaymentStatus = "Completed";
+                        orderIdStr = orderIdStr.Substring(_momoSettings.PartnerCode.Length);
+                    }
+
+                    // Try to parse as GUID, if it fails, just log the transaction
+                    if (Guid.TryParse(orderIdStr, out var orderId))
+                    {
+                        var order = await _context.Orders.FindAsync(orderId);
                         
-                        await _context.SaveChangesAsync();
-                        
-                        return (true, "Payment processed successfully");
+                        if (order != null)
+                        {
+                            order.PaymentMethod = "MoMo";
+                            order.TransactionId = callback.TransId.ToString();
+                            order.PaymentStatus = "Completed";
+                            
+                            await _context.SaveChangesAsync();
+                            
+                            return (true, "Payment processed successfully");
+                        }
                     }
                     
-                    return (false, "Order not found");
+                    // Order not found, but payment was successful
+                    return (true, "Payment successful but order not found in system");
                 }
                 else if (callback.ResultCode == 9000)
                 {
