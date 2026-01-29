@@ -25,6 +25,12 @@ builder.Services.AddHttpClient<MomoPaymentService>(client =>
 });
 // 5. Register Payment Service
 builder.Services.AddScoped<IPaymentService, MomoPaymentService>();
+// 6. Add Controllers
+builder.Services.AddControllers();
+// 7. Add Authentication and Authorization if needed
+builder.Services.AddAuthentication(/* options */); // if you have auth schemes
+builder.Services.AddAuthorization();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -40,7 +46,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
+//app.UseAuthentication();   // before UseAuthorization
+//app.UseAuthorization();
 
 app.MapControllers();
 

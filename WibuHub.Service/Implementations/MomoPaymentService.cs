@@ -6,6 +6,7 @@ using WibuHub.ApplicationCore.Configuration;
 using WibuHub.ApplicationCore.DTOs.Shared;
 using WibuHub.DataLayer;
 using WibuHub.Service.Interface;
+using static WibuHub.ApplicationCore.DTOs.Shared.Momopayment;
 namespace WibuHub.Service.Implementations
 {
     public class MomoPaymentService : IPaymentService
@@ -25,7 +26,7 @@ namespace WibuHub.Service.Implementations
             var orderId = request.OrderId ?? $"{_momoSettings.PartnerCode}{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}";
             var requestId = orderId;
             var amount = ((long)request.Amount).ToString();
-            var extraData = request.ExtraData ?? string.Empty;
+            var extraData = string.Empty;
             // Create raw signature string
             var rawSignature = $"accessKey={_momoSettings.AccessKey}" +
                              $"&amount={amount}" +
@@ -72,7 +73,7 @@ namespace WibuHub.Service.Implementations
                 });
                 return momoResponse ?? new MomoPaymentResponse
                 {
-                    ResultCode = -1,
+                    ErrorCode = -1,
                     Message = "Failed to process payment request"
                 };
             }
@@ -81,7 +82,7 @@ namespace WibuHub.Service.Implementations
                 // Log the error internally, return generic message to client
                 return new MomoPaymentResponse
                 {
-                    ResultCode = -1,
+                    ErrorCode = -1,
                     Message = "Unable to connect to payment service"
                 };
             }
@@ -193,7 +194,7 @@ namespace WibuHub.Service.Implementations
                 });
                 return momoResponse ?? new MomoPaymentResponse
                 {
-                    ResultCode = -1,
+                    ErrorCode = -1,
                     Message = "Failed to process status request"
                 };
             }
@@ -202,7 +203,7 @@ namespace WibuHub.Service.Implementations
                 // Log the error internally, return generic message to client
                 return new MomoPaymentResponse
                 {
-                    ResultCode = -1,
+                    ErrorCode = -1,
                     Message = "Unable to check transaction status"
                 };
             }

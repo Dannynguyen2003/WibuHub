@@ -1,4 +1,5 @@
 ﻿using WibuHub.ApplicationCore.DTOs.Shared;
+using static WibuHub.ApplicationCore.DTOs.Shared.Momopayment;
 namespace WibuHub.Service.Interface
 {
     public interface IPaymentService

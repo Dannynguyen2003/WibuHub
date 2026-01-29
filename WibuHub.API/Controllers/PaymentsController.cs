@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WibuHub.ApplicationCore.DTOs.Shared;
 using WibuHub.Service.Interface;
+using static WibuHub.ApplicationCore.DTOs.Shared.Momopayment;
+
 namespace WibuHub.API.Controllers
 {
     [ApiController]
@@ -9,11 +11,13 @@ namespace WibuHub.API.Controllers
     {
         private readonly IPaymentService _paymentService;
         private readonly ILogger<PaymentsController> _logger;
+
         public PaymentsController(IPaymentService paymentService, ILogger<PaymentsController> logger)
         {
             _paymentService = paymentService;
             _logger = logger;
         }
+
         /// <summary>
         /// Create a MoMo payment request
         /// POST api/payments/momo
@@ -25,11 +29,12 @@ namespace WibuHub.API.Controllers
             {
                 return BadRequest(ModelState);
             }
+
             try
             {
                 var response = await _paymentService.CreateMomoPaymentAsync(request);
 
-                if (response.ResultCode == 0)
+                if (response.ErrorCode == 0)
                 {
                     return Ok(new
                     {
@@ -44,7 +49,7 @@ namespace WibuHub.API.Controllers
                     {
                         success = false,
                         message = response.Message,
-                        resultCode = response.ResultCode
+                        resultCode = response.ErrorCode
                     });
                 }
             }
@@ -58,6 +63,7 @@ namespace WibuHub.API.Controllers
                 });
             }
         }
+
         /// <summary>
         /// Handle MoMo payment callback
         /// POST api/payments/momo/callback
@@ -87,6 +93,7 @@ namespace WibuHub.API.Controllers
                 return NoContent(); // Still return 204 to MoMo even on error
             }
         }
+
         /// <summary>
         /// Check MoMo transaction status
         /// GET api/payments/momo/status/{orderId}
@@ -98,6 +105,7 @@ namespace WibuHub.API.Controllers
             {
                 return BadRequest(new { success = false, message = "OrderId is required" });
             }
+
             try
             {
                 var response = await _paymentService.CheckTransactionStatusAsync(orderId);
