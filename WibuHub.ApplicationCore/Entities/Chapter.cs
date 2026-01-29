@@ -1,13 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using WibuHub.ApplicationCore.Interface;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace WibuHub.ApplicationCore.Entities
 {
     [Index(nameof(StoryId), nameof(Number))]
     [Index(nameof(Slug), IsUnique = true)]
-    public class Chapter
+    public class Chapter : ISoftDelete
     {
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
@@ -56,6 +57,8 @@ namespace WibuHub.ApplicationCore.Entities
         public decimal Discount { get; set; }
 
         public bool IsDeleted { get; set; } = false;
+        public DateTime? DeletedAt { get; set; }
+
         //public Guid? ImageId { get; set; }
         //public virtual Image? Image { get; set; }
 
