@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WibuHub.MVC.ViewModels
 {
@@ -15,17 +14,9 @@ namespace WibuHub.MVC.ViewModels
         public string? Description { get; set; }
 
         [MaxLength(500)]
-        [Column(TypeName = "varchar(500)")]
         public string? Thumbnail { get; set; }
 
-        [Column(TypeName = "tinyint")]
         public int Status { get; set; } = 0;
-
-        public long ViewCount { get; set; } = 0;
-
-        public int FollowCount { get; set; } = 0;
-
-        public double RatingScore { get; set; } = 0;
 
         public Guid? AuthorId { get; set; }
 
