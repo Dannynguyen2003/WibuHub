@@ -82,15 +82,16 @@ namespace WibuHub.Service.Implementations
                 return momoResponse ?? new MomoPaymentResponse
                 {
                     ResultCode = -1,
-                    Message = "Failed to deserialize MoMo response"
+                    Message = "Failed to process payment request"
                 };
             }
-            catch (Exception ex)
+            catch
             {
+                // Log the error internally, return generic message to client
                 return new MomoPaymentResponse
                 {
                     ResultCode = -1,
-                    Message = $"Error: {ex.Message}"
+                    Message = "Unable to connect to payment service"
                 };
             }
         }
@@ -99,9 +100,28 @@ namespace WibuHub.Service.Implementations
         {
             try
             {
-                // Validate signature if needed (recommended for production)
-                // For now, we'll check the result code
-                
+                // Validate signature for security
+                var rawSignature = $"accessKey={_momoSettings.AccessKey}" +
+                                 $"&amount={callback.Amount}" +
+                                 $"&extraData={callback.ExtraData}" +
+                                 $"&message={callback.Message}" +
+                                 $"&orderId={callback.OrderId}" +
+                                 $"&orderInfo={callback.OrderInfo}" +
+                                 $"&orderType={callback.OrderType}" +
+                                 $"&partnerCode={callback.PartnerCode}" +
+                                 $"&payType={callback.PayType}" +
+                                 $"&requestId={callback.RequestId}" +
+                                 $"&responseTime={callback.ResponseTime}" +
+                                 $"&resultCode={callback.ResultCode}" +
+                                 $"&transId={callback.TransId}";
+
+                var expectedSignature = ComputeHmacSha256(rawSignature, _momoSettings.SecretKey);
+
+                if (callback.Signature != expectedSignature)
+                {
+                    return (false, "Invalid signature");
+                }
+
                 if (callback.ResultCode == 0)
                 {
                     // Payment successful - update order status in database
@@ -119,6 +139,12 @@ namespace WibuHub.Service.Implementations
                         
                         if (order != null)
                         {
+                            // Check if payment is already completed to prevent duplicate processing
+                            if (order.PaymentStatus == "Completed")
+                            {
+                                return (true, "Payment already processed");
+                            }
+
                             order.PaymentMethod = "MoMo";
                             order.TransactionId = callback.TransId.ToString();
                             order.PaymentStatus = "Completed";
@@ -140,12 +166,13 @@ namespace WibuHub.Service.Implementations
                 else
                 {
                     // Payment failed
-                    return (false, $"Payment failed: {callback.Message}");
+                    return (false, "Payment failed");
                 }
             }
-            catch (Exception ex)
+            catch
             {
-                return (false, $"Error processing callback: {ex.Message}");
+                // Log the error internally but return generic message
+                return (false, "Error processing callback");
             }
         }
 
@@ -187,15 +214,16 @@ namespace WibuHub.Service.Implementations
                 return momoResponse ?? new MomoPaymentResponse
                 {
                     ResultCode = -1,
-                    Message = "Failed to deserialize MoMo response"
+                    Message = "Failed to process status request"
                 };
             }
-            catch (Exception ex)
+            catch
             {
+                // Log the error internally, return generic message to client
                 return new MomoPaymentResponse
                 {
                     ResultCode = -1,
-                    Message = $"Error: {ex.Message}"
+                    Message = "Unable to check transaction status"
                 };
             }
         }

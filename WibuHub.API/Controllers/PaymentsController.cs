@@ -72,24 +72,23 @@ namespace WibuHub.API.Controllers
         {
             try
             {
-                _logger.LogInformation("MoMo callback received for OrderId: {OrderId}", callback.OrderId);
+                _logger.LogInformation("MoMo callback received for OrderId: {OrderId}, ResultCode: {ResultCode}", 
+                    callback.OrderId, callback.ResultCode);
                 
                 var (isSuccess, message) = await _paymentService.HandleMomoCallbackAsync(callback);
                 
-                if (isSuccess)
+                if (!isSuccess)
                 {
-                    // MoMo expects 204 No Content on success
-                    return NoContent();
+                    _logger.LogWarning("MoMo callback processing failed: {Message} for OrderId: {OrderId}", 
+                        message, callback.OrderId);
                 }
-                else
-                {
-                    _logger.LogWarning("MoMo callback processing failed: {Message}", message);
-                    return NoContent(); // Still return 204 to MoMo
-                }
+                
+                // MoMo expects 204 No Content on success and error (to prevent retries)
+                return NoContent();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error processing MoMo callback");
+                _logger.LogError(ex, "Error processing MoMo callback for OrderId: {OrderId}", callback.OrderId);
                 return NoContent(); // Still return 204 to MoMo even on error
             }
         }
