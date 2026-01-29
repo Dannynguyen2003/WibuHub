@@ -32,7 +32,12 @@ namespace WibuHub.ApplicationCore.Entities
         public decimal Tax { get; set; }
         [Description("Tổng giá trị của đơn hàng ĐÃ bao gồm thuế")]
         public decimal TotalAmount { get; set; }
-
+        [Description("Phương thức thanh toán (e.g., 'MoMo', 'Cash', 'Transfer')")]
+        public string? PaymentMethod { get; set; }
+        [Description("Mã giao dịch thanh toán")]
+        public string? TransactionId { get; set; }
+        [Description("Trạng thái thanh toán")]
+        public string? PaymentStatus { get; set; }
         public virtual ICollection<OrderDetail> OrderDetails { get; set; }
     }
 }

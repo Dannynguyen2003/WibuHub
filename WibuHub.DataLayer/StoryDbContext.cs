@@ -25,6 +25,8 @@ namespace WibuHub.DataLayer
         public DbSet<Rating> Ratings { get; set; }
         public DbSet<Report> Reports { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderDetail> OrderDetails { get; set; }
 
         // =============================================================
         // XỬ LÝ SOFT DELETE (GHI ĐÈ SAVESCHANGES)
@@ -58,14 +60,11 @@ namespace WibuHub.DataLayer
             // Duyệt qua tất cả các Entity trong Model
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
-                // Nếu Entity có implement ISoftDelete
                 if (typeof(ISoftDelete).IsAssignableFrom(entityType.ClrType))
                 {
-                    // Thêm bộ lọc toàn cục: Chỉ lấy bản ghi chưa bị xóa (!IsDeleted)
-                    // Đoạn này dùng Expression Tree để tạo lambda: e => !e.IsDeleted
                     var parameter = Expression.Parameter(entityType.ClrType, "e");
-                    var propertyMethodInfo = typeof(ISoftDelete).GetProperty("IsDeleted").GetMethod;
-                    var body = Expression.Not(Expression.Call(parameter, propertyMethodInfo));
+                    var isDeletedProperty = Expression.Property(parameter, "IsDeleted");
+                    var body = Expression.Equal(isDeletedProperty, Expression.Constant(false));
                     var lambda = Expression.Lambda(body, parameter);
 
                     modelBuilder.Entity(entityType.ClrType).HasQueryFilter(lambda);
@@ -214,6 +213,37 @@ namespace WibuHub.DataLayer
                 entity.ToTable("Reports");
                 entity.Property(r => r.Status).HasColumnType("tinyint");
                 entity.HasIndex(r => r.Status);
+            });
+
+            // 12. Order
+            modelBuilder.Entity<Order>(entity =>
+            {
+                entity.ToTable("Orders");
+                entity.HasKey(o => o.Id);
+                entity.Property(o => o.Amount).HasColumnType("money").HasPrecision(18, 2);
+                entity.Property(o => o.Tax).HasColumnType("money").HasPrecision(18, 2);
+                entity.Property(o => o.TotalAmount).HasColumnType("money").HasPrecision(18, 2);
+                entity.Property(o => o.Phone).HasMaxLength(20).IsRequired();
+                entity.Property(o => o.Email).HasMaxLength(100);
+                entity.Property(o => o.PaymentMethod).HasMaxLength(50);
+                entity.Property(o => o.TransactionId).HasMaxLength(100);
+                entity.Property(o => o.PaymentStatus).HasMaxLength(50);
+            });
+            // 13. OrderDetail
+            modelBuilder.Entity<OrderDetail>(entity =>
+            {
+                entity.ToTable("OrderDetails");
+                entity.HasKey(od => new { od.OrderId, od.ChapterId });
+                entity.Property(od => od.UnitPrice).HasColumnType("money").HasPrecision(18, 2);
+                entity.Property(od => od.Amount).HasColumnType("money").HasPrecision(18, 2);
+                entity.HasOne(od => od.Order)
+                      .WithMany(o => o.OrderDetails)
+                      .HasForeignKey(od => od.OrderId)
+                      .OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(od => od.Chapter)
+                      .WithMany()
+                      .HasForeignKey(od => od.ChapterId)
+                      .OnDelete(DeleteBehavior.Restrict);
             });
         }
     }
