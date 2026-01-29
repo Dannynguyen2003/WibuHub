@@ -16,6 +16,7 @@ builder.Services.AddDbContext<StoryDbContext>(options =>
 // 2. Đăng ký Service (Dependency Injection)
 // AddScoped: Service được tạo mới cho mỗi HTTP Request (phù hợp với DbContext)
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IStoryService, StoryService>();
 // 3. Configure MoMo Settings
 builder.Services.Configure<MomoSettings>(builder.Configuration.GetSection("MomoSettings"));
 // 4. Register HttpClient for MoMo API calls with timeout
