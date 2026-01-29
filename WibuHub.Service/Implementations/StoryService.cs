@@ -56,7 +56,7 @@ namespace WibuHub.Service.Implementations
                 var story = new Story
                 {
                     Id = Guid.NewGuid(),
-                    Title = request.Title.Trim(),
+                    Title = (request.Title ?? string.Empty).Trim(),
                     AlternativeName = request.AlternativeName?.Trim(),
                     Description = request.Description?.Trim(),
                     Thumbnail = request.Thumbnail?.Trim(),
@@ -108,7 +108,7 @@ namespace WibuHub.Service.Implementations
                 }
 
                 // Update properties
-                story.Title = request.Title.Trim();
+                story.Title = (request.Title ?? string.Empty).Trim();
                 story.AlternativeName = request.AlternativeName?.Trim();
                 story.Description = request.Description?.Trim();
                 story.Thumbnail = request.Thumbnail?.Trim();
@@ -117,7 +117,7 @@ namespace WibuHub.Service.Implementations
                 story.AuthorId = request.AuthorId;
                 story.UpdateDate = DateTime.UtcNow;
 
-                _context.Stories.Update(story);
+                // EF Core change tracker will automatically detect changes, no need for explicit Update()
                 await _context.SaveChangesAsync();
                 return true;
             }
