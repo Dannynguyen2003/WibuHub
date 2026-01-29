@@ -12,5 +12,6 @@ namespace WibuHub.ApplicationCore.DTOs.Shared
         public string PayUrl { get; set; } = string.Empty;
         public string Deeplink { get; set; } = string.Empty;
         public string QrCodeUrl { get; set; } = string.Empty;
+        public string DeeplinkMiniApp { get; set; } = string.Empty;
     }
 }

@@ -67,7 +67,10 @@ The MoMo payment integration allows customers to pay for chapters using MoMo e-w
     "resultCode": 0,
     "payUrl": "https://test-payment.momo.vn/...",
     "deeplink": "momo://...",
-    "qrCodeUrl": "https://..."
+    "qrCodeUrl": "https://...",
+    "deeplinkMiniApp": "https://..."
+  }
+}
   }
 }
 ```
