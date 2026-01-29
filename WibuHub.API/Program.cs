@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using WibuHub.ApplicationCore.Configuration;
 using WibuHub.DataLayer;
 using WibuHub.Service.Implementations;
 using WibuHub.Service.Interface;
@@ -15,6 +16,13 @@ builder.Services.AddDbContext<StoryDbContext>(options =>
 // 2. Đăng ký Service (Dependency Injection)
 // AddScoped: Service được tạo mới cho mỗi HTTP Request (phù hợp với DbContext)
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IPaymentService, MomoPaymentService>();
+
+// 3. Configure MoMo Settings
+builder.Services.Configure<MomoSettings>(builder.Configuration.GetSection("MomoSettings"));
+
+// 4. Register HttpClient for MoMo API calls
+builder.Services.AddHttpClient<IPaymentService, MomoPaymentService>();
 
 builder.Services.AddControllers();
 
