@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
+using WibuHub.MVC.ExtensionsMethod;
+using WibuHub.MVC.ViewModels.ShoppingCart;
 
 namespace WibuHub.MVC.Controllers
 {
@@ -12,6 +14,7 @@ namespace WibuHub.MVC.Controllers
         private readonly HttpClient _httpClient;
         private readonly ILogger<PaymentController> _logger;
         private readonly IConfiguration _configuration;
+        private readonly string CartSessionKey = "CartSession";
 
         public PaymentController(IHttpClientFactory httpClientFactory, ILogger<PaymentController> logger, IConfiguration configuration)
         {
@@ -23,16 +26,39 @@ namespace WibuHub.MVC.Controllers
         // GET: Payment
         public IActionResult Index()
         {
-            return View();
+            var cart = HttpContext.Session.GetObject<Cart>(CartSessionKey);
+            if (cart == null || !cart.Items.Any())
+            {
+                TempData["ErrorMessage"] = "Your cart is empty";
+                return RedirectToAction("Index", "ShoppingCart");
+            }
+            return View(cart);
         }
 
         // POST: Payment/CreateMomoPayment
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateMomoPayment(decimal amount, string orderInfo)
         {
+            // Validate amount
+            if (amount <= 0 || amount > 1000000000)
+            {
+                TempData["ErrorMessage"] = "Invalid payment amount";
+                return RedirectToAction("Error");
+            }
+
+            // Validate orderInfo
+            if (string.IsNullOrWhiteSpace(orderInfo) || orderInfo.Length > 200)
+            {
+                TempData["ErrorMessage"] = "Invalid order information";
+                return RedirectToAction("Error");
+            }
+
             try
             {
-                var apiUrl = $"{Request.Scheme}://{Request.Host}/api/payments/momo";
+                // Use configured API URL instead of building from request
+                var apiBaseUrl = _configuration["ApiSettings:BaseUrl"] ?? $"{Request.Scheme}://{Request.Host}";
+                var apiUrl = $"{apiBaseUrl}/api/payments/momo";
                 
                 var requestData = new
                 {
@@ -52,11 +78,32 @@ namespace WibuHub.MVC.Controllers
                     if (result.TryGetProperty("data", out var data) && 
                         data.TryGetProperty("payUrl", out var payUrl))
                     {
-                        return Redirect(payUrl.GetString() ?? "/Payment/Error");
+                        var payUrlString = payUrl.GetString();
+                        if (!string.IsNullOrEmpty(payUrlString))
+                        {
+                            return Redirect(payUrlString);
+                        }
                     }
                 }
 
-                TempData["ErrorMessage"] = "Unable to create payment request";
+                // Extract error message from response if available
+                try
+                {
+                    var errorResult = JsonSerializer.Deserialize<JsonElement>(responseContent);
+                    if (errorResult.TryGetProperty("message", out var errorMsg))
+                    {
+                        TempData["ErrorMessage"] = errorMsg.GetString();
+                    }
+                }
+                catch
+                {
+                    // Use generic error if parsing fails
+                }
+
+                if (TempData["ErrorMessage"] == null)
+                {
+                    TempData["ErrorMessage"] = "Unable to create payment request";
+                }
                 return RedirectToAction("Error");
             }
             catch (Exception ex)

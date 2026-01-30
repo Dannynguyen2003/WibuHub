@@ -121,9 +121,18 @@
         fetch('@Url.Action("UpdateQuantity", "ShoppingCart")?idChapter=' + chapterId + '&quantity=' + newQty, {
             method: 'POST'
         })
-        .then(response => response.text())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to update quantity');
+            }
+            return response.text();
+        })
         .then(data => {
             location.reload();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to update quantity. Please try again.');
         });
     }
 
@@ -132,9 +141,18 @@
             fetch('@Url.Action("RemoveCartItem", "ShoppingCart")?idChapter=' + chapterId, {
                 method: 'POST'
             })
-            .then(response => response.text())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to remove item');
+                }
+                return response.text();
+            })
             .then(data => {
                 location.reload();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to remove item. Please try again.');
             });
         }
     }
