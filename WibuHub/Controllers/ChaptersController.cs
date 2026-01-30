@@ -1,35 +1,39 @@
-﻿using FileTypeChecker;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using WibuHub.ApplicationCore.Entities;
+using WibuHub.ApplicationCore.DTOs.Shared;
 using WibuHub.DataLayer;
-using WibuHub.MVC.ViewModels;
-using static System.Net.Mime.MediaTypeNames;
+using WibuHub.Service.Interface;
 
 namespace WibuHub.Controllers
 {
     [Authorize]
     public class ChaptersController : Controller
     {
+        private readonly IChapterService _chapterService;
         private readonly StoryDbContext _context;
+        private readonly ILogger<ChaptersController> _logger;
 
-        public ChaptersController(StoryDbContext context)
+        public ChaptersController(IChapterService chapterService, StoryDbContext context, ILogger<ChaptersController> logger)
         {
+            _chapterService = chapterService;
             _context = context;
+            _logger = logger;
         }
 
         // GET: Chapters
         public async Task<IActionResult> Index()
         {
-            var StoryDbContext = _context.Chapters.Include(c => c.Story);
-            return View(await StoryDbContext.ToListAsync());
+            try
+            {
+                var chapters = await _chapterService.GetAllAsync();
+                return View(chapters);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving chapters list");
+                return View("Error");
+            }
         }
 
         // GET: Chapters/Details/5
@@ -40,116 +44,57 @@ namespace WibuHub.Controllers
                 return NotFound();
             }
 
-            var chapter = await _context.Chapters
-                .Include(c => c.Story)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (chapter == null)
+            try
             {
-                return NotFound();
-            }
+                var chapter = await _chapterService.GetByIdAsync(id.Value);
+                if (chapter == null)
+                {
+                    return NotFound();
+                }
 
-            return View(chapter);
+                return View(chapter);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving chapter details for ID: {Id}", id);
+                return View("Error");
+            }
         }
 
         // GET: Chapters/Create
         public IActionResult Create()
         {
-            ViewData["StoryId"] = new SelectList(_context.Chapters, "Id", "Title");
+            ViewData["StoryId"] = new SelectList(_context.Stories, "Id", "Title");
             return View();
         }
 
         // POST: Chapters/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create( ChapterVM chapterVM)
+        public async Task<IActionResult> Create(ChapterDto chapterDto)
         {
             if (ModelState.IsValid)
             {
-                var chapter = new Chapter
+                try
                 {
-                    StoryId = chapterVM.StoryId,
-                    Name = chapterVM.Name,
-                    Number = chapterVM.Number,
-                    Slug = chapterVM.Slug,
-                    ViewCount = chapterVM.ViewCount,
-                    Content = chapterVM.Content,
-                    ServerId = chapterVM.ServerId,
-                    CreateDate = chapterVM.CreateDate,
-                    Price = chapterVM.Price,
-                    Discount = chapterVM.Discount,
-
-                };
-                //chapter.Id = Guid.NewGuid();
-                //_context.Add(chapter);
-                await _context.Chapters.AddAsync(chapter);
-
-                //=== Xử lý file ===//
-                //var file = chapterVM.Image;
-                //if (file == null || file.Length == 0)
-                //{
-                //    ViewBag.Message = "Error: No file selected.";
-                //    return View(chapterVM); // Return to the upload page with an error
-                //}
-
-                //// 1. Get the path to the "uploads" folder in wwwroot
-                ////    _environment.WebRootPath gives you the path to the wwwroot folder
-                //string uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads");
-
-                //// 2. Create the folder if it doesn't exist
-                //if (!Directory.Exists(uploadsFolder))
-                //{
-                //    Directory.CreateDirectory(uploadsFolder);
-                //}
-
-                //// 3. Create a unique file name to prevent overwriting
-                ////    (SECURITY: Never use the user's file name directly)
-                //string extension = Path.GetExtension(file.FileName);
-
-                ////string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(file.FileName);
-                //string uniqueFileName = Guid.NewGuid().ToString() + extension;
-                //string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-                //await using var stream = file.OpenReadStream();
-                //if (!FileTypeValidator.IsImage(stream))
-                //{
-                //    ModelState.AddModelError("File", "The uploaded file is not a valid image.");
-                //    return BadRequest(ModelState);
-                //}
-                ////if (!(FileTypeValidator.IsTypePng(stream) || FileTypeValidator.IsTypeJpg(stream)))
-                ////{
-                ////     }
-
-                //// 4. Save the file to the server
-                //try
-                //{
-                //    using (var fileStream = new FileStream(filePath, FileMode.Create))
-                //    {
-                //        await file.CopyToAsync(fileStream);
-                //    }
-
-                //    ViewBag.Message = "File uploaded successfully!";
-                //    // You can store 'uniqueFileName' or '/uploads/' + uniqueFileName in your database
-
-                //    var newImage = new Image
-                //    {
-                //        Name = file.Name,
-                //        FileName = uniqueFileName,
-                //        Extension = extension
-                //    };
-                //    await _context.Images.AddAsync(newImage);
-                //    chapter.ImageId = newImage.Id;
-                //}
-                //catch (Exception ex)
-                //{
-                //    ViewBag.Message = "Error: " + ex.Message;
-                //}
-
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                    var isSuccess = await _chapterService.CreateAsync(chapterDto);
+                    if (isSuccess)
+                    {
+                        return RedirectToAction(nameof(Index));
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", "Không thể tạo chương. Có thể StoryId không tồn tại.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error creating chapter");
+                    ModelState.AddModelError("", "Đã xảy ra lỗi khi tạo chương.");
+                }
             }
-            ViewData["StoryId"] = new SelectList(_context.Chapters, "Id", "Title", chapterVM.StoryId);
-            return View(chapterVM);
+            ViewData["StoryId"] = new SelectList(_context.Stories, "Id", "Title", chapterDto.StoryId);
+            return View(chapterDto);
         }
 
         // GET: Chapters/Edit/5
@@ -160,23 +105,29 @@ namespace WibuHub.Controllers
                 return NotFound();
             }
 
-            var chapter = await _context.Chapters.FindAsync(id);
-            if (chapter == null)
+            try
             {
+                var chapterDto = await _chapterService.GetByIdAsDtoAsync(id.Value);
+                if (chapterDto == null)
+                {
+                    return NotFound();
+                }
+                ViewData["StoryId"] = new SelectList(_context.Stories, "Id", "Title", chapterDto.StoryId);
+                return View(chapterDto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading chapter for edit: {Id}", id);
                 return NotFound();
             }
-            ViewData["StoryId"] = new SelectList(_context.Chapters, "Id", "Title", chapter.StoryId);
-            return View(chapter);
         }
 
         // POST: Chapters/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id,  ChapterVM chapterVM)
+        public async Task<IActionResult> Edit(Guid id, ChapterDto chapterDto)
         {
-            if (id != chapterVM.Id)
+            if (id != chapterDto.Id)
             {
                 return NotFound();
             }
@@ -185,24 +136,24 @@ namespace WibuHub.Controllers
             {
                 try
                 {
-                    _context.Update(chapterVM);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ChapterExists(chapterVM.Id))
+                    var isSuccess = await _chapterService.UpdateAsync(chapterDto);
+                    if (isSuccess)
                     {
-                        return NotFound();
+                        return RedirectToAction(nameof(Index));
                     }
                     else
                     {
-                        throw;
+                        ModelState.AddModelError("", "Không thể cập nhật chương.");
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error updating chapter: {Id}", id);
+                    ModelState.AddModelError("", "Đã xảy ra lỗi khi cập nhật chương.");
+                }
             }
-            ViewData["StoryId"] = new SelectList(_context.Chapters, "Id", "Title", chapterVM.StoryId);
-            return View(chapterVM);
+            ViewData["StoryId"] = new SelectList(_context.Stories, "Id", "Title", chapterDto.StoryId);
+            return View(chapterDto);
         }
 
         // GET: Chapters/Delete/5
@@ -213,15 +164,21 @@ namespace WibuHub.Controllers
                 return NotFound();
             }
 
-            var chapter = await _context.Chapters
-                .Include(c => c.Story)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (chapter == null)
+            try
             {
+                var chapter = await _chapterService.GetByIdAsync(id.Value);
+                if (chapter == null)
+                {
+                    return NotFound();
+                }
+
+                return View(chapter);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading chapter for delete: {Id}", id);
                 return NotFound();
             }
-
-            return View(chapter);
         }
 
         // POST: Chapters/Delete/5
@@ -229,19 +186,20 @@ namespace WibuHub.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var chapter = await _context.Chapters.FindAsync(id);
-            if (chapter != null)
+            try
             {
-                _context.Chapters.Remove(chapter);
+                var isSuccess = await _chapterService.DeleteAsync(id);
+                if (!isSuccess)
+                {
+                    _logger.LogWarning("Failed to delete chapter: {Id}", id);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting chapter: {Id}", id);
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool ChapterExists(Guid id)
-        {
-            return _context.Chapters.Any(e => e.Id == id);
         }
     }
 }
