@@ -1,13 +1,16 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Linq.Expressions;
 using WibuHub.ApplicationCore.Entities;
+using WibuHub.ApplicationCore.Entities.Identity; // Namespace chứa StoryUser
 using WibuHub.ApplicationCore.Interface;
 
 
 namespace WibuHub.DataLayer
 {
-    public class StoryDbContext : DbContext
+    // 1. SỬA KẾ THỪA: Dùng IdentityDbContext để hỗ trợ bảng User/Role
+    public class StoryDbContext : IdentityDbContext<StoryUser, StoryRole, string>
     {
         public StoryDbContext(DbContextOptions<StoryDbContext> options) : base(options)
         {
@@ -18,7 +21,12 @@ namespace WibuHub.DataLayer
         public DbSet<Chapter> Chapters { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Author> Authors { get; set; }
-        public DbSet<StoryCategory> Genres { get; set; }
+
+        // 2. CẬP NHẬT: Thêm bảng ảnh và bảng trung gian
+        public DbSet<ChapterImage> ChapterImages { get; set; }
+        public DbSet<StoryCategoryRelation> StoryCategories { get; set; } // Bảng nối Story - Category
+        public DbSet<StoryCategory> Genres { get; set; } // Thể loại truyện (genres)
+
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Follow> Follows { get; set; }
         public DbSet<History> Histories { get; set; }
@@ -52,6 +60,7 @@ namespace WibuHub.DataLayer
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // QUAN TRỌNG: Phải gọi base để Identity cấu hình các bảng User, Role...
             base.OnModelCreating(modelBuilder);
 
             // =============================================================
@@ -100,6 +109,22 @@ namespace WibuHub.DataLayer
                 entity.Property(g => g.Name).HasMaxLength(150).IsRequired();
             });
 
+            // 3.1. StoryCategory (MANY-TO-MANY Configuration) - UPDATE QUAN TRỌNG
+            modelBuilder.Entity<StoryCategoryRelation>(entity =>
+            {
+                entity.ToTable("StoryCategories");
+                // Khóa chính phức hợp (Composite Key)
+                entity.HasKey(sc => new { sc.StoryId, sc.CategoryId });
+
+                entity.HasOne(sc => sc.Story)
+                      .WithMany(s => s.StoryCategories)
+                      .HasForeignKey(sc => sc.StoryId);
+
+                entity.HasOne(sc => sc.Category)
+                      .WithMany(c => c.StoryCategories)
+                      .HasForeignKey(sc => sc.CategoryId);
+            });
+
             // 4. Story
             modelBuilder.Entity<Story>(entity =>
             {
@@ -124,7 +149,7 @@ namespace WibuHub.DataLayer
                       .UsingEntity(j => j.ToTable("StoryGenres"));
             });
 
-            // 5. Chapter
+            // 5. Chapter & ChapterImage - UPDATE QUAN TRỌNG
             modelBuilder.Entity<Chapter>(entity =>
             {
                 entity.ToTable("Chapters");
@@ -137,6 +162,19 @@ namespace WibuHub.DataLayer
                 entity.HasOne(c => c.Story)
                       .WithMany(s => s.Chapters)
                       .HasForeignKey(c => c.StoryId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Cấu hình bảng ChapterImages
+            modelBuilder.Entity<ChapterImage>(entity =>
+            {
+                entity.ToTable("ChapterImages");
+                entity.HasKey(ci => ci.Id);
+
+                // Khi xóa Chapter -> Xóa luôn ảnh
+                entity.HasOne(ci => ci.Chapter)
+                      .WithMany(c => c.Images)
+                      .HasForeignKey(ci => ci.ChapterId)
                       .OnDelete(DeleteBehavior.Cascade);
             });
 

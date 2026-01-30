@@ -62,5 +62,8 @@ namespace WibuHub.ApplicationCore.Entities
         //public Guid? ImageId { get; set; }
         //public virtual Image? Image { get; set; }
 
+        // Navigation property: 1 Chapter có nhiều ChapterImage
+        public virtual ICollection<ChapterImage> Images { get; set; } = new List<ChapterImage>();
+
     }
 }

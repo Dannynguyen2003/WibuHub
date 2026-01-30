@@ -72,6 +72,9 @@ namespace WibuHub.ApplicationCore.Entities
 
         // Many-to-Many: Thể loại truyện (Fixed: use ComicGenre)
         public virtual ICollection<StoryCategory> Genres { get; set; } = new List<StoryCategory>();
+
+        // Many-to-Many: Story-Category join table
+        public virtual ICollection<StoryCategoryRelation> StoryCategories { get; set; } = new List<StoryCategoryRelation>();
     }
 
     // Helper Enum để quản lý trạng thái dễ dàng hơn trong code

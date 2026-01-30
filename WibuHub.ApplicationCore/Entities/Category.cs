@@ -26,5 +26,6 @@ namespace WibuHub.ApplicationCore.Entities
 
         public virtual ICollection<Story> Stories { get; set; } = new Collection<Story>();
         public virtual ICollection<Comment> Comments { get; set; } = new Collection<Comment>();
+        public virtual ICollection<StoryCategoryRelation> StoryCategories { get; set; } = new Collection<StoryCategoryRelation>();
     }
 }
