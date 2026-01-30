@@ -6,7 +6,7 @@ using WibuHub.ApplicationCore.Entities;
 
 namespace WibuHub.MVC.ViewModels
 {
-    [Bind("Id,Title,AlternativeName,Description,Thumbnail,Status,ViewCount,FollowCount,RatingScore,DateCreated,UpdateDate,AuthorId,CategoryId")]
+    [Bind("Id,Title,AlternativeName,Description,Slug,Thumbnail,Status,ViewCount,FollowCount,RatingScore,DateCreated,UpdateDate,AuthorId,CategoryId")]
     public class StoryVM
     {
         [Key]
@@ -24,6 +24,12 @@ namespace WibuHub.MVC.ViewModels
         // Description: nvarchar(MAX)
         // Trong EF Core, string không giới hạn MaxLength mặc định sẽ là nvarchar(MAX)
         public string? Description { get; set; }
+
+        // Slug: varchar(150) - URL thân thiện
+        [Required]
+        [MaxLength(150)]
+        [Column(TypeName = "varchar(150)")]
+        public string Slug { get; set; } = string.Empty;
 
         // Thumbnail: varchar(500)
         [MaxLength(500)]

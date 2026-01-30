@@ -1,10 +1,12 @@
-﻿using System.ComponentModel;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WibuHub.ApplicationCore.Interface;
 
 namespace WibuHub.ApplicationCore.Entities
 {
+    [Index(nameof(Slug), IsUnique = true)]
     public class Story : ISoftDelete
     {
         [Key]
@@ -22,8 +24,12 @@ namespace WibuHub.ApplicationCore.Entities
         // Description: nvarchar(MAX)
         // Trong EF Core, string không giới hạn MaxLength mặc định sẽ là nvarchar(MAX)
         public string? Description { get; set; }
-        
- 
+
+        // Slug: varchar(150) - URL thân thiện
+        [Required]
+        [MaxLength(150)]
+        [Column(TypeName = "varchar(150)")]
+        public string Slug { get; set; } = string.Empty;
 
         // Status: tinyint (0: Đang tiến hành, 1: Hoàn thành, 2: Tạm ngưng)
         // Map int của C# sang tinyint của SQL
