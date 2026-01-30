@@ -24,6 +24,13 @@
                    I have commented this out. If you add a Name property to your InputModel, 
                    uncomment this and add asp-for="Input.Name".
                 *@
+                                @* Full Name Input *@
+                                <div class="form-outline mb-4">
+                                    <input asp-for="Input.FullName" class="form-control form-control-lg" placeholder="Full Name" />
+                                    <label asp-for="Input.FullName" class="form-label">Full Name</label>
+                                    <span asp-validation-for="Input.FullName" class="text-danger"></span>
+                                </div>
+
                                 @* Email Input *@
                                 <div class="form-outline mb-4">
                                     <input asp-for="Input.Email" class="form-control form-control-lg" placeholder="name@example.com" />

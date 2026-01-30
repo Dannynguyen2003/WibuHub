@@ -23,6 +23,13 @@ namespace WibuHub.DataLayer
                     .HasMaxLength(MaxLengths.NAME);
                 img.Property(s => s.Avatar)
                     .HasMaxLength(MaxLengths.FILE_NAME);
+                img.Property(s => s.UserType)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasDefaultValue("Customer");
+                img.Property(s => s.CreatedAt)
+                    .IsRequired()
+                    .HasDefaultValueSql("GETUTCDATE()");
 
             });
             modelBuilder.Entity<StoryRole>(img =>
