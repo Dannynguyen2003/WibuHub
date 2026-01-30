@@ -1,0 +1,45 @@
+@{
+    ViewData["Title"] = "Payment Success";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg">
+                <div class="card-body text-center p-5">
+                    <div class="mb-4">
+                        <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+                    </div>
+                    <h2 class="card-title text-success mb-3">Payment Successful!</h2>
+                    <p class="card-text text-muted mb-4">
+                        Your payment has been processed successfully. Thank you for your purchase!
+                    </p>
+                    <div class="alert alert-info mb-4">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Your order is being processed and you will receive a confirmation shortly.
+                    </div>
+                    <div class="d-grid gap-2 d-md-block">
+                        <a href="@Url.Action("Index", "Home")" class="btn btn-primary btn-lg me-md-2">
+                            <i class="bi bi-house-door me-2"></i>Back to Home
+                        </a>
+                        <a href="@Url.Action("Index", "Stories")" class="btn btn-outline-secondary btn-lg">
+                            <i class="bi bi-book me-2"></i>Browse Stories
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border: none;
+        border-radius: 15px;
+    }
+    
+    .btn-lg {
+        padding: 12px 30px;
+        border-radius: 8px;
+    }
+</style>
