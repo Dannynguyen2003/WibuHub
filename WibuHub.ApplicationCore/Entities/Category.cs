@@ -15,6 +15,9 @@ namespace WibuHub.ApplicationCore.Entities
         [Required]
         [MaxLength(MaxLengths.NAME)]
         public string Name { get; set; } = string.Empty;
+        [Required]
+        [MaxLength(MaxLengths.NAME)] // Thường dùng chung độ dài với Name
+        public string Slug { get; set; } = string.Empty;
 
         [MaxLength(MaxLengths.DESCRIPTION)]
         public string? Description { get; set; }

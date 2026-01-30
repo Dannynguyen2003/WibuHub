@@ -1,50 +1,45 @@
 ﻿@model IEnumerable<WibuHub.ApplicationCore.Entities.Category>
-@* @model IEnumerable<WibuHub.MVC.ViewModels.CategoryVM> *@
-
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Danh sách Danh mục";
 }
 
-<h1>Index</h1>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <h1>Quản lý Danh mục</h1>
+        <p>
+            <a asp-action="Create" class="btn btn-success">
+                <i class="fas fa-plus"></i> Tạo mới
+            </a>
+        </p>
+    </div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Position)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
+    <table class="table table-hover table-striped border">
+        <thead class="table-dark">
             <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Description)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Position)
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                </td>
+                <th>@Html.DisplayNameFor(model => model.Position)</th>
+                <th>@Html.DisplayNameFor(model => model.Name)</th>
+                <th>Slug (Đường dẫn)</th> @* Cột mới thêm *@
+                <th>@Html.DisplayNameFor(model => model.Description)</th>
+                <th class="text-center">Thao tác</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.OrderBy(x => x.Position))
+            {
+                <tr>
+                    <td><span class="badge bg-secondary">@item.Position</span></td>
+                    <td><strong>@item.Name</strong></td>
+                    <td><code>@item.Slug</code></td> @* Hiển thị Slug *@
+                    <td>@item.Description</td>
+                    <td class="text-center">
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-primary">Sửa</a>
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info text-white">Chi tiết</a>
+                        @* Nút Delete thường gọi JS Modal bạn đã viết *@
+                        <button onclick="openModalDeleteCategory('@item.Id')" class="btn btn-sm btn-danger">Xóa</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

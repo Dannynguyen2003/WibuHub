@@ -37,7 +37,15 @@
                     <span asp-validation-for="Description" class="text-danger"></span>
                 </div>
 
-                @* 3. Vị trí sắp xếp (Position)
+                @* 3. Slug (Đường dẫn) *@
+                <div class="form-group mb-3">
+                    <label asp-for="Slug" class="control-label fw-bold">Đường dẫn (Slug)</label>
+                    <input asp-for="Slug" class="form-control" placeholder="tu-dong-sinh-ra-tu-ten" id="txtSlug" />
+                    <small class="form-text text-muted">Đây là đường dẫn trên URL (không dấu, gạch ngang).</small>
+                    <span asp-validation-for="Slug" class="text-danger"></span>
+                </div>
+
+                @* 4. Vị trí sắp xếp (Position)
                 <div class="form-group mb-3">
                     <label asp-for="Position" class="control-label fw-bold">Vị trí hiển thị</label>
                     <input asp-for="Position" class="form-control" type="number" min="0" value="0" />
@@ -61,6 +69,31 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script>
+        // Tự động tạo Slug khi gõ Tên danh mục
+        document.getElementById("Name").addEventListener("keyup", function () {
+            let name = this.value;
+            let slug = generateSlug(name);
+            document.getElementById("txtSlug").value = slug;
+        });
+
+        function generateSlug(text) {
+            return text.toString().toLowerCase()
+                .replace(/á|à|ả|ạ|ã|ă|ắ|ằ|ẳ|ặ|ẵ|â|ấ|ầ|ẩ|ậ|ẫ/g, 'a')
+                .replace(/é|è|ẻ|ẹ|ẽ|ê|ế|ề|ể|ệ|ễ/g, 'e')
+                .replace(/i|í|ì|ỉ|ị|ĩ/g, 'i')
+                .replace(/ó|ò|ỏ|ọ|õ|ô|ố|ồ|ổ|ộ|ỗ|ơ|ớ|ờ|ở|ợ|ỡ/g, 'o')
+                .replace(/ú|ù|ủ|ụ|ũ|ư|ứ|ừ|ử|ự|ữ/g, 'u')
+                .replace(/ý|ỳ|ỷ|ỵ|ỹ/g, 'y')
+                .replace(/đ/g, 'd')
+                .replace(/\s+/g, '-')           // Thay khoảng trắng bằng -
+                .replace(/[^\w\-]+/g, '')       // Loại bỏ ký tự đặc biệt
+                .replace(/\-\-+/g, '-')         // Thay nhiều -- bằng 1 -
+                .replace(/^-+/, '')              // Cắt - ở đầu
+                .replace(/-+$/, '');             // Cắt - ở cuối
+        }
+    </script>
 
     <script>
         // openModal();

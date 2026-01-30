@@ -21,7 +21,12 @@ namespace WibuHub.MVC.Controllers
         // GET: Categories
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Categories.ToListAsync());
+            // Chỉ lấy những cái IsDeleted == false
+            var list = await _context.Categories
+                                     .Where(c => !c.IsDeleted)
+                                     .OrderBy(c => c.Position)
+                                     .ToListAsync();
+            return View(list);
         }
 
         // GET: Categories/Details/5
@@ -70,13 +75,49 @@ namespace WibuHub.MVC.Controllers
                     //Id = Guid.NewGuid(),
                     Name = categoryVM.Name.Trim(),
                     Description = categoryVM.Description?.Trim(),
-                    Position = ++countCategory
+                    Position = ++countCategory,
+                    Slug = string.IsNullOrEmpty(categoryVM.Slug)
+                           ? GenerateSlug(categoryVM.Name)
+                           : categoryVM.Slug.Trim()
                 };
                 _context.Categories.Add(category);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Create));
             }
             return View(categoryVM);
+        }
+        private string GenerateSlug(string phrase)
+        {
+            if (string.IsNullOrWhiteSpace(phrase)) return "";
+
+            // Chuyển về chữ thường
+            string str = phrase.ToLower().Trim();
+
+            // Thay thế các ký tự tiếng Việt có dấu
+            string[] vietnameseSigns = {
+            "aAeEoOuUiIdDyY",
+            "áàạảãâấầậẩẫăắằặẳẵ", "ÁÀẠẢÃÂẤẦẬẨẪĂẮẰẶẲẴ",
+            "éèẹẻẽêếềệểễ", "ÉÈẸẺẼÊẾỀỆỂỄ",
+            "óòọỏõôốồộổỗơớờợởỡ", "ÓÒỌỎÕÔỐỒỘỔỖƠỚỜỢỞỠ",
+            "úùụủũưứừựửữ", "ÚÙỤỦŨƯỨỪỰỬỮ",
+            "íìịỉĩ", "ÍÌỊỈĨ",
+            "đ", "Đ",
+            "ýỳỵỷỹ", "ÝỲỴỶỸ"
+            };
+            for (int i = 1; i < vietnameseSigns.Length; i++)
+            {
+                for (int j = 0; j < vietnameseSigns[i].Length; j++)
+                    str = str.Replace(vietnameseSigns[i][j], vietnameseSigns[0][i - 1]);
+            }
+
+            // Loại bỏ ký tự đặc biệt, chỉ giữ lại chữ cái, số và dấu cách
+            str = System.Text.RegularExpressions.Regex.Replace(str, @"[^a-z0-9\s-]", "");
+            // Thay khoảng trắng thành 1 dấu gạch ngang
+            str = System.Text.RegularExpressions.Regex.Replace(str, @"\s+", "-").Trim();
+            // Thay nhiều gạch ngang liên tiếp thành 1 gạch ngang
+            str = System.Text.RegularExpressions.Regex.Replace(str, @"-+", "-");
+
+            return str;
         }
 
         // GET: Categories/Edit/5
@@ -139,6 +180,7 @@ namespace WibuHub.MVC.Controllers
                     }
                     category.Name = categoryVM.Name.Trim();
                     category.Description = categoryVM.Description?.Trim();
+                    category.Slug = categoryVM.Slug.Trim();
                     //_context.Update(category);
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Create));

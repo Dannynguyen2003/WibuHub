@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-
+using WibuHub.ApplicationCore.DTOs.Shared;
 using WibuHub.MVC.ViewModels;
 using WibuHub.Service.Interface;
 
@@ -39,14 +39,14 @@ namespace WibuHub.API.Controllers
 
         // POST: api/categories
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CategoryVM categoryVM)
+        public async Task<IActionResult> Create([FromBody] CategoryDto request)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState); // HTTP 400
             }
 
-            var result = await _categoryService.CreateAsync(categoryVM);
+            var result = await _categoryService.CreateAsync(request);
 
             if (result)
             {
@@ -62,9 +62,10 @@ namespace WibuHub.API.Controllers
 
         // PUT: api/categories/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(Guid id, [FromBody] CategoryVM categoryVM)
+        public async Task<IActionResult> Update(Guid id, [FromBody] CategoryDto request)
         {
-            if (id != categoryVM.Id)
+            // 1. Fixed: Use 'request.Id' instead of 'categoryVM.Id'
+            if (id != request.Id)
             {
                 return BadRequest(new { message = "ID không khớp" });
             }
@@ -74,7 +75,8 @@ namespace WibuHub.API.Controllers
                 return BadRequest(ModelState);
             }
 
-            var result = await _categoryService.UpdateAsync(categoryVM);
+            // 2. Fixed: Pass both 'id' AND 'request' to match the Interface
+            var result = await _categoryService.UpdateAsync(id, request);
 
             if (result)
             {

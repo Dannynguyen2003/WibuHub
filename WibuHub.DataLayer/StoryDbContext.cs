@@ -9,7 +9,7 @@ using WibuHub.ApplicationCore.Interface;
 namespace WibuHub.DataLayer
 {
     // 1. SỬA KẾ THỪA: Dùng IdentityDbContext để hỗ trợ bảng User/Role
-    public class StoryDbContext : IdentityDbContext<StoryUser>
+    public class StoryDbContext : DbContext
     {
         public StoryDbContext(DbContextOptions<StoryDbContext> options) : base(options)
         {
@@ -84,6 +84,9 @@ namespace WibuHub.DataLayer
                 entity.HasKey(c => c.Id);
                 entity.Property(c => c.Name).HasMaxLength(100).IsRequired();
                 entity.Property(c => c.Description).HasMaxLength(1000);
+                entity.HasIndex(e => e.Slug)
+                      .IsUnique()
+                      .HasDatabaseName("IX_Category_Slug");
             });
 
             // 2. Author
