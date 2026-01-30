@@ -16,7 +16,11 @@ namespace WibuHub.ApplicationCore.Configuration
                     Name = AppConstants.Roles.Customer,
                     Description = "Người dùng đọc truyện và mua truyện"
                 };
-                await roleManager.CreateAsync(customerRole);
+                var result = await roleManager.CreateAsync(customerRole);
+                if (!result.Succeeded)
+                {
+                    throw new Exception($"Failed to create {AppConstants.Roles.Customer} role: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                }
             }
 
             // Seed Admin role
@@ -27,7 +31,11 @@ namespace WibuHub.ApplicationCore.Configuration
                     Name = AppConstants.Roles.Admin,
                     Description = "Người vận hành hệ thống, quản lý truyện, chapter và người dùng"
                 };
-                await roleManager.CreateAsync(adminRole);
+                var result = await roleManager.CreateAsync(adminRole);
+                if (!result.Succeeded)
+                {
+                    throw new Exception($"Failed to create {AppConstants.Roles.Admin} role: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                }
             }
         }
     }
