@@ -5,7 +5,7 @@ using WibuHub.Common.Contants;
 
 namespace WibuHub.MVC.ViewModels
 {
-    [Bind("Id,Name,Description,Position")]
+    [Bind("Id,Name,Description,Slug,Position")]
     [Index(nameof(Name), IsUnique = true)]
     public class CategoryVM
     {
@@ -17,6 +17,12 @@ namespace WibuHub.MVC.ViewModels
 
         [MaxLength(MaxLengths.DESCRIPTION)]
         public string? Description { get; set; }
+
+        // Slug: varchar(150) - URL thân thiện
+        [Required]
+        [MaxLength(150)]
+        public string Slug { get; set; } = string.Empty;
+
         public int Position { get; set; }
     }
 }

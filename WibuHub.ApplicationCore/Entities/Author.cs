@@ -1,9 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WibuHub.ApplicationCore.Interface;
 
 namespace WibuHub.ApplicationCore.Entities
 {
+    [Index(nameof(Slug), IsUnique = true)]
     public class Author : ISoftDelete
     {
         [Key]
@@ -13,6 +15,12 @@ namespace WibuHub.ApplicationCore.Entities
         [Required]
         [MaxLength(150)]
         public string Name { get; set; } = string.Empty;
+
+        // Slug: varchar(150) - URL thân thiện
+        [Required]
+        [MaxLength(150)]
+        [Column(TypeName = "varchar(150)")]
+        public string Slug { get; set; } = string.Empty;
 
         public bool IsDeleted { get; set; } = false;
         public DateTime? DeletedAt { get; set; }
