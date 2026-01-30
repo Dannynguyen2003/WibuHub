@@ -1,0 +1,41 @@
+@model IEnumerable<WibuHub.ApplicationCore.Entities.Follow>
+
+@{
+    ViewData["Title"] = "Quản lý Theo dõi";
+}
+
+<div class="container-fluid">
+    <h2>@ViewData["Title"]</h2>
+
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Truyện</th>
+                        <th>Người theo dõi</th>
+                        <th>Ngày theo dõi</th>
+                        <th style="width: 150px;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Story?.Title</td>
+                            <td>@item.UserId</td>
+                            <td>@item.CreateDate.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a asp-action="Delete" asp-route-userId="@item.UserId" asp-route-storyId="@item.StoryId" class="btn btn-sm btn-danger">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
