@@ -1,0 +1,97 @@
+@model WibuHub.ApplicationCore.Entities.Story
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-3">
+            @if (!string.IsNullOrEmpty(Model.Thumbnail))
+            {
+                <img src="@Model.Thumbnail" class="img-fluid rounded" alt="@Model.Title">
+            }
+            else
+            {
+                <div class="bg-secondary text-white d-flex align-items-center justify-content-center rounded" style="height: 400px;">
+                    <span>No Image</span>
+                </div>
+            }
+        </div>
+        <div class="col-md-9">
+            <h1>@Model.Title</h1>
+            
+            @if (!string.IsNullOrEmpty(Model.AlternativeName))
+            {
+                <p class="text-muted">@Model.AlternativeName</p>
+            }
+
+            <div class="mb-3">
+                <strong>Tác giả:</strong> 
+                @if (Model.Author != null)
+                {
+                    <span>@Model.Author.Name</span>
+                }
+                else
+                {
+                    <span class="text-muted">Đang cập nhật</span>
+                }
+            </div>
+
+            <div class="mb-3">
+                <strong>Thể loại:</strong>
+                @if (Model.Category != null)
+                {
+                    <span class="badge bg-info">@Model.Category.Name</span>
+                }
+            </div>
+
+            <div class="mb-3">
+                <strong>Trạng thái:</strong>
+                @switch (Model.Status)
+                {
+                    case 0:
+                        <span class="badge bg-success">Đang tiến hành</span>
+                        break;
+                    case 1:
+                        <span class="badge bg-primary">Hoàn thành</span>
+                        break;
+                    case 2:
+                        <span class="badge bg-warning">Tạm ngưng</span>
+                        break;
+                }
+            </div>
+
+            <div class="mb-3">
+                <strong>Lượt xem:</strong> @Model.ViewCount.ToString("N0")
+            </div>
+
+            <div class="mb-3">
+                <strong>Người theo dõi:</strong> @Model.FollowCount.ToString("N0")
+            </div>
+
+            <div class="mb-3">
+                <strong>Đánh giá:</strong> 
+                <span class="badge bg-warning text-dark">@Model.RatingScore.ToString("0.0")/10</span>
+            </div>
+
+            <div class="mb-3">
+                <strong>Ngày cập nhật:</strong> @Model.UpdateDate.ToString("dd/MM/yyyy HH:mm")
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.Description))
+            {
+                <div class="mb-3">
+                    <strong>Mô tả:</strong>
+                    <p>@Model.Description</p>
+                </div>
+            }
+
+            <div class="mt-4">
+                <a asp-action="Index" class="btn btn-secondary">Quay lại danh sách</a>
+                <button class="btn btn-primary">Theo dõi</button>
+                <button class="btn btn-success">Đọc ngay</button>
+            </div>
+        </div>
+    </div>
+</div>

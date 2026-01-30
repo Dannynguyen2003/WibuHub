@@ -22,7 +22,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\WibuHub.ApplicationCore\WibuHub.ApplicationCore.csproj" />
     <ProjectReference Include="..\WibuHub.DataLayer\WibuHub.DataLayer.csproj" />
+    <ProjectReference Include="..\WibuHub.Service\WibuHub.Service.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
-using WibuHub.MVC.ViewModels;
+using WibuHub.ApplicationCore.DTOs.Shared;
 using WibuHub.Service.Interface;
 
 namespace WibuHub.API.Controllers
@@ -40,7 +39,7 @@ namespace WibuHub.API.Controllers
 
         // POST: api/categories
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CategoryVM categoryVM)
+        public async Task<IActionResult> Create([FromBody] CategoryDto categoryVM)
         {
             if (!ModelState.IsValid)
             {
@@ -63,7 +62,7 @@ namespace WibuHub.API.Controllers
 
         // PUT: api/categories/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(Guid id, [FromBody] CategoryVM categoryVM)
+        public async Task<IActionResult> Update(Guid id, [FromBody] CategoryDto categoryVM)
         {
             if (id != categoryVM.Id)
             {

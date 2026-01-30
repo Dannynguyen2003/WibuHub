@@ -1,0 +1,63 @@
+@model IEnumerable<WibuHub.ApplicationCore.Entities.Story>
+
+@{
+    ViewData["Title"] = "Stories";
+}
+
+<h1>Stories</h1>
+
+<div class="row">
+    @if (Model != null && Model.Any())
+    {
+        @foreach (var story in Model)
+        {
+            <div class="col-md-3 mb-4">
+                <div class="card h-100">
+                    @if (!string.IsNullOrEmpty(story.Thumbnail))
+                    {
+                        <img src="@story.Thumbnail" class="card-img-top" alt="@story.Title" style="height: 300px; object-fit: cover;">
+                    }
+                    else
+                    {
+                        <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 300px;">
+                            <span class="text-white">No Image</span>
+                        </div>
+                    }
+                    <div class="card-body">
+                        <h5 class="card-title">@story.Title</h5>
+                        @if (!string.IsNullOrEmpty(story.AlternativeName))
+                        {
+                            <p class="card-text text-muted small">@story.AlternativeName</p>
+                        }
+                        <p class="card-text">
+                            <small class="text-muted">
+                                @if (story.Author != null)
+                                {
+                                    <span>Tác giả: @story.Author.Name</span>
+                                    <br />
+                                }
+                                @if (story.Category != null)
+                                {
+                                    <span>Thể loại: @story.Category.Name</span>
+                                    <br />
+                                }
+                                <span>Lượt xem: @story.ViewCount.ToString("N0")</span>
+                                <br />
+                                <span>Đánh giá: @story.RatingScore.ToString("0.0")/10</span>
+                            </small>
+                        </p>
+                        <a asp-action="Details" asp-route-id="@story.Id" class="btn btn-primary">Chi tiết</a>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12">
+            <div class="alert alert-info" role="alert">
+                Không có truyện nào.
+            </div>
+        </div>
+    }
+</div>

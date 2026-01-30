@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using WibuHub.ApplicationCore.Entities;
 using WibuHub.DataLayer;
 using WibuHub.MVC.ViewComponents;
-using WibuHub.MVC.ViewModels;
+using WibuHub.ApplicationCore.DTOs.Shared;
 
 namespace WibuHub.MVC.Controllers
 {
@@ -53,8 +53,8 @@ namespace WibuHub.MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Create([Bind("Id,Name,Description")] CategoryVM categoryVM)
-        public async Task<IActionResult> Create(CategoryVM categoryVM)
+        //public async Task<IActionResult> Create([Bind("Id,Name,Description")] CategoryDto categoryVM)
+        public async Task<IActionResult> Create(CategoryDto categoryVM)
         {
             if (ModelState.IsValid)
             {
@@ -94,7 +94,7 @@ namespace WibuHub.MVC.Controllers
             //}
             var categoryVM = await _context.Categories
                 .Where(c => c.Id == id)
-                .Select(c => new CategoryVM
+                .Select(c => new CategoryDto
                 {
                     Id = c.Id,
                     Name = c.Name,
@@ -115,7 +115,7 @@ namespace WibuHub.MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, CategoryVM categoryVM)
+        public async Task<IActionResult> Edit(Guid id, CategoryDto categoryVM)
         {
             if (id != categoryVM.Id)
             {
