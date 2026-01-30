@@ -1,0 +1,37 @@
+@model WibuHub.ApplicationCore.Entities.Author
+
+@{
+    ViewData["Title"] = "Chi tiết tác giả";
+}
+
+<div class="container">
+    <h2>@ViewData["Title"]</h2>
+    <hr />
+    
+    <dl class="row">
+        <dt class="col-sm-3">Tên tác giả</dt>
+        <dd class="col-sm-9">@Model.Name</dd>
+        
+        <dt class="col-sm-3">Số lượng truyện</dt>
+        <dd class="col-sm-9">@Model.Stories.Count</dd>
+    </dl>
+    
+    @if (Model.Stories.Any())
+    {
+        <h4>Danh sách truyện</h4>
+        <ul>
+            @foreach (var story in Model.Stories.Where(s => !s.IsDeleted))
+            {
+                <li>
+                    <a asp-controller="Stories" asp-action="Details" asp-route-id="@story.Id">@story.Title</a>
+                </li>
+            }
+        </ul>
+    }
+    
+    <div class="mt-3">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Chỉnh sửa</a>
+        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Xóa</a>
+        <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+    </div>
+</div>

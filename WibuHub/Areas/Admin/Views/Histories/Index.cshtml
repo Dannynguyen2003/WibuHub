@@ -1,0 +1,46 @@
+@model IEnumerable<WibuHub.ApplicationCore.Entities.History>
+
+@{
+    ViewData["Title"] = "Quản lý Lịch sử đọc";
+}
+
+<div class="container-fluid">
+    <h2>@ViewData["Title"]</h2>
+
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Người đọc</th>
+                        <th>Truyện</th>
+                        <th>Chương</th>
+                        <th>Ngày đọc</th>
+                        <th style="width: 150px;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.UserId</td>
+                            <td>@item.Story?.Title</td>
+                            <td>@item.Chapter?.Name</td>
+                            <td>@item.ReadTime.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

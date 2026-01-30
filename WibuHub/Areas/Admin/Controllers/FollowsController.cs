@@ -22,22 +22,17 @@ namespace WibuHub.Areas.Admin.Controllers
         {
             var follows = await _context.Follows
                 .Include(f => f.Story)
-                .OrderByDescending(f => f.FollowDate)
+                .OrderByDescending(f => f.CreateDate)
                 .ToListAsync();
             return View(follows);
         }
 
         // GET: Admin/Follows/Details/5
-        public async Task<IActionResult> Details(Guid? id)
+        public async Task<IActionResult> Details(Guid userId, Guid storyId)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
             var follow = await _context.Follows
                 .Include(f => f.Story)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.UserId == userId && m.StoryId == storyId);
 
             if (follow == null)
             {
@@ -48,16 +43,11 @@ namespace WibuHub.Areas.Admin.Controllers
         }
 
         // GET: Admin/Follows/Delete/5
-        public async Task<IActionResult> Delete(Guid? id)
+        public async Task<IActionResult> Delete(Guid userId, Guid storyId)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
             var follow = await _context.Follows
                 .Include(f => f.Story)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.UserId == userId && m.StoryId == storyId);
             
             if (follow == null)
             {
@@ -70,9 +60,9 @@ namespace WibuHub.Areas.Admin.Controllers
         // POST: Admin/Follows/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(Guid id)
+        public async Task<IActionResult> DeleteConfirmed(Guid userId, Guid storyId)
         {
-            var follow = await _context.Follows.FindAsync(id);
+            var follow = await _context.Follows.FindAsync(userId, storyId);
             if (follow != null)
             {
                 _context.Follows.Remove(follow);

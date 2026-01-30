@@ -28,7 +28,7 @@ namespace WibuHub.Areas.Admin.Controllers
         }
 
         // GET: Admin/Reports/Details/5
-        public async Task<IActionResult> Details(Guid? id)
+        public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
             {
@@ -48,7 +48,7 @@ namespace WibuHub.Areas.Admin.Controllers
         }
 
         // GET: Admin/Reports/Delete/5
-        public async Task<IActionResult> Delete(Guid? id)
+        public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
             {
@@ -70,7 +70,7 @@ namespace WibuHub.Areas.Admin.Controllers
         // POST: Admin/Reports/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(Guid id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var report = await _context.Reports.FindAsync(id);
             if (report != null)

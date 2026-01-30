@@ -23,7 +23,7 @@ namespace WibuHub.Areas.Admin.Controllers
             var histories = await _context.Histories
                 .Include(h => h.Story)
                 .Include(h => h.Chapter)
-                .OrderByDescending(h => h.ReadDate)
+                .OrderByDescending(h => h.ReadTime)
                 .ToListAsync();
             return View(histories);
         }

@@ -1,0 +1,28 @@
+@model WibuHub.ApplicationCore.Entities.Author
+
+@{
+    ViewData["Title"] = "Xóa tác giả";
+}
+
+<div class="container">
+    <h2>@ViewData["Title"]</h2>
+    <hr />
+    
+    <div class="alert alert-warning">
+        <h4>Bạn có chắc chắn muốn xóa tác giả này?</h4>
+    </div>
+    
+    <dl class="row">
+        <dt class="col-sm-3">Tên tác giả</dt>
+        <dd class="col-sm-9">@Model.Name</dd>
+        
+        <dt class="col-sm-3">Số lượng truyện</dt>
+        <dd class="col-sm-9">@Model.Stories.Count</dd>
+    </dl>
+    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn btn-danger">Xác nhận xóa</button>
+        <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+    </form>
+</div>
