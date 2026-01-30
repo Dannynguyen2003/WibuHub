@@ -34,7 +34,7 @@ namespace WibuHub.API.Controllers
         }
         // POST: api/stories
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] StoryCreateVM request)
+        public async Task<IActionResult> Create([FromBody] StoryVM request)
         {
             if (!ModelState.IsValid)
             {
@@ -49,7 +49,7 @@ namespace WibuHub.API.Controllers
         }
         // PUT: api/stories/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(Guid id, [FromBody] StoryCreateVM request)
+        public async Task<IActionResult> Update(Guid id, [FromBody] StoryVM request)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
             var isSuccess = await _storyService.UpdateAsync(id, request);

@@ -1,10 +1,11 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using WibuHub.ApplicationCore.Interface;
 
 namespace WibuHub.ApplicationCore.Entities
 {
-    public class Story
+    public class Story : ISoftDelete
     {
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
@@ -60,6 +61,8 @@ namespace WibuHub.ApplicationCore.Entities
         public virtual Category? Category { get; set; }
 
         public bool IsDeleted { get; set; } = false;
+        public DateTime? DeletedAt { get; set; }
+
 
         // 1 Story có nhiều Chapter
         public virtual ICollection<Chapter> Chapters { get; set; } = new List<Chapter>();
