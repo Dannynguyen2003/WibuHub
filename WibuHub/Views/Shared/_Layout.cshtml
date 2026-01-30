@@ -3,69 +3,89 @@
 @inject SignInManager<StoryUser> SignInManager
 @inject UserManager<StoryUser> UserManager
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <link rel="preconnect" href="https://fonts.googleapis.com/">
-    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
-
-    <link href="~/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="shortcut icon" href="https://suustore.com/assets/frontend/images/favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="~/css/app.css">
-
-    <script>
-        window.SuuTruyen = {
-            baseUrl: 'https://suustore.com',
-            urlCurrent: 'https://suustore.com',
-            csrfToken: '4EebYu2rWivdRk1ET12dyuY0CJjpRERhJynPtvUy'
-        }
-    </script>
-
-    <title>WibuHub Truyện</title>
-    <meta name="description" content="Đọc truyện online, truyện hay.">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - WibuHub Admin</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 </head>
-
 <body>
-    <header class="header d-none d-lg-block">
-        <nav class="navbar navbar-expand-lg navbar-dark header__navbar p-md-0">
-            <div class="container">
-                <a class="navbar-brand" href="/">
-                    <img src="~/images/logo_text.png" alt="Logo" class="img-fluid" style="width: 200px;">
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-primary border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="Admin" asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-kanban"></i> WibuHub Admin
                 </a>
-
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link" asp-page="/Category/Create">Thể loại</a>
+                            <a class="nav-link text-white" asp-area="Admin" asp-controller="Home" asp-action="Index">Dashboard</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Nội dung
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" asp-area="Admin" asp-controller="Stories" asp-action="Create">Truyện</a></li>
+                                <li><a class="dropdown-item" asp-area="Admin" asp-controller="Chapters" asp-action="Create">Chương</a></li>
+                                <li><a class="dropdown-item" asp-area="Admin" asp-controller="Authors" asp-action="Create">Tác giả</a></li>
+                                <li><a class="dropdown-item" asp-area="Admin" asp-controller="Categories" asp-action="Create">Danh mục</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Tương tác
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" asp-area="Admin" asp-controller="Comments" asp-action="Create">Bình luận</a></li>
+                                <li><a class="dropdown-item" asp-area="Admin" asp-controller="Ratings" asp-action="Create">Đánh giá</a></li>
+                                <li><a class="dropdown-item" asp-area="Admin" asp-controller="Reports" asp-action="Create">Báo cáo</a></li>
+                                <li><a class="dropdown-item" asp-area="Admin" asp-controller="Follows" asp-action="Create">Theo dõi</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Hệ thống
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" asp-area="Admin" asp-controller="Orders" asp-action="Create">Đơn hàng</a></li>
+                                <li><a class="dropdown-item" asp-area="Admin" asp-controller="Notifications" asp-action="Create">Thông báo</a></li>
+                                <li><a class="dropdown-item" asp-area="Admin" asp-controller="Histories" asp-action="Create">Lịch sử đọc</a></li>
+                            </ul>
                         </li>
                     </ul>
-
-                    <form class="d-flex header__form-search" action="" method="GET">
-                        <input class="form-control search-story" type="text" placeholder="Tìm kiếm" name="key_word">
-                        <button class="btn" type="submit">Tìm</button>
-                    </form>
-
-                    <ul class="navbar-nav ms-3">
-                        @if (User.Identity?.IsAuthenticated == true)
+                    <ul class="navbar-nav">
+                        @if (SignInManager.IsSignedIn(User))
                         {
                             <li class="nav-item">
-                                <a id="manage" class="nav-link text-light" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @UserManager.GetUserName(User)!</a>
+                                <a class="nav-link text-white" asp-area="" asp-controller="Home" asp-action="Index" target="_blank">
+                                    <i class="bi bi-house-door"></i> Trang chủ
+                                </a>
                             </li>
                             <li class="nav-item">
-                                <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post">
-                                    <button id="logout" type="submit" class="nav-link btn btn-link text-dark border-0">Logout</button>
+                                <a class="nav-link text-white" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">
+                                    <i class="bi bi-person-circle"></i> @UserManager.GetUserName(User)
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "Admin" })">
+                                    <button type="submit" class="nav-link btn btn-link text-white">
+                                        <i class="bi bi-box-arrow-right"></i> Đăng xuất
+                                    </button>
                                 </form>
                             </li>
                         }
                         else
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-light" id="register" asp-area="Identity" asp-page="/Account/Register">Register</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-light" id="login" asp-area="Identity" asp-page="/Account/Login">Login</a>
+                                <a class="nav-link text-white" asp-area="Identity" asp-page="/Account/Login">Đăng nhập</a>
                             </li>
                         }
                     </ul>
@@ -73,96 +93,19 @@
             </div>
         </nav>
     </header>
-
-    <div class="header-mobile d-sm-block d-lg-none">
+    <div class="container-fluid">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
     </div>
-
-    <main>
-        @RenderBody()
-    </main>
-
-    <button type="button" id="btnModal" class="btn btn-primary" style="display: none;" data-bs-toggle="modal" data-bs-target="#divModal">
-        Mở Modal
-    </button>
-
-    <!-- Modal -->
-    <div class="modal fade" id="divModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-
-                <!-- Header -->
-                <div class="modal-header">
-                    <h5 class="modal-title" id="h5ModalTitle">Tiêu đề Modal</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
-                </div>
-
-                <!-- Body -->
-                <div id="divModalBody" class="modal-body">
-                    Đây là nội dung bên trong modal.
-                </div>
-
-                <!-- Footer -->
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                    <button type="button" class="btn btn-primary">Lưu thay đổi</button>
-                </div>
-
-            </div>
-        </div>
-    </div>
-
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2025 - WibuHub.MVC - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2024 - WibuHub Admin - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
-
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    <script>
-        function openModal(title, bodyHTML, size = "") {
-            console.log("openModal called");
-            // Lấy modal theo ID
-            const divModal = document.getElementById('divModal');
-            if(divModal){
-                // Tạo instance Bootstrap Modal
-                const myModal = new bootstrap.Modal(divModal, {
-                    backdrop: 'static',   // không đóng khi click ra ngoài (tùy chọn)
-                    keyboard: false       // không đóng bằng phím ESC (tùy chọn)
-                });
-
-                let h5ModalTitle = divModal.querySelector('#h5ModalTitle');
-                if(h5ModalTitle){
-                    h5ModalTitle.innerText = title;
-                }
-
-                let divModalBody = document.getElementById('divModalBody');
-                if(divModalBody){
-                    divModalBody.innerHTML = bodyHTML;
-                }
-                // Gọi hiển thị modal
-                myModal.show();
-            }
-        }
-
-        function closeModal() {
-            // const divModal = document.getElementById('divModal');
-            // if(divModal){
-            //     const myModal = new bootstrap.Modal(divModal, {
-            //         backdrop: 'static',   // không đóng khi click ra ngoài (tùy chọn)
-            //         keyboard: false       // không đóng bằng phím ESC (tùy chọn)
-            //     });
-            //     myModal.hide();
-            // }
-
-            let btnModal = document.getElementById('btnModal');
-            if(btnModal){
-                btnModal.click();
-            }
-        }
-    </script>
     @await RenderSectionAsync("Scripts", required: false)
-
 </body>
 </html>

@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using WibuHub.MVC.ViewModels;
+using WibuHub.ApplicationCore.DTOs.Shared;
 using WibuHub.Service.Interface;
 namespace WibuHub.API.Controllers
 {
@@ -41,7 +41,7 @@ namespace WibuHub.API.Controllers
         }
         // POST: api/chapters
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] ChapterVM request)
+        public async Task<IActionResult> Create([FromBody] ChapterDto request)
         {
             if (!ModelState.IsValid)
             {
@@ -56,7 +56,7 @@ namespace WibuHub.API.Controllers
         }
         // PUT: api/chapters/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(Guid id, [FromBody] ChapterVM request)
+        public async Task<IActionResult> Update(Guid id, [FromBody] ChapterDto request)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
             var isSuccess = await _chapterService.UpdateAsync(id, request);

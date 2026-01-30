@@ -14,7 +14,7 @@
             @Html.DisplayNameFor(model => model.Story)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Story.Title)
+            @Html.DisplayFor(model => model.Story.StoryName)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Name)
@@ -23,10 +23,10 @@
             @Html.DisplayFor(model => model.Name)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Number)
+            @Html.DisplayNameFor(model => model.ChapterNumber)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Number)
+            @Html.DisplayFor(model => model.ChapterNumber)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Slug)
@@ -53,10 +53,10 @@
             @Html.DisplayFor(model => model.ServerId)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CreateDate)
+            @Html.DisplayNameFor(model => model.CreatedAt)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreateDate)
+            @Html.DisplayFor(model => model.CreatedAt)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Price)

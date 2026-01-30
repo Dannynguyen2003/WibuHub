@@ -22,7 +22,7 @@ namespace WibuHub.Service.Implementations
                 .Select(s => new StoryDto
                 {
                     Id = s.Id,
-                    Title = s.Title,
+                    Title = s.StoryName,
                     Description = s.Description,
                     AuthorName = s.AuthorName,
                     CoverImage = s.CoverImage,
@@ -44,7 +44,7 @@ namespace WibuHub.Service.Implementations
             return new StoryDto
             {
                 Id = story.Id,
-                Title = story.Title,
+                Title = story.StoryName,
                 Description = story.Description,
                 AuthorName = story.AuthorName,
                 CoverImage = story.CoverImage,
@@ -60,7 +60,7 @@ namespace WibuHub.Service.Implementations
                 var entity = new Story
                 {
                     Id = Guid.NewGuid(),
-                    Title = dto.Title,
+                    StoryName = dto.Title,
                     Description = dto.Description,
                     AuthorName = dto.AuthorName,
                     CoverImage = dto.CoverImage,
@@ -85,7 +85,7 @@ namespace WibuHub.Service.Implementations
             if (entity == null) return false;
 
             // Cập nhật dữ liệu
-            entity.Title = dto.Title;
+            entity.StoryName = dto.Title;
             entity.Description = dto.Description;
             entity.AuthorName = dto.AuthorName;
             entity.CategoryId = dto.CategoryId;

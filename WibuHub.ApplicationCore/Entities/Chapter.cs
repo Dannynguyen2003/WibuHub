@@ -17,6 +17,7 @@ namespace WibuHub.ApplicationCore.Entities
         // ComicId: Guid (Khóa ngoại trỏ về Story)
         [Required]
         public Guid StoryId { get; set; }
+        public string StoryName { get; set; } = string.Empty;
 
         // Navigation property: Liên kết ngược lại với Story
         [ForeignKey("StoryId")]

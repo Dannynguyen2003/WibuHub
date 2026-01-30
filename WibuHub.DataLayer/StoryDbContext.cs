@@ -115,7 +115,7 @@ namespace WibuHub.DataLayer
             {
                 entity.ToTable("Stories");
                 entity.HasKey(s => s.Id);
-                entity.Property(s => s.Title).HasMaxLength(255).IsRequired();
+                entity.Property(s => s.StoryName).HasMaxLength(255).IsRequired();
                 entity.Property(s => s.Status).HasColumnType("tinyint");
 
                 // Author relationship

@@ -5,7 +5,7 @@ using WibuHub.ApplicationCore.Entities;
 
 namespace WibuHub.MVC.ViewModels
 {
-    [Bind("Id,StoryId,Name,Number,Slug,ViewCount,Content,ServerId,CreateDate,Price")]
+    [Bind("Id,StoryId,Name,ChapterNumber,Slug,ViewCount,Content,ServerId,CreateAt,Price")]
     public class ChapterVM
     {
         [Key]
@@ -26,7 +26,7 @@ namespace WibuHub.MVC.ViewModels
 
         // Number: float (Số thứ tự chap: 1, 1.5, 2...)
         // Dùng double trong C# để map tốt với float/real trong SQL
-        public double Number { get; set; }
+        public double ChapterNumber { get; set; }
 
         // Slug: varchar(150) - URL thân thiện
         [Required]
@@ -45,7 +45,7 @@ namespace WibuHub.MVC.ViewModels
         public int ServerId { get; set; } = 1;
 
         // CreateDate: DateTime
-        public DateTime CreateDate { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         // UnlockPrice: money
         // Dùng decimal cho tiền tệ trong C#, map sang "money" trong SQL

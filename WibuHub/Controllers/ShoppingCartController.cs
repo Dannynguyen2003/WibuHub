@@ -63,7 +63,7 @@ namespace WibuHub.MVC.Controllers
                             CartId = cart.Id,
                             ChapterId = idChapter,
                             ChapterName = chapter.Name,
-                            StoryTitle = chapter.Story?.Title ?? "",
+                            StoryTitle = chapter.Story?.StoryName ?? "",
                             Quantity = quantity,
                             Price = chapter.Price // Giá tiền có thể được lấy từ cơ sở dữ liệu hoặc dịch vụ khác
                         });

@@ -13,7 +13,7 @@ namespace WibuHub.ApplicationCore.Entities
         // Title: nvarchar(255)
         [Required]
         [MaxLength(255)]
-        public string Title { get; set; } = string.Empty;
+        public string StoryName { get; set; } = string.Empty;
 
         // AlternativeName: nvarchar(500)
         [MaxLength(500)]

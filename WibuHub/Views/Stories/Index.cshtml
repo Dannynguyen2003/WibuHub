@@ -13,7 +13,7 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Title)
+                @Html.DisplayNameFor(model => model.StoryName)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.AlternativeName)
@@ -21,9 +21,7 @@
             <th>
                 @Html.DisplayNameFor(model => model.Description)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Thumbnail)
-            </th>
+            
             <th>
                 @Html.DisplayNameFor(model => model.Status)
             </th>
@@ -37,7 +35,7 @@
                 @Html.DisplayNameFor(model => model.RatingScore)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.DateCreated)
+                @Html.DisplayNameFor(model => model.CreatedAt)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.UpdateDate)
@@ -55,7 +53,7 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Title)
+                @Html.DisplayFor(modelItem => item.StoryName)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.AlternativeName)
@@ -63,9 +61,7 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Description)
             </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Thumbnail)
-            </td>
+            
             <td>
                 @Html.DisplayFor(modelItem => item.Status)
             </td>
@@ -79,7 +75,7 @@
                 @Html.DisplayFor(modelItem => item.RatingScore)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.DateCreated)
+                    @Html.DisplayFor(modelItem => item.CreatedAt)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.UpdateDate)

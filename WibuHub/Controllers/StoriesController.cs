@@ -5,114 +5,102 @@ using Microsoft.EntityFrameworkCore;
 using WibuHub.ApplicationCore.Entities;
 using WibuHub.DataLayer;
 using WibuHub.MVC.ViewModels;
-
-namespace WibuHub.Controllers
+namespace WibuHub.Areas.Admin.Controllers
 {
+    [Area("Admin")]
     [Authorize]
     public class StoriesController : Controller
     {
         private readonly StoryDbContext _context;
-
         public StoriesController(StoryDbContext context)
         {
             _context = context;
         }
-
-        // GET: Stories
+        // GET: Admin/Stories
         public async Task<IActionResult> Index()
         {
-            // FIX: Đổi tên biến local cho đỡ nhầm lẫn với DbContext type
-            // FIX: Giả định DbSet tên là Stories (thay vì Chapters)
-            var stories = _context.Stories.Include(s => s.Author).Include(s => s.Category);
-            return View(await stories.ToListAsync());
+            var stories = await _context.Stories
+                .Include(s => s.Author)
+                .Include(s => s.Category)
+                .Where(s => !s.IsDeleted)
+                .OrderByDescending(s => s.CreatedAt)
+                .ToListAsync();
+            return View(stories);
         }
-
-        // GET: Stories/Details/5
+        // GET: Admin/Stories/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
-
             var story = await _context.Stories
                 .Include(s => s.Author)
                 .Include(s => s.Category)
-                .FirstOrDefaultAsync(m => m.Id == id);
-
+                .Include(s => s.Chapters)
+                .FirstOrDefaultAsync(m => m.Id == id && !m.IsDeleted);
             if (story == null)
             {
                 return NotFound();
             }
-
             return View(story);
         }
-
-        // GET: Stories/Create
+        // GET: Admin/Stories/Create
         public IActionResult Create()
         {
-            ViewData["AuthorId"] = new SelectList(_context.Authors, "Id", "Name");
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
+            ViewData["AuthorId"] = new SelectList(_context.Authors.Where(a => !a.IsDeleted), "Id", "Name");
+            ViewData["CategoryId"] = new SelectList(_context.Categories.Where(c => !c.IsDeleted), "Id", "Name");
             return View();
         }
-
-        // POST: Stories/Create
+        // POST: Admin/Stories/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(StoryVM storyVM)
         {
             if (ModelState.IsValid)
             {
-                // Mapping từ ViewModel sang Entity
                 var story = new Story
                 {
-                    Id = Guid.NewGuid(), // Tạo ID mới cho Entity
-                    Title = storyVM.Title,
+                    Id = Guid.NewGuid(),
+                    StoryName = storyVM.Title,
                     AlternativeName = storyVM.AlternativeName,
                     Description = storyVM.Description,
-                    Thumbnail = storyVM.Thumbnail,
                     Status = storyVM.Status,
                     ViewCount = storyVM.ViewCount,
                     FollowCount = storyVM.FollowCount,
                     RatingScore = storyVM.RatingScore,
-                    DateCreated = DateTime.UtcNow,
+                    CreatedAt = DateTime.UtcNow,
                     UpdateDate = DateTime.UtcNow,
                     AuthorId = storyVM.AuthorId,
                     CategoryId = storyVM.CategoryId
                 };
-
-                // FIX: Thêm Entity (story) vào context, KHÔNG phải thêm ViewModel (storyVM)
                 _context.Add(story);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["AuthorId"] = new SelectList(_context.Authors, "Id", "Name", storyVM.AuthorId);
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", storyVM.CategoryId);
+
+            ViewData["AuthorId"] = new SelectList(_context.Authors.Where(a => !a.IsDeleted), "Id", "Name", storyVM.AuthorId);
+            ViewData["CategoryId"] = new SelectList(_context.Categories.Where(c => !c.IsDeleted), "Id", "Name", storyVM.CategoryId);
             return View(storyVM);
         }
-
-        // GET: Stories/Edit/5
+        // GET: Admin/Stories/Edit/5
         public async Task<IActionResult> Edit(Guid? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
-
             var story = await _context.Stories.FindAsync(id);
-            if (story == null)
+            if (story == null || story.IsDeleted)
             {
                 return NotFound();
             }
-
-            // FIX: Chuyển đổi Entity sang ViewModel để tránh lỗi Mismatch Model ở View
             var storyVM = new StoryVM
             {
                 Id = story.Id,
-                Title = story.Title,
+                Title = story.StoryName,
                 AlternativeName = story.AlternativeName,
                 Description = story.Description,
-                Thumbnail = story.Thumbnail,
                 Status = story.Status,
                 ViewCount = story.ViewCount,
                 FollowCount = story.FollowCount,
@@ -120,15 +108,11 @@ namespace WibuHub.Controllers
                 AuthorId = story.AuthorId,
                 CategoryId = story.CategoryId
             };
-
-            ViewData["AuthorId"] = new SelectList(_context.Authors, "Id", "Name", story.AuthorId);
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", story.CategoryId);
-
-            // Trả về ViewModel
+            ViewData["AuthorId"] = new SelectList(_context.Authors.Where(a => !a.IsDeleted), "Id", "Name", story.AuthorId);
+            ViewData["CategoryId"] = new SelectList(_context.Categories.Where(c => !c.IsDeleted), "Id", "Name", story.CategoryId);
             return View(storyVM);
         }
-
-        // POST: Stories/Edit/5
+        // POST: Admin/Stories/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Guid id, StoryVM storyVM)
@@ -137,33 +121,22 @@ namespace WibuHub.Controllers
             {
                 return NotFound();
             }
-
             if (ModelState.IsValid)
             {
                 try
                 {
-                    // FIX: Lấy Entity gốc từ DB lên
-                    var storyToUpdate = await _context.Stories.FindAsync(id);
-                    if (storyToUpdate == null)
+                    var story = await _context.Stories.FindAsync(id);
+                    if (story == null || story.IsDeleted)
                     {
                         return NotFound();
                     }
-
-                    // FIX: Cập nhật các trường từ ViewModel vào Entity
-                    storyToUpdate.Title = storyVM.Title;
-                    storyToUpdate.AlternativeName = storyVM.AlternativeName;
-                    storyToUpdate.Description = storyVM.Description;
-                    storyToUpdate.Thumbnail = storyVM.Thumbnail;
-                    storyToUpdate.Status = storyVM.Status;
-                    storyToUpdate.ViewCount = storyVM.ViewCount;
-                    storyToUpdate.FollowCount = storyVM.FollowCount;
-                    storyToUpdate.RatingScore = storyVM.RatingScore;
-                    storyToUpdate.AuthorId = storyVM.AuthorId;
-                    storyToUpdate.CategoryId = storyVM.CategoryId;
-                    storyToUpdate.UpdateDate = DateTime.UtcNow; // Cập nhật ngày sửa
-
-                    // Lưu thay đổi
-                    _context.Update(storyToUpdate);
+                    story.StoryName = storyVM.Title;
+                    story.AlternativeName = storyVM.AlternativeName;
+                    story.Description = storyVM.Description;
+                    story.Status = storyVM.Status;
+                    story.AuthorId = storyVM.AuthorId;
+                    story.CategoryId = storyVM.CategoryId;
+                    story.UpdateDate = DateTime.UtcNow;
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -179,33 +152,30 @@ namespace WibuHub.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["AuthorId"] = new SelectList(_context.Authors, "Id", "Name", storyVM.AuthorId);
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", storyVM.CategoryId);
+
+            ViewData["AuthorId"] = new SelectList(_context.Authors.Where(a => !a.IsDeleted), "Id", "Name", storyVM.AuthorId);
+            ViewData["CategoryId"] = new SelectList(_context.Categories.Where(c => !c.IsDeleted), "Id", "Name", storyVM.CategoryId);
             return View(storyVM);
         }
-
-        // GET: Stories/Delete/5
+        // GET: Admin/Stories/Delete/5
         public async Task<IActionResult> Delete(Guid? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
-
             var story = await _context.Stories
                 .Include(s => s.Author)
                 .Include(s => s.Category)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id && !m.IsDeleted);
 
             if (story == null)
             {
                 return NotFound();
             }
-
             return View(story);
         }
-
-        // POST: Stories/Delete/5
+        // POST: Admin/Stories/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
@@ -213,16 +183,15 @@ namespace WibuHub.Controllers
             var story = await _context.Stories.FindAsync(id);
             if (story != null)
             {
-                _context.Stories.Remove(story);
+                story.IsDeleted = true;
+                story.DeletedAt = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
             }
-
             return RedirectToAction(nameof(Index));
         }
-
         private bool StoryExists(Guid id)
         {
-            return _context.Stories.Any(e => e.Id == id);
+            return _context.Stories.Any(e => e.Id == id && !e.IsDeleted);
         }
     }
 }

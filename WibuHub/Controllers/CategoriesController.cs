@@ -167,62 +167,41 @@ namespace WibuHub.MVC.Controllers
             {
                 return NotFound();
             }
+            var category = await _context.Categories
+                .FirstOrDefaultAsync(m => m.Id == id && !m.IsDeleted);
 
-            var categoryVM = await _context.Categories
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (categoryVM == null)
+            if (category == null)
             {
                 return NotFound();
             }
-
-            return View(categoryVM);
+            return View(category);
         }
-
-        // POST: Categories/Delete/5
+        // POST: Admin/Categories/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            bool isOK = false;
-            string message = string.Empty;
-            try
+            var category = await _context.Categories.FindAsync(id);
+            if (category != null && !category.IsDeleted)
             {
-                var category = await _context.Categories.FindAsync(id);
-                if (category != null)
+                var listCategory = await _context.Categories
+                    .Where(c => c.Position > category.Position && !c.IsDeleted)
+                    .ToListAsync();
+
+                foreach (var cat in listCategory)
                 {
-                    var listCategory = await _context.Categories
-                        .Where(c => c.Position > category.Position)
-                        .ToListAsync();
-                    foreach (var cat in listCategory)
-                    {
-                        cat.Position--;
-                        //cat.Position = cat.Position - 1;
-                    }
-                    _context.Categories.Remove(category);
+                    cat.Position--;
                 }
 
+                category.IsDeleted = true;
+                category.DeletedAt = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
-                isOK = true;
-                message = "Xóa thành công!";
             }
-            catch (Exception)
-            {
-                message = "Lỗi thực thi!";
-            }
-
-            //return RedirectToAction(nameof(Create));
-            return Json(new { isOK = isOK, message = message });
+            return RedirectToAction(nameof(Index));
         }
-
-        public IActionResult Reload()
-        {
-            //return ViewComponent("CategoryList");
-            return ViewComponent(nameof(CategoryList));
-        }
-
         private bool CategoryExists(Guid id)
         {
-            return _context.Categories.Any(e => e.Id == id);
+            return _context.Categories.Any(e => e.Id == id && !e.IsDeleted);
         }
     }
 }

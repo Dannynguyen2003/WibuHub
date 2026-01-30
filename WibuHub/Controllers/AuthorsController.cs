@@ -1,63 +1,55 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using WibuHub.ApplicationCore.Entities;
 using WibuHub.DataLayer;
 using WibuHub.MVC.ViewModels;
-
-namespace WibuHub.MVC.Controllers
+namespace WibuHub.Areas.Admin.Controllers
 {
+    [Area("Admin")]
     [Authorize]
     public class AuthorsController : Controller
     {
         private readonly StoryDbContext _context;
-
         public AuthorsController(StoryDbContext context)
         {
             _context = context;
         }
-
-        // GET: Authors
+        // GET: Admin/Authors
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Authors.ToListAsync());
+            var authors = await _context.Authors
+                .Where(a => !a.IsDeleted)
+                .OrderBy(a => a.Name)
+                .ToListAsync();
+            return View(authors);
         }
-
-        // GET: Authors/Details/5
+        // GET: Admin/Authors/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
-
             var author = await _context.Authors
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .Include(a => a.Stories)
+                .FirstOrDefaultAsync(m => m.Id == id && !m.IsDeleted);
+
             if (author == null)
             {
                 return NotFound();
             }
-
             return View(author);
         }
-
-        // GET: Authors/Create
+        // GET: Admin/Authors/Create
         public IActionResult Create()
         {
             return View();
         }
-
-        // POST: Authors/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: Admin/Authors/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name")] Author author)
+        public async Task<IActionResult> Create([Bind("Name")] Author author)
         {
             if (ModelState.IsValid)
             {
@@ -68,45 +60,45 @@ namespace WibuHub.MVC.Controllers
             }
             return View(author);
         }
-
-        // GET: Authors/Edit/5
+        // GET: Admin/Authors/Edit/5
         public async Task<IActionResult> Edit(Guid? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
-
             var author = await _context.Authors.FindAsync(id);
-            if (author == null)
+            if (author == null || author.IsDeleted)
             {
                 return NotFound();
             }
             return View(author);
         }
-
-        // POST: Authors/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: Admin/Authors/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, AuthorVM authorVM)
+        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Name")] Author author)
         {
-            if (id != authorVM.Id)
+            if (id != author.Id)
             {
                 return NotFound();
             }
-
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(authorVM);
+                    var existingAuthor = await _context.Authors.FindAsync(id);
+                    if (existingAuthor == null || existingAuthor.IsDeleted)
+                    {
+                        return NotFound();
+                    }
+
+                    existingAuthor.Name = author.Name;
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!AuthorExists(authorVM.Id))
+                    if (!AuthorExists(author.Id))
                     {
                         return NotFound();
                     }
@@ -117,28 +109,26 @@ namespace WibuHub.MVC.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(authorVM);
+            return View(author);
         }
-
-        // GET: Authors/Delete/5
+        // GET: Admin/Authors/Delete/5
         public async Task<IActionResult> Delete(Guid? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
-
             var author = await _context.Authors
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .Include(a => a.Stories)
+                .FirstOrDefaultAsync(m => m.Id == id && !m.IsDeleted);
+
             if (author == null)
             {
                 return NotFound();
             }
-
             return View(author);
         }
-
-        // POST: Authors/Delete/5
+        // POST: Admin/Authors/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
@@ -146,16 +136,15 @@ namespace WibuHub.MVC.Controllers
             var author = await _context.Authors.FindAsync(id);
             if (author != null)
             {
-                _context.Authors.Remove(author);
+                author.IsDeleted = true;
+                author.DeletedAt = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
             }
-
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
-
         private bool AuthorExists(Guid id)
         {
-            return _context.Authors.Any(e => e.Id == id);
+            return _context.Authors.Any(e => e.Id == id && !e.IsDeleted);
         }
     }
 }

@@ -71,12 +71,12 @@ namespace WibuHub.Controllers
                 {
                     StoryId = chapterVM.StoryId,
                     Name = chapterVM.Name,
-                    Number = chapterVM.Number,
+                    ChapterNumber = chapterVM.ChapterNumber,
                     Slug = chapterVM.Slug,
                     ViewCount = chapterVM.ViewCount,
                     Content = chapterVM.Content,
                     ServerId = chapterVM.ServerId,
-                    CreateDate = chapterVM.CreateDate,
+                    CreatedAt = chapterVM.CreatedAt,
                     Price = chapterVM.Price,
                     Discount = chapterVM.Discount,
 

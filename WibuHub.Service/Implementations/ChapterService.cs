@@ -25,10 +25,10 @@ namespace WibuHub.Service.Implementations
                 .Select(c => new ChapterDto
                 {
                     Id = c.Id,
-                    Title = c.Name,
+                    Name = c.Name,
                     ChapterNumber = c.ChapterNumber,
                     StoryId = c.StoryId,
-                    StoryTitle = c.Story.Title
+                    StoryName= c.Story.StoryName
                 })
                 .OrderByDescending(c => c.Id)
                 .ToListAsync();
@@ -46,10 +46,10 @@ namespace WibuHub.Service.Implementations
             return new ChapterDto
             {
                 Id = chapter.Id,
-                Title = chapter.Name,
+                Name = chapter.Name,
                 ChapterNumber = chapter.ChapterNumber,
                 StoryId = chapter.StoryId,
-                StoryTitle = chapter.Story.Title,
+                StoryName = chapter.Story.StoryName,
                 // Lấy list ảnh và sắp xếp đúng thứ tự trang
                 ImageUrls = chapter.Images.OrderBy(i => i.OrderIndex).Select(i => i.ImageUrl).ToList()
             };
@@ -63,7 +63,7 @@ namespace WibuHub.Service.Implementations
                 .Select(c => new ChapterDto
                 {
                     Id = c.Id,
-                    Title = c.Name,
+                    Name = c.Name,
                     ChapterNumber = c.ChapterNumber,
                     StoryId = c.StoryId
                 })
@@ -76,7 +76,7 @@ namespace WibuHub.Service.Implementations
             var chapter = new Chapter
             {
                 Id = Guid.NewGuid(),
-                Name = dto.Title,
+                Name = dto.Name,
                 ChapterNumber = dto.ChapterNumber,
                 StoryId = dto.StoryId,
                 CreatedAt = DateTime.Now,
@@ -84,14 +84,14 @@ namespace WibuHub.Service.Implementations
             };
 
             // 2. Xử lý Upload Ảnh (Nếu có)
-            if (dto.Pages != null && dto.Pages.Count > 0)
+            if (dto.UploadImages != null && dto.UploadImages.Count > 0)
             {
                 // Tạo thư mục: wwwroot/uploads/stories/{StoryId}/{ChapterId}/
                 string folderPath = Path.Combine(_env.WebRootPath, "uploads", "stories", dto.StoryId.ToString(), chapter.Id.ToString());
                 if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
 
                 int order = 1;
-                foreach (var file in dto.Pages)
+                foreach (var file in dto.UploadImages)
                 {
                     if (file.Length > 0)
                     {
@@ -139,7 +139,7 @@ namespace WibuHub.Service.Implementations
             var chapter = await _context.Chapters.FindAsync(id);
             if (chapter == null) return false;
 
-            chapter.Name = dto.Title;
+            chapter.Name = dto.Name;
             chapter.ChapterNumber = dto.ChapterNumber;
             // Lưu ý: Update ảnh thường phức tạp hơn (xóa cũ thêm mới hoặc chèn thêm).
             // Ở đây tạm thời chỉ update thông tin cơ bản. 
