@@ -32,6 +32,30 @@ namespace WibuHub.Service.Implementations
                 .FirstOrDefaultAsync(s => s.Id == id);
         }
 
+        public async Task<StoryVM?> GetByIdAsViewModelAsync(Guid id)
+        {
+            return await _context.Stories
+                .Where(s => s.Id == id)
+                .Select(s => new StoryVM
+                {
+                    Id = s.Id,
+                    Title = s.Title,
+                    AlternativeName = s.AlternativeName,
+                    Description = s.Description,
+                    Thumbnail = s.Thumbnail,
+                    Status = s.Status,
+                    ViewCount = s.ViewCount,
+                    FollowCount = s.FollowCount,
+                    RatingScore = s.RatingScore,
+                    DateCreated = s.DateCreated,
+                    UpdateDate = s.UpdateDate,
+                    AuthorId = s.AuthorId,
+                    CategoryId = s.CategoryId,
+                    CategoryName = s.Category != null ? s.Category.Name : null
+                })
+                .FirstOrDefaultAsync();
+        }
+
         public async Task<bool> CreateAsync(StoryCreateVM request)
         {
             try
