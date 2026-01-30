@@ -22,8 +22,10 @@ namespace WibuHub.MVC.ViewModels
 
         public int ServerId { get; set; } = 1;
 
+        [Range(0, double.MaxValue)]
         public decimal Price { get; set; } = 0;
 
+        [Range(0, 100)]
         public decimal Discount { get; set; } = 0;
     }
 }

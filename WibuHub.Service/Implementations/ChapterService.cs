@@ -50,8 +50,10 @@ namespace WibuHub.Service.Implementations
                     return false;
                 }
 
-                // Check if slug is unique
-                var slugExists = await _context.Chapters.AnyAsync(c => c.Slug == request.Slug);
+                // Check if slug is unique (including soft-deleted chapters)
+                var slugExists = await _context.Chapters
+                    .IgnoreQueryFilters()
+                    .AnyAsync(c => c.Slug == request.Slug);
                 if (slugExists)
                 {
                     return false;
@@ -99,8 +101,9 @@ namespace WibuHub.Service.Implementations
                     return false;
                 }
 
-                // Check if slug is unique (excluding current chapter)
+                // Check if slug is unique (including soft-deleted chapters, excluding current chapter)
                 var slugExists = await _context.Chapters
+                    .IgnoreQueryFilters()
                     .AnyAsync(c => c.Slug == request.Slug && c.Id != id);
                 if (slugExists)
                 {
