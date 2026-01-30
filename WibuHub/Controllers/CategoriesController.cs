@@ -224,22 +224,22 @@ namespace WibuHub.MVC.Controllers
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
             var category = await _context.Categories.FindAsync(id);
-            if (category != null && !category.IsDeleted)
-            {
-                var listCategory = await _context.Categories
-                    .Where(c => c.Position > category.Position && !c.IsDeleted)
-                    .ToListAsync();
+            if (category == null) return Json(new { isOK = false });
 
-                foreach (var cat in listCategory)
-                {
-                    cat.Position--;
-                }
+            // Logic xóa mềm
+            category.IsDeleted = true;
+            category.DeletedAt = DateTime.UtcNow;
 
-                category.IsDeleted = true;
-                category.DeletedAt = DateTime.UtcNow;
-                await _context.SaveChangesAsync();
-            }
-            return RedirectToAction(nameof(Index));
+            // Giảm Position của các danh mục phía sau
+            var siblings = await _context.Categories
+                .Where(c => c.Position > category.Position && !c.IsDeleted)
+                .ToListAsync();
+            foreach (var s in siblings) s.Position--;
+
+            await _context.SaveChangesAsync();
+
+            // TRẢ VỀ JSON THẾ NÀY MỚI CHẠY ĐƯỢC AJAX
+            return Json(new { isOK = true });
         }
         private bool CategoryExists(Guid id)
         {

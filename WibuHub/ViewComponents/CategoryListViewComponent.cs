@@ -24,7 +24,7 @@ namespace WibuHub.MVC.ViewComponents
                 {
                     Id = c.Id,
                     Name = c.Name,
-                    Slug = c.Slug, // BỔ SUNG TRƯỜNG NÀY
+                    Slug = c.Slug, 
                     Description = c.Description,
                     Position = c.Position
                 })

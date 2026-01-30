@@ -1,40 +1,56 @@
-﻿@* @model IEnumerable<WibuHub.ApplicationCore.Entities.Category> *@
-@model IEnumerable<WibuHub.MVC.ViewModels.CategoryVM>
+﻿@model IEnumerable<WibuHub.MVC.ViewModels.CategoryVM>
 
-</p>
-<table class="table">
-    <thead>
+<table class="table table-hover mt-3 border">
+    <thead class="table-dark">
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Position)
-            </th>
-            <th></th>
+            <th style="width: 10%">Position</th>
+            <th style="width: 20%">Name</th>
+            <th style="width: 20%">Slug (Đường dẫn)</th>
+            <th style="width: 30%">Description</th>
+            <th style="width: 20%" class="text-center">Thao tác</th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Position)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        <span class="badge bg-secondary" style="padding: 8px 12px;">
+                            @item.Position
+                        </span>
+                    </td>
+                    <td><strong>@item.Name</strong></td>
+                    <td>
+                        <span class="text-danger fw-bold">@item.Slug</span>
+                    </td>
+                    <td>
+                        <small class="text-muted">@(item.Description ?? "Không có mô tả")</small>
+                    </td>
+                    <td class="text-center">
+                        <div class="btn-group" role="group">
+                            <a asp-action="Edit" asp-route-id="@item.Id"
+                               class="btn btn-sm btn-primary mx-1">Sửa</a>
+
+                            <a asp-action="Details" asp-route-id="@item.Id"
+                               class="btn btn-sm btn-info text-white mx-1">Chi tiết</a>
+
+                            @* Nút Xóa gọi hàm JS để hiện Modal xác nhận *@
+                            <button type="button" onclick="openModalDeleteCategory('@item.Id')"
+                                    class="btn btn-sm btn-danger mx-1">
+                                Xóa
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="5" class="text-center">Chưa có danh mục nào được tạo.</td>
+            </tr>
+        }
     </tbody>
 </table>

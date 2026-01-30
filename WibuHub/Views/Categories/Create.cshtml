@@ -69,7 +69,42 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script>
+        function deleteCategory(idCategory) {
+            let inputToken = document.querySelector("input[name='__RequestVerificationToken']");
+            if (!inputToken) {
+                console.error("Không tìm thấy Token bảo mật!");
+                return;
+            }
 
+            $.ajax({
+                url: '/Categories/Delete',
+                type: 'POST',
+                data: {
+                    id: idCategory,
+                    __RequestVerificationToken: inputToken.value
+                },
+                success: function (response) {
+                    if(response.isOK){
+                        closeModal();
+                        refreshCategoryList();
+                    } else {
+                        alert("Xóa thất bại!");
+                    }
+                },
+                error: function() {
+                    alert("Có lỗi xảy ra khi kết nối với máy chủ.");
+                }
+            });
+        }
+
+        // Đừng quên hàm này để cập nhật lại danh sách sau khi xóa thành công
+        function refreshCategoryList() {
+            $.get('/Categories/Reload', function(data) {
+                $('#divCategoryList').html(data);
+            });
+        }
+    </script>
     <script>
         // Tự động tạo Slug khi gõ Tên danh mục
         document.getElementById("Name").addEventListener("keyup", function () {
