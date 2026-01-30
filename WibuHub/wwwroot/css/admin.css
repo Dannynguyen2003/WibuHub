@@ -10,7 +10,7 @@
     --admin-header-height: 60px;
 }
 
-body {
+.admin-wrapper {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #f8f9fa;
 }

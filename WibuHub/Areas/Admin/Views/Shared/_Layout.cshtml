@@ -27,7 +27,7 @@
             <nav class="sidebar-nav">
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link active" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                        <a class="nav-link" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
                             <i class="fas fa-tachometer-alt"></i>
                             <span>Dashboard</span>
                         </a>
@@ -88,7 +88,7 @@
         <div class="admin-content">
             <!-- Top Navigation Bar -->
             <header class="admin-header">
-                <button class="btn btn-link sidebar-toggle" id="sidebarToggle">
+                <button class="btn btn-link sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar navigation">
                     <i class="fas fa-bars"></i>
                 </button>
                 
@@ -139,7 +139,7 @@
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-md-6">
-                            <p>&copy; 2025 WibuHub Admin Panel</p>
+                            <p>&copy; @DateTime.Now.Year WibuHub Admin Panel</p>
                         </div>
                         <div class="col-md-6 text-end">
                             <p>Version 1.0.0</p>

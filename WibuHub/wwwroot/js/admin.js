@@ -27,7 +27,8 @@ document.addEventListener('DOMContentLoaded', function () {
     navLinks.forEach(link => {
         link.classList.remove('active');
         
-        if (link.getAttribute('href') === currentPath) {
+        const linkPath = link.getAttribute('href');
+        if (linkPath && (linkPath === currentPath || (currentPath.includes('/Admin/Dashboard') && linkPath.includes('Dashboard')))) {
             link.classList.add('active');
         }
     });
