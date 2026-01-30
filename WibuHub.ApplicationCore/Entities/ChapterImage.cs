@@ -3,6 +3,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WibuHub.ApplicationCore.Entities
 {
+    /// <summary>
+    /// Represents an image belonging to a chapter.
+    /// Used for storing individual pages of manga/comic chapters.
+    /// </summary>
     public class ChapterImage
     {
         [Key]
@@ -14,13 +18,18 @@ namespace WibuHub.ApplicationCore.Entities
         [ForeignKey("ChapterId")]
         public virtual Chapter? Chapter { get; set; }
 
-        // ImageUrl: varchar(500) - URL of the image
+        /// <summary>
+        /// URL of the image (stored on external server or CDN)
+        /// </summary>
         [Required]
         [MaxLength(500)]
         [Column(TypeName = "varchar(500)")]
         public string ImageUrl { get; set; } = string.Empty;
 
-        // PageNumber: int - Order of the image in the chapter
+        /// <summary>
+        /// Order of the image in the chapter (1-based index)
+        /// </summary>
+        [Range(1, int.MaxValue, ErrorMessage = "Page number must be greater than 0")]
         public int PageNumber { get; set; }
 
         public DateTime CreateDate { get; set; } = DateTime.UtcNow;

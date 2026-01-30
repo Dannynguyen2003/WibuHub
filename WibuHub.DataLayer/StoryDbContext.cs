@@ -118,11 +118,13 @@ namespace WibuHub.DataLayer
 
                 entity.HasOne(sc => sc.Story)
                       .WithMany(s => s.StoryCategories)
-                      .HasForeignKey(sc => sc.StoryId);
+                      .HasForeignKey(sc => sc.StoryId)
+                      .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(sc => sc.Category)
                       .WithMany(c => c.StoryCategories)
-                      .HasForeignKey(sc => sc.CategoryId);
+                      .HasForeignKey(sc => sc.CategoryId)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
 
             // 4. Story
@@ -170,6 +172,10 @@ namespace WibuHub.DataLayer
             {
                 entity.ToTable("ChapterImages");
                 entity.HasKey(ci => ci.Id);
+
+                // Index for better query performance
+                entity.HasIndex(ci => ci.ChapterId);
+                entity.HasIndex(ci => new { ci.ChapterId, ci.PageNumber }).IsUnique();
 
                 // Khi xóa Chapter -> Xóa luôn ảnh
                 entity.HasOne(ci => ci.Chapter)

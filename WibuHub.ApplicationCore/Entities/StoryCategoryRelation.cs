@@ -4,7 +4,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace WibuHub.ApplicationCore.Entities
 {
     /// <summary>
-    /// Many-to-many join table between Story and Category
+    /// Many-to-many join table between Story and Category.
+    /// This allows a Story to belong to multiple Categories (e.g., Action, Romance, Fantasy).
+    /// Note: This is different from StoryCategory (Genres) which represents genre classifications.
     /// </summary>
     public class StoryCategoryRelation
     {
