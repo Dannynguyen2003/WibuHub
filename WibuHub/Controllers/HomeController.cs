@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using WibuHub.Common.Contants;
 using WibuHub.MVC.Models;
 
 namespace WibuHub.MVC.Controllers

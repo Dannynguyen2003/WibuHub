@@ -7,11 +7,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using WibuHub.ApplicationCore.Entities;
+using WibuHub.Common.Contants;
 using WibuHub.DataLayer;
 
 namespace WibuHub.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "SuperAdmin,Admin")]
     public class ReportsController : Controller
     {
         private readonly StoryDbContext _context;

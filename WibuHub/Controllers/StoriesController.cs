@@ -3,12 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WibuHub.ApplicationCore.Entities;
+using WibuHub.Common.Contants;
 using WibuHub.DataLayer;
 using WibuHub.MVC.ViewModels;
 
 namespace WibuHub.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "SuperAdmin,Admin,StoryManager,ContentManager")]
     public class StoriesController : Controller
     {
         private readonly StoryDbContext _context;
