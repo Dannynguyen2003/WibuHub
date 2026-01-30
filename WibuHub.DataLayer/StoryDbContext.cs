@@ -27,6 +27,8 @@ namespace WibuHub.DataLayer
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderDetail> OrderDetails { get; set; }
+        public DbSet<PaymentMethod> PaymentMethods { get; set; }
+        public DbSet<Transaction> Transactions { get; set; }
 
         // =============================================================
         // XỬ LÝ SOFT DELETE (GHI ĐÈ SAVESCHANGES)
@@ -231,6 +233,11 @@ namespace WibuHub.DataLayer
                 entity.Property(o => o.PaymentMethod).HasMaxLength(50);
                 entity.Property(o => o.TransactionId).HasMaxLength(100);
                 entity.Property(o => o.PaymentStatus).HasMaxLength(50);
+
+                entity.HasOne(o => o.PaymentMethodNavigation)
+                      .WithMany()
+                      .HasForeignKey(o => o.PaymentMethodId)
+                      .OnDelete(DeleteBehavior.Restrict);
             });
 
             // 13. OrderDetail
@@ -250,6 +257,44 @@ namespace WibuHub.DataLayer
                       .WithMany()
                       .HasForeignKey(od => od.ChapterId)
                       .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // 14. PaymentMethod
+            modelBuilder.Entity<PaymentMethod>(entity =>
+            {
+                entity.ToTable("PaymentMethods");
+                entity.HasKey(pm => pm.Id);
+                entity.Property(pm => pm.Name).HasMaxLength(100).IsRequired();
+                entity.Property(pm => pm.Code).HasMaxLength(50).IsRequired();
+                entity.Property(pm => pm.LogoUrl).HasMaxLength(500);
+                entity.Property(pm => pm.Description).HasMaxLength(500);
+                entity.HasIndex(pm => pm.Code).IsUnique();
+                entity.HasIndex(pm => pm.DisplayOrder);
+            });
+
+            // 15. Transaction
+            modelBuilder.Entity<Transaction>(entity =>
+            {
+                entity.ToTable("Transactions");
+                entity.HasKey(t => t.Id);
+                entity.Property(t => t.Amount).HasColumnType("money").HasPrecision(18, 2);
+                entity.Property(t => t.Status).HasMaxLength(50).IsRequired();
+                entity.Property(t => t.ExternalTransactionId).HasMaxLength(200);
+                entity.Property(t => t.OrderInfo).HasMaxLength(500);
+                
+                entity.HasIndex(t => t.UserId);
+                entity.HasIndex(t => t.CreatedAt);
+                entity.HasIndex(t => t.Status);
+
+                entity.HasOne(t => t.PaymentMethod)
+                      .WithMany(pm => pm.Transactions)
+                      .HasForeignKey(t => t.PaymentMethodId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(t => t.Order)
+                      .WithMany()
+                      .HasForeignKey(t => t.OrderId)
+                      .OnDelete(DeleteBehavior.SetNull);
             });
         }
     }

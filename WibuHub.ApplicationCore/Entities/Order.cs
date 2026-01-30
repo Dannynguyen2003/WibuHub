@@ -33,7 +33,10 @@ namespace WibuHub.ApplicationCore.Entities
         [Description("Tổng giá trị của đơn hàng ĐÃ bao gồm thuế")]
         public decimal TotalAmount { get; set; }
 
-        [Description("Phương thức thanh toán (e.g., 'MoMo', 'Cash', 'Transfer')")]
+        [Description("ID phương thức thanh toán (FK to PaymentMethod)")]
+        public int? PaymentMethodId { get; set; }
+
+        [Description("Phương thức thanh toán (e.g., 'MoMo', 'Cash', 'Transfer') - Legacy field")]
         public string? PaymentMethod { get; set; }
 
         [Description("Mã giao dịch thanh toán")]
@@ -42,6 +45,8 @@ namespace WibuHub.ApplicationCore.Entities
         [Description("Trạng thái thanh toán")]
         public string? PaymentStatus { get; set; }
 
+        // Navigation properties
         public virtual ICollection<OrderDetail> OrderDetails { get; set; }
+        public virtual WibuHub.ApplicationCore.Entities.PaymentMethod? PaymentMethodNavigation { get; set; }
     }
 }
