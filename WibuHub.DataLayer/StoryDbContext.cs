@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Linq.Expressions;
 using WibuHub.ApplicationCore.Entities;
 using WibuHub.ApplicationCore.Interface;
+using WibuHub.DataLayer.Seeding;
 
 
 namespace WibuHub.DataLayer
@@ -296,6 +297,11 @@ namespace WibuHub.DataLayer
                       .HasForeignKey(t => t.OrderId)
                       .OnDelete(DeleteBehavior.SetNull);
             });
+
+            // =============================================================
+            // SEED DATA
+            // =============================================================
+            modelBuilder.SeedPaymentMethods();
         }
     }
 }
