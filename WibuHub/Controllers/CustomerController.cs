@@ -3,13 +3,14 @@
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
     using WibuHub.ApplicationCore.Entities.Identity;
+    using WibuHub.Common.Contants;
     using static WibuHub.ApplicationCore.DTOs.Customer.Customer;
 
     namespace WibuHub.MVC.Admin.Controllers
     {
         [Route("api/admin/customers")]
         [ApiController]
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = AppConstants.Roles.Admin)]
         public class CustomerController : ControllerBase
         {
             private readonly UserManager<StoryUser> _userManager;
