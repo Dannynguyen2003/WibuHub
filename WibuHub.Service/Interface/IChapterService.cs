@@ -1,5 +1,5 @@
-﻿using WibuHub.ApplicationCore.Entities;
-using WibuHub.MVC.ViewModels;
+﻿using WibuHub.ApplicationCore.DTOs.Shared;
+using WibuHub.ApplicationCore.Entities;
 namespace WibuHub.Service.Interface
 {
     public interface IChapterService
@@ -11,9 +11,9 @@ namespace WibuHub.Service.Interface
         // Lấy chapters theo StoryId
         Task<List<Chapter>> GetByStoryIdAsync(Guid storyId);
         // Tạo mới chapter
-        Task<bool> CreateAsync(ChapterVM request);
+        Task<bool> CreateAsync(ChapterDto request);
         // Cập nhật chapter
-        Task<bool> UpdateAsync(Guid id, ChapterVM request);
+        Task<bool> UpdateAsync(Guid id, ChapterDto request);
         // Xóa chapter (soft delete)
         Task<bool> DeleteAsync(Guid id);
     }

@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using WibuHub.ApplicationCore.DTOs.Shared;
 using WibuHub.ApplicationCore.Entities;
 using WibuHub.DataLayer;
-using WibuHub.MVC.ViewModels;
 using WibuHub.Service.Interface;
 namespace WibuHub.Service.Implementations
 {
@@ -33,7 +33,7 @@ namespace WibuHub.Service.Implementations
                 .OrderBy(c => c.Number)
                 .ToListAsync();
         }
-        public async Task<bool> CreateAsync(ChapterVM request)
+        public async Task<bool> CreateAsync(ChapterDto request)
         {
             try
             {
@@ -72,7 +72,7 @@ namespace WibuHub.Service.Implementations
                 return false;
             }
         }
-        public async Task<bool> UpdateAsync(Guid id, ChapterVM request)
+        public async Task<bool> UpdateAsync(Guid id, ChapterDto request)
         {
             try
             {
