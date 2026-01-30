@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 using WibuHub.ApplicationCore.Entities.Identity;
+using WibuHub.Common.Contants;
 
 namespace WibuHub.MVC.Admin.Areas.Identity.Pages.Account
 {
@@ -113,6 +114,9 @@ namespace WibuHub.MVC.Admin.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");
+
+                    // Assign Customer role to new users by default
+                    await _userManager.AddToRoleAsync(user, AppConstants.Roles.Customer);
 
                     var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
