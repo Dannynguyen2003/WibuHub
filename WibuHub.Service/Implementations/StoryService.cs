@@ -53,7 +53,7 @@ namespace WibuHub.Service.Implementations
                     CategoryId = s.CategoryId,
                     CategoryName = s.Category != null ? s.Category.Name : null
                 })
-                .FirstOrDefaultAsync();
+                .SingleOrDefaultAsync();
         }
 
         public async Task<bool> CreateAsync(StoryCreateVM request)
