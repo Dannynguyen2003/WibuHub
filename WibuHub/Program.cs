@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WibuHub.ApplicationCore.Entities.Identity;
 using WibuHub.DataLayer;
+using WibuHub.Service.Implementations;
+using WibuHub.Service.Interface;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +14,10 @@ builder.Services.AddDbContext<StoryDbContext>(options =>
 builder.Services.AddDbContext<StoryIdentityDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("StoryIdentityConnection"))
 );
+
+// Register application services
+builder.Services.AddScoped<IStoryService, StoryService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 //builder.Services.AddDefaultIdentity<VideoUser>(options =>
 builder.Services.AddIdentity<StoryUser, StoryRole>(options =>
