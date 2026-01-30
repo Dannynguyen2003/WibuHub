@@ -1,31 +1,35 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using WibuHub.ApplicationCore.Entities;
-using WibuHub.DataLayer;
-using WibuHub.MVC.ViewModels;
+using WibuHub.ApplicationCore.DTOs.Shared;
+using WibuHub.Service.Interface;
 
 namespace WibuHub.MVC.Controllers
 {
     [Authorize]
     public class AuthorsController : Controller
     {
-        private readonly StoryDbContext _context;
+        private readonly IAuthorService _authorService;
+        private readonly ILogger<AuthorsController> _logger;
 
-        public AuthorsController(StoryDbContext context)
+        public AuthorsController(IAuthorService authorService, ILogger<AuthorsController> logger)
         {
-            _context = context;
+            _authorService = authorService;
+            _logger = logger;
         }
 
         // GET: Authors
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Authors.ToListAsync());
+            try
+            {
+                var authors = await _authorService.GetAllAsync();
+                return View(authors);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving authors list");
+                return View("Error");
+            }
         }
 
         // GET: Authors/Details/5
@@ -36,14 +40,21 @@ namespace WibuHub.MVC.Controllers
                 return NotFound();
             }
 
-            var author = await _context.Authors
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (author == null)
+            try
             {
-                return NotFound();
-            }
+                var author = await _authorService.GetByIdAsync(id.Value);
+                if (author == null)
+                {
+                    return NotFound();
+                }
 
-            return View(author);
+                return View(author);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving author details for ID: {Id}", id);
+                return View("Error");
+            }
         }
 
         // GET: Authors/Create
@@ -53,20 +64,31 @@ namespace WibuHub.MVC.Controllers
         }
 
         // POST: Authors/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name")] Author author)
+        public async Task<IActionResult> Create(AuthorDto authorDto)
         {
             if (ModelState.IsValid)
             {
-                author.Id = Guid.NewGuid();
-                _context.Add(author);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    var isSuccess = await _authorService.CreateAsync(authorDto);
+                    if (isSuccess)
+                    {
+                        return RedirectToAction(nameof(Index));
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", "Không thể tạo tác giả.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error creating author");
+                    ModelState.AddModelError("", "Đã xảy ra lỗi khi tạo tác giả.");
+                }
             }
-            return View(author);
+            return View(authorDto);
         }
 
         // GET: Authors/Edit/5
@@ -77,22 +99,28 @@ namespace WibuHub.MVC.Controllers
                 return NotFound();
             }
 
-            var author = await _context.Authors.FindAsync(id);
-            if (author == null)
+            try
             {
+                var authorDto = await _authorService.GetByIdAsDtoAsync(id.Value);
+                if (authorDto == null)
+                {
+                    return NotFound();
+                }
+                return View(authorDto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading author for edit: {Id}", id);
                 return NotFound();
             }
-            return View(author);
         }
 
         // POST: Authors/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, AuthorVM authorVM)
+        public async Task<IActionResult> Edit(Guid id, AuthorDto authorDto)
         {
-            if (id != authorVM.Id)
+            if (id != authorDto.Id)
             {
                 return NotFound();
             }
@@ -101,23 +129,23 @@ namespace WibuHub.MVC.Controllers
             {
                 try
                 {
-                    _context.Update(authorVM);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!AuthorExists(authorVM.Id))
+                    var isSuccess = await _authorService.UpdateAsync(authorDto);
+                    if (isSuccess)
                     {
-                        return NotFound();
+                        return RedirectToAction(nameof(Index));
                     }
                     else
                     {
-                        throw;
+                        ModelState.AddModelError("", "Không thể cập nhật tác giả.");
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error updating author: {Id}", id);
+                    ModelState.AddModelError("", "Đã xảy ra lỗi khi cập nhật tác giả.");
+                }
             }
-            return View(authorVM);
+            return View(authorDto);
         }
 
         // GET: Authors/Delete/5
@@ -128,14 +156,21 @@ namespace WibuHub.MVC.Controllers
                 return NotFound();
             }
 
-            var author = await _context.Authors
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (author == null)
+            try
             {
+                var author = await _authorService.GetByIdAsync(id.Value);
+                if (author == null)
+                {
+                    return NotFound();
+                }
+
+                return View(author);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading author for delete: {Id}", id);
                 return NotFound();
             }
-
-            return View(author);
         }
 
         // POST: Authors/Delete/5
@@ -143,19 +178,20 @@ namespace WibuHub.MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var author = await _context.Authors.FindAsync(id);
-            if (author != null)
+            try
             {
-                _context.Authors.Remove(author);
+                var isSuccess = await _authorService.DeleteAsync(id);
+                if (!isSuccess)
+                {
+                    _logger.LogWarning("Failed to delete author: {Id}", id);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting author: {Id}", id);
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool AuthorExists(Guid id)
-        {
-            return _context.Authors.Any(e => e.Id == id);
         }
     }
 }

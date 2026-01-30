@@ -18,6 +18,8 @@ builder.Services.AddDbContext<StoryIdentityDbContext>(options =>
 // Register application services
 builder.Services.AddScoped<IStoryService, StoryService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IAuthorService, AuthorService>();
+builder.Services.AddScoped<IChapterService, ChapterService>();
 
 //builder.Services.AddDefaultIdentity<VideoUser>(options =>
 builder.Services.AddIdentity<StoryUser, StoryRole>(options =>
