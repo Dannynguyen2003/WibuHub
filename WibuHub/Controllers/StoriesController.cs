@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using WibuHub.ApplicationCore.Entities;
+using WibuHub.ApplicationCore.DTOs.Shared;
 using WibuHub.DataLayer;
-using WibuHub.MVC.ViewModels;
 using WibuHub.Service.Interface;
 
 namespace WibuHub.Controllers
@@ -74,13 +72,13 @@ namespace WibuHub.Controllers
         // POST: Stories/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(StoryVM storyVM)
+        public async Task<IActionResult> Create(StoryDto storyDto)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
-                    var isSuccess = await _storyService.CreateAsync(storyVM);
+                    var isSuccess = await _storyService.CreateAsync(storyDto);
                     if (isSuccess)
                     {
                         return RedirectToAction(nameof(Index));
@@ -96,9 +94,9 @@ namespace WibuHub.Controllers
                     ModelState.AddModelError("", "Đã xảy ra lỗi khi tạo truyện.");
                 }
             }
-            ViewData["AuthorId"] = new SelectList(_context.Authors, "Id", "Name", storyVM.AuthorId);
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", storyVM.CategoryId);
-            return View(storyVM);
+            ViewData["AuthorId"] = new SelectList(_context.Authors, "Id", "Name", storyDto.AuthorId);
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", storyDto.CategoryId);
+            return View(storyDto);
         }
 
         // GET: Stories/Edit/5
@@ -117,8 +115,8 @@ namespace WibuHub.Controllers
                     return NotFound();
                 }
 
-                // Chuyển đổi Entity sang ViewModel
-                var storyVM = new StoryVM
+                // Chuyển đổi Entity sang DTO
+                var storyDto = new StoryDto
                 {
                     Id = story.Id,
                     Title = story.Title,
@@ -136,7 +134,7 @@ namespace WibuHub.Controllers
                 ViewData["AuthorId"] = new SelectList(_context.Authors, "Id", "Name", story.AuthorId);
                 ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", story.CategoryId);
 
-                return View(storyVM);
+                return View(storyDto);
             }
             catch (Exception ex)
             {
@@ -148,9 +146,9 @@ namespace WibuHub.Controllers
         // POST: Stories/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, StoryVM storyVM)
+        public async Task<IActionResult> Edit(Guid id, StoryDto storyDto)
         {
-            if (id != storyVM.Id)
+            if (id != storyDto.Id)
             {
                 return NotFound();
             }
@@ -159,7 +157,7 @@ namespace WibuHub.Controllers
             {
                 try
                 {
-                    var isSuccess = await _storyService.UpdateAsync(id, storyVM);
+                    var isSuccess = await _storyService.UpdateAsync(id, storyDto);
                     if (isSuccess)
                     {
                         return RedirectToAction(nameof(Index));
@@ -175,9 +173,9 @@ namespace WibuHub.Controllers
                     ModelState.AddModelError("", "Đã xảy ra lỗi khi cập nhật truyện.");
                 }
             }
-            ViewData["AuthorId"] = new SelectList(_context.Authors, "Id", "Name", storyVM.AuthorId);
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", storyVM.CategoryId);
-            return View(storyVM);
+            ViewData["AuthorId"] = new SelectList(_context.Authors, "Id", "Name", storyDto.AuthorId);
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", storyDto.CategoryId);
+            return View(storyDto);
         }
 
         // GET: Stories/Delete/5

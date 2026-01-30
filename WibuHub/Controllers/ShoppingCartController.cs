@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using WibuHub.ApplicationCore.DTOs.Shared;
 using WibuHub.ApplicationCore.Entities.Identity;
 using WibuHub.DataLayer;
 using WibuHub.MVC.ExtensionsMethod;
-using WibuHub.MVC.ViewModels.ShoppingCart;
 
 namespace WibuHub.MVC.Controllers
 {
@@ -30,7 +30,7 @@ namespace WibuHub.MVC.Controllers
 
         public IActionResult Checkout()
         {
-            var cart = HttpContext.Session.GetObject<Cart>(CartSessionKey);
+            var cart = HttpContext.Session.GetObject<CartDto>(CartSessionKey);
             return View(cart);
         }
 
@@ -42,7 +42,7 @@ namespace WibuHub.MVC.Controllers
             // For now, just return a placeholder view.
 
             //=== Step 1: Lấy cart từ SESSION ===//
-            var cart = HttpContext.Session.GetObject<Cart>(CartSessionKey);
+            var cart = HttpContext.Session.GetObject<CartDto>(CartSessionKey);
             if (cart != null)
             {
                 var cartItem = cart.Items.FirstOrDefault(item => item.ChapterId == idChapter);
@@ -57,7 +57,7 @@ namespace WibuHub.MVC.Controllers
                     var chapter = await _context.Chapters.FindAsync(idChapter);
                     if (chapter != null)
                     {
-                        cart.Items.Add(new CartItem
+                        cart.Items.Add(new CartItemDto
                         {
                             Id = Guid.NewGuid(),
                             CartId = cart.Id,
@@ -72,21 +72,21 @@ namespace WibuHub.MVC.Controllers
             }
             else
             {
-                cart = new Cart
+                cart = new CartDto
                 {
                     Id = Guid.NewGuid(),
                     //UserId = "ABC",
                     UserId = _httpContext.HttpContext?.User?.Identity?.Name,
                     CreatedAt = DateTime.Now,
                     UpdatedAt = DateTime.Now,
-                    Items = new List<CartItem>()
+                    Items = new List<CartItemDto>()
                 };
 
-                //cart.Items = new List<CartItem>();
+                //cart.Items = new List<CartItemDto>();
                 var chapter = await _context.Chapters.FindAsync(idChapter);
                 if (chapter != null)
                 {
-                    cart.Items.Add(new CartItem
+                    cart.Items.Add(new CartItemDto
                     {
                         Id = Guid.NewGuid(),
                         CartId = cart.Id,
@@ -104,14 +104,14 @@ namespace WibuHub.MVC.Controllers
 
         public async Task<IActionResult> UpdateQuantity(Guid idChapter, int quantity)
         {
-            var cart = HttpContext.Session.GetObject<Cart>(CartSessionKey);
+            var cart = HttpContext.Session.GetObject<CartDto>(CartSessionKey);
             if (cart != null)
             {
                 var item = cart.Items.FirstOrDefault(x => x.ChapterId == idChapter);
                 if (item != null)
                 {
                     item.Quantity = quantity;
-                    HttpContext.Session.SetObject<Cart>(CartSessionKey, cart);
+                    HttpContext.Session.SetObject<CartDto>(CartSessionKey, cart);
                 }
             }
             return Content(cart.Items.Count.ToString());
@@ -122,7 +122,7 @@ namespace WibuHub.MVC.Controllers
         //    bool isOK = false;
         //    string message = "Chưa thực thi";
 
-        //    var cart = HttpContext.Session.GetObject<Cart>(CartSessionKey);
+        //    var cart = HttpContext.Session.GetObject<CartDto>(CartSessionKey);
         //    if (cart != null)
         //    {
         //        var items = cart.Items.ToList();

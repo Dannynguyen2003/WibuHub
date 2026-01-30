@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WibuHub.DataLayer;
-using WibuHub.MVC.ViewModels;
+using WibuHub.ApplicationCore.DTOs.Shared;
 
 namespace WibuHub.MVC.ViewComponents
 {
@@ -18,7 +18,7 @@ namespace WibuHub.MVC.ViewComponents
         {
             var categories = await _context.Categories
                 .OrderBy(c => c.Position)
-                .Select(c => new CategoryVM
+                .Select(c => new CategoryDto
                 {
                     Id = c.Id,
                     Name = c.Name,

@@ -1,5 +1,6 @@
-﻿using WibuHub.ApplicationCore.Entities;
-using WibuHub.MVC.ViewModels;
+﻿using WibuHub.ApplicationCore.DTOs.Shared;
+using WibuHub.ApplicationCore.Entities;
+
 namespace WibuHub.Service.Interface
 {
     public interface IStoryService
@@ -9,9 +10,9 @@ namespace WibuHub.Service.Interface
         // Lấy chi tiết truyện theo ID
         Task<Story?> GetByIdAsync(Guid id);
         // Tạo mới truyện
-        Task<bool> CreateAsync(StoryVM request);
+        Task<bool> CreateAsync(StoryDto request);
         // Cập nhật truyện
-        Task<bool> UpdateAsync(Guid id, StoryVM request);
+        Task<bool> UpdateAsync(Guid id, StoryDto request);
         // Xóa truyện
         Task<bool> DeleteAsync(Guid id);
     }

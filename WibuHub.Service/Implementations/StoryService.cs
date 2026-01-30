@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using WibuHub.ApplicationCore.DTOs.Shared;
 using WibuHub.ApplicationCore.Entities;
 using WibuHub.DataLayer;
-using WibuHub.MVC.ViewModels;
 using WibuHub.Service.Interface;
 
 namespace WibuHub.Service.Implementations
@@ -35,7 +35,7 @@ namespace WibuHub.Service.Implementations
                 .FirstOrDefaultAsync(s => s.Id == id);
         }
 
-        public async Task<bool> CreateAsync(StoryVM request)
+        public async Task<bool> CreateAsync(StoryDto request)
         {
             try
             {
@@ -76,7 +76,7 @@ namespace WibuHub.Service.Implementations
             }
         }
 
-        public async Task<bool> UpdateAsync(Guid id, StoryVM request)
+        public async Task<bool> UpdateAsync(Guid id, StoryDto request)
         {
             try
             {

@@ -1,12 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using WibuHub.ApplicationCore.DTOs.Shared;
 using WibuHub.ApplicationCore.Entities;
 using WibuHub.DataLayer;
-using WibuHub.MVC.ViewModels;
 using WibuHub.Service.Interface;
 
 namespace WibuHub.Service.Implementations
@@ -30,11 +25,11 @@ namespace WibuHub.Service.Implementations
             return await _context.Categories.FirstOrDefaultAsync(m => m.Id == id);
         }
 
-        public async Task<CategoryVM?> GetByIdAsViewModelAsync(Guid id)
+        public async Task<CategoryDto?> GetByIdAsDtoAsync(Guid id)
         {
             return await _context.Categories
                 .Where(c => c.Id == id)
-                .Select(c => new CategoryVM
+                .Select(c => new CategoryDto
                 {
                     Id = c.Id,
                     Name = c.Name,
@@ -44,10 +39,10 @@ namespace WibuHub.Service.Implementations
                 .SingleOrDefaultAsync();
         }
 
-        public async Task<bool> CreateAsync(CategoryVM categoryVM)
+        public async Task<bool> CreateAsync(CategoryDto categoryDto)
         {
             // Logic kiểm tra trùng tên
-            var exists = await _context.Categories.AnyAsync(c => c.Name == categoryVM.Name);
+            var exists = await _context.Categories.AnyAsync(c => c.Name == categoryDto.Name);
             if (exists) return false;
 
             // Logic tính toán Position
@@ -56,8 +51,8 @@ namespace WibuHub.Service.Implementations
             var category = new Category
             {
                 Id = Guid.NewGuid(), // Đảm bảo ID được tạo
-                Name = categoryVM.Name.Trim(),
-                Description = categoryVM.Description?.Trim(),
+                Name = categoryDto.Name.Trim(),
+                Description = categoryDto.Description?.Trim(),
                 Position = countCategory + 1
             };
 
@@ -66,15 +61,15 @@ namespace WibuHub.Service.Implementations
             return true;
         }
 
-        public async Task<bool> UpdateAsync(CategoryVM categoryVM)
+        public async Task<bool> UpdateAsync(CategoryDto categoryDto)
         {
             var category = await _context.Categories
-                .SingleOrDefaultAsync(c => c.Id == categoryVM.Id);
+                .SingleOrDefaultAsync(c => c.Id == categoryDto.Id);
 
             if (category == null) return false;
 
-            category.Name = categoryVM.Name.Trim();
-            category.Description = categoryVM.Description?.Trim();
+            category.Name = categoryDto.Name.Trim();
+            category.Description = categoryDto.Description?.Trim();
             // Lưu ý: Không update Position ở đây theo logic cũ của bạn
 
             try
