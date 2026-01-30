@@ -1,13 +1,15 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Linq.Expressions;
 using WibuHub.ApplicationCore.Entities;
+using WibuHub.ApplicationCore.Entities.Identity; // Namespace chứa StoryUser
 using WibuHub.ApplicationCore.Interface;
-
 
 namespace WibuHub.DataLayer
 {
-    public class StoryDbContext : DbContext
+    // 1. SỬA KẾ THỪA: Dùng IdentityDbContext để hỗ trợ bảng User/Role
+    public class StoryDbContext : IdentityDbContext<StoryUser>
     {
         public StoryDbContext(DbContextOptions<StoryDbContext> options) : base(options)
         {
@@ -18,7 +20,11 @@ namespace WibuHub.DataLayer
         public DbSet<Chapter> Chapters { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Author> Authors { get; set; }
-        public DbSet<StoryCategory> Genres { get; set; }
+
+        // 2. CẬP NHẬT: Thêm bảng ảnh và bảng trung gian
+        public DbSet<ChapterImage> ChapterImages { get; set; }
+        public DbSet<StoryCategory> StoryCategories { get; set; } // Bảng nối Story - Category
+
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Follow> Follows { get; set; }
         public DbSet<History> Histories { get; set; }
@@ -33,16 +39,12 @@ namespace WibuHub.DataLayer
         // =============================================================
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            // Lấy tất cả các Entity đang ở trạng thái Deleted và có implement ISoftDelete
             var entries = ChangeTracker.Entries<ISoftDelete>()
                                        .Where(e => e.State == EntityState.Deleted);
 
             foreach (var entry in entries)
             {
-                // Thay vì xóa thật, ta chuyển sang Modified (Sửa)
                 entry.State = EntityState.Modified;
-
-                // Cập nhật cờ xóa
                 entry.Entity.IsDeleted = true;
                 entry.Entity.DeletedAt = DateTime.UtcNow;
             }
@@ -52,12 +54,12 @@ namespace WibuHub.DataLayer
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // QUAN TRỌNG: Phải gọi base để Identity cấu hình các bảng User, Role...
             base.OnModelCreating(modelBuilder);
 
             // =============================================================
             // CẤU HÌNH GLOBAL QUERY FILTER (TỰ ĐỘNG LỌC ISDELETED)
             // =============================================================
-            // Duyệt qua tất cả các Entity trong Model
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
                 if (typeof(ISoftDelete).IsAssignableFrom(entityType.ClrType))
@@ -92,12 +94,20 @@ namespace WibuHub.DataLayer
                 entity.Property(a => a.Name).HasMaxLength(150).IsRequired();
             });
 
-            // 3. Genres
+            // 3. StoryCategory (MANY-TO-MANY Configuration) - UPDATE QUAN TRỌNG
             modelBuilder.Entity<StoryCategory>(entity =>
             {
-                entity.ToTable("Genres");
-                entity.HasKey(g => g.Id);
-                entity.Property(g => g.Name).HasMaxLength(150).IsRequired();
+                entity.ToTable("StoryCategories");
+                // Khóa chính phức hợp (Composite Key)
+                entity.HasKey(sc => new { sc.StoryId, sc.CategoryId });
+
+                entity.HasOne(sc => sc.Story)
+                      .WithMany(s => s.StoryCategories)
+                      .HasForeignKey(sc => sc.StoryId);
+
+                entity.HasOne(sc => sc.Category)
+                      .WithMany(c => c.StoryCategories)
+                      .HasForeignKey(sc => sc.CategoryId);
             });
 
             // 4. Story
@@ -106,37 +116,46 @@ namespace WibuHub.DataLayer
                 entity.ToTable("Stories");
                 entity.HasKey(s => s.Id);
                 entity.Property(s => s.Title).HasMaxLength(255).IsRequired();
-                entity.Property(s => s.Thumbnail).HasColumnType("varchar(500)");
                 entity.Property(s => s.Status).HasColumnType("tinyint");
 
-                entity.HasOne(s => s.Category)
-                      .WithMany(c => c.Stories)
-                      .HasForeignKey(s => s.CategoryId)
-                      .OnDelete(DeleteBehavior.Restrict);
-
+                // Author relationship
                 entity.HasOne(s => s.Author)
                       .WithMany(a => a.Stories)
                       .HasForeignKey(s => s.AuthorId)
                       .OnDelete(DeleteBehavior.SetNull);
 
-                entity.HasMany(s => s.Genres)
-                      .WithMany(g => g.Stories)
-                      .UsingEntity(j => j.ToTable("StoryGenres"));
+                // (Optional) Quan hệ 1-N cũ với Category nếu bạn vẫn muốn giữ để làm "Category Chính"
+                entity.HasOne(s => s.Category)
+                      .WithMany(c => c.Stories)
+                      .HasForeignKey(s => s.CategoryId)
+                      .OnDelete(DeleteBehavior.Restrict);
             });
 
-            // 5. Chapter
+            // 5. Chapter & ChapterImage - UPDATE QUAN TRỌNG
             modelBuilder.Entity<Chapter>(entity =>
             {
                 entity.ToTable("Chapters");
                 entity.HasKey(c => c.Id);
                 entity.Property(c => c.Price).HasColumnType("money").HasPrecision(18, 2);
                 entity.Property(c => c.Discount).HasPrecision(5, 2);
-
-                entity.HasIndex(c => new { c.StoryId, c.Number });
+                entity.HasIndex(c => new { c.StoryId, c.ChapterNumber });
 
                 entity.HasOne(c => c.Story)
                       .WithMany(s => s.Chapters)
                       .HasForeignKey(c => c.StoryId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Cấu hình bảng ChapterImages
+            modelBuilder.Entity<ChapterImage>(entity =>
+            {
+                entity.ToTable("ChapterImages");
+                entity.HasKey(ci => ci.Id);
+
+                // Khi xóa Chapter -> Xóa luôn ảnh
+                entity.HasOne(ci => ci.Chapter)
+                      .WithMany(c => c.Images)
+                      .HasForeignKey(ci => ci.ChapterId)
                       .OnDelete(DeleteBehavior.Cascade);
             });
 
@@ -229,6 +248,7 @@ namespace WibuHub.DataLayer
                 entity.Property(o => o.TransactionId).HasMaxLength(100);
                 entity.Property(o => o.PaymentStatus).HasMaxLength(50);
             });
+
             // 13. OrderDetail
             modelBuilder.Entity<OrderDetail>(entity =>
             {
@@ -236,10 +256,12 @@ namespace WibuHub.DataLayer
                 entity.HasKey(od => new { od.OrderId, od.ChapterId });
                 entity.Property(od => od.UnitPrice).HasColumnType("money").HasPrecision(18, 2);
                 entity.Property(od => od.Amount).HasColumnType("money").HasPrecision(18, 2);
+
                 entity.HasOne(od => od.Order)
                       .WithMany(o => o.OrderDetails)
                       .HasForeignKey(od => od.OrderId)
                       .OnDelete(DeleteBehavior.Cascade);
+
                 entity.HasOne(od => od.Chapter)
                       .WithMany()
                       .HasForeignKey(od => od.ChapterId)

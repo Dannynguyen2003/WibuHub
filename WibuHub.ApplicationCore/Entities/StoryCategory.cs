@@ -3,17 +3,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WibuHub.ApplicationCore.Entities
 {
+    [Table("StoryCategories")]
     public class StoryCategory
     {
-        [Key]
-        public Guid Id { get; set; } = Guid.NewGuid();
+        public Guid StoryId { get; set; }
+        public virtual Story Story { get; set; } = null!;
 
-        // Name: nvarchar(150)
-        [Required]
-        [MaxLength(150)]
-        public string Name { get; set; } = string.Empty;
-
-        // Navigation: many-to-many with Story
-        public virtual ICollection<Story> Stories { get; set; } = new List<Story>();
+        public Guid CategoryId { get; set; }
+        public virtual Category Category { get; set; } = null!;
     }
 }

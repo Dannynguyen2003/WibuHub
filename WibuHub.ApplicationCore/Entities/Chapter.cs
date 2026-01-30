@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WibuHub.ApplicationCore.Interface;
@@ -6,7 +7,7 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace WibuHub.ApplicationCore.Entities
 {
-    [Index(nameof(StoryId), nameof(Number))]
+    [Index(nameof(StoryId), nameof(ChapterNumber))]
     [Index(nameof(Slug), IsUnique = true)]
     public class Chapter : ISoftDelete
     {
@@ -28,7 +29,7 @@ namespace WibuHub.ApplicationCore.Entities
 
         // Number: float (Số thứ tự chap: 1, 1.5, 2...)
         // Dùng double trong C# để map tốt với float/real trong SQL
-        public double Number { get; set; }
+        public double ChapterNumber { get; set; }
 
         // Slug: varchar(150) - URL thân thiện
         [Required]
@@ -48,7 +49,8 @@ namespace WibuHub.ApplicationCore.Entities
 
 
         // CreateDate: DateTime
-        public DateTime CreateDate { get; set; } = DateTime.UtcNow;
+        [Description("Ngày tạo")]
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         // UnlockPrice: money
         // Dùng decimal cho tiền tệ trong C#, map sang "money" trong SQL
@@ -61,6 +63,6 @@ namespace WibuHub.ApplicationCore.Entities
 
         //public Guid? ImageId { get; set; }
         //public virtual Image? Image { get; set; }
-
+        public virtual ICollection<ChapterImage> Images { get; set; } = new List<ChapterImage>();
     }
 }

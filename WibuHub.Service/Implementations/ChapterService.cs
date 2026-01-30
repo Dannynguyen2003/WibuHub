@@ -1,68 +1,129 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using WibuHub.ApplicationCore.DTOs.Shared;
 using WibuHub.ApplicationCore.Entities;
 using WibuHub.DataLayer;
-using WibuHub.MVC.ViewModels;
 using WibuHub.Service.Interface;
+
 namespace WibuHub.Service.Implementations
 {
     public class ChapterService : IChapterService
     {
         private readonly StoryDbContext _context;
-        public ChapterService(StoryDbContext context)
+        // Cần inject Environment để lấy đường dẫn gốc wwwroot
+        private readonly Microsoft.AspNetCore.Hosting.IWebHostEnvironment _env;
+
+        public ChapterService(StoryDbContext context, Microsoft.AspNetCore.Hosting.IWebHostEnvironment env)
         {
             _context = context;
+            _env = env;
         }
-        public async Task<List<Chapter>> GetAllAsync()
+
+        public async Task<List<ChapterDto>> GetAllAsync()
         {
             return await _context.Chapters
                 .Include(c => c.Story)
-                .OrderByDescending(c => c.CreateDate)
+                .Select(c => new ChapterDto
+                {
+                    Id = c.Id,
+                    Title = c.Name,
+                    ChapterNumber = c.ChapterNumber,
+                    StoryId = c.StoryId,
+                    StoryTitle = c.Story.Title
+                })
+                .OrderByDescending(c => c.Id)
                 .ToListAsync();
         }
-        public async Task<Chapter?> GetByIdAsync(Guid id)
+
+        public async Task<ChapterDto?> GetByIdAsync(Guid id)
         {
-            return await _context.Chapters
+            var chapter = await _context.Chapters
                 .Include(c => c.Story)
+                .Include(c => c.Images) // Join bảng ảnh
                 .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (chapter == null) return null;
+
+            return new ChapterDto
+            {
+                Id = chapter.Id,
+                Title = chapter.Name,
+                ChapterNumber = chapter.ChapterNumber,
+                StoryId = chapter.StoryId,
+                StoryTitle = chapter.Story.Title,
+                // Lấy list ảnh và sắp xếp đúng thứ tự trang
+                ImageUrls = chapter.Images.OrderBy(i => i.OrderIndex).Select(i => i.ImageUrl).ToList()
+            };
         }
-        public async Task<List<Chapter>> GetByStoryIdAsync(Guid storyId)
+
+        public async Task<List<ChapterDto>> GetByStoryIdAsync(Guid storyId)
         {
             return await _context.Chapters
-                .Include(c => c.Story)
                 .Where(c => c.StoryId == storyId)
-                .OrderBy(c => c.Number)
+                .OrderBy(c => c.ChapterNumber) // Sắp xếp theo số chương: 1, 2, 3...
+                .Select(c => new ChapterDto
+                {
+                    Id = c.Id,
+                    Title = c.Name,
+                    ChapterNumber = c.ChapterNumber,
+                    StoryId = c.StoryId
+                })
                 .ToListAsync();
         }
-        public async Task<bool> CreateAsync(ChapterVM request)
+
+        public async Task<bool> CreateAsync(ChapterDto dto)
         {
+            // 1. Tạo Entity Chapter
+            var chapter = new Chapter
+            {
+                Id = Guid.NewGuid(),
+                Name = dto.Title,
+                ChapterNumber = dto.ChapterNumber,
+                StoryId = dto.StoryId,
+                CreatedAt = DateTime.Now,
+                Images = new List<ChapterImage>()
+            };
+
+            // 2. Xử lý Upload Ảnh (Nếu có)
+            if (dto.Pages != null && dto.Pages.Count > 0)
+            {
+                // Tạo thư mục: wwwroot/uploads/stories/{StoryId}/{ChapterId}/
+                string folderPath = Path.Combine(_env.WebRootPath, "uploads", "stories", dto.StoryId.ToString(), chapter.Id.ToString());
+                if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
+
+                int order = 1;
+                foreach (var file in dto.Pages)
+                {
+                    if (file.Length > 0)
+                    {
+                        // Đặt tên file: 001.jpg, 002.png...
+                        string fileName = $"{order:D3}{Path.GetExtension(file.FileName)}";
+                        string fullPath = Path.Combine(folderPath, fileName);
+
+                        // Lưu file vật lý
+                        using (var stream = new FileStream(fullPath, FileMode.Create))
+                        {
+                            await file.CopyToAsync(stream);
+                        }
+
+                        // Thêm vào list ảnh của Entity
+                        // Đường dẫn lưu DB: /uploads/stories/...
+                        string dbPath = $"/uploads/stories/{dto.StoryId}/{chapter.Id}/{fileName}";
+
+                        chapter.Images.Add(new ChapterImage
+                        {
+                            Id = Guid.NewGuid(),
+                            ImageUrl = dbPath,
+                            OrderIndex = order,
+                            ChapterId = chapter.Id
+                        });
+
+                        order++;
+                    }
+                }
+            }
+
             try
             {
-                // Validate StoryId exists
-                var storyExists = await _context.Stories.AnyAsync(s => s.Id == request.StoryId);
-                if (!storyExists)
-                {
-                    return false;
-                }
-                // Check if slug is unique
-                var slugExists = await _context.Chapters.AnyAsync(c => c.Slug == request.Slug);
-                if (slugExists)
-                {
-                    return false;
-                }
-                var chapter = new Chapter
-                {
-                    Id = Guid.NewGuid(),
-                    StoryId = request.StoryId,
-                    Name = (request.Name ?? string.Empty).Trim(),
-                    Number = request.Number,
-                    Slug = (request.Slug ?? string.Empty).Trim(),
-                    Content = request.Content?.Trim(),
-                    ServerId = request.ServerId,
-                    Price = request.Price,
-                    Discount = request.Discount,
-                    CreateDate = DateTime.UtcNow,
-                    ViewCount = 0
-                };
                 _context.Chapters.Add(chapter);
                 await _context.SaveChangesAsync();
                 return true;
@@ -72,64 +133,35 @@ namespace WibuHub.Service.Implementations
                 return false;
             }
         }
-        public async Task<bool> UpdateAsync(Guid id, ChapterVM request)
+
+        public async Task<bool> UpdateAsync(Guid id, ChapterDto dto)
         {
-            try
-            {
-                var chapter = await _context.Chapters.FindAsync(id);
-                if (chapter == null)
-                {
-                    return false;
-                }
-                // Validate StoryId exists
-                var storyExists = await _context.Stories.AnyAsync(s => s.Id == request.StoryId);
-                if (!storyExists)
-                {
-                    return false;
-                }
-                // Check if slug is unique (excluding current chapter)
-                var slugExists = await _context.Chapters
-                    .AnyAsync(c => c.Slug == request.Slug && c.Id != id);
-                if (slugExists)
-                {
-                    return false;
-                }
-                // Update properties
-                chapter.StoryId = request.StoryId;
-                chapter.Name = (request.Name ?? string.Empty).Trim();
-                chapter.Number = request.Number;
-                chapter.Slug = (request.Slug ?? string.Empty).Trim();
-                chapter.Content = request.Content?.Trim();
-                chapter.ServerId = request.ServerId;
-                chapter.Price = request.Price;
-                chapter.Discount = request.Discount;
-                // EF Core change tracker will automatically detect changes
-                await _context.SaveChangesAsync();
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+            var chapter = await _context.Chapters.FindAsync(id);
+            if (chapter == null) return false;
+
+            chapter.Name = dto.Title;
+            chapter.ChapterNumber = dto.ChapterNumber;
+            // Lưu ý: Update ảnh thường phức tạp hơn (xóa cũ thêm mới hoặc chèn thêm).
+            // Ở đây tạm thời chỉ update thông tin cơ bản. 
+            // Nếu muốn update ảnh, bạn cần logic xóa file cũ trong wwwroot.
+
+            _context.Chapters.Update(chapter);
+            await _context.SaveChangesAsync();
+            return true;
         }
+
         public async Task<bool> DeleteAsync(Guid id)
         {
-            try
-            {
-                var chapter = await _context.Chapters.FindAsync(id);
-                if (chapter == null)
-                {
-                    return false;
-                }
-                // This will trigger soft delete via DbContext.SaveChangesAsync override
-                _context.Chapters.Remove(chapter);
-                await _context.SaveChangesAsync();
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+            var chapter = await _context.Chapters.FindAsync(id);
+            if (chapter == null) return false;
+
+            // Optional: Xóa file ảnh trong ổ cứng trước khi xóa DB để đỡ rác
+            // string folderPath = Path.Combine(_env.WebRootPath, "uploads", "stories", chapter.StoryId.ToString(), chapter.Id.ToString());
+            // if (Directory.Exists(folderPath)) Directory.Delete(folderPath, true);
+
+            _context.Chapters.Remove(chapter);
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

@@ -22,11 +22,8 @@ namespace WibuHub.ApplicationCore.Entities
         // Description: nvarchar(MAX)
         // Trong EF Core, string không giới hạn MaxLength mặc định sẽ là nvarchar(MAX)
         public string? Description { get; set; }
-
-        // Thumbnail: varchar(500)
-        [MaxLength(500)]
-        [Column(TypeName = "varchar(500)")]
-        public string? Thumbnail { get; set; }
+        
+ 
 
         // Status: tinyint (0: Đang tiến hành, 1: Hoàn thành, 2: Tạm ngưng)
         // Map int của C# sang tinyint của SQL
@@ -42,9 +39,14 @@ namespace WibuHub.ApplicationCore.Entities
         // RatingScore: float
         public double RatingScore { get; set; } = 0;
 
+        // Thumbnail
+        [MaxLength(500)]
+        [Column(TypeName = "varchar(500)")]
+        public string? CoverImage { get; set; }
+
         // DateCreated & UpdateDate
         [Description("Ngày tạo")]
-        public DateTime DateCreated { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         [Description("Ngày cập nhật chap mới nhất")]
         public DateTime UpdateDate { get; set; } = DateTime.UtcNow;
@@ -53,6 +55,7 @@ namespace WibuHub.ApplicationCore.Entities
 
         // AuthorId: Guid? (Liên kết tác giả - nếu có)
         public Guid? AuthorId { get; set; }
+        public string? AuthorName { get; set; }
         public virtual Author? Author { get; set; }
 
         // Khóa ngoại đến Category (Giữ lại từ code cũ vì cấu trúc truyện thường cần danh mục)
@@ -71,7 +74,7 @@ namespace WibuHub.ApplicationCore.Entities
         public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
 
         // Many-to-Many: Thể loại truyện (Fixed: use ComicGenre)
-        public virtual ICollection<StoryCategory> Genres { get; set; } = new List<StoryCategory>();
+        public virtual ICollection<StoryCategory> StoryCategories { get; set; } = new List<StoryCategory>();
     }
 
     // Helper Enum để quản lý trạng thái dễ dàng hơn trong code

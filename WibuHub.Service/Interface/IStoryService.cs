@@ -1,20 +1,21 @@
-﻿using WibuHub.ApplicationCore.Entities;
-using WibuHub.MVC.ViewModels;
+﻿using WibuHub.ApplicationCore.DTOs.Shared; // Nhớ using namespace chứa DTO
+
 namespace WibuHub.Service.Interface
 {
     public interface IStoryService
     {
-        // Lấy danh sách tất cả truyện
-        Task<List<Story>> GetAllAsync();
-        // Lấy chi tiết truyện theo ID (Entity)
-        Task<Story?> GetByIdAsync(Guid id);
-        // Lấy dữ liệu để đổ vào Form Edit (ViewModel)
-        Task<StoryVM?> GetByIdAsViewModelAsync(Guid id);
-        // Tạo mới truyện
-        Task<bool> CreateAsync(StoryVM request);
-        // Cập nhật truyện
-        Task<bool> UpdateAsync(Guid id, StoryVM request);
-        // Xóa truyện
+        // Trả về List DTO để hiển thị, không trả Entity
+        Task<List<StoryDto>> GetAllAsync();
+
+        // Lấy chi tiết cũng trả về DTO
+        Task<StoryDto?> GetByIdAsync(Guid id);
+
+        // Create nhận vào DTO (hoặc StoryCreateDto nếu bạn tách riêng)
+        Task<bool> CreateAsync(StoryDto request);
+
+        // Update nhận vào DTO
+        Task<bool> UpdateAsync(Guid id, StoryDto request);
+
         Task<bool> DeleteAsync(Guid id);
     }
 }

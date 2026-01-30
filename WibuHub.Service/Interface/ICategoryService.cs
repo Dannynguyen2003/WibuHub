@@ -1,26 +1,22 @@
-﻿using WibuHub.ApplicationCore.Entities;
-using WibuHub.MVC.ViewModels;
+﻿using WibuHub.ApplicationCore.DTOs.Shared;
 
 namespace WibuHub.Service.Interface
 {
     public interface ICategoryService
     {
-        // Lấy danh sách hiển thị
-        Task<List<Category>> GetAllAsync();
+        // Trả về List DTO
+        Task<List<CategoryDto>> GetAllAsync();
 
-        // Lấy chi tiết (Entity)
-        Task<Category?> GetByIdAsync(Guid id);
+        // Lấy chi tiết trả về DTO
+        Task<CategoryDto?> GetByIdAsync(Guid id);
 
-        // Lấy dữ liệu để đổ vào Form Edit (ViewModel)
-        Task<CategoryVM?> GetByIdAsViewModelAsync(Guid id);
+        // Tạo mới nhận DTO
+        Task<bool> CreateAsync(CategoryDto request);
 
-        // Tạo mới (trả về true nếu thành công, false nếu trùng tên hoặc lỗi)
-        Task<bool> CreateAsync(CategoryVM categoryVM);
+        // Cập nhật nhận ID và DTO
+        Task<bool> UpdateAsync(Guid id, CategoryDto request);
 
-        // Cập nhật
-        Task<bool> UpdateAsync(CategoryVM categoryVM);
-
-        // Xóa (trả về trạng thái và message để Controller trả về Json)
+        // Xóa
         Task<(bool isSuccess, string message)> DeleteAsync(Guid id);
     }
 }

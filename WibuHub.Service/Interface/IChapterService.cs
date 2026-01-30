@@ -1,20 +1,25 @@
-﻿using WibuHub.ApplicationCore.Entities;
-using WibuHub.MVC.ViewModels;
+﻿using WibuHub.ApplicationCore.DTOs.Shared;
+
 namespace WibuHub.Service.Interface
 {
     public interface IChapterService
     {
-        // Lấy danh sách tất cả chapters
-        Task<List<Chapter>> GetAllAsync();
-        // Lấy chi tiết chapter theo ID
-        Task<Chapter?> GetByIdAsync(Guid id);
-        // Lấy chapters theo StoryId
-        Task<List<Chapter>> GetByStoryIdAsync(Guid storyId);
-        // Tạo mới chapter
-        Task<bool> CreateAsync(ChapterVM request);
-        // Cập nhật chapter
-        Task<bool> UpdateAsync(Guid id, ChapterVM request);
-        // Xóa chapter (soft delete)
+        // Lấy tất cả (thường ít dùng, chủ yếu dùng GetByStoryId)
+        Task<List<ChapterDto>> GetAllAsync();
+
+        // Lấy chi tiết chapter (kèm danh sách ảnh)
+        Task<ChapterDto?> GetByIdAsync(Guid id);
+
+        // Lấy danh sách chapter của 1 bộ truyện
+        Task<List<ChapterDto>> GetByStoryIdAsync(Guid storyId);
+
+        // Tạo mới (Nhận DTO chứa File)
+        Task<bool> CreateAsync(ChapterDto request);
+
+        // Cập nhật
+        Task<bool> UpdateAsync(Guid id, ChapterDto request);
+
+        // Xóa
         Task<bool> DeleteAsync(Guid id);
     }
 }
