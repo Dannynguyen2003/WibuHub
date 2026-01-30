@@ -1,0 +1,175 @@
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">Dashboard</h1>
+    
+    <div class="row">
+        <!-- Stories Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Truyện</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@ViewBag.TotalStories</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-book fs-2 text-gray-300"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <a asp-area="Admin" asp-controller="Stories" asp-action="Index" class="btn btn-sm btn-primary">Quản lý</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chapters Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Chương</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@ViewBag.TotalChapters</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-file-text fs-2 text-gray-300"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <a asp-area="Admin" asp-controller="Chapters" asp-action="Index" class="btn btn-sm btn-success">Quản lý</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Authors Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Tác giả</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@ViewBag.TotalAuthors</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-person fs-2 text-gray-300"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <a asp-area="Admin" asp-controller="Authors" asp-action="Index" class="btn btn-sm btn-info">Quản lý</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Categories Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Danh mục</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@ViewBag.TotalCategories</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-folder fs-2 text-gray-300"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <a asp-area="Admin" asp-controller="Categories" asp-action="Index" class="btn btn-sm btn-warning">Quản lý</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Comments Card -->
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-secondary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">Bình luận</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@ViewBag.TotalComments</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-chat-dots fs-2 text-gray-300"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <a asp-area="Admin" asp-controller="Comments" asp-action="Index" class="btn btn-sm btn-secondary">Quản lý</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Card -->
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Đơn hàng</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@ViewBag.TotalOrders</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-cart fs-2 text-gray-300"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <a asp-area="Admin" asp-controller="Orders" asp-action="Index" class="btn btn-sm btn-danger">Quản lý</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions Card -->
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-dark shadow h-100 py-2">
+                <div class="card-body">
+                    <h5 class="card-title">Thao tác nhanh</h5>
+                    <div class="d-grid gap-2">
+                        <a asp-area="Admin" asp-controller="Stories" asp-action="Create" class="btn btn-primary btn-sm">
+                            <i class="bi bi-plus-circle"></i> Thêm truyện mới
+                        </a>
+                        <a asp-area="Admin" asp-controller="Authors" asp-action="Create" class="btn btn-info btn-sm">
+                            <i class="bi bi-plus-circle"></i> Thêm tác giả
+                        </a>
+                        <a asp-area="Admin" asp-controller="Categories" asp-action="Create" class="btn btn-warning btn-sm">
+                            <i class="bi bi-plus-circle"></i> Thêm danh mục
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .border-left-primary {
+        border-left: 0.25rem solid #4e73df !important;
+    }
+    .border-left-success {
+        border-left: 0.25rem solid #1cc88a !important;
+    }
+    .border-left-info {
+        border-left: 0.25rem solid #36b9cc !important;
+    }
+    .border-left-warning {
+        border-left: 0.25rem solid #f6c23e !important;
+    }
+    .border-left-secondary {
+        border-left: 0.25rem solid #858796 !important;
+    }
+    .border-left-danger {
+        border-left: 0.25rem solid #e74a3b !important;
+    }
+    .border-left-dark {
+        border-left: 0.25rem solid #5a5c69 !important;
+    }
+</style>
