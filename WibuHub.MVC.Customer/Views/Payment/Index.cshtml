@@ -1,0 +1,158 @@
+@model WibuHub.MVC.Customer.ViewModels.ShoppingCart.Cart
+
+@{
+    ViewData["Title"] = "Payment Method";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-credit-card me-2"></i>Select Payment Method</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="CreateMomoPayment" asp-controller="Payment" method="post" id="paymentForm">
+                        <input type="hidden" name="amount" value="@(Model?.Items.Sum(x => x.Total) ?? 0)" />
+                        <input type="hidden" name="orderInfo" value="Payment for WibuHub Order" />
+                        
+                        <div class="payment-methods">
+                            <!-- MoMo Payment Option -->
+                            <div class="payment-option mb-3 p-3 border rounded" style="cursor: pointer;" onclick="selectPayment('momo')">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="paymentMethod" id="momoPayment" value="momo" checked>
+                                    <label class="form-check-label w-100" for="momoPayment">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://developers.momo.vn/v3/img/logo.svg" alt="MoMo" style="height: 40px;" class="me-3">
+                                                <div>
+                                                    <h5 class="mb-0">MoMo E-Wallet</h5>
+                                                    <small class="text-muted">Fast and secure payment</small>
+                                                </div>
+                                            </div>
+                                            <i class="bi bi-chevron-right"></i>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Other Payment Options (Coming Soon) -->
+                            <div class="payment-option mb-3 p-3 border rounded opacity-50">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="paymentMethod" id="bankTransfer" value="bank" disabled>
+                                    <label class="form-check-label w-100" for="bankTransfer">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div class="d-flex align-items-center">
+                                                <i class="bi bi-bank2" style="font-size: 2rem;" class="me-3"></i>
+                                                <div>
+                                                    <h5 class="mb-0">Bank Transfer</h5>
+                                                    <small class="text-muted">Coming soon</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="payment-option mb-3 p-3 border rounded opacity-50">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="paymentMethod" id="creditCard" value="card" disabled>
+                                    <label class="form-check-label w-100" for="creditCard">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div class="d-flex align-items-center">
+                                                <i class="bi bi-credit-card-2-front" style="font-size: 2rem;" class="me-3"></i>
+                                                <div>
+                                                    <h5 class="mb-0">Credit/Debit Card</h5>
+                                                    <small class="text-muted">Coming soon</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info mt-4">
+                            <i class="bi bi-info-circle me-2"></i>
+                            You will be redirected to MoMo payment gateway to complete your payment securely.
+                        </div>
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-lock-fill me-2"></i>Proceed to Payment
+                            </button>
+                            <a href="@Url.Action("Checkout", "ShoppingCart")" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Back to Cart
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Order Summary</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model != null && Model.Items.Any())
+                    {
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Items:</span>
+                                <span>@Model.Items.Count</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Subtotal:</span>
+                                <span>@Model.Items.Sum(x => x.Total).ToString("N0") VND</span>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between fw-bold">
+                                <span>Total:</span>
+                                <span class="text-primary">@Model.Items.Sum(x => x.Total).ToString("N0") VND</span>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">Your cart is empty</p>
+                    }
+                </div>
+            </div>
+
+            <div class="card shadow-sm mt-3">
+                <div class="card-body">
+                    <h6 class="mb-3"><i class="bi bi-shield-check me-2"></i>Secure Payment</h6>
+                    <ul class="list-unstyled small text-muted">
+                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>SSL encrypted transaction</li>
+                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>PCI DSS compliant</li>
+                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>24/7 fraud monitoring</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function selectPayment(method) {
+        document.getElementById(method + 'Payment').checked = true;
+    }
+</script>
+
+<style>
+    .payment-option {
+        transition: all 0.3s ease;
+    }
+    
+    .payment-option:hover:not(.opacity-50) {
+        border-color: #0d6efd !important;
+        background-color: #f8f9fa;
+    }
+    
+    .payment-option input[type="radio"]:checked ~ label {
+        color: #0d6efd;
+    }
+</style>

@@ -1,0 +1,154 @@
+@model WibuHub.MVC.Customer.ViewModels.ShoppingCart.Cart
+
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "ShoppingCart")">Cart</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Checkout</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-person-circle me-2"></i>Customer Information</h4>
+                </div>
+                <div class="card-body">
+                    <form id="checkoutForm">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="fullName" class="form-label">Full Name *</label>
+                                <input type="text" class="form-control" id="fullName" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="phone" class="form-label">Phone Number *</label>
+                                <input type="tel" class="form-control" id="phone" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email *</label>
+                            <input type="email" class="form-control" id="email" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Shipping Address</label>
+                            <textarea class="form-control" id="address" rows="3"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="note" class="form-label">Order Note</label>
+                            <textarea class="form-control" id="note" rows="2" placeholder="Any special instructions..."></textarea>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-list-check me-2"></i>Order Items</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model != null && Model.Items.Any())
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var item in Model.Items)
+                            {
+                                <div class="list-group-item px-0">
+                                    <div class="d-flex align-items-center">
+                                        <img src="@item.ImageUrl" alt="@item.ChapterName" class="img-thumbnail me-3" style="width: 50px; height: 70px; object-fit: cover;">
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-0">@item.ChapterName</h6>
+                                            <small class="text-muted">@item.StoryTitle</small>
+                                            <div class="text-muted small">Qty: @item.Quantity</div>
+                                        </div>
+                                        <div class="text-end">
+                                            <strong>@item.Total.ToString("N0") VND</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Order Summary</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model != null && Model.Items.Any())
+                    {
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Items:</span>
+                                <span>@Model.Items.Count</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Subtotal:</span>
+                                <span>@Model.Items.Sum(x => x.Total).ToString("N0") VND</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2 text-muted">
+                                <span>Tax (0%):</span>
+                                <span>0 VND</span>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between fw-bold fs-5">
+                                <span>Total:</span>
+                                <span class="text-primary">@Model.Items.Sum(x => x.Total).ToString("N0") VND</span>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <a href="@Url.Action("Index", "Payment")" class="btn btn-primary btn-lg">
+                                <i class="bi bi-credit-card me-2"></i>Continue to Payment
+                            </a>
+                            <a href="@Url.Action("Index", "ShoppingCart")" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Back to Cart
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">Your cart is empty</p>
+                        <a href="@Url.Action("Index", "Stories")" class="btn btn-primary w-100">
+                            Browse Stories
+                        </a>
+                    }
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h6 class="mb-3"><i class="bi bi-shield-check me-2"></i>We Accept</h6>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <img src="https://developers.momo.vn/v3/img/logo.svg" alt="MoMo" style="height: 30px;">
+                    </div>
+                    <hr>
+                    <small class="text-muted">
+                        <i class="bi bi-lock-fill me-1"></i>
+                        All transactions are secure and encrypted.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .img-thumbnail {
+        border-radius: 8px;
+    }
+</style>
