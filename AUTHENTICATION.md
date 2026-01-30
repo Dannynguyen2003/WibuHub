@@ -4,9 +4,13 @@ This document describes the authentication and role-based access control system 
 
 ## Overview
 
-The system provides separate authentication for two types of users:
+The system uses a **shared identity system** (hệ thống identity chung) where both Admin and Customer portals use the same database and user management infrastructure. This provides centralized user management while maintaining separate access controls.
+
+The system provides separate authentication pages for two types of users:
 - **Admin Users**: System administrators with various roles for managing content
 - **Customer Users**: End users who read and purchase stories
+
+> **Important**: Both portals use the **same Identity database** (`StoryIdentityDbContext`), ensuring all users are stored in one central location. See [SHARED_IDENTITY.md](SHARED_IDENTITY.md) for detailed architecture.
 
 ## User Roles
 
@@ -27,6 +31,23 @@ A default SuperAdmin account is automatically created on first run:
 - **Password**: SuperAdmin@123
 
 ## Architecture
+
+### Shared Identity System
+
+Both Admin and Customer portals share the same identity infrastructure:
+
+```
+Admin Portal ──┐
+               ├──▶ StoryIdentityDbContext (Shared Database)
+Customer Portal┘
+```
+
+**Key Points:**
+- Same database: `StoryIdentityDbContext`
+- Same user table: `AspNetUsers` (StoryUser entity)
+- Same roles table: `AspNetRoles` (StoryRole entity)
+- Differentiation by `UserType` field ("Admin" or "Customer")
+- Access control through ASP.NET Core Identity roles
 
 ### Projects Structure
 - **WibuHub.MVC.Admin**: Admin portal with authentication for administrators
