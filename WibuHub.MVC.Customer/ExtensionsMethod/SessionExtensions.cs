@@ -8,8 +8,9 @@ namespace WibuHub.MVC.Customer.ExtensionsMethod
             => session.SetString(key, JsonSerializer.Serialize(value));
 
         public static T? GetObject<T>(this ISession session, string key)
-            => session.GetString(key) == null
-               ? default
-               : JsonSerializer.Deserialize<T>(session.GetString(key)!);
+        {
+            var value = session.GetString(key);
+            return value == null ? default : JsonSerializer.Deserialize<T>(value);
+        }
     }
 }

@@ -40,7 +40,7 @@ namespace WibuHub.MVC.Customer.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateMomoPayment(decimal amount, string orderInfo)
         {
-            // Validate amount
+            // Validate amount (max 1 billion VND to prevent overflow and fraud)
             if (amount <= 0 || amount > 1000000000)
             {
                 TempData["ErrorMessage"] = "Invalid payment amount";
@@ -95,9 +95,10 @@ namespace WibuHub.MVC.Customer.Controllers
                         TempData["ErrorMessage"] = errorMsg.GetString();
                     }
                 }
-                catch
+                catch (Exception parseEx)
                 {
-                    // Use generic error if parsing fails
+                    // Ignore parsing errors - use generic error message
+                    _logger.LogWarning(parseEx, "Failed to parse error response from API");
                 }
 
                 if (TempData["ErrorMessage"] == null)
