@@ -3,12 +3,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WibuHub.ApplicationCore.Entities.Identity;
+using WibuHub.Common.Contants;
 
 namespace WibuHub.MVC.Admin.Controllers
 {
     [Route("api/admin/roles")]
     [ApiController]
-    [Authorize(Roles = "SuperAdmin")] // Chỉ SuperAdmin mới được tạo Role mới
+    [Authorize(Roles = AppConstants.Roles.Admin)] // Only Admin can manage roles
     public class RoleController : ControllerBase
     {
         private readonly RoleManager<StoryRole> _roleManager;
