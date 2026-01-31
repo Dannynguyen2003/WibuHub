@@ -21,26 +21,29 @@ namespace WibuHub.MVC.ViewComponents
                 .Include(s => s.Author)
                 .Include(s => s.Category)
                 .OrderByDescending(s => s.CreatedAt)
-                .Select(s => new StoryVM
-                {
-                    Id = s.Id,
-                    Title = s.StoryName,
-                    AlternativeName = s.AlternativeName,
-                    Description = s.Description,
-                    Slug = s.Slug,
-                    Status = s.Status,
-                    ViewCount = s.ViewCount,
-                    FollowCount = s.FollowCount,
-                    RatingScore = s.RatingScore,
-                    CreatedAt = s.CreatedAt,
-                    UpdateDate = s.UpdateDate,
-                    AuthorId = s.AuthorId,
-                    CategoryId = s.CategoryId,
-                    CategoryName = s.Category != null ? s.Category.Name : null
-                })
                 .ToListAsync();
 
-            return View(stories);
+            // Map to ViewModel
+            var storyVMs = stories.Select(s => new StoryVM
+            {
+                Id = s.Id,
+                Title = s.StoryName,
+                AlternativeName = s.AlternativeName,
+                Description = s.Description,
+                Slug = s.Slug,
+                Status = s.Status,
+                ViewCount = s.ViewCount,
+                FollowCount = s.FollowCount,
+                RatingScore = s.RatingScore,
+                CreatedAt = s.CreatedAt,
+                UpdateDate = s.UpdateDate,
+                AuthorId = s.AuthorId,
+                CategoryId = s.CategoryId,
+                Author = s.Author,
+                CategoryName = s.Category != null ? s.Category.Name : null
+            }).ToList();
+
+            return View(storyVMs);
         }
     }
 }
