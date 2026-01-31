@@ -79,6 +79,9 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Enable routing for areas (e.g., /Admin/Stories)
+
+
 app.MapControllerRoute(
     name: "admin",
     pattern: "{controller=Home}/{action=Index}/{id?}");

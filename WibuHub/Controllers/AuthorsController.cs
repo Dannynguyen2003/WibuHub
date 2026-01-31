@@ -6,7 +6,7 @@ using WibuHub.DataLayer;
 using WibuHub.MVC.ViewModels;
 namespace WibuHub.Areas.Admin.Controllers
 {
-    [Area("Admin")]
+    //[Area("Admin")]
     [Authorize]
     public class AuthorsController : Controller
     {
