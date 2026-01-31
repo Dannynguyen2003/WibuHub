@@ -232,9 +232,9 @@ namespace WibuHub.Controllers
         }
 
         // GET: Chapters/Reload
-        public async Task<IActionResult> Reload()
+        public async Task<IActionResult> Reload(int page = 1, int pageSize = 10)
         {
-            return ViewComponent("ChapterList");
+            return ViewComponent("ChapterList", new { page = page, pageSize = pageSize });
         }
 
         private bool ChapterExists(Guid id)

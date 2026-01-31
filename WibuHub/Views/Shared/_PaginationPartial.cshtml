@@ -1,0 +1,62 @@
+@model WibuHub.ApplicationCore.DTOs.Shared.PagedResult<object>
+
+@if (Model != null && Model.TotalPages > 1)
+{
+    <nav aria-label="Phân trang">
+        <ul class="pagination justify-content-center">
+            @* Previous button *@
+            <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
+                <a class="page-link" href="#" onclick="loadPage(@(Model.PageIndex - 1)); return false;" tabindex="-1">
+                    Trước
+                </a>
+            </li>
+
+            @* First page *@
+            @if (Model.PageIndex > 3)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="#" onclick="loadPage(1); return false;">1</a>
+                </li>
+                @if (Model.PageIndex > 4)
+                {
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                }
+            }
+
+            @* Page numbers around current page *@
+            @for (int i = Math.Max(1, Model.PageIndex - 2); i <= Math.Min(Model.TotalPages, Model.PageIndex + 2); i++)
+            {
+                <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                    <a class="page-link" href="#" onclick="loadPage(@i); return false;">@i</a>
+                </li>
+            }
+
+            @* Last page *@
+            @if (Model.PageIndex < Model.TotalPages - 2)
+            {
+                @if (Model.PageIndex < Model.TotalPages - 3)
+                {
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                }
+                <li class="page-item">
+                    <a class="page-link" href="#" onclick="loadPage(@Model.TotalPages); return false;">@Model.TotalPages</a>
+                </li>
+            }
+
+            @* Next button *@
+            <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
+                <a class="page-link" href="#" onclick="loadPage(@(Model.PageIndex + 1)); return false;">
+                    Sau
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="text-center text-muted">
+        <small>Trang @Model.PageIndex / @Model.TotalPages (Tổng @Model.TotalCount mục)</small>
+    </div>
+}

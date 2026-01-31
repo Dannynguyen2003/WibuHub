@@ -33,7 +33,7 @@
             </form>
         </div>
         <div id="divAuthorList" class="col-md-8">
-            @await Component.InvokeAsync("AuthorList")
+            @await Component.InvokeAsync("AuthorList", new { page = 1, pageSize = 10 })
         </div>
     </div>
 </div>
@@ -93,10 +93,15 @@
             });
         }
 
-        function refreshAuthorList() {
-            $.get('/Authors/Reload', function (data) {
+        function refreshAuthorList(page = 1) {
+            $.get('/Authors/Reload', { page: page, pageSize: 10 }, function (data) {
                 $('#divAuthorList').html(data);
             });
+        }
+
+        // Pagination function for Author
+        function loadPage(page) {
+            refreshAuthorList(page);
         }
     </script>
 }

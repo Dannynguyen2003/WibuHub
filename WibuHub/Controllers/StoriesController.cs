@@ -225,9 +225,9 @@ namespace WibuHub.Areas.Admin.Controllers
         }
 
         // GET: Admin/Stories/Reload
-        public async Task<IActionResult> Reload()
+        public async Task<IActionResult> Reload(int page = 1, int pageSize = 10)
         {
-            return ViewComponent("StoryList");
+            return ViewComponent("StoryList", new { page = page, pageSize = pageSize });
         }
 
         private bool StoryExists(Guid id)

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WibuHub.ApplicationCore.DTOs.Shared;
 using WibuHub.DataLayer;
 using WibuHub.MVC.ViewModels;
 
@@ -14,11 +15,23 @@ namespace WibuHub.MVC.ViewComponents
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task<IViewComponentResult> InvokeAsync()
+        public async Task<IViewComponentResult> InvokeAsync(int page = 1, int pageSize = 10)
         {
-            var chapters = await _context.Chapters
+            // Validate parameters
+            if (page < 1) page = 1;
+            if (pageSize < 1) pageSize = 10;
+
+            var query = _context.Chapters
                 .Include(c => c.Story)
-                .OrderByDescending(c => c.CreatedAt)
+                .OrderByDescending(c => c.CreatedAt);
+
+            // Get total count
+            var totalCount = await query.CountAsync();
+
+            // Get paged data
+            var chapters = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .Select(c => new ChapterVM
                 {
                     Id = c.Id,
@@ -35,7 +48,9 @@ namespace WibuHub.MVC.ViewComponents
                 })
                 .ToListAsync();
 
-            return View(chapters);
+            var pagedResult = new PagedResult<ChapterVM>(chapters, page, pageSize, totalCount);
+
+            return View(pagedResult);
         }
     }
 }

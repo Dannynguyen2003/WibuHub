@@ -1,4 +1,4 @@
-﻿@model IEnumerable<WibuHub.MVC.ViewModels.CategoryVM>
+﻿@model WibuHub.ApplicationCore.DTOs.Shared.PagedResult<WibuHub.MVC.ViewModels.CategoryVM>
 
 <table class="table table-hover mt-3 border">
     <thead class="table-dark">
@@ -11,9 +11,9 @@
         </tr>
     </thead>
     <tbody>
-        @if (Model != null && Model.Any())
+        @if (Model != null && Model.Items != null && Model.Items.Any())
         {
-            @foreach (var item in Model)
+            @foreach (var item in Model.Items)
             {
                 <tr>
                     <td>
@@ -54,3 +54,5 @@
         }
     </tbody>
 </table>
+
+<partial name="_PaginationPartial" model="Model" />

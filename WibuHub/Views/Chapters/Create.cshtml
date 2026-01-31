@@ -76,7 +76,7 @@
             </form>
         </div>
         <div id="divChapterList" class="col-md-8">
-            @await Component.InvokeAsync("ChapterList")
+            @await Component.InvokeAsync("ChapterList", new { page = 1, pageSize = 10 })
         </div>
     </div>
 </div>
@@ -160,10 +160,15 @@
             });
         }
 
-        function refreshChapterList() {
-            $.get('/Chapters/Reload', function (data) {
+        function refreshChapterList(page = 1) {
+            $.get('/Chapters/Reload', { page: page, pageSize: 10 }, function (data) {
                 $('#divChapterList').html(data);
             });
+        }
+
+        // Pagination function for Chapter
+        function loadPage(page) {
+            refreshChapterList(page);
         }
     </script>
 }

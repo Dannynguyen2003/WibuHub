@@ -162,9 +162,9 @@ namespace WibuHub.Areas.Admin.Controllers
         }
 
         // GET: Admin/Authors/Reload
-        public async Task<IActionResult> Reload()
+        public async Task<IActionResult> Reload(int page = 1, int pageSize = 10)
         {
-            return ViewComponent("AuthorList");
+            return ViewComponent("AuthorList", new { page = page, pageSize = pageSize });
         }
 
         private bool AuthorExists(Guid id)

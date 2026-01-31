@@ -60,7 +60,7 @@
             </form>
         </div>
         <div id="divCategoryList" class="col-md-8">
-            @await Component.InvokeAsync("CategoryList")
+            @await Component.InvokeAsync("CategoryList", new { page = 1, pageSize = 10 })
         </div>
     </div>
 </div>
@@ -99,10 +99,15 @@
         }
 
         // Đừng quên hàm này để cập nhật lại danh sách sau khi xóa thành công
-        function refreshCategoryList() {
-            $.get('/Categories/Reload', function(data) {
+        function refreshCategoryList(page = 1) {
+            $.get('/Categories/Reload', { page: page, pageSize: 10 }, function(data) {
                 $('#divCategoryList').html(data);
             });
+        }
+
+        // Pagination function for Category
+        function loadPage(page) {
+            refreshCategoryList(page);
         }
     </script>
     <script>
