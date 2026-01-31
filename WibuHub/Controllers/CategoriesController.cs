@@ -241,6 +241,11 @@ namespace WibuHub.MVC.Controllers
             // TRẢ VỀ JSON THẾ NÀY MỚI CHẠY ĐƯỢC AJAX
             return Json(new { isOK = true });
         }
+        // GET: Categories/Reload
+        public async Task<IActionResult> Reload()
+        {
+            return ViewComponent("CategoryList");
+        }
         private bool CategoryExists(Guid id)
         {
             return _context.Categories.Any(e => e.Id == id && !e.IsDeleted);

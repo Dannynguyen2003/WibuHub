@@ -1,9 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Linq.Expressions;
 using WibuHub.ApplicationCore.Entities;
-using WibuHub.ApplicationCore.Entities.Identity; // Namespace chứa StoryUser
 using WibuHub.ApplicationCore.Interface;
 
 namespace WibuHub.DataLayer

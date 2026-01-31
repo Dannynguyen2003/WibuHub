@@ -1,5 +1,6 @@
 ﻿@* @model WibuHub.ApplicationCore.Entities.Author *@
-﻿@model WibuHub.MVC.ViewModels.AuthorVM
+@model WibuHub.MVC.ViewModels.AuthorVM
+@* ﻿@model WibuHub.MVC.ViewModels.AuthorVM *@
 @{
     ViewData["Title"] = "Thêm mới Tác giả";
     bool isCreate = Model == null || Model.Id == Guid.Empty;
@@ -33,10 +34,6 @@
             @await Component.InvokeAsync("AuthorList")
         </div>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {
@@ -92,6 +89,11 @@
             });
         }
          function refreshAuthorList() {
+            $.get('/Authors/Reload', function (data) {
+                $('#divAuthorList').html(data);
+            });
+        }
+        function refreshAuthorList() {
             $.get('/Authors/Reload', function (data) {
                 $('#divAuthorList').html(data);
             });

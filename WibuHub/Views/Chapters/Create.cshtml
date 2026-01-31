@@ -1,73 +1,158 @@
-﻿@model WibuHub.ApplicationCore.Entities.Chapter
+﻿@* @model WibuHub.ApplicationCore.Entities.Chapter *@
+@model WibuHub.MVC.ViewModels.ChapterVM
+
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Thêm mới Chương";
+    bool isCreate = Model == null || Model.Id == Guid.Empty;
+    string actionString = isCreate ? "Create" : "Edit";
+    string buttonString = isCreate ? "Tạo mới" : "Cập nhật";
 }
+}
+<div class="container mt-4">
+    <h1>Thêm mới Chương</h1>
+    <hr />
 
-<h1>Create</h1>
 
-<h4>Chapter</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="StoryId" class="control-label"></label>
-                <select asp-for="StoryId" class ="form-control" asp-items="ViewBag.StoryId"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ChapterNumber" class="control-label"></label>
-                <input asp-for="ChapterNumber" class="form-control" />
-                <span asp-validation-for="ChapterNumber" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Slug" class="control-label"></label>
-                <input asp-for="Slug" class="form-control" />
-                <span asp-validation-for="Slug" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ViewCount" class="control-label"></label>
-                <input asp-for="ViewCount" class="form-control" />
-                <span asp-validation-for="ViewCount" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Content" class="control-label"></label>
-                <input asp-for="Content" class="form-control" />
-                <span asp-validation-for="Content" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ServerId" class="control-label"></label>
-                <input asp-for="ServerId" class="form-control" />
-                <span asp-validation-for="ServerId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CreatedAt" class="control-label"></label>
-                <input asp-for="CreatedAt" class="form-control" />
-                <span asp-validation-for="CreatedAt" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Price" class="control-label"></label>
-                <input asp-for="Price" class="form-control" />
-                <span asp-validation-for="Price" class="text-danger"></span>
-            </div>
-            <form asp-action="Create" enctype="multipart/form-data">
-                <input asp-for="Images" type="file" multiple class="form-control" />
-                <button type="submit">Lưu</button>
+    <div class="row">
+        <div class="col-md-4">
+            <form asp-action="@actionString">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                @if (!isCreate)
+                {
+                    <input asp-for="Id" type="hidden" />
+                }
+                <div class="form-group mb-3">
+                    <label asp-for="StoryId" class="control-label fw-bold">Truyện</label>
+                    <select asp-for="StoryId" class="form-control" asp-items="ViewBag.StoryId"></select>
+                    <span asp-validation-for="StoryId" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="Name" class="control-label fw-bold">Tên chương</label>
+                    <input asp-for="Name" class="form-control" placeholder="Ví dụ: Chương 1..." autofocus />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="ChapterNumber" class="control-label fw-bold">Số chương</label>
+                    <input asp-for="ChapterNumber" class="form-control" type="number" step="0.1" placeholder="1, 1.5, 2..." />
+                    <span asp-validation-for="ChapterNumber" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="Slug" class="control-label fw-bold">Đường dẫn (Slug)</label>
+                    <input asp-for="Slug" class="form-control" placeholder="tu-dong-sinh-ra-tu-ten" id="txtSlug" />
+                    <small class="form-text text-muted">Đây là đường dẫn trên URL (không dấu, gạch ngang).</small>
+                    <span asp-validation-for="Slug" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="Content" class="control-label fw-bold">Nội dung</label>
+                    <textarea asp-for="Content" class="form-control" rows="5" placeholder="Nội dung chương..."></textarea>
+                    <span asp-validation-for="Content" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="ServerId" class="control-label fw-bold">Server ID</label>
+                    <input asp-for="ServerId" class="form-control" type="number" />
+                    <span asp-validation-for="ServerId" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="Price" class="control-label fw-bold">Giá</label>
+                    <input asp-for="Price" class="form-control" type="number" step="0.01" />
+                    <span asp-validation-for="Price" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="Discount" class="control-label fw-bold">Giảm giá</label>
+                    <input asp-for="Discount" class="form-control" type="number" step="0.01" />
+                    <span asp-validation-for="Discount" class="text-danger"></span>
+                </div>
+                <div class="form-group" style="text-align: center; margin-top: 10px;">
+                    <input type="submit" value="@buttonString" class="btn btn-primary" />
+                </div>
             </form>
-        </form>
+        </div>
+        <div id="divChapterList" class="col-md-8">
+            @await Component.InvokeAsync("ChapterList")
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        // Tự động tạo Slug khi gõ Tên chương
+        document.getElementById("Name").addEventListener("keyup", function () {
+            let name = this.value;
+            let slug = generateSlug(name);
+            document.getElementById("txtSlug").value = slug;
+        });
+        function generateSlug(text) {
+            return text.toString().toLowerCase()
+                .replace(/á|à|ả|ạ|ã|ă|ắ|ằ|ẳ|ặ|ẵ|â|ấ|ầ|ẩ|ậ|ẫ/g, 'a')
+                .replace(/é|è|ẻ|ẹ|ẽ|ê|ế|ề|ể|ệ|ễ/g, 'e')
+                .replace(/i|í|ì|ỉ|ị|ĩ/g, 'i')
+                .replace(/ó|ò|ỏ|ọ|õ|ô|ố|ồ|ổ|ộ|ỗ|ơ|ớ|ờ|ở|ợ|ỡ/g, 'o')
+                .replace(/ú|ù|ủ|ụ|ũ|ư|ứ|ừ|ử|ự|ữ/g, 'u')
+                .replace(/ý|ỳ|ỷ|ỵ|ỹ/g, 'y')
+                .replace(/đ/g, 'd')
+                .replace(/\s+/g, '-')
+                .replace(/[^\w\-]+/g, '')
+                .replace(/\-\-+/g, '-')
+                .replace(/^-+/, '')
+                .replace(/-+$/, '');
+        }
+    </script>
+    <script>
+        function openModalDeleteChapter(idChapter) {
+            let inputToken = document.querySelector("input[name='__RequestVerificationToken']");
+            $.ajax({
+                url: '/Chapters/Delete',
+                type: 'GET',
+                data: { id: idChapter },
+                beforeSend: function () {
+                    console.log("Sending...");
+                },
+                success: function (responseHTML) {
+                    openModal("Xóa Chương", responseHTML, "modal-lg");
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error:", status, error);
+                },
+                complete: function () {
+                    console.log("Request completed");
+                },
+                timeout: 10000
+            });
+        }
+        function deleteChapter(idChapter) {
+            let inputToken = document.querySelector("input[name='__RequestVerificationToken']");
+            if (!inputToken) {
+                console.error("Không tìm thấy Token bảo mật!");
+                return;
+            }
+            $.ajax({
+                url: '/Chapters/Delete',
+                type: 'POST',
+                data: {
+                    id: idChapter,
+                    __RequestVerificationToken: inputToken.value
+                },
+                success: function (response) {
+                    if (response.isOK) {
+                        closeModal();
+                        refreshChapterList();
+                    } else {
+                        alert("Xóa thất bại!");
+                    }
+                },
+                error: function () {
+                    alert("Có lỗi xảy ra khi kết nối với máy chủ.");
+                }
+            });
+        }
+        function refreshChapterList() {
+            $.get('/Chapters/Reload', function (data) {
+                $('#divChapterList').html(data);
+            });
+        }
+    </script>
+    }
