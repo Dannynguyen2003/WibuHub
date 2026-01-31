@@ -1,0 +1,69 @@
+@model IEnumerable<WibuHub.MVC.ViewModels.StoryVM>
+
+<table class="table table-hover mt-3 border">
+    <thead class="table-dark">
+        <tr>
+            <th style="width: 15%">Tiêu đề</th>
+            <th style="width: 10%">Tác giả</th>
+            <th style="width: 10%">Danh mục</th>
+            <th style="width: 10%">Trạng thái</th>
+            <th style="width: 10%">Lượt xem</th>
+            <th style="width: 10%">Theo dõi</th>
+            <th style="width: 15%">Ngày tạo</th>
+            <th style="width: 20%" class="text-center">Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td><strong>@item.Title</strong></td>
+                    <td>@(item.Author?.Name ?? "N/A")</td>
+                    <td>@(item.CategoryName ?? "N/A")</td>
+                    <td>
+                        @switch (item.Status)
+                        {
+                            case 0:
+                                <span class="badge bg-primary">Đang tiến hành</span>
+                                break;
+                            case 1:
+                                <span class="badge bg-success">Hoàn thành</span>
+                                break;
+                            case 2:
+                                <span class="badge bg-warning">Tạm ngưng</span>
+                                break;
+                            default:
+                                <span class="badge bg-secondary">Không xác định</span>
+                                break;
+                        }
+                    </td>
+                    <td>@item.ViewCount</td>
+                    <td>@item.FollowCount</td>
+                    <td>@item.CreatedAt.ToString("dd/MM/yyyy")</td>
+                    <td class="text-center">
+                        <div class="btn-group" role="group">
+                            <a asp-action="Edit" asp-route-id="@item.Id"
+                               class="btn btn-sm btn-primary mx-1">Sửa</a>
+
+                            <a asp-action="Details" asp-route-id="@item.Id"
+                               class="btn btn-sm btn-info text-white mx-1">Chi tiết</a>
+
+                            <button type="button" onclick="openModalDeleteStory('@item.Id')"
+                                    class="btn btn-sm btn-danger mx-1">
+                                Xóa
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="8" class="text-center">Chưa có truyện nào được tạo.</td>
+            </tr>
+        }
+    </tbody>
+</table>
