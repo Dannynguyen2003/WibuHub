@@ -6,7 +6,7 @@ using WibuHub.ApplicationCore.Entities;
 
 namespace WibuHub.MVC.ViewModels
 {
-    [Bind("Id,Title,AlternativeName,Description,Thumbnail,Status,ViewCount,FollowCount,RatingScore,DateCreated,UpdateDate,AuthorId,CategoryId")]
+    [Bind("Id,Title,AlternativeName,Description,Slug,Status,ViewCount,FollowCount,RatingScore,CreatedAt,UpdateDate,AuthorId,CategoryId")]
     public class StoryVM
     {
         [Key]
@@ -25,10 +25,11 @@ namespace WibuHub.MVC.ViewModels
         // Trong EF Core, string không giới hạn MaxLength mặc định sẽ là nvarchar(MAX)
         public string? Description { get; set; }
 
-        // Thumbnail: varchar(500)
-        [MaxLength(500)]
-        [Column(TypeName = "varchar(500)")]
-        public string? Thumbnail { get; set; }
+        // Slug: varchar(150) - URL thân thiện
+        [Required]
+        [MaxLength(150)]
+        [Column(TypeName = "varchar(150)")]
+        public string Slug { get; set; } = string.Empty;
 
         // Status: tinyint (0: Đang tiến hành, 1: Hoàn thành, 2: Tạm ngưng)
         // Map int của C# sang tinyint của SQL
@@ -46,7 +47,7 @@ namespace WibuHub.MVC.ViewModels
 
         // DateCreated & UpdateDate
         [Description("Ngày tạo")]
-        public DateTime DateCreated { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         [Description("Ngày cập nhật chap mới nhất")]
         public DateTime UpdateDate { get; set; } = DateTime.UtcNow;
