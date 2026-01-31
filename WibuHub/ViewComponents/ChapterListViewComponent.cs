@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WibuHub.ApplicationCore.DTOs.Shared;
 using WibuHub.DataLayer;
@@ -6,11 +6,11 @@ using WibuHub.MVC.ViewModels;
 
 namespace WibuHub.MVC.ViewComponents
 {
-    public class CategoryList : ViewComponent
+    public class ChapterList : ViewComponent
     {
         private readonly StoryDbContext _context;
 
-        public CategoryList(StoryDbContext context)
+        public ChapterList(StoryDbContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
@@ -21,28 +21,34 @@ namespace WibuHub.MVC.ViewComponents
             if (page < 1) page = 1;
             if (pageSize < 1) pageSize = 10;
 
-            var query = _context.Categories
-                .Where(c => !c.IsDeleted)
-                .OrderBy(c => c.Position);
+            var query = _context.Chapters
+                .Include(c => c.Story)
+                .OrderByDescending(c => c.CreatedAt);
 
             // Get total count
             var totalCount = await query.CountAsync();
 
             // Get paged data
-            var categories = await query
+            var chapters = await query
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
-                .Select(c => new CategoryVM
+                .Select(c => new ChapterVM
                 {
                     Id = c.Id,
+                    StoryId = c.StoryId,
                     Name = c.Name,
-                    Slug = c.Slug, 
-                    Description = c.Description,
-                    Position = c.Position
+                    ChapterNumber = c.ChapterNumber,
+                    Slug = c.Slug,
+                    ViewCount = c.ViewCount,
+                    Content = c.Content,
+                    ServerId = c.ServerId,
+                    CreatedAt = c.CreatedAt,
+                    Price = c.Price,
+                    Discount = c.Discount
                 })
                 .ToListAsync();
 
-            var pagedResult = new PagedResult<CategoryVM>(categories, page, pageSize, totalCount);
+            var pagedResult = new PagedResult<ChapterVM>(chapters, page, pageSize, totalCount);
 
             return View(pagedResult);
         }

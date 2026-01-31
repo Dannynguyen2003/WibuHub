@@ -49,16 +49,23 @@ namespace WibuHub.Areas.Admin.Controllers
         // POST: Admin/Authors/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name")] Author author)
+        public async Task<IActionResult> Create(AuthorVM authorVM)
         {
             if (ModelState.IsValid)
             {
-                author.Id = Guid.NewGuid();
-                _context.Add(author);
+                var existingAuthors = _context.Authors.Where(a => a.Name == authorVM.Name && !a.IsDeleted).ToList();
+
+                if (existingAuthors.Count > 0) return View(authorVM);
+
+                var author = new Author
+                {
+                    Name = authorVM.Name.Trim()
+                };
+                _context.Authors.Add(author);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Create));
             }
-            return View(author);
+            return View(authorVM);
         }
         // GET: Admin/Authors/Edit/5
         public async Task<IActionResult> Edit(Guid? id)
@@ -67,49 +74,60 @@ namespace WibuHub.Areas.Admin.Controllers
             {
                 return NotFound();
             }
-            var author = await _context.Authors.FindAsync(id);
-            if (author == null || author.IsDeleted)
+
+            var authorVM = await _context.Authors
+                .Where(a => a.Id == id && !a.IsDeleted)
+                .Select(a => new AuthorVM
+                {
+                    Id = a.Id,
+                    Name = a.Name
+                })
+                .SingleOrDefaultAsync();
+            if (authorVM == null)
             {
-                return NotFound();
+                return BadRequest();
             }
-            return View(author);
+            return View(nameof(Create), authorVM);
         }
         // POST: Admin/Authors/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Name")] Author author)
+        public async Task<IActionResult> Edit(Guid id, AuthorVM authorVM)
         {
-            if (id != author.Id)
+            if (id != authorVM.Id)
             {
-                return NotFound();
+                return BadRequest();
             }
             if (ModelState.IsValid)
             {
                 try
                 {
-                    var existingAuthor = await _context.Authors.FindAsync(id);
-                    if (existingAuthor == null || existingAuthor.IsDeleted)
+                    var existingAuthor = await _context.Authors
+                        .Where(a => a.Id.Equals(id) && !a.IsDeleted)
+                        .SingleOrDefaultAsync();
+
+                    if (existingAuthor == null)
                     {
-                        return NotFound();
+                        return BadRequest();
                     }
 
-                    existingAuthor.Name = author.Name;
+                    existingAuthor.Name = authorVM.Name.Trim();
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Create));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!AuthorExists(author.Id))
+                    if (!AuthorExists(authorVM.Id))
                     {
-                        return NotFound();
+                        return BadRequest();
                     }
                     else
                     {
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
             }
-            return View(author);
+            return View(nameof(Create), authorVM);
         }
         // GET: Admin/Authors/Delete/5
         public async Task<IActionResult> Delete(Guid? id)
@@ -134,14 +152,21 @@ namespace WibuHub.Areas.Admin.Controllers
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
             var author = await _context.Authors.FindAsync(id);
-            if (author != null)
-            {
-                author.IsDeleted = true;
-                author.DeletedAt = DateTime.UtcNow;
-                await _context.SaveChangesAsync();
-            }
-            return RedirectToAction(nameof(Index));
+            if (author == null) return Json(new { isOK = false });
+
+            author.IsDeleted = true;
+            author.DeletedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+
+            return Json(new { isOK = true });
         }
+
+        // GET: Admin/Authors/Reload
+        public async Task<IActionResult> Reload(int page = 1, int pageSize = 10)
+        {
+            return ViewComponent("AuthorList", new { page = page, pageSize = pageSize });
+        }
+
         private bool AuthorExists(Guid id)
         {
             return _context.Authors.Any(e => e.Id == id && !e.IsDeleted);

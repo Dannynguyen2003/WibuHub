@@ -1,33 +1,107 @@
-﻿@model WibuHub.ApplicationCore.Entities.Author
+﻿@model WibuHub.MVC.ViewModels.AuthorVM
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Thêm mới Tác giả";
+    bool isCreate = Model == null || Model.Id == Guid.Empty;
+    string actionString = isCreate ? "Create" : "Edit";
+    string buttonString = isCreate ? "Tạo mới" : "Cập nhật";
 }
 
-<h1>Create</h1>
+<div class="container mt-4">
+    <h1>Thêm mới Tác giả</h1>
+    <hr />
 
-<h4>Author</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+    <div class="row">
+        <div class="col-md-4">
+            <form asp-action="@actionString">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                @if (!isCreate)
+                {
+                    <input asp-for="Id" type="hidden" />
+                }
+
+                <div class="form-group mb-3">
+                    <label asp-for="Name" class="control-label fw-bold">Tên tác giả</label>
+                    <input asp-for="Name" class="form-control" placeholder="Ví dụ: Nguyễn Nhật Ánh..." autofocus />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="form-group" style="text-align: center; margin-top: 10px;">
+                    <input type="submit" value="@buttonString" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
+        <div id="divAuthorList" class="col-md-8">
+            @await Component.InvokeAsync("AuthorList", new { page = 1, pageSize = 10 })
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        function openModalDeleteAuthor(idAuthor) {
+            let inputToken = document.querySelector("input[name='__RequestVerificationToken']");
+            $.ajax({
+                url: '/Authors/Delete',
+                type: 'GET',
+                data: { id: idAuthor },
+                beforeSend: function () {
+                    console.log("Sending...");
+                },
+                success: function (responseHTML) {
+                    openModal("Xóa Tác giả", responseHTML, "modal-lg");
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error:", status, error);
+                },
+                complete: function () {
+                    console.log("Request completed");
+                },
+                timeout: 10000
+            });
+        }
+
+        function deleteAuthor(idAuthor) {
+            let inputToken = document.querySelector("input[name='__RequestVerificationToken']");
+            if (!inputToken) {
+                console.error("Không tìm thấy Token bảo mật!");
+                return;
+            }
+
+            $.ajax({
+                url: '/Authors/Delete',
+                type: 'POST',
+                data: {
+                    id: idAuthor,
+                    __RequestVerificationToken: inputToken.value
+                },
+                success: function (response) {
+                    if (response.isOK) {
+                        closeModal();
+                        refreshAuthorList();
+                    } else {
+                        alert("Xóa thất bại!");
+                    }
+                },
+                error: function () {
+                    alert("Có lỗi xảy ra khi kết nối với máy chủ.");
+                }
+            });
+        }
+
+        function refreshAuthorList(page = 1) {
+            $.get('/Authors/Reload', { page: page, pageSize: 10 }, function (data) {
+                $('#divAuthorList').html(data);
+            });
+        }
+
+        // Pagination function for Author
+        function loadPage(page) {
+            refreshAuthorList(page);
+        }
+    </script>
 }

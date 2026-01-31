@@ -1,13 +1,11 @@
-﻿@model WibuHub.ApplicationCore.DTOs.Shared.PagedResult<WibuHub.MVC.ViewModels.CategoryVM>
+@model WibuHub.ApplicationCore.DTOs.Shared.PagedResult<WibuHub.MVC.ViewModels.AuthorVM>
 
 <table class="table table-hover mt-3 border">
     <thead class="table-dark">
         <tr>
-            <th style="width: 10%">Position</th>
-            <th style="width: 20%">Name</th>
-            <th style="width: 20%">Slug (Đường dẫn)</th>
-            <th style="width: 30%">Description</th>
-            <th style="width: 20%" class="text-center">Thao tác</th>
+            <th style="width: 20%">ID</th>
+            <th style="width: 50%">Tên tác giả</th>
+            <th style="width: 30%" class="text-center">Thao tác</th>
         </tr>
     </thead>
     <tbody>
@@ -17,17 +15,9 @@
             {
                 <tr>
                     <td>
-                        <span class="badge bg-secondary" style="padding: 8px 12px;">
-                            @item.Position
-                        </span>
+                        <small class="text-muted">@item.Id</small>
                     </td>
                     <td><strong>@item.Name</strong></td>
-                    <td>
-                        <span class="text-danger fw-bold">@item.Slug</span>
-                    </td>
-                    <td>
-                        <small class="text-muted">@(item.Description ?? "Không có mô tả")</small>
-                    </td>
                     <td class="text-center">
                         <div class="btn-group" role="group">
                             <a asp-action="Edit" asp-route-id="@item.Id"
@@ -36,8 +26,7 @@
                             <a asp-action="Details" asp-route-id="@item.Id"
                                class="btn btn-sm btn-info text-white mx-1">Chi tiết</a>
 
-                            @* Nút Xóa gọi hàm JS để hiện Modal xác nhận *@
-                            <button type="button" onclick="openModalDeleteCategory('@item.Id')"
+                            <button type="button" onclick="openModalDeleteAuthor('@item.Id')"
                                     class="btn btn-sm btn-danger mx-1">
                                 Xóa
                             </button>
@@ -49,7 +38,7 @@
         else
         {
             <tr>
-                <td colspan="5" class="text-center">Chưa có danh mục nào được tạo.</td>
+                <td colspan="3" class="text-center">Chưa có tác giả nào được tạo.</td>
             </tr>
         }
     </tbody>
