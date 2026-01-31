@@ -70,13 +70,15 @@ namespace WibuHub.Controllers
                 var chapter = new Chapter
                 {
                     StoryId = chapterVM.StoryId,
-                    Name = chapterVM.Name,
+                    Name = chapterVM.Name.Trim(),
                     ChapterNumber = chapterVM.ChapterNumber,
-                    Slug = chapterVM.Slug,
-                    ViewCount = chapterVM.ViewCount,
-                    Content = chapterVM.Content,
+                    Slug = string.IsNullOrEmpty(chapterVM.Slug)
+                           ? GenerateSlug(chapterVM.Name)
+                           : chapterVM.Slug.Trim(),
+                    ViewCount = 0,
+                    Content = chapterVM.Content?.Trim(),
                     ServerId = chapterVM.ServerId,
-                    CreatedAt = chapterVM.CreatedAt,
+                    CreatedAt = DateTime.UtcNow,
                     Price = chapterVM.Price,
                     Discount = chapterVM.Discount,
 
@@ -84,72 +86,35 @@ namespace WibuHub.Controllers
                 //chapter.Id = Guid.NewGuid();
                 //_context.Add(chapter);
                 await _context.Chapters.AddAsync(chapter);
-
-                //=== Xử lý file ===//
-                //var file = chapterVM.Image;
-                //if (file == null || file.Length == 0)
-                //{
-                //    ViewBag.Message = "Error: No file selected.";
-                //    return View(chapterVM); // Return to the upload page with an error
-                //}
-
-                //// 1. Get the path to the "uploads" folder in wwwroot
-                ////    _environment.WebRootPath gives you the path to the wwwroot folder
-                //string uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads");
-
-                //// 2. Create the folder if it doesn't exist
-                //if (!Directory.Exists(uploadsFolder))
-                //{
-                //    Directory.CreateDirectory(uploadsFolder);
-                //}
-
-                //// 3. Create a unique file name to prevent overwriting
-                ////    (SECURITY: Never use the user's file name directly)
-                //string extension = Path.GetExtension(file.FileName);
-
-                ////string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(file.FileName);
-                //string uniqueFileName = Guid.NewGuid().ToString() + extension;
-                //string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-                //await using var stream = file.OpenReadStream();
-                //if (!FileTypeValidator.IsImage(stream))
-                //{
-                //    ModelState.AddModelError("File", "The uploaded file is not a valid image.");
-                //    return BadRequest(ModelState);
-                //}
-                ////if (!(FileTypeValidator.IsTypePng(stream) || FileTypeValidator.IsTypeJpg(stream)))
-                ////{
-                ////     }
-
-                //// 4. Save the file to the server
-                //try
-                //{
-                //    using (var fileStream = new FileStream(filePath, FileMode.Create))
-                //    {
-                //        await file.CopyToAsync(fileStream);
-                //    }
-
-                //    ViewBag.Message = "File uploaded successfully!";
-                //    // You can store 'uniqueFileName' or '/uploads/' + uniqueFileName in your database
-
-                //    var newImage = new Image
-                //    {
-                //        Name = file.Name,
-                //        FileName = uniqueFileName,
-                //        Extension = extension
-                //    };
-                //    await _context.Images.AddAsync(newImage);
-                //    chapter.ImageId = newImage.Id;
-                //}
-                //catch (Exception ex)
-                //{
-                //    ViewBag.Message = "Error: " + ex.Message;
-                //}
-
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Create));
             }
-            ViewData["StoryId"] = new SelectList(_context.Chapters, "Id", "Title", chapterVM.StoryId);
+            ViewData["StoryId"] = new SelectList(_context.Stories.Where(s => !s.IsDeleted), "Id", "StoryName", chapterVM.StoryId);
             return View(chapterVM);
+        }
+        private string GenerateSlug(string phrase)
+        {
+            if (string.IsNullOrWhiteSpace(phrase)) return "";
+            string str = phrase.ToLower().Trim();
+            string[] vietnameseSigns = {
+            "aAeEoOuUiIdDyY",
+            "áàạảãâấầậẩẫăắằặẳẵ", "ÁÀẠẢÃÂẤẦẬẨẪĂẮẰẶẲẴ",
+            "éèẹẻẽêếềệểễ", "ÉÈẸẺẼÊẾỀỆỂỄ",
+            "óòọỏõôốồộổỗơớờợởỡ", "ÓÒỌỎÕÔỐỒỘỔỖƠỚỜỢỞỠ",
+            "úùụủũưứừựửữ", "ÚÙỤỦŨƯỨỪỰỬỮ",
+            "íìịỉĩ", "ÍÌỊỈĨ",
+            "đ", "Đ",
+            "ýỳỵỷỹ", "ÝỲỴỶỸ"
+            };
+            for (int i = 1; i < vietnameseSigns.Length; i++)
+            {
+                for (int j = 0; j < vietnameseSigns[i].Length; j++)
+                    str = str.Replace(vietnameseSigns[i][j], vietnameseSigns[0][i - 1]);
+            }
+            str = System.Text.RegularExpressions.Regex.Replace(str, @"[^a-z0-9\s-]", "");
+            str = System.Text.RegularExpressions.Regex.Replace(str, @"\s+", "-").Trim();
+            str = System.Text.RegularExpressions.Regex.Replace(str, @"-+", "-");
+            return str;
         }
 
         // GET: Chapters/Edit/5
@@ -165,8 +130,22 @@ namespace WibuHub.Controllers
             {
                 return NotFound();
             }
-            ViewData["StoryId"] = new SelectList(_context.Chapters, "Id", "Title", chapter.StoryId);
-            return View(chapter);
+            var chapterVM = new ChapterVM
+            {
+                Id = chapter.Id,
+                StoryId = chapter.StoryId,
+                Name = chapter.Name,
+                ChapterNumber = chapter.ChapterNumber,
+                Slug = chapter.Slug,
+                ViewCount = chapter.ViewCount,
+                Content = chapter.Content,
+                ServerId = chapter.ServerId,
+                CreatedAt = chapter.CreatedAt,
+                Price = chapter.Price,
+                Discount = chapter.Discount
+            };
+            ViewData["StoryId"] = new SelectList(_context.Stories.Where(s => !s.IsDeleted), "Id", "StoryName", chapter.StoryId);
+            return View(nameof(Create), chapterVM);
         }
 
         // POST: Chapters/Edit/5
@@ -178,31 +157,43 @@ namespace WibuHub.Controllers
         {
             if (id != chapterVM.Id)
             {
-                return NotFound();
+                return BadRequest();
             }
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(chapterVM);
+                    var chapter = await _context.Chapters.FindAsync(id);
+                    if (chapter == null)
+                    {
+                        return BadRequest();
+                    }
+                    chapter.StoryId = chapterVM.StoryId;
+                    chapter.Name = chapterVM.Name.Trim();
+                    chapter.ChapterNumber = chapterVM.ChapterNumber;
+                    chapter.Slug = chapterVM.Slug.Trim();
+                    chapter.Content = chapterVM.Content?.Trim();
+                    chapter.ServerId = chapterVM.ServerId;
+                    chapter.Price = chapterVM.Price;
+                    chapter.Discount = chapterVM.Discount;
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Create));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
                     if (!ChapterExists(chapterVM.Id))
                     {
-                        return NotFound();
+                        return BadRequest();
                     }
                     else
                     {
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
             }
-            ViewData["StoryId"] = new SelectList(_context.Chapters, "Id", "Title", chapterVM.StoryId);
-            return View(chapterVM);
+            ViewData["StoryId"] = new SelectList(_context.Stories.Where(s => !s.IsDeleted), "Id", "StoryName", chapterVM.StoryId);
+            return View(nameof(Create), chapterVM);
         }
 
         // GET: Chapters/Delete/5
@@ -230,13 +221,15 @@ namespace WibuHub.Controllers
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
             var chapter = await _context.Chapters.FindAsync(id);
-            if (chapter != null)
-            {
-                _context.Chapters.Remove(chapter);
-            }
-
+            if (chapter == null) return Json(new { isOK = false });
+            _context.Chapters.Remove(chapter);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return Json(new { isOK = true });
+        }
+        // GET: Chapters/Reload
+        public async Task<IActionResult> Reload()
+        {
+            return ViewComponent("ChapterList");
         }
 
         private bool ChapterExists(Guid id)
