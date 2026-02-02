@@ -6,6 +6,7 @@
     bool isCreate = Model == null || Model.Id == Guid.Empty;
     string actionString = isCreate ? "Create" : "Edit";
     string buttonString = isCreate ? "Tạo mới" : "Cập nhật";
+    bool isDelete = ViewData["IsDelete"] != null && (bool)ViewData["IsDelete"];
 }
 
 <div class="container mt-4">

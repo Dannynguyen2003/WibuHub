@@ -52,9 +52,9 @@ namespace WibuHub.Controllers
         }
 
         // GET: Chapters/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["StoryId"] = new SelectList(_context.Chapters, "Id", "Title");
+            ViewData["StoryId"] = new SelectList(_context.Stories.Where(s => !s.IsDeleted), "Id", "StoryName");
             return View();
         }
 

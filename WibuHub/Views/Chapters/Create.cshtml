@@ -24,7 +24,9 @@
                 }
                 <div class="form-group mb-3">
                     <label asp-for="StoryId" class="control-label fw-bold">Truyện</label>
-                    <select asp-for="StoryId" class="form-control" asp-items="ViewBag.StoryId"></select>
+                    <select asp-for="StoryId" class="form-control" asp-items="ViewBag.StoryId">
+                        <option value="">-- Vui lòng chọn truyện --</option>
+                    </select>
                     <span asp-validation-for="StoryId" class="text-danger"></span>
                 </div>
                 <div class="form-group mb-3">
@@ -34,7 +36,7 @@
                 </div>
                 <div class="form-group mb-3">
                     <label asp-for="ChapterNumber" class="control-label fw-bold">Số chương</label>
-                    <input asp-for="ChapterNumber" class="form-control" type="number" step="0.1" placeholder="1, 1.5, 2..." />
+                    <input asp-for="ChapterNumber" class="form-control" type="number" step="0.5" placeholder="1, 1.5, 2..." />
                     <span asp-validation-for="ChapterNumber" class="text-danger"></span>
                 </div>
                 <div class="form-group mb-3">
