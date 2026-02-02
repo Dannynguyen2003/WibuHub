@@ -21,6 +21,11 @@ namespace WibuHub.Controllers
         private readonly StoryDbContext _context;
         private readonly IWebHostEnvironment _env;
 
+        // Configuration constants for image upload
+        private static readonly string[] AllowedImageExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+        private const long MaxFileSize = 10 * 1024 * 1024; // 10MB
+        private const int InitialOrderIndex = 1;
+
         public ChaptersController(StoryDbContext context, IWebHostEnvironment env)
         {
             _context = context;
@@ -91,7 +96,7 @@ namespace WibuHub.Controllers
                 // Xử lý upload ảnh nếu có
                 if (chapterVM.UploadImages != null && chapterVM.UploadImages.Count > 0)
                 {
-                    await ProcessImageUploadsAsync(chapter, chapterVM.UploadImages, chapterVM.StoryId, 1);
+                    await ProcessImageUploadsAsync(chapter, chapterVM.UploadImages, chapterVM.StoryId, InitialOrderIndex);
                 }
 
                 await _context.Chapters.AddAsync(chapter);
@@ -196,7 +201,7 @@ namespace WibuHub.Controllers
                     if (chapterVM.UploadImages != null && chapterVM.UploadImages.Count > 0)
                     {
                         // Lấy OrderIndex lớn nhất hiện tại
-                        int startOrder = chapter.Images.Any() ? chapter.Images.Max(i => i.OrderIndex) + 1 : 1;
+                        int startOrder = chapter.Images.Any() ? chapter.Images.Max(i => i.OrderIndex) + 1 : InitialOrderIndex;
                         await ProcessImageUploadsAsync(chapter, chapterVM.UploadImages, chapterVM.StoryId, startOrder);
                     }
 
@@ -263,10 +268,6 @@ namespace WibuHub.Controllers
         // Helper method để xử lý upload ảnh với validation
         private async Task ProcessImageUploadsAsync(Chapter chapter, List<IFormFile> files, Guid storyId, int startOrder)
         {
-            // Danh sách extension được phép
-            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
-            const long maxFileSize = 10 * 1024 * 1024; // 10MB
-
             // Tạo thư mục: wwwroot/uploads/stories/{StoryId}/{ChapterId}/
             string folderPath = Path.Combine(_env.WebRootPath, "uploads", "stories", storyId.ToString(), chapter.Id.ToString());
             
@@ -281,16 +282,16 @@ namespace WibuHub.Controllers
                     if (file.Length > 0)
                     {
                         // Validation: Kiểm tra kích thước file
-                        if (file.Length > maxFileSize)
+                        if (file.Length > MaxFileSize)
                         {
-                            throw new InvalidOperationException($"File {file.FileName} exceeds maximum allowed size (10MB)");
+                            throw new InvalidOperationException($"Uploaded file exceeds maximum allowed size ({MaxFileSize / 1024 / 1024}MB)");
                         }
 
                         // Validation: Kiểm tra extension
                         string extension = Path.GetExtension(file.FileName).ToLowerInvariant();
-                        if (string.IsNullOrEmpty(extension) || !allowedExtensions.Contains(extension))
+                        if (string.IsNullOrEmpty(extension) || !AllowedImageExtensions.Contains(extension))
                         {
-                            throw new InvalidOperationException($"File {file.FileName} has unsupported format. Only allowed: {string.Join(", ", allowedExtensions)}");
+                            throw new InvalidOperationException($"Uploaded file has unsupported format. Only allowed: {string.Join(", ", AllowedImageExtensions)}");
                         }
 
                         // Đặt tên file: 001.jpg, 002.png...
@@ -321,7 +322,11 @@ namespace WibuHub.Controllers
             catch (IOException ex)
             {
                 // Wrap IO exception with meaningful error message
-                throw new InvalidOperationException($"Error saving file: {ex.Message}", ex);
+                throw new InvalidOperationException($"Failed to save image file to disk: {ex.Message}", ex);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                throw new InvalidOperationException($"Insufficient permissions to create upload directory: {ex.Message}", ex);
             }
         }
     }
