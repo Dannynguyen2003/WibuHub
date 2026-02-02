@@ -72,7 +72,7 @@ namespace WibuHub.Controllers
             {
                 var chapter = new Chapter
                 {
-                    Id = Guid.NewGuid(), // Generate ID before using it
+                    Id = Guid.NewGuid(), // Generate ID first because ProcessImageUploadsAsync uses it for file paths
                     StoryId = chapterVM.StoryId,
                     Name = chapterVM.Name.Trim(),
                     ChapterNumber = chapterVM.ChapterNumber,
@@ -283,14 +283,14 @@ namespace WibuHub.Controllers
                         // Validation: Kiểm tra kích thước file
                         if (file.Length > maxFileSize)
                         {
-                            throw new InvalidOperationException($"File {file.FileName} vượt quá kích thước cho phép (10MB)");
+                            throw new InvalidOperationException($"File {file.FileName} exceeds maximum allowed size (10MB)");
                         }
 
                         // Validation: Kiểm tra extension
                         string extension = Path.GetExtension(file.FileName).ToLowerInvariant();
                         if (string.IsNullOrEmpty(extension) || !allowedExtensions.Contains(extension))
                         {
-                            throw new InvalidOperationException($"File {file.FileName} có định dạng không được hỗ trợ. Chỉ chấp nhận: {string.Join(", ", allowedExtensions)}");
+                            throw new InvalidOperationException($"File {file.FileName} has unsupported format. Only allowed: {string.Join(", ", allowedExtensions)}");
                         }
 
                         // Đặt tên file: 001.jpg, 002.png...
@@ -320,8 +320,8 @@ namespace WibuHub.Controllers
             }
             catch (IOException ex)
             {
-                // Log error và throw để controller xử lý
-                throw new InvalidOperationException($"Lỗi khi lưu file: {ex.Message}", ex);
+                // Wrap IO exception with meaningful error message
+                throw new InvalidOperationException($"Error saving file: {ex.Message}", ex);
             }
         }
     }
