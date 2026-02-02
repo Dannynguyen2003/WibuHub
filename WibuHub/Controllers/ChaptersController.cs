@@ -24,6 +24,7 @@ namespace WibuHub.Controllers
         // Configuration constants for image upload
         private static readonly string[] AllowedImageExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
         private const long MaxFileSize = 10 * 1024 * 1024; // 10MB
+        private const int MaxFileSizeMB = 10;
         private const int InitialOrderIndex = 1;
 
         public ChaptersController(StoryDbContext context, IWebHostEnvironment env)
@@ -284,7 +285,7 @@ namespace WibuHub.Controllers
                         // Validation: Kiểm tra kích thước file
                         if (file.Length > MaxFileSize)
                         {
-                            throw new InvalidOperationException($"Uploaded file exceeds maximum allowed size ({MaxFileSize / 1024 / 1024}MB)");
+                            throw new InvalidOperationException($"Uploaded file exceeds maximum allowed size ({MaxFileSizeMB}MB)");
                         }
 
                         // Validation: Kiểm tra extension
