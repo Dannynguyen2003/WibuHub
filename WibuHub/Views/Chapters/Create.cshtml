@@ -1,6 +1,6 @@
 ﻿@* @model WibuHub.ApplicationCore.Entities.Chapter *@
 @model WibuHub.MVC.ViewModels.ChapterVM
-
+@using WibuHub.ApplicationCore.Entities
 
 @{
     ViewData["Title"] = "Thêm mới Chương";
@@ -71,7 +71,7 @@
                 </div>
                 @if (!isCreate && ViewData["ExistingImages"] != null)
                 {
-                    var existingImages = ViewData["ExistingImages"] as List<WibuHub.ApplicationCore.Entities.ChapterImage>;
+                    var existingImages = ViewData["ExistingImages"] as List<ChapterImage>;
                     if (existingImages != null && existingImages.Any())
                     {
                         <div class="form-group mb-3">

@@ -72,6 +72,7 @@ namespace WibuHub.Controllers
             {
                 var chapter = new Chapter
                 {
+                    Id = Guid.NewGuid(), // Generate ID before using it
                     StoryId = chapterVM.StoryId,
                     Name = chapterVM.Name.Trim(),
                     ChapterNumber = chapterVM.ChapterNumber,
@@ -90,43 +91,9 @@ namespace WibuHub.Controllers
                 // Xử lý upload ảnh nếu có
                 if (chapterVM.UploadImages != null && chapterVM.UploadImages.Count > 0)
                 {
-                    // Tạo thư mục: wwwroot/uploads/stories/{StoryId}/{ChapterId}/
-                    string folderPath = Path.Combine(_env.WebRootPath, "uploads", "stories", chapterVM.StoryId.ToString(), chapter.Id.ToString());
-                    if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
-
-                    int order = 1;
-                    foreach (var file in chapterVM.UploadImages)
-                    {
-                        if (file.Length > 0)
-                        {
-                            // Đặt tên file: 001.jpg, 002.png...
-                            string fileName = $"{order:D3}{Path.GetExtension(file.FileName)}";
-                            string fullPath = Path.Combine(folderPath, fileName);
-
-                            // Lưu file vật lý
-                            using (var stream = new FileStream(fullPath, FileMode.Create))
-                            {
-                                await file.CopyToAsync(stream);
-                            }
-
-                            // Đường dẫn lưu DB: /uploads/stories/...
-                            string dbPath = $"/uploads/stories/{chapterVM.StoryId}/{chapter.Id}/{fileName}";
-
-                            chapter.Images.Add(new ChapterImage
-                            {
-                                Id = Guid.NewGuid(),
-                                ImageUrl = dbPath,
-                                OrderIndex = order,
-                                ChapterId = chapter.Id
-                            });
-
-                            order++;
-                        }
-                    }
+                    await ProcessImageUploadsAsync(chapter, chapterVM.UploadImages, chapterVM.StoryId, 1);
                 }
 
-                //chapter.Id = Guid.NewGuid();
-                //_context.Add(chapter);
                 await _context.Chapters.AddAsync(chapter);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Create));
@@ -228,42 +195,9 @@ namespace WibuHub.Controllers
                     // Xử lý upload ảnh mới nếu có (thêm vào danh sách hiện tại)
                     if (chapterVM.UploadImages != null && chapterVM.UploadImages.Count > 0)
                     {
-                        // Tạo thư mục: wwwroot/uploads/stories/{StoryId}/{ChapterId}/
-                        string folderPath = Path.Combine(_env.WebRootPath, "uploads", "stories", chapterVM.StoryId.ToString(), chapter.Id.ToString());
-                        if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
-
                         // Lấy OrderIndex lớn nhất hiện tại
-                        int maxOrder = chapter.Images.Any() ? chapter.Images.Max(i => i.OrderIndex) : 0;
-                        int order = maxOrder + 1;
-
-                        foreach (var file in chapterVM.UploadImages)
-                        {
-                            if (file.Length > 0)
-                            {
-                                // Đặt tên file: 001.jpg, 002.png...
-                                string fileName = $"{order:D3}{Path.GetExtension(file.FileName)}";
-                                string fullPath = Path.Combine(folderPath, fileName);
-
-                                // Lưu file vật lý
-                                using (var stream = new FileStream(fullPath, FileMode.Create))
-                                {
-                                    await file.CopyToAsync(stream);
-                                }
-
-                                // Đường dẫn lưu DB: /uploads/stories/...
-                                string dbPath = $"/uploads/stories/{chapterVM.StoryId}/{chapter.Id}/{fileName}";
-
-                                chapter.Images.Add(new ChapterImage
-                                {
-                                    Id = Guid.NewGuid(),
-                                    ImageUrl = dbPath,
-                                    OrderIndex = order,
-                                    ChapterId = chapter.Id
-                                });
-
-                                order++;
-                            }
-                        }
+                        int startOrder = chapter.Images.Any() ? chapter.Images.Max(i => i.OrderIndex) + 1 : 1;
+                        await ProcessImageUploadsAsync(chapter, chapterVM.UploadImages, chapterVM.StoryId, startOrder);
                     }
 
                     await _context.SaveChangesAsync();
@@ -324,6 +258,71 @@ namespace WibuHub.Controllers
         private bool ChapterExists(Guid id)
         {
             return _context.Chapters.Any(e => e.Id == id);
+        }
+
+        // Helper method để xử lý upload ảnh với validation
+        private async Task ProcessImageUploadsAsync(Chapter chapter, List<IFormFile> files, Guid storyId, int startOrder)
+        {
+            // Danh sách extension được phép
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+            const long maxFileSize = 10 * 1024 * 1024; // 10MB
+
+            // Tạo thư mục: wwwroot/uploads/stories/{StoryId}/{ChapterId}/
+            string folderPath = Path.Combine(_env.WebRootPath, "uploads", "stories", storyId.ToString(), chapter.Id.ToString());
+            
+            try
+            {
+                if (!Directory.Exists(folderPath)) 
+                    Directory.CreateDirectory(folderPath);
+
+                int order = startOrder;
+                foreach (var file in files)
+                {
+                    if (file.Length > 0)
+                    {
+                        // Validation: Kiểm tra kích thước file
+                        if (file.Length > maxFileSize)
+                        {
+                            throw new InvalidOperationException($"File {file.FileName} vượt quá kích thước cho phép (10MB)");
+                        }
+
+                        // Validation: Kiểm tra extension
+                        string extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+                        if (string.IsNullOrEmpty(extension) || !allowedExtensions.Contains(extension))
+                        {
+                            throw new InvalidOperationException($"File {file.FileName} có định dạng không được hỗ trợ. Chỉ chấp nhận: {string.Join(", ", allowedExtensions)}");
+                        }
+
+                        // Đặt tên file: 001.jpg, 002.png...
+                        string fileName = $"{order:D3}{extension}";
+                        string fullPath = Path.Combine(folderPath, fileName);
+
+                        // Lưu file vật lý
+                        using (var stream = new FileStream(fullPath, FileMode.Create))
+                        {
+                            await file.CopyToAsync(stream);
+                        }
+
+                        // Đường dẫn lưu DB: /uploads/stories/...
+                        string dbPath = $"/uploads/stories/{storyId}/{chapter.Id}/{fileName}";
+
+                        chapter.Images.Add(new ChapterImage
+                        {
+                            Id = Guid.NewGuid(),
+                            ImageUrl = dbPath,
+                            OrderIndex = order,
+                            ChapterId = chapter.Id
+                        });
+
+                        order++;
+                    }
+                }
+            }
+            catch (IOException ex)
+            {
+                // Log error và throw để controller xử lý
+                throw new InvalidOperationException($"Lỗi khi lưu file: {ex.Message}", ex);
+            }
         }
     }
 }
