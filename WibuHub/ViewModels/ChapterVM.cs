@@ -5,7 +5,7 @@ using WibuHub.ApplicationCore.Entities;
 
 namespace WibuHub.MVC.ViewModels
 {
-    [Bind("Id,StoryId,Name,ChapterNumber,Slug,ViewCount,Content,ServerId,CreateAt,Price")]
+    [Bind("Id,StoryId,Name,ChapterNumber,Slug,ViewCount,Content,ServerId,CreateAt,Price,UploadImages")]
     public class ChapterVM
     {
         [Key]
@@ -52,5 +52,8 @@ namespace WibuHub.MVC.ViewModels
         [Column(TypeName = "money")]
         public decimal Price { get; set; } = 0;
         public decimal Discount { get; set; }
+
+        // Ảnh upload (để tạo/cập nhật chapter với nhiều ảnh)
+        public List<IFormFile>? UploadImages { get; set; }
     }
 }

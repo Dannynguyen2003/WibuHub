@@ -4,7 +4,7 @@
     ViewData["Title"] = "Details";
 }
 
-<h1>Details</h1>
+<h1>Chi tiết Chương</h1>
 
 <div>
     <h4>Chapter</h4>
@@ -66,6 +66,34 @@
         </dd>
     </dl>
 </div>
+
+@if (Model.Images != null && Model.Images.Any())
+{
+    <div class="mt-4">
+        <h4>Ảnh Chương</h4>
+        <hr />
+        <div class="row">
+            @foreach (var image in Model.Images.OrderBy(i => i.OrderIndex))
+            {
+                <div class="col-md-12 mb-3">
+                    <div class="card">
+                        <img src="@image.ImageUrl" class="card-img-top" alt="Trang @image.OrderIndex" style="max-width: 100%; height: auto;" />
+                        <div class="card-body text-center">
+                            <p class="card-text">Trang @image.OrderIndex</p>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <div class="mt-4">
+        <p class="text-muted">Chương này chưa có ảnh nào.</p>
+    </div>
+}
+
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
     <a asp-action="Index">Back to List</a>

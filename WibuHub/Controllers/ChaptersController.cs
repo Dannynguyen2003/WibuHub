@@ -19,10 +19,12 @@ namespace WibuHub.Controllers
     public class ChaptersController : Controller
     {
         private readonly StoryDbContext _context;
+        private readonly IWebHostEnvironment _env;
 
-        public ChaptersController(StoryDbContext context)
+        public ChaptersController(StoryDbContext context, IWebHostEnvironment env)
         {
             _context = context;
+            _env = env;
         }
 
         // GET: Chapters
@@ -42,6 +44,7 @@ namespace WibuHub.Controllers
 
             var chapter = await _context.Chapters
                 .Include(c => c.Story)
+                .Include(c => c.Images)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (chapter == null)
             {
@@ -83,6 +86,45 @@ namespace WibuHub.Controllers
                     Discount = chapterVM.Discount,
 
                 };
+
+                // Xử lý upload ảnh nếu có
+                if (chapterVM.UploadImages != null && chapterVM.UploadImages.Count > 0)
+                {
+                    // Tạo thư mục: wwwroot/uploads/stories/{StoryId}/{ChapterId}/
+                    string folderPath = Path.Combine(_env.WebRootPath, "uploads", "stories", chapterVM.StoryId.ToString(), chapter.Id.ToString());
+                    if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
+
+                    int order = 1;
+                    foreach (var file in chapterVM.UploadImages)
+                    {
+                        if (file.Length > 0)
+                        {
+                            // Đặt tên file: 001.jpg, 002.png...
+                            string fileName = $"{order:D3}{Path.GetExtension(file.FileName)}";
+                            string fullPath = Path.Combine(folderPath, fileName);
+
+                            // Lưu file vật lý
+                            using (var stream = new FileStream(fullPath, FileMode.Create))
+                            {
+                                await file.CopyToAsync(stream);
+                            }
+
+                            // Đường dẫn lưu DB: /uploads/stories/...
+                            string dbPath = $"/uploads/stories/{chapterVM.StoryId}/{chapter.Id}/{fileName}";
+
+                            chapter.Images.Add(new ChapterImage
+                            {
+                                Id = Guid.NewGuid(),
+                                ImageUrl = dbPath,
+                                OrderIndex = order,
+                                ChapterId = chapter.Id
+                            });
+
+                            order++;
+                        }
+                    }
+                }
+
                 //chapter.Id = Guid.NewGuid();
                 //_context.Add(chapter);
                 await _context.Chapters.AddAsync(chapter);
@@ -125,7 +167,9 @@ namespace WibuHub.Controllers
                 return NotFound();
             }
 
-            var chapter = await _context.Chapters.FindAsync(id);
+            var chapter = await _context.Chapters
+                .Include(c => c.Images)
+                .FirstOrDefaultAsync(c => c.Id == id);
             if (chapter == null)
             {
                 return NotFound();
@@ -145,6 +189,7 @@ namespace WibuHub.Controllers
                 Discount = chapter.Discount
             };
             ViewData["StoryId"] = new SelectList(_context.Stories.Where(s => !s.IsDeleted), "Id", "StoryName", chapter.StoryId);
+            ViewData["ExistingImages"] = chapter.Images.OrderBy(i => i.OrderIndex).ToList();
             return View(nameof(Create), chapterVM);
         }
 
@@ -164,7 +209,9 @@ namespace WibuHub.Controllers
             {
                 try
                 {
-                    var chapter = await _context.Chapters.FindAsync(id);
+                    var chapter = await _context.Chapters
+                        .Include(c => c.Images)
+                        .FirstOrDefaultAsync(c => c.Id == id);
                     if (chapter == null)
                     {
                         return BadRequest();
@@ -177,6 +224,48 @@ namespace WibuHub.Controllers
                     chapter.ServerId = chapterVM.ServerId;
                     chapter.Price = chapterVM.Price;
                     chapter.Discount = chapterVM.Discount;
+
+                    // Xử lý upload ảnh mới nếu có (thêm vào danh sách hiện tại)
+                    if (chapterVM.UploadImages != null && chapterVM.UploadImages.Count > 0)
+                    {
+                        // Tạo thư mục: wwwroot/uploads/stories/{StoryId}/{ChapterId}/
+                        string folderPath = Path.Combine(_env.WebRootPath, "uploads", "stories", chapterVM.StoryId.ToString(), chapter.Id.ToString());
+                        if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
+
+                        // Lấy OrderIndex lớn nhất hiện tại
+                        int maxOrder = chapter.Images.Any() ? chapter.Images.Max(i => i.OrderIndex) : 0;
+                        int order = maxOrder + 1;
+
+                        foreach (var file in chapterVM.UploadImages)
+                        {
+                            if (file.Length > 0)
+                            {
+                                // Đặt tên file: 001.jpg, 002.png...
+                                string fileName = $"{order:D3}{Path.GetExtension(file.FileName)}";
+                                string fullPath = Path.Combine(folderPath, fileName);
+
+                                // Lưu file vật lý
+                                using (var stream = new FileStream(fullPath, FileMode.Create))
+                                {
+                                    await file.CopyToAsync(stream);
+                                }
+
+                                // Đường dẫn lưu DB: /uploads/stories/...
+                                string dbPath = $"/uploads/stories/{chapterVM.StoryId}/{chapter.Id}/{fileName}";
+
+                                chapter.Images.Add(new ChapterImage
+                                {
+                                    Id = Guid.NewGuid(),
+                                    ImageUrl = dbPath,
+                                    OrderIndex = order,
+                                    ChapterId = chapter.Id
+                                });
+
+                                order++;
+                            }
+                        }
+                    }
+
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Create));
                 }
