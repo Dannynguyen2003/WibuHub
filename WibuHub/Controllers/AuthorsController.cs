@@ -150,8 +150,7 @@ namespace WibuHub.Areas.Admin.Controllers
         {
             var author = await _context.Authors.FindAsync(id);
             if (author == null) return Json(new { isOK = false });
-            author.IsDeleted = true;
-            author.DeletedAt = DateTime.UtcNow;
+            _context.Authors.Remove(author);
             await _context.SaveChangesAsync();
             return Json(new { isOK = true });
         }

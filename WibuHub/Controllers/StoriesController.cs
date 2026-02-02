@@ -211,8 +211,7 @@ namespace WibuHub.Areas.Admin.Controllers
         {
             var story = await _context.Stories.FindAsync(id);
             if (story == null) return Json(new { isOK = false });
-            story.IsDeleted = true;
-            story.DeletedAt = DateTime.UtcNow;
+            _context.Stories.Remove(story);
             await _context.SaveChangesAsync();
             return Json(new { isOK = true });
         }
