@@ -226,15 +226,14 @@ namespace WibuHub.MVC.Controllers
             var category = await _context.Categories.FindAsync(id);
             if (category == null) return Json(new { isOK = false });
 
-            // Logic xóa mềm
-            category.IsDeleted = true;
-            category.DeletedAt = DateTime.UtcNow;
-
             // Giảm Position của các danh mục phía sau
             var siblings = await _context.Categories
                 .Where(c => c.Position > category.Position && !c.IsDeleted)
                 .ToListAsync();
             foreach (var s in siblings) s.Position--;
+
+            // Logic xóa mềm - sử dụng Remove để kích hoạt soft delete tự động
+            _context.Categories.Remove(category);
 
             await _context.SaveChangesAsync();
 
