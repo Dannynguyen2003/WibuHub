@@ -40,6 +40,12 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-page="/Category/Create">Thể loại</a>
                         </li>
+                        @if (User.IsInRole("SuperAdmin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Roles" asp-action="Index">Quản lý Roles</a>
+                            </li>
+                        }
                     </ul>
 
                     <form class="d-flex header__form-search" action="" method="GET">

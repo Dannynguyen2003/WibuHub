@@ -1,0 +1,57 @@
+@model WibuHub.MVC.ViewModels.CreateRoleVM
+
+@{
+    ViewData["Title"] = "Tạo Role Mới";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h1>@ViewData["Title"]</h1>
+            <hr />
+
+            <div class="card">
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label"></label>
+                            <input asp-for="Name" class="form-control" placeholder="Ví dụ: Editor, Moderator" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                            <small class="form-text text-muted">Tên role nên ngắn gọn và dễ hiểu</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label"></label>
+                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Mô tả vai trò và quyền hạn của role này"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Tạo Role
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Hủy
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="alert alert-warning mt-3">
+                <h5><i class="bi bi-exclamation-triangle"></i> Lưu ý:</h5>
+                <ul class="mb-0">
+                    <li>Role name không được trùng với các role đã có</li>
+                    <li>Sau khi tạo role, bạn có thể gán role này cho users</li>
+                    <li>Không nên tạo quá nhiều role để tránh phức tạp trong quản lý</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

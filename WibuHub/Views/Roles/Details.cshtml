@@ -1,0 +1,103 @@
+@model WibuHub.MVC.ViewModels.RoleDetailsVM
+
+@{
+    ViewData["Title"] = "Chi Tiết Role";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-10 offset-md-1">
+            <h1>@ViewData["Title"]</h1>
+            <hr />
+
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Thông Tin Role</h4>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-3">Tên Role:</dt>
+                        <dd class="col-sm-9">
+                            <strong>@Model.Name</strong>
+                            @if (Model.Name == "SuperAdmin")
+                            {
+                                <span class="badge bg-danger">Hệ thống</span>
+                            }
+                            else if (Model.Name == "Admin" || Model.Name == "Customer")
+                            {
+                                <span class="badge bg-warning">Hệ thống</span>
+                            }
+                            else if (Model.Name == "ContentManager")
+                            {
+                                <span class="badge bg-info">Quản lý nội dung</span>
+                            }
+                            else if (Model.Name == "StoryManager")
+                            {
+                                <span class="badge bg-success">Quản lý truyện</span>
+                            }
+                        </dd>
+
+                        <dt class="col-sm-3">Mô tả:</dt>
+                        <dd class="col-sm-9">@(Model.Description ?? "Không có mô tả")</dd>
+
+                        <dt class="col-sm-3">Số người dùng:</dt>
+                        <dd class="col-sm-9">
+                            <span class="badge bg-primary">@Model.UserCount người dùng</span>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+
+            @if (Model.Users.Any())
+            {
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">Danh Sách Người Dùng Có Role Này</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Email</th>
+                                        <th>Tên đầy đủ</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var user in Model.Users)
+                                    {
+                                        <tr>
+                                            <td>@user.Email</td>
+                                            <td>@(user.FullName ?? "N/A")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> Chưa có người dùng nào được gán role này
+                </div>
+            }
+
+            <div class="mt-3">
+                @if (Model.Name != "SuperAdmin" && Model.Name != "Admin" && Model.Name != "Customer")
+                {
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                        <i class="bi bi-pencil"></i> Chỉnh Sửa
+                    </a>
+                    <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Xóa
+                    </a>
+                }
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Quay Lại
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

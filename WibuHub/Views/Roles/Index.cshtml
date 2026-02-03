@@ -1,0 +1,125 @@
+@model IEnumerable<WibuHub.MVC.ViewModels.RoleVM>
+
+@{
+    ViewData["Title"] = "Quản Lý Roles";
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h1>@ViewData["Title"]</h1>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row mb-3">
+        <div class="col">
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Tạo Role Mới
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>@Html.DisplayNameFor(model => model.First().Name)</th>
+                            <th>@Html.DisplayNameFor(model => model.First().Description)</th>
+                            <th>@Html.DisplayNameFor(model => model.First().UserCount)</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <strong>@Html.DisplayFor(modelItem => item.Name)</strong>
+                                    @if (item.Name == "SuperAdmin")
+                                    {
+                                        <span class="badge bg-danger">Hệ thống</span>
+                                    }
+                                    else if (item.Name == "Admin" || item.Name == "Customer")
+                                    {
+                                        <span class="badge bg-warning">Hệ thống</span>
+                                    }
+                                    else if (item.Name == "ContentManager")
+                                    {
+                                        <span class="badge bg-info">Quản lý nội dung</span>
+                                    }
+                                    else if (item.Name == "StoryManager")
+                                    {
+                                        <span class="badge bg-success">Quản lý truyện</span>
+                                    }
+                                </td>
+                                <td>@Html.DisplayFor(modelItem => item.Description)</td>
+                                <td>
+                                    <span class="badge bg-primary">@item.UserCount người dùng</span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info" title="Chi tiết">
+                                            <i class="bi bi-eye"></i> Chi tiết
+                                        </a>
+                                        @if (item.Name != "SuperAdmin" && item.Name != "Admin" && item.Name != "Customer")
+                                        {
+                                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning" title="Chỉnh sửa">
+                                                <i class="bi bi-pencil"></i> Sửa
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger" title="Xóa">
+                                                <i class="bi bi-trash"></i> Xóa
+                                            </a>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col">
+            <div class="alert alert-info">
+                <h5>Thông tin về Roles</h5>
+                <ul>
+                    <li><strong>SuperAdmin:</strong> Quyền cao nhất, quản lý toàn bộ hệ thống</li>
+                    <li><strong>Admin:</strong> Quản trị viên chung</li>
+                    <li><strong>ContentManager:</strong> Quản lý nội dung - Upload và dịch truyện</li>
+                    <li><strong>StoryManager:</strong> Quản lý truyện và chapters</li>
+                    <li><strong>SalesManager:</strong> Quản lý bán hàng và đơn hàng</li>
+                    <li><strong>Customer:</strong> Khách hàng - Đọc và mua truyện</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Auto-dismiss alerts after 5 seconds
+        setTimeout(function() {
+            $('.alert').fadeOut('slow');
+        }, 5000);
+    </script>
+}
