@@ -8,20 +8,21 @@ namespace WibuHub.MVC.Customer.Controllers
     {
         private const string CartSessionKey = "CustomerCartSession";
 
-        public CartController()
-        {
-        }
-
         public IActionResult Index()
         {
             var cart = HttpContext.Session.GetObject<Cart>(CartSessionKey) ?? new Cart();
-            return View("~/Views/ShoppingCart/Index.cshtml", cart);
+            return View(cart);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult AddToCart(Guid storyId, string storyTitle)
         {
+            if (storyId == Guid.Empty || string.IsNullOrWhiteSpace(storyTitle))
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
             var cart = HttpContext.Session.GetObject<Cart>(CartSessionKey) ?? new Cart();
             var item = cart.Items.FirstOrDefault(x => x.StoryId == storyId);
             if (item == null)
@@ -29,7 +30,7 @@ namespace WibuHub.MVC.Customer.Controllers
                 cart.Items.Add(new CartItem
                 {
                     StoryId = storyId,
-                    StoryTitle = storyTitle,
+                    StoryTitle = storyTitle.Trim(),
                     Quantity = 1
                 });
             }
