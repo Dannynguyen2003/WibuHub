@@ -1,0 +1,42 @@
+@model WibuHub.MVC.Customer.Models.ShoppingCart.Cart
+
+@{
+    ViewData["Title"] = "Giỏ hàng";
+}
+
+<h1>Giỏ hàng</h1>
+
+@if (!Model.Items.Any())
+{
+    <p>Giỏ hàng đang trống.</p>
+}
+else
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Tên truyện</th>
+                <th>Số lượng</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in Model.Items)
+        {
+            <tr>
+                <td>@item.StoryTitle</td>
+                <td>@item.Quantity</td>
+                <td>
+                    <form asp-action="Remove" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="storyId" value="@item.StoryId" />
+                        <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                    </form>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+<a asp-controller="Store" asp-action="Index" class="btn btn-outline-primary">Tiếp tục mua</a>

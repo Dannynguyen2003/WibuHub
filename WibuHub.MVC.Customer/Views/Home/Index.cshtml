@@ -1,8 +1,34 @@
-﻿@{
+﻿@model List<WibuHub.ApplicationCore.DTOs.Shared.StoryDto>
+
+@{
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<h1 class="display-6 mb-3">Danh sách truyện</h1>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Tên truyện</th>
+            <th>Tác giả</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var story in Model)
+        {
+            <tr>
+                <td>@story.Title</td>
+                <td>@story.AuthorName</td>
+                <td>
+                    <form asp-controller="Cart" asp-action="AddToCart" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="storyId" value="@story.Id" />
+                        <input type="hidden" name="storyTitle" value="@story.Title" />
+                        <button type="submit" class="btn btn-sm btn-primary">Thêm vào giỏ</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
