@@ -6,9 +6,19 @@ using Microsoft.AspNetCore.Identity;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+var mvcBuilder = builder.Services.AddControllersWithViews();
+const string adminApplicationPartName = "WibuHub.MVC.Admin";
+// Remove Admin application part to prevent ambiguous route matching when Customer app starts.
+var adminPart = mvcBuilder.PartManager.ApplicationParts.FirstOrDefault(part => part.Name == adminApplicationPartName);
+if (adminPart is not null)
+{
+    mvcBuilder.PartManager.ApplicationParts.Remove(adminPart);
+}
 // Add DbContext
 builder.Services.AddDbContext<StoryDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("StoryConnection"))
+);
+builder.Services.AddDbContext<StoryIdentityDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("StoryConnection"))
 );
 
@@ -31,6 +41,8 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+// Authentication must run before authorization so user identity is available for policy checks.
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
