@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using WibuHub.DataLayer;
 using WibuHub.Service.Implementations;
 using WibuHub.Service.Interface;
+using Microsoft.AspNetCore.Identity;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -10,6 +11,8 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<StoryDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("StoryConnection"))
 );
+
+builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<StoryIdentityDbContext>();
 // Register services
 builder.Services.AddScoped<IStoryService, StoryService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
