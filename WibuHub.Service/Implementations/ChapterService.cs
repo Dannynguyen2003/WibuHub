@@ -84,7 +84,7 @@ namespace WibuHub.Service.Implementations
             };
 
             // 2. Xử lý danh sách URL ảnh (nếu có) theo đúng thứ tự client gửi lên
-            var order = 1;
+            var imageOrderIndex = 1;
             if (dto.ImageUrls != null && dto.ImageUrls.Count > 0)
             {
                 foreach (var imageUrl in dto.ImageUrls.Where(u => !string.IsNullOrWhiteSpace(u)))
@@ -93,7 +93,7 @@ namespace WibuHub.Service.Implementations
                     {
                         Id = Guid.NewGuid(),
                         ImageUrl = imageUrl.Trim(),
-                        OrderIndex = order++,
+                        OrderIndex = imageOrderIndex++,
                         ChapterId = chapter.Id
                     });
                 }
@@ -111,7 +111,7 @@ namespace WibuHub.Service.Implementations
                     if (file.Length > 0)
                     {
                         // Đặt tên file: 001.jpg, 002.png...
-                        string fileName = $"{order:D3}{Path.GetExtension(file.FileName)}";
+                        string fileName = $"{imageOrderIndex:D3}{Path.GetExtension(file.FileName)}";
                         string fullPath = Path.Combine(folderPath, fileName);
 
                         // Lưu file vật lý
@@ -128,11 +128,11 @@ namespace WibuHub.Service.Implementations
                         {
                             Id = Guid.NewGuid(),
                             ImageUrl = dbPath,
-                            OrderIndex = order,
+                            OrderIndex = imageOrderIndex,
                             ChapterId = chapter.Id
                         });
 
-                        order++;
+                        imageOrderIndex++;
                     }
                 }
             }
@@ -162,15 +162,16 @@ namespace WibuHub.Service.Implementations
 
             if (dto.ImageUrls != null)
             {
+                // Replace toàn bộ danh sách ảnh hiện tại theo đúng thứ tự client gửi lên.
                 _context.ChapterImages.RemoveRange(chapter.Images);
-                var order = 1;
+                var imageOrderIndex = 1;
                 foreach (var imageUrl in dto.ImageUrls.Where(u => !string.IsNullOrWhiteSpace(u)))
                 {
                     chapter.Images.Add(new ChapterImage
                     {
                         Id = Guid.NewGuid(),
                         ImageUrl = imageUrl.Trim(),
-                        OrderIndex = order++,
+                        OrderIndex = imageOrderIndex++,
                         ChapterId = chapter.Id
                     });
                 }
