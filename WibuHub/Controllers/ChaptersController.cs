@@ -67,6 +67,10 @@ namespace WibuHub.Controllers
         {
             if (ModelState.IsValid)
             {
+                var imageUrls = (chapterVM.ImageUrls ?? new List<string>())
+                    .Where(url => !string.IsNullOrWhiteSpace(url))
+                    .Select(url => url.Trim())
+                    .ToList();
                 var chapter = new Chapter
                 {
                     StoryId = chapterVM.StoryId,
@@ -76,11 +80,18 @@ namespace WibuHub.Controllers
                            ? GenerateSlug(chapterVM.Name)
                            : chapterVM.Slug.Trim(),
                     ViewCount = 0,
-                    Content = chapterVM.Content?.Trim(),
+                    Content = string.Join(Environment.NewLine, imageUrls),
                     ServerId = chapterVM.ServerId,
                     CreatedAt = DateTime.UtcNow,
                     Price = chapterVM.Price,
                     Discount = chapterVM.Discount,
+                    Images = imageUrls
+                        .Select((url, index) => new ChapterImage
+                        {
+                            ImageUrl = url,
+                            OrderIndex = index + 1
+                        })
+                        .ToList()
 
                 };
                 //chapter.Id = Guid.NewGuid();
@@ -125,10 +136,21 @@ namespace WibuHub.Controllers
                 return NotFound();
             }
 
-            var chapter = await _context.Chapters.FindAsync(id);
+            var chapter = await _context.Chapters
+                .Include(c => c.Images)
+                .FirstOrDefaultAsync(c => c.Id == id);
             if (chapter == null)
             {
                 return NotFound();
+            }
+            var imageUrls = chapter.Images.OrderBy(i => i.OrderIndex).Select(i => i.ImageUrl).ToList();
+            if (imageUrls.Count == 0 && !string.IsNullOrWhiteSpace(chapter.Content))
+            {
+                imageUrls = chapter.Content
+                    .Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(url => url.Trim())
+                    .Where(url => !string.IsNullOrWhiteSpace(url))
+                    .ToList();
             }
             var chapterVM = new ChapterVM
             {
@@ -139,6 +161,7 @@ namespace WibuHub.Controllers
                 Slug = chapter.Slug,
                 ViewCount = chapter.ViewCount,
                 Content = chapter.Content,
+                ImageUrls = imageUrls,
                 ServerId = chapter.ServerId,
                 CreatedAt = chapter.CreatedAt,
                 Price = chapter.Price,
@@ -164,19 +187,34 @@ namespace WibuHub.Controllers
             {
                 try
                 {
-                    var chapter = await _context.Chapters.FindAsync(id);
+                    var chapter = await _context.Chapters
+                        .Include(c => c.Images)
+                        .FirstOrDefaultAsync(c => c.Id == id);
                     if (chapter == null)
                     {
                         return BadRequest();
                     }
+                    var imageUrls = (chapterVM.ImageUrls ?? new List<string>())
+                        .Where(url => !string.IsNullOrWhiteSpace(url))
+                        .Select(url => url.Trim())
+                        .ToList();
                     chapter.StoryId = chapterVM.StoryId;
                     chapter.Name = chapterVM.Name.Trim();
                     chapter.ChapterNumber = chapterVM.ChapterNumber;
                     chapter.Slug = chapterVM.Slug.Trim();
-                    chapter.Content = chapterVM.Content?.Trim();
+                    chapter.Content = string.Join(Environment.NewLine, imageUrls);
                     chapter.ServerId = chapterVM.ServerId;
                     chapter.Price = chapterVM.Price;
                     chapter.Discount = chapterVM.Discount;
+                    _context.ChapterImages.RemoveRange(chapter.Images);
+                    chapter.Images = imageUrls
+                        .Select((url, index) => new ChapterImage
+                        {
+                            ImageUrl = url,
+                            OrderIndex = index + 1,
+                            ChapterId = chapter.Id
+                        })
+                        .ToList();
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Create));
                 }

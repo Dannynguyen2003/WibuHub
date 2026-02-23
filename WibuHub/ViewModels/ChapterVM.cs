@@ -5,7 +5,7 @@ using WibuHub.ApplicationCore.Entities;
 
 namespace WibuHub.MVC.ViewModels
 {
-    [Bind("Id,StoryId,Name,ChapterNumber,Slug,ViewCount,Content,ServerId,CreateAt,Price")]
+    [Bind("Id,StoryId,Name,ChapterNumber,Slug,ViewCount,Content,ImageUrls,ServerId,CreateAt,Price")]
     public class ChapterVM
     {
         [Key]
@@ -40,6 +40,7 @@ namespace WibuHub.MVC.ViewModels
         // Content: nvarchar(MAX)
         // Lưu ý: Trong EF Core, string mặc định là nvarchar(MAX) nên không cần MaxLength
         public string? Content { get; set; }
+        public List<string> ImageUrls { get; set; } = new();
 
         // ServerId: int (Lưu server ảnh: 1=Google, 2=Imgur...)
         public int ServerId { get; set; } = 1;
