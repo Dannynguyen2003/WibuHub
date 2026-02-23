@@ -37,6 +37,23 @@ namespace WibuHub.API.Controllers
             return Ok(category);
         }
 
+        [HttpGet("getbyname/{name}")]
+        public async Task<IActionResult> GetByName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return BadRequest(new { message = "Tên danh mục không hợp lệ" });
+            }
+
+            var category = await _categoryService.GetByNameAsync(name);
+            if (category == null)
+            {
+                return NotFound(new { message = "Không tìm thấy danh mục" });
+            }
+
+            return Ok(category);
+        }
+
         // POST: api/categories
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CategoryDto request)
@@ -64,16 +81,12 @@ namespace WibuHub.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(Guid id, [FromBody] CategoryDto request)
         {
-            // 1. Fixed: Use 'request.Id' instead of 'categoryVM.Id'
-            if (id != request.Id)
-            {
-                return BadRequest(new { message = "ID không khớp" });
-            }
-
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+
+            request.Id = id;
 
             // 2. Fixed: Pass both 'id' AND 'request' to match the Interface
             var result = await _categoryService.UpdateAsync(id, request);
@@ -88,21 +101,76 @@ namespace WibuHub.API.Controllers
             }
         }
 
+        [HttpPut("edit-by-name/{name}")]
+        public async Task<IActionResult> UpdateByName(string name, [FromBody] CategoryDto request)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return BadRequest(new { message = "Tên danh mục không hợp lệ" });
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var existingCategory = await _categoryService.GetByNameAsync(name);
+            if (existingCategory == null)
+            {
+                return NotFound(new { success = false, message = "Không tìm thấy danh mục" });
+            }
+
+            request.Id = existingCategory.Id;
+            var result = await _categoryService.UpdateAsync(existingCategory.Id, request);
+            if (result)
+            {
+                return Ok(new { success = true, message = "Cập nhật thành công" });
+            }
+
+            return BadRequest(new { success = false, message = "Lỗi cập nhật danh mục" });
+        }
+
         // DELETE: api/categories/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
+            var existingCategory = await _categoryService.GetByIdAsync(id);
+            if (existingCategory == null)
+            {
+                return NotFound(new { success = false, message = "Không tìm thấy danh mục" });
+            }
+
             var result = await _categoryService.DeleteAsync(id);
 
             if (result.isSuccess)
             {
                 return Ok(new { success = true, message = result.message });
             }
-            else
+
+            return BadRequest(new { success = false, message = result.message });
+        }
+
+        [HttpDelete("delete-by-name/{name}")]
+        public async Task<IActionResult> DeleteByName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
             {
-                // Tùy vào lỗi mà trả về 404 hoặc 400
-                return BadRequest(new { success = false, message = result.message });
+                return BadRequest(new { message = "Tên danh mục không hợp lệ" });
             }
+
+            var existingCategory = await _categoryService.GetByNameAsync(name);
+            if (existingCategory == null)
+            {
+                return NotFound(new { success = false, message = "Không tìm thấy danh mục" });
+            }
+
+            var result = await _categoryService.DeleteAsync(existingCategory.Id);
+            if (result.isSuccess)
+            {
+                return Ok(new { success = true, message = result.message });
+            }
+
+            return BadRequest(new { success = false, message = result.message });
         }
     }
 }
