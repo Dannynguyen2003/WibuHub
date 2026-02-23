@@ -45,7 +45,7 @@ namespace WibuHub.API.Controllers
                 return BadRequest(new { message = "Tên danh mục không hợp lệ" });
             }
 
-            var category = await _categoryService.GetByNameAsync(name.Trim());
+            var category = await _categoryService.GetByNameAsync(name);
             if (category == null)
             {
                 return NotFound(new { message = "Không tìm thấy danh mục" });
@@ -101,6 +101,35 @@ namespace WibuHub.API.Controllers
             }
         }
 
+        [HttpPut("edit-by-name/{name}")]
+        public async Task<IActionResult> UpdateByName(string name, [FromBody] CategoryDto request)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return BadRequest(new { message = "Tên danh mục không hợp lệ" });
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var existingCategory = await _categoryService.GetByNameAsync(name);
+            if (existingCategory == null)
+            {
+                return NotFound(new { success = false, message = "Không tìm thấy danh mục" });
+            }
+
+            request.Id = existingCategory.Id;
+            var result = await _categoryService.UpdateAsync(existingCategory.Id, request);
+            if (result)
+            {
+                return Ok(new { success = true, message = "Cập nhật thành công" });
+            }
+
+            return BadRequest(new { success = false, message = "Lỗi cập nhật danh mục" });
+        }
+
         // DELETE: api/categories/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
@@ -113,6 +142,29 @@ namespace WibuHub.API.Controllers
 
             var result = await _categoryService.DeleteAsync(id);
 
+            if (result.isSuccess)
+            {
+                return Ok(new { success = true, message = result.message });
+            }
+
+            return BadRequest(new { success = false, message = result.message });
+        }
+
+        [HttpDelete("delete-by-name/{name}")]
+        public async Task<IActionResult> DeleteByName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return BadRequest(new { message = "Tên danh mục không hợp lệ" });
+            }
+
+            var existingCategory = await _categoryService.GetByNameAsync(name);
+            if (existingCategory == null)
+            {
+                return NotFound(new { success = false, message = "Không tìm thấy danh mục" });
+            }
+
+            var result = await _categoryService.DeleteAsync(existingCategory.Id);
             if (result.isSuccess)
             {
                 return Ok(new { success = true, message = result.message });
