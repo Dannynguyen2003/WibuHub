@@ -105,21 +105,20 @@ namespace WibuHub.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
+            var existingCategory = await _categoryService.GetByIdAsync(id);
+            if (existingCategory == null)
+            {
+                return NotFound(new { success = false, message = "Không tìm thấy danh mục" });
+            }
+
             var result = await _categoryService.DeleteAsync(id);
 
             if (result.isSuccess)
             {
                 return Ok(new { success = true, message = result.message });
             }
-            else
-            {
-                if (result.message == "Không tìm thấy danh mục")
-                {
-                    return NotFound(new { success = false, message = result.message });
-                }
 
-                return BadRequest(new { success = false, message = result.message });
-            }
+            return BadRequest(new { success = false, message = result.message });
         }
     }
 }

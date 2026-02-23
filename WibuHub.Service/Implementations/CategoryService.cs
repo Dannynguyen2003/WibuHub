@@ -37,14 +37,16 @@ namespace WibuHub.Service.Implementations
             {
                 Id = category.Id,
                 Name = category.Name,
+                Slug = category.Slug,
                 Description = category.Description
             };
         }
 
         public async Task<CategoryDto?> GetByNameAsync(string name)
         {
+            var normalizedName = name.Trim().ToLower();
             var category = await _context.Categories
-                .FirstOrDefaultAsync(c => c.Name == name);
+                .FirstOrDefaultAsync(c => c.Name.ToLower() == normalizedName);
             if (category == null) return null;
 
             return new CategoryDto
