@@ -11,11 +11,15 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<StoryDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("StoryConnection"))
 );
+builder.Services.AddDbContext<StoryIdentityDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("StoryIdentityConnection"))
+);
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<StoryIdentityDbContext>();
 // Register services
 builder.Services.AddScoped<IStoryService, StoryService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddRazorPages();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -31,10 +35,12 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapRazorPages();
 
 app.Run();
