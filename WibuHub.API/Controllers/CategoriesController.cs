@@ -37,6 +37,23 @@ namespace WibuHub.API.Controllers
             return Ok(category);
         }
 
+        [HttpGet("getbyname/{name}")]
+        public async Task<IActionResult> GetByName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return BadRequest(new { message = "Tên danh mục không hợp lệ" });
+            }
+
+            var category = await _categoryService.GetByNameAsync(name.Trim());
+            if (category == null)
+            {
+                return NotFound(new { message = "Không tìm thấy danh mục" });
+            }
+
+            return Ok(category);
+        }
+
         // POST: api/categories
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CategoryDto request)
@@ -64,16 +81,12 @@ namespace WibuHub.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(Guid id, [FromBody] CategoryDto request)
         {
-            // 1. Fixed: Use 'request.Id' instead of 'categoryVM.Id'
-            if (id != request.Id)
-            {
-                return BadRequest(new { message = "ID không khớp" });
-            }
-
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+
+            request.Id = id;
 
             // 2. Fixed: Pass both 'id' AND 'request' to match the Interface
             var result = await _categoryService.UpdateAsync(id, request);
@@ -100,7 +113,11 @@ namespace WibuHub.API.Controllers
             }
             else
             {
-                // Tùy vào lỗi mà trả về 404 hoặc 400
+                if (result.message == "Không tìm thấy danh mục")
+                {
+                    return NotFound(new { success = false, message = result.message });
+                }
+
                 return BadRequest(new { success = false, message = result.message });
             }
         }

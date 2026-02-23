@@ -10,6 +10,8 @@ namespace WibuHub.Service.Interface
         // Lấy chi tiết trả về DTO
         Task<CategoryDto?> GetByIdAsync(Guid id);
 
+        Task<CategoryDto?> GetByNameAsync(string name);
+
         // Tạo mới nhận DTO
         Task<bool> CreateAsync(CategoryDto request);
 

@@ -41,6 +41,21 @@ namespace WibuHub.Service.Implementations
             };
         }
 
+        public async Task<CategoryDto?> GetByNameAsync(string name)
+        {
+            var category = await _context.Categories
+                .FirstOrDefaultAsync(c => c.Name == name);
+            if (category == null) return null;
+
+            return new CategoryDto
+            {
+                Id = category.Id,
+                Name = category.Name,
+                Slug = category.Slug,
+                Description = category.Description
+            };
+        }
+
         public async Task<bool> CreateAsync(CategoryDto request)
         {
             // Kiểm tra trùng tên
