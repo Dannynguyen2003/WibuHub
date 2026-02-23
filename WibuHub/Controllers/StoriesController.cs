@@ -149,10 +149,6 @@ namespace WibuHub.Areas.Admin.Controllers
                 AuthorId = story.AuthorId,
                 CategoryIds = story.StoryCategories.Select(sc => sc.CategoryId).ToList()
             };
-            if (!storyVM.CategoryIds.Any())
-            {
-                storyVM.CategoryIds = new List<Guid> { story.CategoryId };
-            }
             ViewData["AuthorId"] = new SelectList(_context.Authors.Where(a => !a.IsDeleted), "Id", "Name", story.AuthorId);
             ViewData["CategoryIds"] = new SelectList(_context.Categories.Where(c => !c.IsDeleted), "Id", "Name", storyVM.CategoryIds);
             return View(nameof(Create), storyVM);
