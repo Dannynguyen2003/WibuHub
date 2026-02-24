@@ -43,13 +43,20 @@ namespace WibuHub.Service.Implementations
                 .FirstOrDefaultAsync(c => c.Id == id);
 
             if (chapter == null) return null;
-            var availableServerIds = chapter.Images.Select(i => i.StorageType).Distinct().OrderBy(i => i).ToList();
+            var chapterImages = chapter.Images.ToList();
+            var availableServerIds = chapterImages.Select(i => i.StorageType).Distinct().OrderBy(i => i).ToList();
             var activeServerId = serverId ?? chapter.ServerId;
-            var selectedImages = chapter.Images.Where(i => i.StorageType == activeServerId);
+            var selectedImages = chapterImages.Where(i => i.StorageType == activeServerId).ToList();
             if (!selectedImages.Any())
             {
-                selectedImages = chapter.Images;
+                // Fallback về server mặc định của chapter nếu server được chọn chưa có dữ liệu.
+                selectedImages = chapterImages.Where(i => i.StorageType == chapter.ServerId).ToList();
                 activeServerId = chapter.ServerId;
+                if (!selectedImages.Any())
+                {
+                    activeServerId = availableServerIds.Any() ? availableServerIds.First() : chapter.ServerId;
+                    selectedImages = chapterImages.Where(i => i.StorageType == activeServerId).ToList();
+                }
             }
 
             return new ChapterDto
