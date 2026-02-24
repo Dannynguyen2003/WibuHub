@@ -8,7 +8,7 @@ namespace WibuHub.Service.Interface
         Task<List<ChapterDto>> GetAllAsync();
 
         // Lấy chi tiết chapter (kèm danh sách ảnh)
-        Task<ChapterDto?> GetByIdAsync(Guid id);
+        Task<ChapterDto?> GetByIdAsync(Guid id, int? serverId = null);
 
         // Lấy danh sách chapter của 1 bộ truyện
         Task<List<ChapterDto>> GetByStoryIdAsync(Guid storyId);

@@ -27,6 +27,7 @@ namespace WibuHub.ApplicationCore.DTOs.Shared
         public string? Content { get; set; }
         [Display(Name = "Server ID")]
         public int ServerId { get; set; } = 1;
+        public List<int> AvailableServerIds { get; set; } = new();
         [Display(Name = "Ngày tạo")]
         public DateTime CreateDate { get; set; } = DateTime.UtcNow;
         [Display(Name = "Giá")]

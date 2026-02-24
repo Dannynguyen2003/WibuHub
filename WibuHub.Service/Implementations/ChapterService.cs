@@ -28,13 +28,14 @@ namespace WibuHub.Service.Implementations
                     Name = c.Name,
                     ChapterNumber = c.ChapterNumber,
                     StoryId = c.StoryId,
-                    StoryName= c.Story.StoryName
+                    StoryName= c.Story.StoryName,
+                    ServerId = c.ServerId
                 })
                 .OrderByDescending(c => c.Id)
                 .ToListAsync();
         }
 
-        public async Task<ChapterDto?> GetByIdAsync(Guid id)
+        public async Task<ChapterDto?> GetByIdAsync(Guid id, int? serverId = null)
         {
             var chapter = await _context.Chapters
                 .Include(c => c.Story)
@@ -42,6 +43,21 @@ namespace WibuHub.Service.Implementations
                 .FirstOrDefaultAsync(c => c.Id == id);
 
             if (chapter == null) return null;
+            var chapterImages = chapter.Images.ToList();
+            var availableServerIds = chapterImages.Select(i => i.StorageType).Distinct().OrderBy(i => i).ToList();
+            var activeServerId = serverId ?? chapter.ServerId;
+            var selectedImages = chapterImages.Where(i => i.StorageType == activeServerId).ToList();
+            if (!selectedImages.Any())
+            {
+                // Fallback về server mặc định của chapter nếu server được chọn chưa có dữ liệu.
+                selectedImages = chapterImages.Where(i => i.StorageType == chapter.ServerId).ToList();
+                activeServerId = chapter.ServerId;
+                if (!selectedImages.Any())
+                {
+                    activeServerId = availableServerIds.Any() ? availableServerIds.First() : chapter.ServerId;
+                    selectedImages = chapterImages.Where(i => i.StorageType == activeServerId).ToList();
+                }
+            }
 
             return new ChapterDto
             {
@@ -50,8 +66,10 @@ namespace WibuHub.Service.Implementations
                 ChapterNumber = chapter.ChapterNumber,
                 StoryId = chapter.StoryId,
                 StoryName = chapter.Story.StoryName,
+                ServerId = activeServerId,
+                AvailableServerIds = availableServerIds,
                 // Lấy list ảnh và sắp xếp đúng thứ tự trang
-                ImageUrls = chapter.Images.OrderBy(i => i.OrderIndex).Select(i => i.ImageUrl).ToList()
+                ImageUrls = selectedImages.OrderBy(i => i.OrderIndex).Select(i => i.ImageUrl).ToList()
             };
         }
 
@@ -65,7 +83,8 @@ namespace WibuHub.Service.Implementations
                     Id = c.Id,
                     Name = c.Name,
                     ChapterNumber = c.ChapterNumber,
-                    StoryId = c.StoryId
+                    StoryId = c.StoryId,
+                    ServerId = c.ServerId
                 })
                 .ToListAsync();
         }
@@ -79,6 +98,7 @@ namespace WibuHub.Service.Implementations
                 Name = dto.Name,
                 ChapterNumber = dto.ChapterNumber,
                 StoryId = dto.StoryId,
+                ServerId = dto.ServerId,
                 CreatedAt = DateTime.Now,
                 Images = new List<ChapterImage>()
             };
@@ -141,6 +161,7 @@ namespace WibuHub.Service.Implementations
 
             chapter.Name = dto.Name;
             chapter.ChapterNumber = dto.ChapterNumber;
+            chapter.ServerId = dto.ServerId;
             // Lưu ý: Update ảnh thường phức tạp hơn (xóa cũ thêm mới hoặc chèn thêm).
             // Ở đây tạm thời chỉ update thông tin cơ bản. 
             // Nếu muốn update ảnh, bạn cần logic xóa file cũ trong wwwroot.

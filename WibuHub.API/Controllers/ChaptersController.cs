@@ -23,9 +23,9 @@ namespace WibuHub.API.Controllers
         }
         // GET: api/chapters/{id}
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(Guid id)
+        public async Task<IActionResult> GetById(Guid id, [FromQuery] int? serverId = null)
         {
-            var chapter = await _chapterService.GetByIdAsync(id);
+            var chapter = await _chapterService.GetByIdAsync(id, serverId);
             if (chapter == null)
             {
                 return NotFound(new { message = "Không tìm thấy chapter" });
