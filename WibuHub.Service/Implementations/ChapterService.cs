@@ -79,6 +79,7 @@ namespace WibuHub.Service.Implementations
                 Name = dto.Name,
                 ChapterNumber = dto.ChapterNumber,
                 StoryId = dto.StoryId,
+                ServerId = dto.ServerId,
                 CreatedAt = DateTime.Now,
                 Images = new List<ChapterImage>()
             };
@@ -94,7 +95,8 @@ namespace WibuHub.Service.Implementations
                         Id = Guid.NewGuid(),
                         ImageUrl = imageUrl.Trim(),
                         OrderIndex = imageOrderIndex++,
-                        ChapterId = chapter.Id
+                        ChapterId = chapter.Id,
+                        StorageType = dto.ServerId
                     });
                 }
             }
@@ -129,7 +131,8 @@ namespace WibuHub.Service.Implementations
                             Id = Guid.NewGuid(),
                             ImageUrl = dbPath,
                             OrderIndex = imageOrderIndex,
-                            ChapterId = chapter.Id
+                            ChapterId = chapter.Id,
+                            StorageType = dto.ServerId
                         });
 
                         imageOrderIndex++;
@@ -159,6 +162,7 @@ namespace WibuHub.Service.Implementations
             chapter.Name = dto.Name;
             chapter.ChapterNumber = dto.ChapterNumber;
             chapter.StoryId = dto.StoryId;
+            chapter.ServerId = dto.ServerId;
 
             if (dto.ImageUrls != null)
             {
@@ -172,7 +176,8 @@ namespace WibuHub.Service.Implementations
                         Id = Guid.NewGuid(),
                         ImageUrl = imageUrl.Trim(),
                         OrderIndex = imageOrderIndex++,
-                        ChapterId = chapter.Id
+                        ChapterId = chapter.Id,
+                        StorageType = dto.ServerId
                     });
                 }
             }

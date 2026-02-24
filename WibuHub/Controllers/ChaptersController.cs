@@ -71,8 +71,10 @@ namespace WibuHub.Controllers
                     .Where(url => !string.IsNullOrWhiteSpace(url))
                     .Select(url => url.Trim())
                     .ToList();
+                var chapterId = Guid.NewGuid();
                 var chapter = new Chapter
                 {
+                    Id = chapterId,
                     StoryId = chapterVM.StoryId,
                     Name = chapterVM.Name.Trim(),
                     ChapterNumber = chapterVM.ChapterNumber,
@@ -88,7 +90,9 @@ namespace WibuHub.Controllers
                         .Select((url, index) => new ChapterImage
                         {
                             ImageUrl = url,
-                            OrderIndex = index + 1
+                            OrderIndex = index + 1,
+                            ChapterId = chapterId,
+                            StorageType = chapterVM.ServerId
                         })
                         .ToList()
 
@@ -205,7 +209,8 @@ namespace WibuHub.Controllers
                         {
                             ImageUrl = url,
                             OrderIndex = index + 1,
-                            ChapterId = chapter.Id
+                            ChapterId = chapter.Id,
+                            StorageType = chapterVM.ServerId
                         })
                         .ToList();
                     await _context.SaveChangesAsync();
