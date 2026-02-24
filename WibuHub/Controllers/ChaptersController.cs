@@ -1,5 +1,5 @@
-﻿using FileTypeChecker;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -19,10 +19,12 @@ namespace WibuHub.Controllers
     public class ChaptersController : Controller
     {
         private readonly StoryDbContext _context;
+        private readonly IWebHostEnvironment _env;
 
-        public ChaptersController(StoryDbContext context)
+        public ChaptersController(StoryDbContext context, IWebHostEnvironment env)
         {
             _context = context;
+            _env = env;
         }
 
         // GET: Chapters
@@ -72,6 +74,11 @@ namespace WibuHub.Controllers
                     .Select(url => url.Trim())
                     .ToList();
                 var chapterId = Guid.NewGuid();
+                var uploadedImageUrls = await SaveUploadedImagesAsync(chapterVM.UploadImages, chapterVM.StoryId, chapterId, imageUrls.Count + 1);
+                var orderedImages = imageUrls
+                    .Select(url => new { Url = url, StorageType = chapterVM.ServerId })
+                    .Concat(uploadedImageUrls.Select(url => new { Url = url, StorageType = 0 }))
+                    .ToList();
                 var chapter = new Chapter
                 {
                     Id = chapterId,
@@ -86,13 +93,13 @@ namespace WibuHub.Controllers
                     CreatedAt = DateTime.UtcNow,
                     Price = chapterVM.Price,
                     Discount = chapterVM.Discount,
-                    Images = imageUrls
-                        .Select((url, index) => new ChapterImage
+                    Images = orderedImages
+                        .Select((image, index) => new ChapterImage
                         {
-                            ImageUrl = url,
+                            ImageUrl = image.Url,
                             OrderIndex = index + 1,
                             ChapterId = chapterId,
-                            StorageType = chapterVM.ServerId
+                            StorageType = image.StorageType
                         })
                         .ToList()
 
@@ -196,6 +203,11 @@ namespace WibuHub.Controllers
                         .Where(url => !string.IsNullOrWhiteSpace(url))
                         .Select(url => url.Trim())
                         .ToList();
+                    var uploadedImageUrls = await SaveUploadedImagesAsync(chapterVM.UploadImages, chapterVM.StoryId, chapter.Id, imageUrls.Count + 1);
+                    var orderedImages = imageUrls
+                        .Select(url => new { Url = url, StorageType = chapterVM.ServerId })
+                        .Concat(uploadedImageUrls.Select(url => new { Url = url, StorageType = 0 }))
+                        .ToList();
                     chapter.StoryId = chapterVM.StoryId;
                     chapter.Name = chapterVM.Name.Trim();
                     chapter.ChapterNumber = chapterVM.ChapterNumber;
@@ -204,13 +216,13 @@ namespace WibuHub.Controllers
                     chapter.Price = chapterVM.Price;
                     chapter.Discount = chapterVM.Discount;
                     _context.ChapterImages.RemoveRange(chapter.Images);
-                    chapter.Images = imageUrls
-                        .Select((url, index) => new ChapterImage
+                    chapter.Images = orderedImages
+                        .Select((image, index) => new ChapterImage
                         {
-                            ImageUrl = url,
+                            ImageUrl = image.Url,
                             OrderIndex = index + 1,
                             ChapterId = chapter.Id,
-                            StorageType = chapterVM.ServerId
+                            StorageType = image.StorageType
                         })
                         .ToList();
                     await _context.SaveChangesAsync();
@@ -271,6 +283,71 @@ namespace WibuHub.Controllers
         private bool ChapterExists(Guid id)
         {
             return _context.Chapters.Any(e => e.Id == id);
+        }
+
+        private async Task<List<string>> SaveUploadedImagesAsync(List<IFormFile>? uploadImages, Guid storyId, Guid chapterId, int startOrder)
+        {
+            var uploadedImageUrls = new List<string>();
+            if (uploadImages == null || uploadImages.Count == 0) return uploadedImageUrls;
+
+            var allowedExtensions = new HashSet<string> { ".jpg", ".jpeg", ".png", ".webp", ".gif" };
+            const long maxImageSizeBytes = 10 * 1024 * 1024;
+            var folderPath = Path.Combine(_env.WebRootPath, "uploads", "stories", storyId.ToString(), chapterId.ToString());
+            if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
+
+            var order = startOrder;
+            foreach (var file in uploadImages)
+            {
+                if (file == null || file.Length <= 0) continue;
+                if (file.Length > maxImageSizeBytes) continue;
+                var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+                if (!allowedExtensions.Contains(extension)) continue;
+                if (string.IsNullOrWhiteSpace(file.ContentType) || !file.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase)) continue;
+                await using var uploadStream = file.OpenReadStream();
+                if (!await IsAllowedImageSignatureAsync(uploadStream)) continue;
+                if (uploadStream.CanSeek) uploadStream.Position = 0;
+
+                var fileName = $"{order:D4}{extension}";
+                var fullPath = Path.Combine(folderPath, fileName);
+                while (System.IO.File.Exists(fullPath))
+                {
+                    order++;
+                    fileName = $"{order:D4}{extension}";
+                    fullPath = Path.Combine(folderPath, fileName);
+                }
+                await using (var stream = new FileStream(fullPath, FileMode.CreateNew))
+                {
+                    await uploadStream.CopyToAsync(stream);
+                }
+                uploadedImageUrls.Add($"/uploads/stories/{storyId}/{chapterId}/{fileName}");
+                order++;
+            }
+
+            return uploadedImageUrls;
+        }
+
+        private static async Task<bool> IsAllowedImageSignatureAsync(Stream stream)
+        {
+            var header = new byte[12];
+            var read = await stream.ReadAsync(header, 0, header.Length);
+            if (read < 4) return false;
+
+            // JPEG
+            if (header[0] == 0xFF && header[1] == 0xD8) return true;
+            // PNG
+            if (read >= 8 &&
+                header[0] == 0x89 && header[1] == 0x50 && header[2] == 0x4E && header[3] == 0x47 &&
+                header[4] == 0x0D && header[5] == 0x0A && header[6] == 0x1A && header[7] == 0x0A) return true;
+            // GIF
+            if (read >= 6 &&
+                header[0] == 0x47 && header[1] == 0x49 && header[2] == 0x46 &&
+                header[3] == 0x38 && (header[4] == 0x37 || header[4] == 0x39) && header[5] == 0x61) return true;
+            // WEBP: RIFF....WEBP
+            if (read >= 12 &&
+                header[0] == 0x52 && header[1] == 0x49 && header[2] == 0x46 && header[3] == 0x46 &&
+                header[8] == 0x57 && header[9] == 0x45 && header[10] == 0x42 && header[11] == 0x50) return true;
+
+            return false;
         }
     }
 }
