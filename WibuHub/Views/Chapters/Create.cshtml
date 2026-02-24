@@ -16,7 +16,7 @@
 
     <div class="row">
         <div class="col-md-4">
-            <form asp-action="@actionString">
+            <form asp-action="@actionString" enctype="multipart/form-data">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 @if (!isCreate)
                 {
@@ -46,9 +46,29 @@
                     <span asp-validation-for="Slug" class="text-danger"></span>
                 </div>
                 <div class="form-group mb-3">
-                    <label asp-for="Content" class="control-label fw-bold">Nội dung</label>
-                    <textarea asp-for="Content" class="form-control" rows="5" placeholder="Nội dung chương..."></textarea>
-                    <span asp-validation-for="Content" class="text-danger"></span>
+                    <label class="control-label fw-bold">Danh sách ảnh (nội dung chapter)</label>
+                    <div id="chapterImageList" class="d-flex flex-column gap-2">
+                        @if (Model?.ImageUrls != null && Model.ImageUrls.Count > 0)
+                        {
+                            foreach (var imageUrl in Model.ImageUrls)
+                            {
+                                <div class="input-group chapter-image-item" draggable="true">
+                                    <span class="input-group-text">↕</span>
+                                    <input type="text" name="ImageUrls" class="form-control" value="@imageUrl" placeholder="https://..." />
+                                    <button type="button" class="btn btn-outline-secondary btn-move-up">↑</button>
+                                    <button type="button" class="btn btn-outline-secondary btn-move-down">↓</button>
+                                    <button type="button" class="btn btn-outline-danger btn-remove-image">Xóa</button>
+                                </div>
+                            }
+                        }
+                    </div>
+                    <small class="text-muted">Kéo-thả hoặc bấm ↑ ↓ để đổi thứ tự ảnh.</small>
+                    <button type="button" class="btn btn-outline-secondary mt-2" id="btnAddImage">+ Thêm ảnh</button>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="UploadImages" class="control-label fw-bold">Upload ảnh từ máy</label>
+                    <input asp-for="UploadImages" class="form-control" type="file" multiple accept="image/*" />
+                    <small class="text-muted">Ảnh upload sẽ được thêm vào sau danh sách URL.</small>
                 </div>
                 <div class="form-group mb-3">
                     <label asp-for="ServerId" class="control-label fw-bold">Server ID</label>
@@ -102,6 +122,69 @@
                 .replace(/^-+/, '')
                 .replace(/-+$/, '');
         }
+    </script>
+    <script>
+        const chapterImageList = document.getElementById("chapterImageList");
+        function createImageRow(value = "") {
+            const row = document.createElement("div");
+            row.className = "input-group chapter-image-item";
+            row.setAttribute("draggable", "true");
+            row.innerHTML = `
+                <span class="input-group-text">↕</span>
+                <input type="text" name="ImageUrls" class="form-control" placeholder="https://..." />
+                <button type="button" class="btn btn-outline-secondary btn-move-up">↑</button>
+                <button type="button" class="btn btn-outline-secondary btn-move-down">↓</button>
+                <button type="button" class="btn btn-outline-danger btn-remove-image">Xóa</button>
+            `;
+            row.querySelector("input").value = value;
+            bindImageRowEvents(row);
+            chapterImageList.appendChild(row);
+        }
+        function bindImageRowEvents(row) {
+            row.querySelector(".btn-remove-image").addEventListener("click", function () {
+                row.remove();
+                if (!chapterImageList.querySelector(".chapter-image-item")) {
+                    createImageRow();
+                }
+            });
+            row.querySelector(".btn-move-up").addEventListener("click", function () {
+                const prev = row.previousElementSibling;
+                if (prev) {
+                    chapterImageList.insertBefore(row, prev);
+                }
+            });
+            row.querySelector(".btn-move-down").addEventListener("click", function () {
+                const next = row.nextElementSibling;
+                if (next) {
+                    chapterImageList.insertBefore(next, row);
+                }
+            });
+            row.addEventListener("dragstart", function () {
+                row.classList.add("dragging");
+            });
+            row.addEventListener("dragend", function () {
+                row.classList.remove("dragging");
+            });
+        }
+        chapterImageList.addEventListener("dragover", function (e) {
+            e.preventDefault();
+            const dragging = chapterImageList.querySelector(".dragging");
+            if (!dragging) return;
+            const rows = [...chapterImageList.querySelectorAll(".chapter-image-item:not(.dragging)")];
+            const nextRow = rows.find(r => e.clientY <= r.getBoundingClientRect().top + r.offsetHeight / 2);
+            if (nextRow) {
+                chapterImageList.insertBefore(dragging, nextRow);
+            } else {
+                chapterImageList.appendChild(dragging);
+            }
+        });
+        [...chapterImageList.querySelectorAll(".chapter-image-item")].forEach(bindImageRowEvents);
+        if (!chapterImageList.querySelector(".chapter-image-item")) {
+            createImageRow();
+        }
+        document.getElementById("btnAddImage").addEventListener("click", function () {
+            createImageRow();
+        });
     </script>
     <script>
         function openModalDeleteChapter(idChapter) {

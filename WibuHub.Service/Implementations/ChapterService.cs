@@ -79,24 +79,41 @@ namespace WibuHub.Service.Implementations
                 Name = dto.Name,
                 ChapterNumber = dto.ChapterNumber,
                 StoryId = dto.StoryId,
+                ServerId = dto.ServerId,
                 CreatedAt = DateTime.Now,
                 Images = new List<ChapterImage>()
             };
 
-            // 2. Xử lý Upload Ảnh (Nếu có)
+            // 2. Xử lý danh sách URL ảnh (nếu có) theo đúng thứ tự client gửi lên
+            var imageOrderIndex = 1;
+            if (dto.ImageUrls != null && dto.ImageUrls.Count > 0)
+            {
+                foreach (var imageUrl in dto.ImageUrls.Where(u => !string.IsNullOrWhiteSpace(u)))
+                {
+                    chapter.Images.Add(new ChapterImage
+                    {
+                        Id = Guid.NewGuid(),
+                        ImageUrl = imageUrl.Trim(),
+                        OrderIndex = imageOrderIndex++,
+                        ChapterId = chapter.Id,
+                        StorageType = dto.ServerId
+                    });
+                }
+            }
+
+            // 3. Xử lý Upload Ảnh (Nếu có)
             if (dto.UploadImages != null && dto.UploadImages.Count > 0)
             {
                 // Tạo thư mục: wwwroot/uploads/stories/{StoryId}/{ChapterId}/
                 string folderPath = Path.Combine(_env.WebRootPath, "uploads", "stories", dto.StoryId.ToString(), chapter.Id.ToString());
                 if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
 
-                int order = 1;
                 foreach (var file in dto.UploadImages)
                 {
                     if (file.Length > 0)
                     {
                         // Đặt tên file: 001.jpg, 002.png...
-                        string fileName = $"{order:D3}{Path.GetExtension(file.FileName)}";
+                        string fileName = $"{imageOrderIndex:D3}{Path.GetExtension(file.FileName)}";
                         string fullPath = Path.Combine(folderPath, fileName);
 
                         // Lưu file vật lý
@@ -113,11 +130,12 @@ namespace WibuHub.Service.Implementations
                         {
                             Id = Guid.NewGuid(),
                             ImageUrl = dbPath,
-                            OrderIndex = order,
-                            ChapterId = chapter.Id
+                            OrderIndex = imageOrderIndex,
+                            ChapterId = chapter.Id,
+                            StorageType = dto.ServerId
                         });
 
-                        order++;
+                        imageOrderIndex++;
                     }
                 }
             }
@@ -136,14 +154,33 @@ namespace WibuHub.Service.Implementations
 
         public async Task<bool> UpdateAsync(Guid id, ChapterDto dto)
         {
-            var chapter = await _context.Chapters.FindAsync(id);
+            var chapter = await _context.Chapters
+                .Include(c => c.Images)
+                .FirstOrDefaultAsync(c => c.Id == id);
             if (chapter == null) return false;
 
             chapter.Name = dto.Name;
             chapter.ChapterNumber = dto.ChapterNumber;
-            // Lưu ý: Update ảnh thường phức tạp hơn (xóa cũ thêm mới hoặc chèn thêm).
-            // Ở đây tạm thời chỉ update thông tin cơ bản. 
-            // Nếu muốn update ảnh, bạn cần logic xóa file cũ trong wwwroot.
+            chapter.StoryId = dto.StoryId;
+            chapter.ServerId = dto.ServerId;
+
+            if (dto.ImageUrls != null)
+            {
+                // Replace toàn bộ danh sách ảnh hiện tại theo đúng thứ tự client gửi lên.
+                _context.ChapterImages.RemoveRange(chapter.Images);
+                var imageOrderIndex = 1;
+                foreach (var imageUrl in dto.ImageUrls.Where(u => !string.IsNullOrWhiteSpace(u)))
+                {
+                    chapter.Images.Add(new ChapterImage
+                    {
+                        Id = Guid.NewGuid(),
+                        ImageUrl = imageUrl.Trim(),
+                        OrderIndex = imageOrderIndex++,
+                        ChapterId = chapter.Id,
+                        StorageType = dto.ServerId
+                    });
+                }
+            }
 
             _context.Chapters.Update(chapter);
             await _context.SaveChangesAsync();
