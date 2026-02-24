@@ -55,11 +55,14 @@
                                 <div class="input-group chapter-image-item" draggable="true">
                                     <span class="input-group-text">↕</span>
                                     <input type="text" name="ImageUrls" class="form-control" value="@imageUrl" placeholder="https://..." />
+                                    <button type="button" class="btn btn-outline-secondary btn-move-up">↑</button>
+                                    <button type="button" class="btn btn-outline-secondary btn-move-down">↓</button>
                                     <button type="button" class="btn btn-outline-danger btn-remove-image">Xóa</button>
                                 </div>
                             }
                         }
                     </div>
+                    <small class="text-muted">Kéo-thả hoặc bấm ↑ ↓ để đổi thứ tự ảnh.</small>
                     <button type="button" class="btn btn-outline-secondary mt-2" id="btnAddImage">+ Thêm ảnh</button>
                 </div>
                 <div class="form-group mb-3">
@@ -124,6 +127,8 @@
             row.innerHTML = `
                 <span class="input-group-text">↕</span>
                 <input type="text" name="ImageUrls" class="form-control" placeholder="https://..." />
+                <button type="button" class="btn btn-outline-secondary btn-move-up">↑</button>
+                <button type="button" class="btn btn-outline-secondary btn-move-down">↓</button>
                 <button type="button" class="btn btn-outline-danger btn-remove-image">Xóa</button>
             `;
             row.querySelector("input").value = value;
@@ -135,6 +140,18 @@
                 row.remove();
                 if (!chapterImageList.querySelector(".chapter-image-item")) {
                     createImageRow();
+                }
+            });
+            row.querySelector(".btn-move-up").addEventListener("click", function () {
+                const prev = row.previousElementSibling;
+                if (prev) {
+                    chapterImageList.insertBefore(row, prev);
+                }
+            });
+            row.querySelector(".btn-move-down").addEventListener("click", function () {
+                const next = row.nextElementSibling;
+                if (next) {
+                    chapterImageList.insertBefore(next, row);
                 }
             });
             row.addEventListener("dragstart", function () {
