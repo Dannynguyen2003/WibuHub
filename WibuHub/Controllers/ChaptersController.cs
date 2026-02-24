@@ -80,8 +80,6 @@ namespace WibuHub.Controllers
                            ? GenerateSlug(chapterVM.Name)
                            : chapterVM.Slug.Trim(),
                     ViewCount = 0,
-                    // Giữ đồng bộ Content để tương thích dữ liệu/chỗ đọc cũ.
-                    Content = string.Join(Environment.NewLine, imageUrls),
                     ServerId = chapterVM.ServerId,
                     CreatedAt = DateTime.UtcNow,
                     Price = chapterVM.Price,
@@ -148,14 +146,6 @@ namespace WibuHub.Controllers
                 .OrderBy(i => i.OrderIndex)
                 .Select(i => i.ImageUrl)
                 .ToList();
-            if (imageUrls.Count == 0 && !string.IsNullOrWhiteSpace(chapter.Content))
-            {
-                imageUrls = chapter.Content
-                    .Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries)
-                    .Select(url => url.Trim())
-                    .Where(url => !string.IsNullOrWhiteSpace(url))
-                    .ToList();
-            }
             var chapterVM = new ChapterVM
             {
                 Id = chapter.Id,
@@ -206,8 +196,6 @@ namespace WibuHub.Controllers
                     chapter.Name = chapterVM.Name.Trim();
                     chapter.ChapterNumber = chapterVM.ChapterNumber;
                     chapter.Slug = chapterVM.Slug.Trim();
-                    // Giữ đồng bộ Content để tương thích dữ liệu/chỗ đọc cũ.
-                    chapter.Content = string.Join(Environment.NewLine, imageUrls);
                     chapter.ServerId = chapterVM.ServerId;
                     chapter.Price = chapterVM.Price;
                     chapter.Discount = chapterVM.Discount;
