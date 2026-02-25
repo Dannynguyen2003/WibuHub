@@ -2,7 +2,7 @@
 
 namespace WibuHub.ApplicationCore.Entities.Identity
 {
-    // Kế thừa StoryUser (dùng Guid cho đồng bộ với code cũ của bạn)
+    // Kế thừa IdentityUser (dùng string theo cấu hình IdentityDbContext)
     public class StoryUser : IdentityUser
     {
         public string? FullName { get; set; }

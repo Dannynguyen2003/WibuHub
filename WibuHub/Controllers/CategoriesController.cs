@@ -8,6 +8,7 @@ using WibuHub.MVC.ViewModels;
 
 namespace WibuHub.MVC.Controllers
 {
+    //[Area("Admin")]
     [Authorize]
     public class CategoriesController : Controller
     {

@@ -5,7 +5,7 @@ using WibuHub.ApplicationCore.Entities;
 
 namespace WibuHub.MVC.ViewModels
 {
-    [Bind("Id,StoryId,Name,ChapterNumber,Slug,ViewCount,Content,ServerId,CreateAt,Price")]
+    [Bind("Id,StoryId,Name,ChapterNumber,Slug,ViewCount,ImageUrls,UploadImages,ServerId,CreateAt,Price")]
     public class ChapterVM
     {
         [Key]
@@ -33,6 +33,10 @@ namespace WibuHub.MVC.ViewModels
         [MaxLength(150)]
         [Column(TypeName = "varchar(150)")]
         public string Slug { get; set; } = string.Empty;
+
+        public List<string> ImageUrls { get; set; } = new();
+
+        public List<IFormFile>? UploadImages { get; set; }
 
         // ViewCount: int (Lượt xem riêng chap này)
         public int ViewCount { get; set; } = 0;

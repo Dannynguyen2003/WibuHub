@@ -1,20 +1,14 @@
-﻿using FileTypeChecker;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using WibuHub.ApplicationCore.Entities;
 using WibuHub.DataLayer;
 using WibuHub.MVC.ViewModels;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace WibuHub.Controllers
 {
+    //[Area("Admin")]
     [Authorize]
     public class ChaptersController : Controller
     {
@@ -63,24 +57,44 @@ namespace WibuHub.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create( ChapterVM chapterVM)
+        public async Task<IActionResult> Create(ChapterVM chapterVM)
         {
             if (ModelState.IsValid)
             {
+                var imageUrls = (chapterVM.ImageUrls ?? new List<string>())
+                    .Where(url => !string.IsNullOrWhiteSpace(url))
+                    .Select(url => url.Trim())
+                    .ToList();
+                if (imageUrls.Count == 0 && !string.IsNullOrWhiteSpace(chapterVM.Content))
+                {
+                    imageUrls = chapterVM.Content
+                        .Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(url => url.Trim())
+                        .Where(url => !string.IsNullOrWhiteSpace(url))
+                        .ToList();
+                }
                 var chapter = new Chapter
                 {
                     StoryId = chapterVM.StoryId,
                     Name = chapterVM.Name.Trim(),
                     ChapterNumber = chapterVM.ChapterNumber,
-                    Slug = string.IsNullOrEmpty(chapterVM.Slug)
+                    Slug = string.IsNullOrWhiteSpace(chapterVM.Slug)
                            ? GenerateSlug(chapterVM.Name)
                            : chapterVM.Slug.Trim(),
                     ViewCount = 0,
-                    Content = chapterVM.Content?.Trim(),
+                    Content = string.Join(Environment.NewLine, imageUrls),
                     ServerId = chapterVM.ServerId,
                     CreatedAt = DateTime.UtcNow,
                     Price = chapterVM.Price,
                     Discount = chapterVM.Discount,
+                    ImageUrls = imageUrls,
+                    Images = imageUrls
+                        .Select((url, index) => new ChapterImage
+                        {
+                            ImageUrl = url,
+                            OrderIndex = index + 1
+                        })
+                        .ToList()
 
                 };
                 //chapter.Id = Guid.NewGuid();
@@ -125,7 +139,9 @@ namespace WibuHub.Controllers
                 return NotFound();
             }
 
-            var chapter = await _context.Chapters.FindAsync(id);
+            var chapter = await _context.Chapters
+                .Include(c => c.Images)
+                .FirstOrDefaultAsync(c => c.Id == id);
             if (chapter == null)
             {
                 return NotFound();
@@ -139,6 +155,7 @@ namespace WibuHub.Controllers
                 Slug = chapter.Slug,
                 ViewCount = chapter.ViewCount,
                 Content = chapter.Content,
+                ImageUrls = chapter.Images.OrderBy(i => i.OrderIndex).Select(i => i.ImageUrl).ToList(),
                 ServerId = chapter.ServerId,
                 CreatedAt = chapter.CreatedAt,
                 Price = chapter.Price,
@@ -153,7 +170,7 @@ namespace WibuHub.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id,  ChapterVM chapterVM)
+        public async Task<IActionResult> Edit(Guid id, ChapterVM chapterVM)
         {
             if (id != chapterVM.Id)
             {
@@ -164,19 +181,34 @@ namespace WibuHub.Controllers
             {
                 try
                 {
-                    var chapter = await _context.Chapters.FindAsync(id);
+                    var chapter = await _context.Chapters
+                       .Include(c => c.Images)
+                       .FirstOrDefaultAsync(c => c.Id == id);
                     if (chapter == null)
                     {
                         return BadRequest();
                     }
+                    var imageUrls = chapterVM.ImageUrls
+                        .Where(url => !string.IsNullOrWhiteSpace(url))
+                        .Select(url => url.Trim())
+                        .ToList();
                     chapter.StoryId = chapterVM.StoryId;
                     chapter.Name = chapterVM.Name.Trim();
                     chapter.ChapterNumber = chapterVM.ChapterNumber;
                     chapter.Slug = chapterVM.Slug.Trim();
-                    chapter.Content = chapterVM.Content?.Trim();
+                    chapter.Content = string.Join(Environment.NewLine, imageUrls);
                     chapter.ServerId = chapterVM.ServerId;
                     chapter.Price = chapterVM.Price;
                     chapter.Discount = chapterVM.Discount;
+                    _context.ChapterImages.RemoveRange(chapter.Images);
+                    chapter.Images = imageUrls
+                        .Select((url, index) => new ChapterImage
+                        {
+                            ImageUrl = url,
+                            OrderIndex = index + 1,
+                            ChapterId = chapter.Id
+                        })
+                        .ToList();
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Create));
                 }

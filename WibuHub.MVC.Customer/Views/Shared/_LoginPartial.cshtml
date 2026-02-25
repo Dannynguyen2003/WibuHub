@@ -1,27 +1,55 @@
 ﻿@using Microsoft.AspNetCore.Identity
+@using WibuHub.ApplicationCore.Entities.Identity
+@* Nhớ đổi WibuHub.ApplicationCore... thành namespace chứa class StoryUser của bạn nếu khác nhé *@
 
-@inject SignInManager<IdentityUser> SignInManager
-@inject UserManager<IdentityUser> UserManager
+@inject SignInManager<StoryUser> SignInManager
+@inject UserManager<StoryUser> UserManager
 
-<ul class="navbar-nav">
-@if (SignInManager.IsSignedIn(User))
-{
-    <li class="nav-item">
-        <a id="manage" class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @UserManager.GetUserName(User)!</a>
-    </li>
-    <li class="nav-item">
-        <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-            <button id="logout" type="submit" class="nav-link btn btn-link text-dark border-0">Logout</button>
-        </form>
-    </li>
-}
-else
-{
-    <li class="nav-item">
-        <a class="nav-link text-dark" id="register" asp-area="Identity" asp-page="/Account/Register">Register</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link text-dark" id="login" asp-area="Identity" asp-page="/Account/Login">Login</a>
-    </li>
-}
+<ul class="flex items-center gap-3">
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <li>
+            <button onclick="document.getElementById('coin-modal').classList.remove('hidden')"
+                    class="flex items-center gap-2 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition-transform hover:scale-105">
+                <span>🪙 0</span> @* Chỗ này sau bạn map với dữ liệu xu thật của User *@
+            </button>
+        </li>
+
+        <li>
+            <button class="rounded-full p-2 hover:bg-gray-100">
+                🔔
+            </button>
+        </li>
+
+        <li class="relative">
+            <button id="user-menu-btn" class="flex items-center gap-2 rounded-full bg-green-600 px-4 py-2 text-sm text-white hover:bg-green-700">
+                👤 <span class="hidden sm:inline">@User.Identity?.Name</span>
+            </button>
+
+            <div id="user-menu-dropdown" class="hidden absolute right-0 top-12 w-48 rounded-lg border border-gray-200 bg-white shadow-lg z-50">
+                <div class="py-1">
+                    <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                        <button type="submit" class="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            Đăng xuất
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </li>
+    }
+    else
+    {
+        <li>
+            <button onclick="document.getElementById('auth-modal').classList.remove('hidden')"
+                    class="rounded-full bg-green-600 px-4 py-2 text-sm text-white hover:bg-green-700">
+                Đăng nhập
+            </button>
+        </li>
+        <li>
+            <a asp-area="Identity" asp-page="/Account/Register"
+               class="hidden sm:block rounded-full border border-green-600 px-4 py-2 text-sm text-green-600 hover:bg-green-50">
+                Đăng ký
+            </a>
+        </li>
+    }
 </ul>

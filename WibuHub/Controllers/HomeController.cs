@@ -5,6 +5,7 @@ using WibuHub.MVC.Models;
 
 namespace WibuHub.MVC.Controllers
 {
+    //[Area("Admin")]
     [Authorize]
     public class HomeController : Controller
     {

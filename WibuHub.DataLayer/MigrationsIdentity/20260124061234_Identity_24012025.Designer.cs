@@ -50,7 +50,7 @@ namespace WibuHub.DataLayer.MigrationsIdentity
                     b.ToTable("AspNetRoleClaims", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.StoryUserClaim<string>", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -75,7 +75,7 @@ namespace WibuHub.DataLayer.MigrationsIdentity
                     b.ToTable("AspNetUserClaims", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.StoryUserLogin<string>", b =>
                 {
                     b.Property<string>("LoginProvider")
                         .HasColumnType("nvarchar(450)");
@@ -97,7 +97,7 @@ namespace WibuHub.DataLayer.MigrationsIdentity
                     b.ToTable("AspNetUserLogins", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.StoryUserRole<string>", b =>
                 {
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
@@ -112,7 +112,7 @@ namespace WibuHub.DataLayer.MigrationsIdentity
                     b.ToTable("AspNetUserRoles", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.StoryUserToken<string>", b =>
                 {
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
@@ -244,7 +244,7 @@ namespace WibuHub.DataLayer.MigrationsIdentity
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.StoryUserClaim<string>", b =>
                 {
                     b.HasOne("WibuHub.ApplicationCore.Entities.Identity.StoryUser", null)
                         .WithMany()
@@ -253,7 +253,7 @@ namespace WibuHub.DataLayer.MigrationsIdentity
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.StoryUserLogin<string>", b =>
                 {
                     b.HasOne("WibuHub.ApplicationCore.Entities.Identity.StoryUser", null)
                         .WithMany()
@@ -262,7 +262,7 @@ namespace WibuHub.DataLayer.MigrationsIdentity
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.StoryUserRole<string>", b =>
                 {
                     b.HasOne("WibuHub.ApplicationCore.Entities.Identity.StoryRole", null)
                         .WithMany()
@@ -277,7 +277,7 @@ namespace WibuHub.DataLayer.MigrationsIdentity
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.StoryUserToken<string>", b =>
                 {
                     b.HasOne("WibuHub.ApplicationCore.Entities.Identity.StoryUser", null)
                         .WithMany()
