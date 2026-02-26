@@ -6,7 +6,7 @@ using WibuHub.ApplicationCore.Entities;
 
 namespace WibuHub.MVC.ViewModels
 {
-    [Bind("Id,Title,AlternativeName,Description,Slug,Status,ViewCount,FollowCount,RatingScore,CreatedAt,UpdateDate,AuthorId,CategoryId")]
+    [Bind("Id,Title,AlternativeName,Description,Slug,Status,ViewCount,FollowCount,RatingScore,CreatedAt,UpdateDate,AuthorId,CategoryIds")]
     public class StoryVM
     {
         [Key]
@@ -58,9 +58,9 @@ namespace WibuHub.MVC.ViewModels
         public Guid? AuthorId { get; set; }
         public virtual Author? Author { get; set; }
 
-        // Khóa ngoại đến Category (Giữ lại từ code cũ vì cấu trúc truyện thường cần danh mục)
-        [Required]
-        public Guid CategoryId { get; set; }
+        // Một truyện có thể thuộc nhiều danh mục
+        [MinLength(1, ErrorMessage = "Vui lòng chọn ít nhất một danh mục")]
+        public List<Guid> CategoryIds { get; set; } = new();
         public string? CategoryName { get; set; }
     }
 }

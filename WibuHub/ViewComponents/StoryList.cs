@@ -34,7 +34,7 @@ namespace WibuHub.MVC.ViewComponents
                 CreatedAt = s.CreatedAt,
                 UpdateDate = s.UpdateDate,
                 AuthorId = s.AuthorId,
-                CategoryId = s.CategoryId,
+                CategoryIds = new List<Guid> { s.CategoryId },
                 Author = s.Author,
                 CategoryName = s.Category != null ? s.Category.Name : null
             }).ToList();

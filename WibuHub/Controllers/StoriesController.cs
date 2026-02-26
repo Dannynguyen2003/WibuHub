@@ -49,7 +49,7 @@ namespace WibuHub.Areas.Admin.Controllers
         public IActionResult Create()
         {
             ViewData["AuthorId"] = new SelectList(_context.Authors.Where(a => !a.IsDeleted), "Id", "Name");
-            ViewData["CategoryId"] = new SelectList(_context.Categories.Where(c => !c.IsDeleted), "Id", "Name");
+            ViewData["CategoryIds"] = new SelectList(_context.Categories.Where(c => !c.IsDeleted), "Id", "Name");
             return View();
         }
         // POST: Admin/Stories/Create
@@ -57,8 +57,14 @@ namespace WibuHub.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(StoryVM storyVM)
         {
+            if (storyVM.CategoryIds == null || !storyVM.CategoryIds.Any())
+            {
+                ModelState.AddModelError(nameof(storyVM.CategoryIds), "Vui lòng chọn ít nhất một danh mục");
+            }
+
             if (ModelState.IsValid)
             {
+                var categoryIds = storyVM.CategoryIds!.Distinct().ToList();
                 var story = new Story
                 {
                     Id = Guid.NewGuid(),
@@ -75,15 +81,20 @@ namespace WibuHub.Areas.Admin.Controllers
                     CreatedAt = DateTime.UtcNow,
                     UpdateDate = DateTime.UtcNow,
                     AuthorId = storyVM.AuthorId,
-                    CategoryId = storyVM.CategoryId
+                    CategoryId = categoryIds.First()
                 };
+                story.StoryCategories = categoryIds.Select(categoryId => new StoryCategory
+                {
+                    StoryId = story.Id,
+                    CategoryId = categoryId
+                }).ToList();
                 _context.Add(story);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Create));
             }
 
             ViewData["AuthorId"] = new SelectList(_context.Authors.Where(a => !a.IsDeleted), "Id", "Name", storyVM.AuthorId);
-            ViewData["CategoryId"] = new SelectList(_context.Categories.Where(c => !c.IsDeleted), "Id", "Name", storyVM.CategoryId);
+            ViewData["CategoryIds"] = new SelectList(_context.Categories.Where(c => !c.IsDeleted), "Id", "Name", storyVM.CategoryIds);
             return View(storyVM);
         }
         private string GenerateSlug(string phrase)
@@ -117,7 +128,9 @@ namespace WibuHub.Areas.Admin.Controllers
             {
                 return NotFound();
             }
-            var story = await _context.Stories.FindAsync(id);
+            var story = await _context.Stories
+                .Include(s => s.StoryCategories)
+                .FirstOrDefaultAsync(s => s.Id == id);
             if (story == null || story.IsDeleted)
             {
                 return NotFound();
@@ -134,10 +147,10 @@ namespace WibuHub.Areas.Admin.Controllers
                 FollowCount = story.FollowCount,
                 RatingScore = story.RatingScore,
                 AuthorId = story.AuthorId,
-                CategoryId = story.CategoryId
+                CategoryIds = story.StoryCategories.Select(sc => sc.CategoryId).ToList()
             };
             ViewData["AuthorId"] = new SelectList(_context.Authors.Where(a => !a.IsDeleted), "Id", "Name", story.AuthorId);
-            ViewData["CategoryId"] = new SelectList(_context.Categories.Where(c => !c.IsDeleted), "Id", "Name", story.CategoryId);
+            ViewData["CategoryIds"] = new SelectList(_context.Categories.Where(c => !c.IsDeleted), "Id", "Name", storyVM.CategoryIds);
             return View(nameof(Create), storyVM);
         }
         // POST: Admin/Stories/Edit/5
@@ -149,22 +162,38 @@ namespace WibuHub.Areas.Admin.Controllers
             {
                 return BadRequest();
             }
+            if (storyVM.CategoryIds == null || !storyVM.CategoryIds.Any())
+            {
+                ModelState.AddModelError(nameof(storyVM.CategoryIds), "Vui lòng chọn ít nhất một danh mục");
+            }
             if (ModelState.IsValid)
             {
                 try
                 {
-                    var story = await _context.Stories.FindAsync(id);
+                    var story = await _context.Stories
+                        .Include(s => s.StoryCategories)
+                        .FirstOrDefaultAsync(s => s.Id == id);
                     if (story == null || story.IsDeleted)
                     {
                         return NotFound();
                     }
+                    var categoryIds = storyVM.CategoryIds!.Distinct().ToList();
                     story.StoryName = storyVM.Title.Trim();
                     story.AlternativeName = storyVM.AlternativeName?.Trim();
                     story.Description = storyVM.Description?.Trim();
                     story.Slug = storyVM.Slug.Trim();
                     story.Status = storyVM.Status;
                     story.AuthorId = storyVM.AuthorId;
-                    story.CategoryId = storyVM.CategoryId;
+                    story.CategoryId = categoryIds.First();
+                    story.StoryCategories.Clear();
+                    foreach (var categoryId in categoryIds)
+                    {
+                        story.StoryCategories.Add(new StoryCategory
+                        {
+                            StoryId = story.Id,
+                            CategoryId = categoryId
+                        });
+                    }
                     story.UpdateDate = DateTime.UtcNow;
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Create));
@@ -183,7 +212,7 @@ namespace WibuHub.Areas.Admin.Controllers
             }
 
             ViewData["AuthorId"] = new SelectList(_context.Authors.Where(a => !a.IsDeleted), "Id", "Name", storyVM.AuthorId);
-            ViewData["CategoryId"] = new SelectList(_context.Categories.Where(c => !c.IsDeleted), "Id", "Name", storyVM.CategoryId);
+            ViewData["CategoryIds"] = new SelectList(_context.Categories.Where(c => !c.IsDeleted), "Id", "Name", storyVM.CategoryIds);
             return View(nameof(Create), storyVM);
         }
         // GET: Admin/Stories/Delete/5
