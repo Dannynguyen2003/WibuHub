@@ -45,7 +45,7 @@ namespace WibuHub.ApplicationCore.Entities
         // Lưu ý: Trong EF Core, string mặc định là nvarchar(MAX) nên không cần MaxLength
         public string? Content { get; set; }
 
-        [Required]
+        [NotMapped]
         public List<string> ImageUrls { get; set; } = new();
 
         // ServerId: int (Lưu server ảnh: 1=Google, 2=Imgur...)

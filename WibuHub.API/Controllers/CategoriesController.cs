@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WibuHub.ApplicationCore.DTOs.Shared;
-using WibuHub.MVC.ViewModels;
 using WibuHub.Service.Interface;
 
 namespace WibuHub.API.Controllers

@@ -24,11 +24,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\WibuHub.ApplicationCore\WibuHub.ApplicationCore.csproj" />
+    <ProjectReference Include="..\WibuHub.Common\WibuHub.Common.csproj" />
     <ProjectReference Include="..\WibuHub.DataLayer\WibuHub.DataLayer.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Areas\Identity\Data\" />
+    <Folder Include="ViewModels\ShoppingCart\" />
   </ItemGroup>
 
 </Project>

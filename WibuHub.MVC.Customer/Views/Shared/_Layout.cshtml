@@ -682,6 +682,242 @@
             margin-bottom: 16px;
         }
 
+        /* ===== HOME PAGE STYLES ===== */
+        .featured-large {
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            border-radius: 24px;
+            padding: 40px;
+            color: white;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .featured-large-content {
+            flex: 1;
+        }
+
+            .featured-large-content h3 {
+                font-size: 16px;
+                font-weight: 500;
+                letter-spacing: 1px;
+                color: #facc15;
+                margin-bottom: 12px;
+            }
+
+            .featured-large-content h2 {
+                font-size: 42px;
+                font-weight: 700;
+                margin-bottom: 16px;
+            }
+
+            .featured-large-content p {
+                opacity: 0.9;
+                margin-bottom: 20px;
+                max-width: 600px;
+            }
+
+        .featured-stats {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 24px;
+        }
+
+            .featured-stats span {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+        .featured-large-cover {
+            width: 200px;
+            height: 280px;
+            background: #cbd5e1;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #475569;
+        }
+
+        .home-grid {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+            .section-header h2 {
+                font-size: 20px;
+                font-weight: 600;
+            }
+
+        .view-all-link {
+            color: #2563eb;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .update-list {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .update-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+            cursor: pointer;
+        }
+
+            .update-item:last-child {
+                border-bottom: none;
+            }
+
+        .update-cover {
+            width: 50px;
+            height: 70px;
+            background: #cbd5e1;
+            border-radius: 8px;
+        }
+
+        .update-info {
+            flex: 1;
+        }
+
+        .update-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .update-chapter {
+            font-size: 13px;
+            color: #2563eb;
+        }
+
+        .update-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .recommend-tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .recommend-tab {
+            padding: 8px 20px;
+            border-radius: 30px;
+            background: #f1f5f9;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+            .recommend-tab.active {
+                background: #2563eb;
+                color: white;
+            }
+
+        .recommend-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .recommend-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            cursor: pointer;
+        }
+
+        .recommend-cover {
+            width: 100%;
+            aspect-ratio: 3/4;
+            background: #cbd5e1;
+        }
+
+        .recommend-info {
+            padding: 12px;
+        }
+
+        .recommend-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .recommend-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .top-list {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+        }
+
+        .top-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+            cursor: pointer;
+        }
+
+            .top-item:last-child {
+                border-bottom: none;
+            }
+
+        .top-rank {
+            width: 28px;
+            height: 28px;
+            background: #f1f5f9;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #2563eb;
+        }
+
+        .top-info {
+            flex: 1;
+        }
+
+        .top-title {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .top-views {
+            font-size: 12px;
+            color: #64748b;
+        }
+
         /* ===== CONTENT SECTIONS ===== */
         .content-section {
             display: block;
@@ -690,273 +926,6 @@
             .content-section.hidden {
                 display: none;
             }
-
-        /* ===== COMIC GRID ===== */
-        .section-title {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-            .section-title h2 {
-                font-size: 20px;
-                font-weight: 600;
-            }
-
-        .view-all {
-            color: #2563eb;
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 14px;
-            cursor: pointer;
-        }
-
-        .comic-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 20px;
-        }
-
-        .comic-card {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.02);
-            transition: transform 0.2s;
-            text-decoration: none;
-            color: inherit;
-            border: 1px solid #edf2f7;
-            cursor: pointer;
-        }
-
-            .comic-card:hover {
-                transform: translateY(-4px);
-                box-shadow: 0 12px 24px -8px rgba(0,0,0,0.15);
-            }
-
-        .comic-cover {
-            width: 100%;
-            aspect-ratio: 3/4;
-            background: #cbd5e1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #475569;
-            font-size: 14px;
-            position: relative;
-        }
-
-        .comic-info {
-            padding: 12px;
-        }
-
-        .comic-title {
-            font-weight: 600;
-            margin-bottom: 4px;
-            font-size: 15px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .comic-chapter {
-            font-size: 13px;
-            color: #2563eb;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .comic-meta {
-            font-size: 12px;
-            color: #64748b;
-            margin-top: 6px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        /* ===== GENRE SECTION STYLES ===== */
-        .genre-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 30px;
-        }
-
-        .genre-card {
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 40px;
-            padding: 12px 24px;
-            font-weight: 500;
-            color: #1e293b;
-            cursor: pointer;
-            transition: all 0.2s;
-            flex: 1 0 auto;
-            max-width: 180px;
-            text-align: center;
-        }
-
-            .genre-card:hover {
-                background: #2563eb;
-                color: white;
-                border-color: #2563eb;
-            }
-
-            .genre-card i {
-                margin-right: 8px;
-                color: #f97316;
-            }
-
-            .genre-card:hover i {
-                color: white;
-            }
-
-        /* ===== RANK SECTION STYLES ===== */
-        .rank-list {
-            background: white;
-            border-radius: 20px;
-            padding: 20px;
-        }
-
-        .rank-item {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            padding: 16px 0;
-            border-bottom: 1px solid #f1f5f9;
-            cursor: pointer;
-        }
-
-            .rank-item:last-child {
-                border: none;
-            }
-
-        .rank-number {
-            width: 40px;
-            height: 40px;
-            background: #f1f5f9;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            color: #2563eb;
-            font-size: 18px;
-        }
-
-        .rank-info {
-            flex: 1;
-        }
-
-        .rank-title {
-            font-weight: 600;
-            font-size: 18px;
-            margin-bottom: 4px;
-        }
-
-        .rank-meta {
-            display: flex;
-            gap: 20px;
-            color: #64748b;
-            font-size: 14px;
-        }
-
-        .rank-score {
-            font-weight: 600;
-            color: #f97316;
-        }
-
-        /* ===== COMPLETED SECTION STYLES ===== */
-        .completed-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 20px;
-        }
-
-        /* ===== GROUPS SECTION STYLES ===== */
-        .groups-list {
-            background: white;
-            border-radius: 20px;
-            padding: 20px;
-        }
-
-        .group-item {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            padding: 16px 0;
-            border-bottom: 1px solid #f1f5f9;
-            cursor: pointer;
-        }
-
-            .group-item:last-child {
-                border: none;
-            }
-
-        .group-avatar {
-            width: 60px;
-            height: 60px;
-            background: #2563eb;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 24px;
-        }
-
-        .group-info {
-            flex: 1;
-        }
-
-        .group-name {
-            font-weight: 600;
-            font-size: 18px;
-            margin-bottom: 4px;
-        }
-
-        .group-meta {
-            display: flex;
-            gap: 20px;
-            color: #64748b;
-            font-size: 14px;
-        }
-
-        /* ===== PROFILE PAGE STYLES ===== */
-        .profile-page-header {
-            display: flex;
-            gap: 30px;
-            align-items: center;
-            margin-bottom: 30px;
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-        }
-
-        .profile-page-avatar {
-            width: 100px;
-            height: 100px;
-            background: #2563eb;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 40px;
-        }
-
-        .profile-page-info h2 {
-            font-size: 28px;
-            margin-bottom: 8px;
-        }
-
-        .profile-page-info p {
-            color: #475569;
-            margin-bottom: 4px;
-        }
 
         /* ===== DETAIL SECTION STYLES ===== */
         .breadcrumb {
@@ -968,6 +937,7 @@
             .breadcrumb a {
                 color: #2563eb;
                 text-decoration: none;
+                cursor: pointer;
             }
 
         .detail-container {
@@ -1083,58 +1053,7 @@
             margin-top: 20px;
         }
 
-        /* ===== SIDEBAR RANK TABS ===== */
-        .rank-tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-
-        .rank-tab {
-            padding: 8px 16px;
-            border-radius: 30px;
-            font-weight: 500;
-            color: #475569;
-            background: #f1f5f9;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-            .rank-tab.active {
-                background: #2563eb;
-                color: white;
-            }
-
-        .rank-content {
-            display: none;
-        }
-
-            .rank-content.active {
-                display: block;
-            }
-
-        /* ===== HISTORY CARD ===== */
-        .history-card {
-            background: white;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 24px;
-        }
-
-            .history-card h3 {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 16px;
-            }
-
-            .history-card .delete-btn {
-                color: #ef4444;
-                cursor: pointer;
-                font-size: 14px;
-            }
-
-        /* ===== SIDEBAR ===== */
+        /* ===== SIDEBAR STYLES ===== */
         .sidebar-card {
             background: white;
             border-radius: 16px;
@@ -1208,15 +1127,55 @@
                 background: #e2e8f0;
             }
 
-        /* ===== MAIN GRID ===== */
-        .main-grid {
-            display: grid;
-            grid-template-columns: 1fr 300px;
-            gap: 30px;
-            margin-bottom: 40px;
+        .rank-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
         }
 
-        /* ===== VIEW MORE ===== */
+        .rank-tab {
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-weight: 500;
+            color: #475569;
+            background: #f1f5f9;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+            .rank-tab.active {
+                background: #2563eb;
+                color: white;
+            }
+
+        .rank-content {
+            display: none;
+        }
+
+            .rank-content.active {
+                display: block;
+            }
+
+        .history-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+            .history-card h3 {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 16px;
+            }
+
+            .history-card .delete-btn {
+                color: #ef4444;
+                cursor: pointer;
+                font-size: 14px;
+            }
+
         .view-more-btn {
             background: white;
             border: 1px solid #2563eb;
@@ -1257,7 +1216,7 @@
                 <span class="mobile-menu-logo">TRUYỆN<span>HAY</span></span>
                 <span class="close-menu" id="closeMenu"><i class="fas fa-times"></i></span>
             </div>
-            <a href="#" class="mobile-menu-item" id="mobileHome"><i class="fas fa-home"></i> Trang chủ</a>
+            <a href="#" class="mobile-menu-item active" id="mobileHome"><i class="fas fa-home"></i> Trang chủ</a>
             <a href="#" class="mobile-menu-item" id="mobileNew"><i class="fas fa-history"></i> Mới cập nhật</a>
             <a href="#" class="mobile-menu-item" id="mobileHot"><i class="fas fa-fire"></i> Hot nhất</a>
             <a href="#" class="mobile-menu-item" id="mobileGenre"><i class="fas fa-tags"></i> Thể loại</a>
@@ -1367,9 +1326,10 @@
             </div>
         </div>
 
-        <!-- Navigation tabs (desktop) với 7 tab -->
+        <!-- Navigation tabs (desktop) -->
         <nav class="nav-tabs">
-            <a class="nav-item active" id="tabNew">Mới cập nhật</a>
+            <a class="nav-item" id="tabHome">Trang chủ</a>
+            <a class="nav-item" id="tabNew">Mới cập nhật</a>
             <a class="nav-item" id="tabHot">Hot nhất</a>
             <a class="nav-item" id="tabGenre">Thể loại</a>
             <a class="nav-item" id="tabRank">BXH</a>
@@ -1382,99 +1342,182 @@
         <div class="main-grid">
             <!-- Left column -->
             <div>
-                <!-- Featured slider (luôn hiển thị) -->
-                <div class="featured" id="featured">
-                    <div class="featured-content">
-                        <h3>🔥 TRUYỆN HOT</h3>
-                        <h2>ĐẠI CHIẾN THẦN</h2>
-                        <p>Chương mới: 123 • 2 giờ trước</p>
-                        <a class="btn" id="readNowBtn">Đọc ngay</a>
+                <!-- Content sections -->
+                <!-- TRANG CHỦ (có featured, update list, recommend, top views) -->
+                <div id="homeSection" class="content-section">
+                    <!-- Featured large -->
+                    <div class="featured-large">
+                        <div class="featured-large-content">
+                            <h3>NỔI BẬT</h3>
+                            <h2>Shadow Warrior</h2>
+                            <p>In a world where darkness threatens to consume everything, one warrior stands against the shadows. Follow the journey of Kai as he battles ancient evil forces.</p>
+                            <div class="featured-stats">
+                                <span><i class="fas fa-star" style="color: #fbbf24;"></i> 4.8</span>
+                                <span><i class="fas fa-eye"></i> 1250K lượt xem</span>
+                                <span><i class="fas fa-book-open"></i> 4 chương</span>
+                            </div>
+                            <button class="btn" style="width: auto; padding: 12px 32px;" id="readFeaturedBtn">Đọc ngay</button>
+                        </div>
+                        <div class="featured-large-cover">Ảnh bìa</div>
+                    </div>
+
+                    <!-- Grid 2 cột: update list và top views -->
+                    <div class="home-grid">
+                        <!-- Left column -->
+                        <div>
+                            <!-- Truyện mới cập nhật dạng list -->
+                            <div class="update-list">
+                                <div class="section-header">
+                                    <h2>Truyện Mới Cập Nhật</h2>
+                                    <span class="view-all-link" id="viewAllUpdates">Xem tất cả</span>
+                                </div>
+                                <div class="update-item" data-id="steel-resolve" data-title="Steel Resolve" data-author="Tác giả A" data-genre="Hành động, Phiêu lưu" data-views="1680K">
+                                    <div class="update-cover"></div>
+                                    <div class="update-info">
+                                        <div class="update-title">Steel Resolve</div>
+                                        <div class="update-chapter">Chapter 1 • 01-12</div>
+                                        <div class="update-meta">
+                                            <span><i class="fas fa-star" style="color: #fbbf24;"></i> 4.6</span>
+                                            <span><i class="fas fa-eye"></i> 1680K</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="update-item" data-id="cosmic-legends" data-title="Cosmic Legends" data-author="Tác giả B" data-genre="Khoa huyễn, Viễn tưởng" data-views="2100K">
+                                    <div class="update-cover"></div>
+                                    <div class="update-info">
+                                        <div class="update-title">Cosmic Legends</div>
+                                        <div class="update-chapter">Chapter 2 • 08-11</div>
+                                        <div class="update-chapter">Chapter 1 • 01-11</div>
+                                        <div class="update-meta">
+                                            <span><i class="fas fa-star" style="color: #fbbf24;"></i> 4.9</span>
+                                            <span><i class="fas fa-eye"></i> 2100K</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="update-item" data-id="dragon-quest" data-title="Dragon Quest" data-author="Tác giả C" data-genre="Kỳ ảo, Phiêu lưu" data-views="1450K">
+                                    <div class="update-cover"></div>
+                                    <div class="update-info">
+                                        <div class="update-title">Dragon Quest</div>
+                                        <div class="update-chapter">Chapter 5 • 15-12</div>
+                                        <div class="update-meta">
+                                            <span><i class="fas fa-star" style="color: #fbbf24;"></i> 4.7</span>
+                                            <span><i class="fas fa-eye"></i> 1450K</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Truyện đề cử với tabs -->
+                            <div>
+                                <div class="section-header">
+                                    <h2>Truyện Đề Cử</h2>
+                                    <div class="recommend-tabs">
+                                        <span class="recommend-tab active" data-recommend="all">Tất cả</span>
+                                        <span class="recommend-tab" data-recommend="popular">Phổ biến</span>
+                                        <span class="recommend-tab" data-recommend="latest">Mới nhất</span>
+                                    </div>
+                                </div>
+                                <div class="recommend-grid" id="recommendAll">
+                                    <div class="recommend-card" data-title="Dạng ra 1">
+                                        <div class="recommend-cover"></div>
+                                        <div class="recommend-info">
+                                            <div class="recommend-title">Dạng ra</div>
+                                            <div class="recommend-stats">
+                                                <span>4 chương</span>
+                                                <span>1.3M</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="recommend-card" data-title="Dạng ra 2">
+                                        <div class="recommend-cover"></div>
+                                        <div class="recommend-info">
+                                            <div class="recommend-title">Dạng ra</div>
+                                            <div class="recommend-stats">
+                                                <span>2 chương</span>
+                                                <span>980K</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="recommend-card" data-title="Hoàn thành">
+                                        <div class="recommend-cover"></div>
+                                        <div class="recommend-info">
+                                            <div class="recommend-title">Hoàn thành</div>
+                                            <div class="recommend-stats">
+                                                <span>2 chương</span>
+                                                <span>2.1M</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="recommend-card" data-title="Hỏi Tài">
+                                        <div class="recommend-cover"></div>
+                                        <div class="recommend-info">
+                                            <div class="recommend-title">Hỏi Tài</div>
+                                            <div class="recommend-stats">
+                                                <span>1 chương</span>
+                                                <span>1.4M</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right column (trong home-grid) -->
+                        <div>
+                            <div class="top-list">
+                                <div class="section-header">
+                                    <h2>Xem Nhiều Nhất</h2>
+                                </div>
+                                <div class="top-item" data-id="cosmic-legends" data-title="Cosmic Legends">
+                                    <span class="top-rank">1</span>
+                                    <div class="top-info">
+                                        <div class="top-title">Cosmic Legends</div>
+                                        <div class="top-views">2100K</div>
+                                    </div>
+                                </div>
+                                <div class="top-item" data-id="steel-resolve" data-title="Steel Resolve">
+                                    <span class="top-rank">2</span>
+                                    <div class="top-info">
+                                        <div class="top-title">Steel Resolve</div>
+                                        <div class="top-views">1680K</div>
+                                    </div>
+                                </div>
+                                <div class="top-item" data-id="dragon-quest" data-title="Dragon Quest">
+                                    <span class="top-rank">3</span>
+                                    <div class="top-info">
+                                        <div class="top-title">Dragon Quest</div>
+                                        <div class="top-views">1450K</div>
+                                    </div>
+                                </div>
+                                <div class="top-item" data-id="shadow-warrior" data-title="Shadow Warrior">
+                                    <span class="top-rank">4</span>
+                                    <div class="top-info">
+                                        <div class="top-title">Shadow Warrior</div>
+                                        <div class="top-views">1250K</div>
+                                    </div>
+                                </div>
+                                <div class="top-item" data-id="mystic-dreams" data-title="Mystic Dreams">
+                                    <span class="top-rank">5</span>
+                                    <div class="top-info">
+                                        <div class="top-title">Mystic Dreams</div>
+                                        <div class="top-views">980K</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Các section nội dung -->
-                <!-- Mới cập nhật -->
-                <div id="newSection" class="content-section">
-                    <div class="section-title"><h2><i class="fas fa-history" style="margin-right: 8px; color:#2563eb;"></i> Mới cập nhật</h2><a class="view-all" id="viewAll">Xem tất cả <i class="fas fa-arrow-right"></i></a></div>
-                    <div class="comic-grid">
-                        <div class="comic-card" data-id="1" data-title="Đấu phá thương khung" data-author="TruyenQQ" data-genre="Adventure, Chuyển Sinh" data-views="36.5k"><div class="comic-cover"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='150' viewBox='0 0 100 150'%3E%3Crect width='100' height='150' fill='%232563eb' opacity='0.2'/%3E%3Ctext x='10' y='75' fill='%23334155' font-size='14'%3ECover%3C/text%3E%3C/svg%3E" alt="cover"></div><div class="comic-info"><div class="comic-title">Đấu phá thương khung</div><div class="comic-chapter"><i class="fas fa-book-open"></i> Chapter 1560</div><div class="comic-meta"><span>2 giờ trước</span> <span>36.5k</span></div></div></div>
-                        <div class="comic-card" data-id="2" data-title="Vũ đế cuồng thần" data-author="TruyenQQ" data-genre="Adventure, Xuyên Không" data-views="12.2k"><div class="comic-cover"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='150' viewBox='0 0 100 150'%3E%3Crect width='100' height='150' fill='%23f97316' opacity='0.2'/%3E%3Ctext x='10' y='75' fill='%23334155' font-size='14'%3ECover%3C/text%3E%3C/svg%3E" alt="cover"></div><div class="comic-info"><div class="comic-title">Vũ đế cuồng thần</div><div class="comic-chapter"><i class="fas fa-book-open"></i> Chapter 888</div><div class="comic-meta"><span>5 giờ trước</span> <span>12.2k</span></div></div></div>
-                        <div class="comic-card" data-id="3" data-title="Toàn chức cao thủ" data-author="TruyenQQ" data-genre="Hài hước, Hành động" data-views="9.8k"><div class="comic-cover"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='150' viewBox='0 0 100 150'%3E%3Crect width='100' height='150' fill='%2316a34a' opacity='0.2'/%3E%3Ctext x='10' y='75' fill='%23334155' font-size='14'%3ECover%3C/text%3E%3C/svg%3E" alt="cover"></div><div class="comic-info"><div class="comic-title">Toàn chức cao thủ</div><div class="comic-chapter"><i class="fas fa-book-open"></i> Chapter 721</div><div class="comic-meta"><span>8 giờ trước</span> <span>9.8k</span></div></div></div>
-                        <div class="comic-card" data-id="4" data-title="Thiên quan tứ phúc" data-author="TruyenQQ" data-genre="Đam mỹ, Cổ đại" data-views="6.4k"><div class="comic-cover"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='150' viewBox='0 0 100 150'%3E%3Crect width='100' height='150' fill='%23dc2626' opacity='0.2'/%3E%3Ctext x='10' y='75' fill='%23334155' font-size='14'%3ECover%3C/text%3E%3C/svg%3E" alt="cover"></div><div class="comic-info"><div class="comic-title">Thiên quan tứ phúc</div><div class="comic-chapter"><i class="fas fa-book-open"></i> Chapter 222</div><div class="comic-meta"><span>12 giờ trước</span> <span>6.4k</span></div></div></div>
-                    </div>
-                </div>
+                <!-- Các section khác (ẩn mặc định) -->
+                <div id="newSection" class="content-section hidden"><h2>Nội dung Mới cập nhật</h2></div>
+                <div id="hotSection" class="content-section hidden"><h2>Nội dung Hot nhất</h2></div>
+                <div id="genreSection" class="content-section hidden"><h2>Nội dung Thể loại</h2></div>
+                <div id="rankSection" class="content-section hidden"><h2>Nội dung BXH</h2></div>
+                <div id="completedSection" class="content-section hidden"><h2>Nội dung Hoàn thành</h2></div>
+                <div id="groupsSection" class="content-section hidden"><h2>Nội dung Nhóm dịch</h2></div>
+                <div id="profilePageSection" class="content-section hidden"><h2>Nội dung Cá nhân</h2></div>
 
-                <!-- Hot nhất -->
-                <div id="hotSection" class="content-section hidden">
-                    <div class="section-title"><h2><i class="fas fa-fire" style="margin-right: 8px; color:#f97316;"></i> Hot nhất</h2><a class="view-all" id="viewAllHot">Xem tất cả <i class="fas fa-arrow-right"></i></a></div>
-                    <div class="comic-grid">
-                        <div class="comic-card" data-id="5" data-title="Solo Leveling" data-author="Chugong" data-genre="Hành động, Khoa huyễn" data-views="1.2M"><div class="comic-cover"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='150' viewBox='0 0 100 150'%3E%3Crect width='100' height='150' fill='%23f97316' opacity='0.2'/%3E%3Ctext x='10' y='75' fill='%23334155' font-size='14'%3ECover%3C/text%3E%3C/svg%3E" alt="cover"></div><div class="comic-info"><div class="comic-title">Solo Leveling</div><div class="comic-chapter"><i class="fas fa-book-open"></i> Chapter 200</div><div class="comic-meta"><span>1.2M lượt</span> <span>🔥</span></div></div></div>
-                        <div class="comic-card" data-id="6" data-title="One Piece" data-author="Oda" data-genre="Hành động, Phiêu lưu" data-views="980k"><div class="comic-cover"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='150' viewBox='0 0 100 150'%3E%3Crect width='100' height='150' fill='%23dc2626' opacity='0.2'/%3E%3Ctext x='10' y='75' fill='%23334155' font-size='14'%3ECover%3C/text%3E%3C/svg%3E" alt="cover"></div><div class="comic-info"><div class="comic-title">One Piece</div><div class="comic-chapter"><i class="fas fa-book-open"></i> Chapter 1090</div><div class="comic-meta"><span>980k lượt</span> <span>🔥</span></div></div></div>
-                        <div class="comic-card" data-id="7" data-title="Dớp Dâng" data-author="TruyenQQ" data-genre="Hài hước, Xuyên không" data-views="854k"><div class="comic-cover"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='150' viewBox='0 0 100 150'%3E%3Crect width='100' height='150' fill='%2316a34a' opacity='0.2'/%3E%3Ctext x='10' y='75' fill='%23334155' font-size='14'%3ECover%3C/text%3E%3C/svg%3E" alt="cover"></div><div class="comic-info"><div class="comic-title">Dớp Dâng</div><div class="comic-chapter"><i class="fas fa-book-open"></i> Chapter 567</div><div class="comic-meta"><span>854k lượt</span> <span>🔥</span></div></div></div>
-                        <div class="comic-card" data-id="8" data-title="Thiên mệnh đế chủ" data-author="TruyenQQ" data-genre="Kiếm hiệp" data-views="620k"><div class="comic-cover"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='150' viewBox='0 0 100 150'%3E%3Crect width='100' height='150' fill='%2392563eb' opacity='0.2'/%3E%3Ctext x='10' y='75' fill='%23334155' font-size='14'%3ECover%3C/text%3E%3C/svg%3E" alt="cover"></div><div class="comic-info"><div class="comic-title">Thiên mệnh đế chủ</div><div class="comic-chapter"><i class="fas fa-book-open"></i> Chapter 420</div><div class="comic-meta"><span>620k lượt</span> <span>🔥</span></div></div></div>
-                    </div>
-                </div>
-
-                <!-- Thể loại -->
-                <div id="genreSection" class="content-section hidden">
-                    <div class="section-title"><h2><i class="fas fa-tags" style="margin-right: 8px; color:#2563eb;"></i> Thể loại</h2><a class="view-all" id="viewAllGenre">Xem tất cả <i class="fas fa-arrow-right"></i></a></div>
-                    <div class="genre-grid">
-                        <div class="genre-card"><i class="fas fa-fist-raised"></i> Hành động</div>
-                        <div class="genre-card"><i class="fas fa-laugh"></i> Hài hước</div>
-                        <div class="genre-card"><i class="fas fa-heart"></i> Ngôn tình</div>
-                        <div class="genre-card"><i class="fas fa-rainbow"></i> Đam mỹ</div>
-                        <div class="genre-card"><i class="fas fa-clock"></i> Xuyên không</div>
-                        <div class="genre-card"><i class="fas fa-khanda"></i> Kiếm hiệp</div>
-                        <div class="genre-card"><i class="fas fa-rocket"></i> Khoa huyễn</div>
-                        <div class="genre-card"><i class="fas fa-seedling"></i> Trọng sinh</div>
-                        <div class="genre-card"><i class="fas fa-skull"></i> Kinh dị</div>
-                        <div class="genre-card"><i class="fas fa-dragon"></i> Huyền huyễn</div>
-                    </div>
-                </div>
-
-                <!-- BXH -->
-                <div id="rankSection" class="content-section hidden">
-                    <div class="section-title"><h2><i class="fas fa-crown" style="margin-right: 8px; color:#fbbf24;"></i> Bảng xếp hạng</h2><a class="view-all" id="viewAllRank">Xem tất cả <i class="fas fa-arrow-right"></i></a></div>
-                    <div class="rank-list">
-                        <div class="rank-item"><div class="rank-number">1</div><div class="rank-info"><div class="rank-title">Solo Leveling</div><div class="rank-meta"><span>Lượt đọc: 1.2M</span><span class="rank-score">⭐ 9.5</span></div></div></div>
-                        <div class="rank-item"><div class="rank-number">2</div><div class="rank-info"><div class="rank-title">One Piece</div><div class="rank-meta"><span>Lượt đọc: 980k</span><span class="rank-score">⭐ 9.4</span></div></div></div>
-                        <div class="rank-item"><div class="rank-number">3</div><div class="rank-info"><div class="rank-title">Dớp Dâng</div><div class="rank-meta"><span>Lượt đọc: 854k</span><span class="rank-score">⭐ 9.2</span></div></div></div>
-                        <div class="rank-item"><div class="rank-number">4</div><div class="rank-info"><div class="rank-title">Thiên mệnh đế chủ</div><div class="rank-meta"><span>Lượt đọc: 620k</span><span class="rank-score">⭐ 9.0</span></div></div></div>
-                        <div class="rank-item"><div class="rank-number">5</div><div class="rank-info"><div class="rank-title">Đại phụng đả canh nhân</div><div class="rank-meta"><span>Lượt đọc: 590k</span><span class="rank-score">⭐ 8.9</span></div></div></div>
-                    </div>
-                </div>
-
-                <!-- Hoàn thành -->
-                <div id="completedSection" class="content-section hidden">
-                    <div class="section-title"><h2><i class="fas fa-check-circle" style="margin-right: 8px; color:#10b981;"></i> Hoàn thành</h2><a class="view-all" id="viewAllCompleted">Xem tất cả <i class="fas fa-arrow-right"></i></a></div>
-                    <div class="completed-grid">
-                        <div class="comic-card"><div class="comic-cover"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='150' viewBox='0 0 100 150'%3E%3Crect width='100' height='150' fill='%2310b981' opacity='0.2'/%3E%3Ctext x='10' y='75' fill='%23334155' font-size='14'%3ECover%3C/text%3E%3C/svg%3E" alt="cover"></div><div class="comic-info"><div class="comic-title">Fairy Tail</div><div class="comic-chapter"><i class="fas fa-check-circle"></i> 545 chương</div><div class="comic-meta"><span>Hoàn thành</span> <span>9.2k</span></div></div></div>
-                        <div class="comic-card"><div class="comic-cover"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='150' viewBox='0 0 100 150'%3E%3Crect width='100' height='150' fill='%2310b981' opacity='0.2'/%3E%3Ctext x='10' y='75' fill='%23334155' font-size='14'%3ECover%3C/text%3E%3C/svg%3E" alt="cover"></div><div class="comic-info"><div class="comic-title">Naruto</div><div class="comic-chapter"><i class="fas fa-check-circle"></i> 700 chương</div><div class="comic-meta"><span>Hoàn thành</span> <span>15.6k</span></div></div></div>
-                        <div class="comic-card"><div class="comic-cover"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='150' viewBox='0 0 100 150'%3E%3Crect width='100' height='150' fill='%2310b981' opacity='0.2'/%3E%3Ctext x='10' y='75' fill='%23334155' font-size='14'%3ECover%3C/text%3E%3C/svg%3E" alt="cover"></div><div class="comic-info"><div class="comic-title">Bleach</div><div class="comic-chapter"><i class="fas fa-check-circle"></i> 686 chương</div><div class="comic-meta"><span>Hoàn thành</span> <span>8.4k</span></div></div></div>
-                        <div class="comic-card"><div class="comic-cover"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='150' viewBox='0 0 100 150'%3E%3Crect width='100' height='150' fill='%2310b981' opacity='0.2'/%3E%3Ctext x='10' y='75' fill='%23334155' font-size='14'%3ECover%3C/text%3E%3C/svg%3E" alt="cover"></div><div class="comic-info"><div class="comic-title">Đấu phá</div><div class="comic-chapter"><i class="fas fa-check-circle"></i> 1500 chương</div><div class="comic-meta"><span>Hoàn thành</span> <span>20.1k</span></div></div></div>
-                    </div>
-                </div>
-
-                <!-- Nhóm dịch -->
-                <div id="groupsSection" class="content-section hidden">
-                    <div class="section-title"><h2><i class="fas fa-users" style="margin-right: 8px; color:#8b5cf6;"></i> Nhóm dịch</h2><a class="view-all" id="viewAllGroups">Xem tất cả <i class="fas fa-arrow-right"></i></a></div>
-                    <div class="groups-list">
-                        <div class="group-item"><div class="group-avatar"><i class="fas fa-users"></i></div><div class="group-info"><div class="group-name">Team Tu Chân</div><div class="group-meta"><span><i class="fas fa-book"></i> 156 truyện</span><span><i class="fas fa-clock"></i> 2 giờ trước</span></div></div></div>
-                        <div class="group-item"><div class="group-avatar"><i class="fas fa-users"></i></div><div class="group-info"><div class="group-name">Dịch Giả Ma</div><div class="group-meta"><span><i class="fas fa-book"></i> 98 truyện</span><span><i class="fas fa-clock"></i> 5 giờ trước</span></div></div></div>
-                        <div class="group-item"><div class="group-avatar"><i class="fas fa-users"></i></div><div class="group-info"><div class="group-name">Team Manga</div><div class="group-meta"><span><i class="fas fa-book"></i> 203 truyện</span><span><i class="fas fa-clock"></i> 1 ngày trước</span></div></div></div>
-                    </div>
-                </div>
-
-                <!-- Cá nhân -->
-                <div id="profilePageSection" class="content-section hidden">
-                    <div class="profile-page-header"><div class="profile-page-avatar">U</div><div class="profile-page-info"><h2>Nguyễn Văn A</h2><p><i class="far fa-envelope"></i> user@example.com</p><p><i class="fas fa-coins"></i> 1.250 Xu</p></div></div>
-                    <div class="profile-tabs"><div class="profile-tab active" data-page-tab="info">Thông tin</div><div class="profile-tab" data-page-tab="history">Lịch sử đọc</div><div class="profile-tab" data-page-tab="follow">Theo dõi</div></div>
-                    <div class="profile-pane active" id="page-pane-info"><p>Email: user@example.com</p><p>Ngày tham gia: 01/01/2025</p><p>Số xu: 1.250</p><button class="btn btn-secondary" style="width: auto; padding: 10px 24px; margin-top: 20px;" id="logoutPageBtn">Đăng xuất</button></div>
-                    <div class="profile-pane" id="page-pane-history"><div class="history-item"><div class="history-cover">Ảnh</div><div class="history-info"><div class="history-title">Đại chiến thần</div><div class="history-meta"><span><i class="far fa-clock"></i> Đọc gần đây: Chương 126</span><span>2 giờ trước</span></div></div></div><div class="history-item"><div class="history-cover">Ảnh</div><div class="history-info"><div class="history-title">Solo Leveling</div><div class="history-meta"><span><i class="far fa-clock"></i> Đọc gần đây: Chương 200</span><span>1 ngày trước</span></div></div></div></div>
-                    <div class="profile-pane" id="page-pane-follow"><div class="follow-item"><div class="follow-cover">Ảnh</div><div class="follow-info"><div class="follow-title">Đấu phá thương khung</div><div class="follow-meta"><span><i class="fas fa-book-open"></i> 1560 chương</span><span><i class="fas fa-eye"></i> 36.5k</span></div></div><button class="unfollow-btn" onclick="alert('Đã bỏ theo dõi (mô phỏng)')">Bỏ theo dõi</button></div><div class="follow-item"><div class="follow-cover">Ảnh</div><div class="follow-info"><div class="follow-title">Vũ đế cuồng thần</div><div class="follow-meta"><span><i class="fas fa-book-open"></i> 888 chương</span><span><i class="fas fa-eye"></i> 12.2k</span></div></div><button class="unfollow-btn" onclick="alert('Đã bỏ theo dõi (mô phỏng)')">Bỏ theo dõi</button></div></div>
-                </div>
-
-                <!-- Trang chi tiết truyện (ẩn mặc định) -->
+                <!-- TRANG CHI TIẾT TRUYỆN (ẩn mặc định, hiện khi click vào card) -->
                 <div id="detailSection" class="content-section hidden">
                     <div class="breadcrumb">
                         <a href="#" id="breadcrumbHome">Trang chủ</a> > <a href="#" id="breadcrumbCategory">Thể loại</a> > <span id="breadcrumbTitle">Đồ Đệ Của Ta Đều Là Đại Phản Phái</span>
@@ -1520,7 +1563,7 @@
                 </div>
             </div>
 
-            <!-- Sidebar (cập nhật thêm lịch sử đọc và top tháng/tuần/ngày) -->
+            <!-- Sidebar (lịch sử đọc, bảng xếp hạng, thể loại) -->
             <aside class="sidebar">
                 <!-- Bảng xếp hạng với tabs -->
                 <div class="sidebar-card">
@@ -1541,21 +1584,17 @@
                         <div class="hot-item"><span class="hot-rank">1</span><div class="hot-info"><h4>One Piece</h4><p>Chapter 1090 • 980K</p></div></div>
                         <div class="hot-item"><span class="hot-rank">2</span><div class="hot-info"><h4>Dớp Dâng</h4><p>Chapter 567 • 854K</p></div></div>
                         <div class="hot-item"><span class="hot-rank">3</span><div class="hot-info"><h4>Thiên mệnh đế chủ</h4><p>Chapter 420 • 620K</p></div></div>
-                        <div class="hot-item"><span class="hot-rank">4</span><div class="hot-info"><h4>Đại phụng đả canh nhân</h4><p>Chapter 315 • 590K</p></div></div>
-                        <div class="hot-item"><span class="hot-rank">5</span><div class="hot-info"><h4>Solo Leveling</h4><p>Chapter 200 • 1.2M</p></div></div>
                     </div>
                     <div class="rank-content" id="rankMonth">
                         <div class="hot-item"><span class="hot-rank">1</span><div class="hot-info"><h4>Solo Leveling</h4><p>Chapter 200 • 1.2M</p></div></div>
                         <div class="hot-item"><span class="hot-rank">2</span><div class="hot-info"><h4>One Piece</h4><p>Chapter 1090 • 980K</p></div></div>
                         <div class="hot-item"><span class="hot-rank">3</span><div class="hot-info"><h4>Dớp Dâng</h4><p>Chapter 567 • 854K</p></div></div>
-                        <div class="hot-item"><span class="hot-rank">4</span><div class="hot-info"><h4>Thiên mệnh đế chủ</h4><p>Chapter 420 • 620K</p></div></div>
-                        <div class="hot-item"><span class="hot-rank">5</span><div class="hot-info"><h4>Đại phụng đả canh nhân</h4><p>Chapter 315 • 590K</p></div></div>
                     </div>
                 </div>
 
-                <!-- Lịch sử đọc (giống ảnh) -->
+                <!-- Lịch sử đọc -->
                 <div class="history-card">
-                    <h3>Lịch sử đọc <span class="view-all" style="font-size: 13px;">Xem tất cả</span></h3>
+                    <h3>Lịch sử đọc <span class="view-all-link" style="font-size: 13px;">Xem tất cả</span></h3>
                     <div class="history-item">
                         <div class="history-cover">Ảnh</div>
                         <div class="history-info">
@@ -1582,7 +1621,7 @@
                     </div>
                 </div>
 
-                <!-- Thể loại (giữ nguyên) -->
+                <!-- Thể loại -->
                 <div class="sidebar-card">
                     <div class="sidebar-title"><i class="fas fa-tags"></i> Thể loại</div>
                     <div class="genre-tags">
@@ -1615,6 +1654,7 @@
             <div class="chat-body" id="chatBody"><div class="message ai">Xin chào! Tôi là trợ lý đọc truyện. Bạn cần tìm gì?</div></div>
             <div class="chat-footer"><input type="text" id="chatInput" placeholder="Nhập tin nhắn..."><button id="sendChat"><i class="fas fa-paper-plane"></i></button></div>
         </div>
+        @RenderBody()
     </div>
 
     <script>
@@ -1707,7 +1747,8 @@
         closeMenu.addEventListener('click', closeMobileMenu);
         mobileMenuOverlay.addEventListener('click', closeMobileMenu);
 
-        // ===== CHUYỂN TAB NỘI DUNG (8 section) =====
+        // ===== CÁC SECTION =====
+        const homeSection = document.getElementById('homeSection');
         const newSection = document.getElementById('newSection');
         const hotSection = document.getElementById('hotSection');
         const genreSection = document.getElementById('genreSection');
@@ -1717,6 +1758,7 @@
         const profilePageSection = document.getElementById('profilePageSection');
         const detailSection = document.getElementById('detailSection');
 
+        const tabHome = document.getElementById('tabHome');
         const tabNew = document.getElementById('tabNew');
         const tabHot = document.getElementById('tabHot');
         const tabGenre = document.getElementById('tabGenre');
@@ -1726,6 +1768,7 @@
         const tabProfilePage = document.getElementById('tabProfilePage');
 
         function hideAllSections() {
+            homeSection.classList.add('hidden');
             newSection.classList.add('hidden');
             hotSection.classList.add('hidden');
             genreSection.classList.add('hidden');
@@ -1737,6 +1780,7 @@
         }
 
         function removeActiveTabs() {
+            tabHome.classList.remove('active');
             tabNew.classList.remove('active');
             tabHot.classList.remove('active');
             tabGenre.classList.remove('active');
@@ -1746,6 +1790,7 @@
             tabProfilePage.classList.remove('active');
         }
 
+        function showHome() { hideAllSections(); homeSection.classList.remove('hidden'); removeActiveTabs(); tabHome.classList.add('active'); }
         function showNew() { hideAllSections(); newSection.classList.remove('hidden'); removeActiveTabs(); tabNew.classList.add('active'); }
         function showHot() { hideAllSections(); hotSection.classList.remove('hidden'); removeActiveTabs(); tabHot.classList.add('active'); }
         function showGenre() { hideAllSections(); genreSection.classList.remove('hidden'); removeActiveTabs(); tabGenre.classList.add('active'); }
@@ -1753,8 +1798,12 @@
         function showCompleted() { hideAllSections(); completedSection.classList.remove('hidden'); removeActiveTabs(); tabCompleted.classList.add('active'); }
         function showGroups() { hideAllSections(); groupsSection.classList.remove('hidden'); removeActiveTabs(); tabGroups.classList.add('active'); }
         function showProfilePage() { hideAllSections(); profilePageSection.classList.remove('hidden'); removeActiveTabs(); tabProfilePage.classList.add('active'); }
-        function showDetail() { hideAllSections(); detailSection.classList.remove('hidden'); removeActiveTabs(); } // detail không có tab active
+        function showDetail() { hideAllSections(); detailSection.classList.remove('hidden'); removeActiveTabs(); }
 
+        // Mặc định hiện trang chủ
+        showHome();
+
+        tabHome.addEventListener('click', (e) => { e.preventDefault(); showHome(); });
         tabNew.addEventListener('click', (e) => { e.preventDefault(); showNew(); });
         tabHot.addEventListener('click', (e) => { e.preventDefault(); showHot(); });
         tabGenre.addEventListener('click', (e) => { e.preventDefault(); showGenre(); });
@@ -1764,7 +1813,7 @@
         tabProfilePage.addEventListener('click', (e) => { e.preventDefault(); showProfilePage(); });
 
         // Mobile menu items
-        document.getElementById('mobileHome').addEventListener('click', (e) => { e.preventDefault(); showNew(); closeMobileMenu(); });
+        document.getElementById('mobileHome').addEventListener('click', (e) => { e.preventDefault(); showHome(); closeMobileMenu(); });
         document.getElementById('mobileNew').addEventListener('click', (e) => { e.preventDefault(); showNew(); closeMobileMenu(); });
         document.getElementById('mobileHot').addEventListener('click', (e) => { e.preventDefault(); showHot(); closeMobileMenu(); });
         document.getElementById('mobileGenre').addEventListener('click', (e) => { e.preventDefault(); showGenre(); closeMobileMenu(); });
@@ -1773,18 +1822,17 @@
         document.getElementById('mobileGroups').addEventListener('click', (e) => { e.preventDefault(); showGroups(); closeMobileMenu(); });
         document.getElementById('mobileProfilePage').addEventListener('click', (e) => { e.preventDefault(); if (isLoggedIn) showProfilePage(); else openAuthModal(); closeMobileMenu(); });
 
-        // ===== PROFILE PAGE TABS =====
-        const pageTabs = document.querySelectorAll('[data-page-tab]');
-        const pagePanes = { info: document.getElementById('page-pane-info'), history: document.getElementById('page-pane-history'), follow: document.getElementById('page-pane-follow') };
-        pageTabs.forEach(tab => {
+        // ===== SIDEBAR RANK TABS =====
+        const rankTabs = document.querySelectorAll('.rank-tab');
+        const rankContents = document.querySelectorAll('.rank-content');
+        rankTabs.forEach(tab => {
             tab.addEventListener('click', () => {
-                pageTabs.forEach(t => t.classList.remove('active'));
+                rankTabs.forEach(t => t.classList.remove('active'));
                 tab.classList.add('active');
-                Object.values(pagePanes).forEach(pane => pane.classList.remove('active'));
-                pagePanes[tab.dataset.pageTab].classList.add('active');
+                rankContents.forEach(content => content.classList.remove('active'));
+                document.getElementById('rank' + tab.dataset.rank.charAt(0).toUpperCase() + tab.dataset.rank.slice(1)).classList.add('active');
             });
         });
-        document.getElementById('logoutPageBtn').addEventListener('click', function() { isLoggedIn = false; loginBtn.innerHTML = '<i class="far fa-user"></i> <span>Đăng nhập</span>'; alert('Đã đăng xuất'); showNew(); });
 
         // ===== CHATBOX =====
         const chatbox = document.getElementById('chatbox');
@@ -1798,59 +1846,77 @@
         sendBtn.addEventListener('click', sendMessage);
         chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
 
-        // ===== CARD CLICK -> CHI TIẾT =====
-        const comicCards = document.querySelectorAll('.comic-card');
-        comicCards.forEach(card => {
-            card.addEventListener('click', function(e) {
-                e.preventDefault();
-                // Lấy thông tin từ data attributes
-                const title = this.dataset.title || 'Đồ Đệ Của Ta Đều Là Đại Phản Phái';
-                const author = this.dataset.author || 'TruyenQQ, Mộng Tiên Giới';
-                const genre = this.dataset.genre || 'Adventure - Chuyển Sinh - Cổ Đại - Manhua - Truyện Màu - Xuyên Không';
-                const views = this.dataset.views || '427,480';
-                // Cập nhật chi tiết
-                document.getElementById('detailTitle').innerText = title;
-                document.getElementById('detailAuthor').innerText = author;
-                document.getElementById('detailGenre').innerText = genre;
-                document.getElementById('detailViews').innerText = views;
-                document.getElementById('breadcrumbTitle').innerText = title;
-                // Hiển thị section chi tiết
-                showDetail();
-            });
-        });
-
-        // ===== RANK TABS (sidebar) =====
-        const rankTabs = document.querySelectorAll('.rank-tab');
-        const rankContents = document.querySelectorAll('.rank-content');
-        rankTabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                rankTabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                rankContents.forEach(content => content.classList.remove('active'));
-                document.getElementById('rank' + tab.dataset.rank.charAt(0).toUpperCase() + tab.dataset.rank.slice(1)).classList.add('active');
-            });
-        });
-
-        // ===== CÁC BUTTON KHÁC =====
+        // ===== CÁC BUTTON TƯƠNG TÁC =====
         document.getElementById('searchBtn').addEventListener('click', function() { alert('Bạn đang tìm: "' + document.getElementById('searchInput').value + '" (Mô phỏng tìm kiếm)'); });
-        document.getElementById('logo').addEventListener('click', function(e) { e.preventDefault(); showNew(); });
+        document.getElementById('logo').addEventListener('click', function(e) { e.preventDefault(); showHome(); });
         document.getElementById('notificationBtn').addEventListener('click', function(e) { e.preventDefault(); alert('Bạn có 3 thông báo mới (mô phỏng)'); });
-        document.getElementById('readNowBtn').addEventListener('click', function() { alert('Đọc truyện "Đại chiến thần"'); });
-        document.getElementById('viewAll').addEventListener('click', () => alert('Xem tất cả mới cập nhật'));
-        document.getElementById('viewAllHot').addEventListener('click', () => alert('Xem tất cả hot nhất'));
-        document.getElementById('viewAllGenre').addEventListener('click', () => alert('Xem tất cả thể loại'));
-        document.getElementById('viewAllRank').addEventListener('click', () => alert('Xem tất cả BXH'));
-        document.getElementById('viewAllCompleted').addEventListener('click', () => alert('Xem tất cả hoàn thành'));
-        document.getElementById('viewAllGroups').addEventListener('click', () => alert('Xem tất cả nhóm dịch'));
-        document.getElementById('viewMoreBtn').addEventListener('click', () => alert('Tải thêm truyện (mô phỏng)'));
+        document.getElementById('readFeaturedBtn').addEventListener('click', function() { alert('Đọc truyện "Shadow Warrior" (mô phỏng)'); });
+        document.getElementById('viewAllUpdates').addEventListener('click', function() { alert('Xem tất cả truyện mới cập nhật'); });
+        document.getElementById('viewMoreBtn').addEventListener('click', function() { alert('Tải thêm truyện (mô phỏng)'); });
         document.getElementById('buyChapter').addEventListener('click', () => alert('Mô phỏng: Bạn đã mua chương 126 bằng 10 xu.'));
         document.getElementById('donate').addEventListener('click', () => alert('Cảm ơn bạn đã ủng hộ! (Mô phỏng)'));
         document.getElementById('vip').addEventListener('click', () => alert('Đăng ký gói VIP thành công! (Mô phỏng)'));
+
+        // ===== CLICK CARD TRUYỆN -> HIỂN THỊ CHI TIẾT =====
+        function fillDetailAndShow(card) {
+            // Lấy thông tin từ data attributes
+            const title = card.dataset.title || 'Đồ Đệ Của Ta Đều Là Đại Phản Phái';
+            const author = card.dataset.author || 'TruyenQQ, Mộng Tiên Giới';
+            const genre = card.dataset.genre || 'Adventure - Chuyển Sinh - Cổ Đại - Manhua - Truyện Màu - Xuyên Không';
+            const views = card.dataset.views || '427,480';
+            // Cập nhật chi tiết
+            document.getElementById('detailTitle').innerText = title;
+            document.getElementById('detailAuthor').innerText = author;
+            document.getElementById('detailGenre').innerText = genre;
+            document.getElementById('detailViews').innerText = views;
+            document.getElementById('breadcrumbTitle').innerText = title;
+            // Hiển thị section chi tiết
+            showDetail();
+        }
+
+        // Gán sự kiện cho các card trong mục "Truyện Mới Cập Nhật"
+        document.querySelectorAll('.update-item').forEach(item => {
+            item.addEventListener('click', function() {
+                fillDetailAndShow(this);
+            });
+        });
+
+        // Gán sự kiện cho các card trong "Xem Nhiều Nhất"
+        document.querySelectorAll('.top-item').forEach(item => {
+            item.addEventListener('click', function() {
+                fillDetailAndShow(this);
+            });
+        });
+
+        // Gán sự kiện cho các card trong "Truyện Đề Cử"
+        document.querySelectorAll('.recommend-card').forEach(card => {
+            card.addEventListener('click', function() {
+                fillDetailAndShow(this);
+            });
+        });
+
+        // Các nút xóa trong lịch sử
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => { e.stopPropagation(); alert('Đã xóa lịch sử'); });
+        });
+
+        // Recommend tabs
+        const recommendTabs = document.querySelectorAll('.recommend-tab');
+        recommendTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                recommendTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                alert('Chuyển tab ' + tab.innerText);
+            });
+        });
+
+        // Nút chi tiết trong trang detail
         document.getElementById('followBtn').addEventListener('click', () => alert('Đã theo dõi truyện (mô phỏng)'));
         document.getElementById('readFirstBtn').addEventListener('click', () => alert('Đọc từ đầu'));
         document.getElementById('readLatestBtn').addEventListener('click', () => alert('Đọc mới nhất'));
         document.getElementById('readContinueBtn').addEventListener('click', () => alert('Đọc tiếp'));
-        document.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); alert('Đã xóa lịch sử'); }));
+        document.getElementById('breadcrumbHome').addEventListener('click', (e) => { e.preventDefault(); showHome(); });
+        document.getElementById('breadcrumbCategory').addEventListener('click', (e) => { e.preventDefault(); showGenre(); });
     </script>
 </body>
 </html>

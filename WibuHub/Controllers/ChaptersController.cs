@@ -218,10 +218,8 @@ namespace WibuHub.Controllers
                     {
                         return BadRequest();
                     }
-                    else
-                    {
-                        throw;
-                    }
+
+                    ModelState.AddModelError(string.Empty, "Chapter was modified or deleted by another user. Please reload and try again.");
                 }
             }
             ViewData["StoryId"] = new SelectList(_context.Stories.Where(s => !s.IsDeleted), "Id", "StoryName", chapterVM.StoryId);
