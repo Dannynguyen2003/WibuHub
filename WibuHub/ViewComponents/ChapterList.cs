@@ -21,6 +21,7 @@ namespace WibuHub.MVC.ViewComponents
                 {
                     Id = c.Id,
                     StoryId = c.StoryId,
+                    StoryName = c.Story != null ? c.Story.StoryName : string.Empty,
                     Name = c.Name,
                     ChapterNumber = c.ChapterNumber,
                     Slug = c.Slug,

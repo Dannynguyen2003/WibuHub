@@ -2,14 +2,15 @@
 <table class="table table-hover mt-3 border">
     <thead class="table-dark">
         <tr>
-            <th style="width: 10%">Số chương</th>
-            <th style="width: 20%">Tên chương</th>
-            <th style="width: 10%">Số ảnh</th>
-            <th style="width: 15%">Slug</th>
-            <th style="width: 10%">Lượt xem</th>
-            <th style="width: 10%">Giá</th>
-            <th style="width: 15%">Ngày tạo</th>
-            <th style="width: 20%" class="text-center">Thao tác</th>
+            <th style="width: 8%">Số chương</th>
+            <th style="width: 15%">Tên chương</th>
+            <th style="width: 15%">Truyện</th>
+            <th style="width: 8%">Số ảnh</th>
+            <th style="width: 12%">Slug</th>
+            <th style="width: 8%">Lượt xem</th>
+            <th style="width: 8%">Giá</th>
+            <th style="width: 12%">Ngày tạo</th>
+            <th style="width: 12%" class="text-center">Thao tác</th>
         </tr>
     </thead>
     <tbody>
@@ -24,6 +25,7 @@
                         </span>
                     </td>
                     <td><strong>@item.Name</strong></td>
+                    <td>@item.StoryName</td>
                     <td>@item.ImageCount</td>
                     <td>
                         <span class="text-danger fw-bold">@item.Slug</span>
@@ -49,7 +51,7 @@
         else
         {
             <tr>
-                <td colspan="8" class="text-center">Chưa có chương nào được tạo.</td>
+                <td colspan="9" class="text-center">Chưa có chương nào được tạo.</td>
             </tr>
         }
     </tbody>

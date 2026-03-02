@@ -19,6 +19,7 @@ namespace WibuHub.MVC.ViewModels
         // Navigation property: Liên kết ngược lại với Story
         [ForeignKey("StoryId")]
         public virtual Story? Story { get; set; }
+        public string StoryName { get; set; } = string.Empty;
 
         // Name: nvarchar(150)
         [Required]
