@@ -8,6 +8,7 @@ namespace WibuHub.MVC.Customer.Controllers
 {
     public class HomeController : Controller
     {
+        private const string StoriesEndpoint = "api/stories";
         private readonly ILogger<HomeController> _logger;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
@@ -24,17 +25,19 @@ namespace WibuHub.MVC.Customer.Controllers
             var apiBaseUrl = _configuration["ApiBaseUrl"];
             if (string.IsNullOrWhiteSpace(apiBaseUrl))
             {
+                _logger.LogWarning("ApiBaseUrl is not configured.");
                 return View(new List<StoryDto>());
             }
 
             try
             {
-                var httpClient = _httpClientFactory.CreateClient();
-                var stories = await httpClient.GetFromJsonAsync<List<StoryDto>>($"{apiBaseUrl}/api/stories");
+                var httpClient = _httpClientFactory.CreateClient("WibuHubApi");
+                var stories = await httpClient.GetFromJsonAsync<List<StoryDto>>(StoriesEndpoint);
                 return View(stories ?? new List<StoryDto>());
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "Failed to fetch stories from API");
                 return View(new List<StoryDto>());
             }
         }

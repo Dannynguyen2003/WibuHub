@@ -55,7 +55,15 @@ builder.Services.AddSession(options =>
 builder.Services.AddAuthentication();
 builder.Services.AddAuthorization();
 builder.Services.AddRazorPages();
-builder.Services.AddHttpClient();
+builder.Services.AddHttpClient("WibuHubApi", client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(10);
+    var apiBaseUrl = builder.Configuration["ApiBaseUrl"];
+    if (Uri.TryCreate(apiBaseUrl, UriKind.Absolute, out var uri))
+    {
+        client.BaseAddress = uri;
+    }
+});
 
 builder.Services.AddControllersWithViews();
 
