@@ -43,6 +43,7 @@ namespace WibuHub.MVC.ViewModels
         public string? Content { get; set; }
         public List<string> ImageUrls { get; set; } = new();
         public List<IFormFile>? UploadImages { get; set; }
+        public int ImageCount { get; set; }
 
         // ServerId: int (Lưu server ảnh: 1=Google, 2=Imgur...)
         public int ServerId { get; set; } = 1;

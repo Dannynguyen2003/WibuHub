@@ -46,7 +46,11 @@
                     <span asp-validation-for="Slug" class="text-danger"></span>
                 </div>
                 <div class="form-group mb-3">
-                    <label class="control-label fw-bold">Danh sách ảnh (nội dung chapter)</label>
+                    <label class="control-label fw-bold">Danh sách ảnh (URL hoặc chọn từ máy)</label>
+                    <div class="mb-2">
+                        <input asp-for="UploadImages" class="form-control" type="file" multiple accept="image/*" />
+                        <small class="text-muted">Ảnh upload sẽ được thêm vào chung danh sách với URL khi lưu.</small>
+                    </div>
                     <div id="chapterImageList" class="d-flex flex-column gap-2">
                         @if (Model?.ImageUrls != null && Model.ImageUrls.Count > 0)
                         {
@@ -64,11 +68,6 @@
                     </div>
                     <small class="text-muted">Kéo-thả hoặc bấm ↑ ↓ để đổi thứ tự ảnh.</small>
                     <button type="button" class="btn btn-outline-secondary mt-2" id="btnAddImage">+ Thêm ảnh</button>
-                </div>
-                <div class="form-group mb-3">
-                    <label asp-for="UploadImages" class="control-label fw-bold">Upload ảnh từ máy</label>
-                    <input asp-for="UploadImages" class="form-control" type="file" multiple accept="image/*" />
-                    <small class="text-muted">Ảnh upload sẽ được thêm vào sau danh sách URL.</small>
                 </div>
                 <div class="form-group mb-3">
                     <label asp-for="ServerId" class="control-label fw-bold">Server ID</label>

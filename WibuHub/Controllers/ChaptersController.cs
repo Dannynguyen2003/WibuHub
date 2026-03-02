@@ -44,6 +44,7 @@ namespace WibuHub.Controllers
 
             var chapter = await _context.Chapters
                 .Include(c => c.Story)
+                .Include(c => c.Images)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (chapter == null)
             {
@@ -254,6 +255,7 @@ namespace WibuHub.Controllers
 
             var chapter = await _context.Chapters
                 .Include(c => c.Story)
+                .Include(c => c.Images)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (chapter == null)
             {
