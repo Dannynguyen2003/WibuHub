@@ -1,8 +1,32 @@
-﻿@{
+﻿@model List<WibuHub.ApplicationCore.DTOs.Shared.StoryDto>
+@{
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container py-4">
+    <h1 class="display-6 mb-3">Danh sách truyện</h1>
+
+    @if (!Model.Any())
+    {
+        <p>Chưa có dữ liệu truyện từ API.</p>
+    }
+    else
+    {
+        <ul class="list-group">
+            @foreach (var story in Model)
+            {
+                <li class="list-group-item">
+                    <strong>@story.Title</strong>
+                    @if (!string.IsNullOrWhiteSpace(story.AuthorName))
+                    {
+                        <span>- @story.AuthorName</span>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(story.CategoryName))
+                    {
+                        <span class="text-muted">(@story.CategoryName)</span>
+                    }
+                </li>
+            }
+        </ul>
+    }
 </div>
