@@ -55,6 +55,7 @@ builder.Services.AddSession(options =>
 builder.Services.AddAuthentication();
 builder.Services.AddAuthorization();
 builder.Services.AddRazorPages();
+builder.Services.AddHttpClient();
 
 builder.Services.AddControllersWithViews();
 
