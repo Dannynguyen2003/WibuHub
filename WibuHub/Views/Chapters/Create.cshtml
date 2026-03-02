@@ -46,7 +46,11 @@
                     <span asp-validation-for="Slug" class="text-danger"></span>
                 </div>
                 <div class="form-group mb-3">
-                    <label class="control-label fw-bold">Danh sách ảnh (nội dung chapter)</label>
+                    <label class="control-label fw-bold">Danh sách ảnh (URL hoặc chọn từ máy)</label>
+                    <div class="mb-2">
+                        <input asp-for="UploadImages" class="form-control" type="file" multiple accept="image/*" />
+                        <small class="text-muted">Ảnh upload sẽ được thêm vào chung danh sách với URL khi lưu.</small>
+                    </div>
                     <div id="chapterImageList" class="d-flex flex-column gap-2">
                         @if (Model?.ImageUrls != null && Model.ImageUrls.Count > 0)
                         {
@@ -62,11 +66,11 @@
                     </div>
                     <button type="button" class="btn btn-outline-secondary mt-2" id="btnAddImage">+ Thêm ảnh</button>
                 </div>
-                <div class="form-group mb-3">
+                @* <div class="form-group mb-3">
                     <label asp-for="UploadImages" class="control-label fw-bold">Upload ảnh từ máy</label>
                     <input asp-for="UploadImages" class="form-control" type="file" multiple accept="image/*" />
                     <small class="text-muted">Ảnh upload sẽ được thêm vào sau danh sách URL.</small>
-                </div>
+                </div> *@
                 <div class="form-group mb-3">
                     <label asp-for="ServerId" class="control-label fw-bold">Server ID</label>
                     <input asp-for="ServerId" class="form-control" type="number" />
@@ -74,12 +78,14 @@
                 </div>
                 <div class="form-group mb-3">
                     <label asp-for="Price" class="control-label fw-bold">Giá</label>
-                    <input asp-for="Price" class="form-control" type="number" step="0.01" />
+                    <input asp-for="Price" class="form-control" type="number" step="1000" min="0" />
+                    <small class="text-muted">Đơn vị: VNĐ.</small>
                     <span asp-validation-for="Price" class="text-danger"></span>
                 </div>
                 <div class="form-group mb-3">
                     <label asp-for="Discount" class="control-label fw-bold">Giảm giá</label>
-                    <input asp-for="Discount" class="form-control" type="number" step="0.01" />
+                    <input asp-for="Discount" class="form-control" type="number" step="1000" min="0" />
+                    <small class="text-muted">Đơn vị: VNĐ.</small>
                     <span asp-validation-for="Discount" class="text-danger"></span>
                 </div>
                 <div class="form-group" style="text-align: center; margin-top: 10px;">

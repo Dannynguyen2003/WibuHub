@@ -152,6 +152,13 @@ namespace WibuHub.DataLayer
             {
                 entity.ToTable("ChapterImages");
                 entity.HasKey(ci => ci.Id);
+                entity.Property(ci => ci.ImageUrl)
+                      .HasColumnType("varchar(500)")
+                      .HasMaxLength(500)
+                      .IsRequired();
+                entity.Property(ci => ci.OrderIndex).IsRequired();
+                entity.Property(ci => ci.StorageType).HasDefaultValue(0);
+                entity.HasIndex(ci => new { ci.ChapterId, ci.OrderIndex }).IsUnique();
 
                 // Khi xóa Chapter -> Xóa luôn ảnh
                 entity.HasOne(ci => ci.Chapter)

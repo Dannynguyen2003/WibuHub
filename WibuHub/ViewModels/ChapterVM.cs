@@ -37,6 +37,9 @@ namespace WibuHub.MVC.ViewModels
         public List<string> ImageUrls { get; set; } = new();
 
         public List<IFormFile>? UploadImages { get; set; }
+        public int ImageCount { get; set; }
+
+        public string StoryName { get; set; } = string.Empty;
 
         // ViewCount: int (Lượt xem riêng chap này)
         public int ViewCount { get; set; } = 0;

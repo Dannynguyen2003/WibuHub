@@ -15,16 +15,19 @@ namespace WibuHub.MVC.ViewComponents
         {
             var chapters = await _context.Chapters
                 .Include(c => c.Story)
+                .Include(c => c.Images)
                 .OrderByDescending(c => c.CreatedAt)
                 .Select(c => new ChapterVM
                 {
                     Id = c.Id,
                     StoryId = c.StoryId,
+                    StoryName = c.Story != null ? c.Story.StoryName : string.Empty,
                     Name = c.Name,
                     ChapterNumber = c.ChapterNumber,
                     Slug = c.Slug,
                     ViewCount = c.ViewCount,
                     Content = c.Content,
+                    ImageCount = c.Images.Count,
                     ServerId = c.ServerId,
                     CreatedAt = c.CreatedAt,
                     Price = c.Price,

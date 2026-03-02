@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using MimeKit;
 using WibuHub.ApplicationCore.Entities;
 using WibuHub.DataLayer;
 using WibuHub.MVC.ViewModels;
@@ -13,7 +14,12 @@ namespace WibuHub.Controllers
     public class ChaptersController : Controller
     {
         private readonly StoryDbContext _context;
-
+        private readonly IWebHostEnvironment _env;
+        private static readonly HashSet<string> AllowedImageExtensions = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ".jpg", ".jpeg", ".jfif", ".png", ".webp", ".gif", ".bmp"
+        };
+        const long maxImageSizeBytes = 10 * 1024 * 1024;
         public ChaptersController(StoryDbContext context)
         {
             _context = context;
@@ -140,6 +146,7 @@ namespace WibuHub.Controllers
             }
 
             var chapter = await _context.Chapters
+                .Include(c => c.Story)
                 .Include(c => c.Images)
                 .FirstOrDefaultAsync(c => c.Id == id);
             if (chapter == null)
@@ -182,6 +189,7 @@ namespace WibuHub.Controllers
                 try
                 {
                     var chapter = await _context.Chapters
+                       .Include(c => c.Story)
                        .Include(c => c.Images)
                        .FirstOrDefaultAsync(c => c.Id == id);
                     if (chapter == null)
@@ -236,6 +244,7 @@ namespace WibuHub.Controllers
 
             var chapter = await _context.Chapters
                 .Include(c => c.Story)
+                .Include(c => c.Images)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (chapter == null)
             {
