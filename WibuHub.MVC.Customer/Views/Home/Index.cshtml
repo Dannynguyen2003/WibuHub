@@ -1,8 +1,42 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model IEnumerable<WibuHub.ApplicationCore.Entities.Chapter>
+@{
+    ViewData["Title"] = "Mua truyện";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container">
+    <h2>Danh sách chapter có thể mua</h2>
+    <p><a asp-controller="ShoppingCart" asp-action="Index">Xem giỏ hàng</a></p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Truyện</th>
+                <th>Chapter</th>
+                <th>Giá</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="4">Chưa có dữ liệu chapter để mua.</td>
+                </tr>
+            }
+            @foreach (var chapter in Model)
+            {
+                <tr>
+                    <td>@(chapter.Story?.StoryName ?? chapter.StoryName)</td>
+                    <td>@chapter.Name</td>
+                    <td>@chapter.Price.ToString("N0") đ</td>
+                    <td>
+                        <form asp-controller="ShoppingCart" asp-action="AddToCart" method="post">
+                            <input type="hidden" name="idChapter" value="@chapter.Id" />
+                            <input type="hidden" name="quantity" value="1" />
+                            <button type="submit" class="btn btn-primary">Thêm vào giỏ</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>
