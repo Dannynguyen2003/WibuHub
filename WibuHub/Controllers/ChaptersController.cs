@@ -14,6 +14,7 @@ namespace WibuHub.Controllers
     {
         private readonly StoryDbContext _context;
         private readonly IWebHostEnvironment _env;
+        private const string UploadInvalidMessage = "Ảnh tải lên không hợp lệ hoặc vượt giới hạn.";
 
         public ChaptersController(StoryDbContext context, IWebHostEnvironment env)
         {
@@ -75,8 +76,14 @@ namespace WibuHub.Controllers
                         .ToList();
                 }
                 var chapterId = Guid.NewGuid();
-                var uploadedImageUrls = await SaveUploadedImagesAsync(chapterVM.UploadImages, chapterVM.StoryId, chapterId, imageUrls.Count + 1);
-                imageUrls.AddRange(uploadedImageUrls);
+                var uploadResult = await SaveUploadedImagesAsync(chapterVM.UploadImages, chapterVM.StoryId, chapterId, imageUrls.Count + 1);
+                imageUrls.AddRange(uploadResult.UploadedImageUrls);
+                if (IsAllUploadsRejected(chapterVM.UploadImages, uploadResult))
+                {
+                    ModelState.AddModelError(nameof(chapterVM.UploadImages), UploadInvalidMessage);
+                    ViewData["StoryId"] = new SelectList(_context.Stories.Where(s => !s.IsDeleted), "Id", "StoryName", chapterVM.StoryId);
+                    return View(chapterVM);
+                }
 
                 var chapter = new Chapter
                 {
@@ -209,8 +216,14 @@ namespace WibuHub.Controllers
                         .Where(url => !string.IsNullOrWhiteSpace(url))
                         .Select(url => url.Trim())
                         .ToList();
-                    var uploadedImageUrls = await SaveUploadedImagesAsync(chapterVM.UploadImages, chapterVM.StoryId, chapter.Id, imageUrls.Count + 1);
-                    imageUrls.AddRange(uploadedImageUrls);
+                    var uploadResult = await SaveUploadedImagesAsync(chapterVM.UploadImages, chapterVM.StoryId, chapter.Id, imageUrls.Count + 1);
+                    imageUrls.AddRange(uploadResult.UploadedImageUrls);
+                    if (IsAllUploadsRejected(chapterVM.UploadImages, uploadResult))
+                    {
+                        ModelState.AddModelError(nameof(chapterVM.UploadImages), UploadInvalidMessage);
+                        ViewData["StoryId"] = new SelectList(_context.Stories.Where(s => !s.IsDeleted), "Id", "StoryName", chapterVM.StoryId);
+                        return View(nameof(Create), chapterVM);
+                    }
                     chapter.StoryId = chapterVM.StoryId;
                     chapter.Name = chapterVM.Name.Trim();
                     chapter.ChapterNumber = chapterVM.ChapterNumber;
@@ -290,23 +303,36 @@ namespace WibuHub.Controllers
             return _context.Chapters.Any(e => e.Id == id);
         }
 
-        private async Task<List<string>> SaveUploadedImagesAsync(List<IFormFile>? uploadImages, Guid storyId, Guid chapterId, int startOrder)
+        private async Task<(List<string> UploadedImageUrls, int RejectedCount)> SaveUploadedImagesAsync(List<IFormFile>? uploadImages, Guid storyId, Guid chapterId, int startOrder)
         {
             var uploadedImageUrls = new List<string>();
-            if (uploadImages == null || uploadImages.Count == 0) return uploadedImageUrls;
+            if (uploadImages == null || uploadImages.Count == 0) return (uploadedImageUrls, 0);
 
-            var allowedExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { ".jpg", ".jpeg", ".png", ".webp", ".gif", ".jfif", ".bmp" };
+            var allowedExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { ".jpg", ".jpeg", ".png", ".webp", ".gif", ".jfif", ".bmp", ".heic", ".heif", ".avif" };
             const long maxImageSizeBytes = 10 * 1024 * 1024;
             var folderPath = GetChapterUploadPath(storyId, chapterId);
             if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
 
             var order = startOrder;
+            var rejectedCount = 0;
             foreach (var file in uploadImages)
             {
-                if (file == null || file.Length <= 0) continue;
-                if (file.Length > maxImageSizeBytes) continue;
+                if (file == null || file.Length <= 0)
+                {
+                    rejectedCount++;
+                    continue;
+                }
+                if (file.Length > maxImageSizeBytes)
+                {
+                    rejectedCount++;
+                    continue;
+                }
                 var extension = Path.GetExtension(file.FileName);
-                if (!allowedExtensions.Contains(extension)) continue;
+                if (!allowedExtensions.Contains(extension))
+                {
+                    rejectedCount++;
+                    continue;
+                }
 
                 var fileName = $"{order:D4}{extension.ToLowerInvariant()}";
                 var fullPath = Path.Combine(folderPath, fileName);
@@ -338,12 +364,17 @@ namespace WibuHub.Controllers
                 order++;
             }
 
-            return uploadedImageUrls;
+            return (uploadedImageUrls, rejectedCount);
         }
 
         private string GetChapterUploadPath(Guid storyId, Guid chapterId)
         {
             return Path.Combine(_env.WebRootPath, "uploads", "stories", storyId.ToString(), chapterId.ToString());
+        }
+
+        private static bool IsAllUploadsRejected(List<IFormFile>? files, (List<string> UploadedImageUrls, int RejectedCount) uploadResult)
+        {
+            return (files?.Count ?? 0) > 0 && uploadResult.UploadedImageUrls.Count == 0 && uploadResult.RejectedCount > 0;
         }
     }
 }
