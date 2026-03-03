@@ -1,0 +1,118 @@
+﻿/* auth.css - styles cho trang đăng nhập và đăng ký */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Roboto', sans-serif;
+}
+
+body {
+    background-color: #f1f5f9;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-container {
+    width: 100%;
+    max-width: 420px;
+    background: white;
+    border-radius: 30px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    padding: 40px 35px;
+    margin: 20px;
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+    .auth-header i {
+        font-size: 48px;
+        color: #2563eb;
+        background: #e0f2fe;
+        padding: 18px;
+        border-radius: 30px;
+        margin-bottom: 15px;
+    }
+
+    .auth-header h2 {
+        font-weight: 500;
+        color: #0b1e33;
+    }
+
+    .auth-header p {
+        color: #64748b;
+        margin-top: 8px;
+    }
+
+.form-group {
+    margin-bottom: 22px;
+}
+
+    .form-group label {
+        font-weight: 500;
+        color: #334155;
+        display: block;
+        margin-bottom: 8px;
+    }
+
+.form-control {
+    width: 100%;
+    padding: 14px 18px;
+    border: 1px solid #cbd5e1;
+    border-radius: 20px;
+    font-size: 1rem;
+    outline: none;
+    transition: 0.2s;
+}
+
+    .form-control:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+    }
+
+.btn-auth {
+    width: 100%;
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 40px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.2s;
+    margin-top: 10px;
+}
+
+    .btn-auth:hover {
+        background: #1d4ed8;
+    }
+
+.auth-footer {
+    text-align: center;
+    margin-top: 25px;
+    color: #475569;
+}
+
+    .auth-footer a {
+        color: #2563eb;
+        text-decoration: none;
+        font-weight: 500;
+        margin-left: 5px;
+        cursor: pointer;
+    }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+
+.error-message {
+    color: #dc2626;
+    font-size: 0.9rem;
+    margin-top: 5px;
+    display: none;
+}
