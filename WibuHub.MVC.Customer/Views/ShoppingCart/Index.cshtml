@@ -1,0 +1,40 @@
+@model WibuHub.MVC.ViewModels.ShoppingCart.Cart
+@{
+    ViewData["Title"] = "Giỏ hàng";
+}
+
+<div class="container">
+    <h2>Giỏ hàng</h2>
+    <p><a asp-controller="Home" asp-action="Index">Tiếp tục mua</a></p>
+    @if (Model.Items.Any())
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Truyện</th>
+                    <th>Chapter</th>
+                    <th>Số lượng</th>
+                    <th>Đơn giá</th>
+                    <th>Thành tiền</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Items)
+                {
+                    <tr>
+                        <td>@item.StoryTitle</td>
+                        <td>@item.ChapterName</td>
+                        <td>@item.Quantity</td>
+                        <td>@item.Price.ToString("N0") đ</td>
+                        <td>@((item.Price * item.Quantity).ToString("N0")) đ</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <p><strong>Tổng tiền:</strong> @Model.Items.Sum(x => x.Price * x.Quantity).ToString("N0") đ</p>
+    }
+    else
+    {
+        <p>Giỏ hàng đang trống.</p>
+    }
+</div>
