@@ -100,6 +100,7 @@
             const rows = Array.from(document.querySelectorAll("#storiesTable tbody tr"));
             const filterButtons = Array.from(document.querySelectorAll(".filter-btn"));
             const pendingEl = document.getElementById("pendingCount");
+            const totalPending = rows.filter((row) => row.dataset.status === "pending").length;
             let activeFilter = "all";
 
             const renderChart = (range) => {
@@ -117,7 +118,6 @@
 
             const applyFilter = () => {
                 const keyword = (searchEl.value || "").toLowerCase().trim();
-                let pendingCount = 0;
                 rows.forEach((row) => {
                     const title = row.cells[0].textContent.toLowerCase();
                     const status = row.dataset.status;
@@ -125,9 +125,8 @@
                     const matchKeyword = title.includes(keyword);
                     const visible = matchStatus && matchKeyword;
                     row.style.display = visible ? "" : "none";
-                    if (visible && status === "pending") pendingCount++;
                 });
-                pendingEl.textContent = pendingCount.toString();
+                pendingEl.textContent = totalPending.toString();
             };
 
             rangeEl?.addEventListener("change", (e) => renderChart(e.target.value));
