@@ -15,6 +15,8 @@ namespace WibuHub.Controllers
         private readonly StoryDbContext _context;
         private readonly IWebHostEnvironment _env;
         private const string UploadInvalidMessage = "Ảnh tải lên không hợp lệ hoặc vượt giới hạn.";
+        private const string UploadCountLimitMessage = "Chỉ được tải tối đa 40 ảnh mỗi lần.";
+        private const int MaxUploadImageCount = 40;
 
         public ChaptersController(StoryDbContext context, IWebHostEnvironment env)
         {
@@ -58,11 +60,18 @@ namespace WibuHub.Controllers
 
         // POST: Chapters/Create
         [HttpPost]
+        [RequestFormLimits(MultipartBodyLengthLimit = 524288000, ValueCountLimit = 4096)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ChapterVM chapterVM)
         {
             if (ModelState.IsValid)
             {
+                if ((chapterVM.UploadImages?.Count ?? 0) > MaxUploadImageCount)
+                {
+                    ModelState.AddModelError(nameof(chapterVM.UploadImages), UploadCountLimitMessage);
+                    ViewData["StoryId"] = new SelectList(_context.Stories.Where(s => !s.IsDeleted), "Id", "StoryName", chapterVM.StoryId);
+                    return View(chapterVM);
+                }
                 var imageUrls = (chapterVM.ImageUrls ?? new List<string>())
                     .Where(url => !string.IsNullOrWhiteSpace(url))
                     .Select(url => url.Trim())
@@ -192,6 +201,7 @@ namespace WibuHub.Controllers
 
         // POST: Chapters/Edit/5
         [HttpPost]
+        [RequestFormLimits(MultipartBodyLengthLimit = 524288000, ValueCountLimit = 4096)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Guid id, ChapterVM chapterVM)
         {
@@ -204,6 +214,12 @@ namespace WibuHub.Controllers
             {
                 try
                 {
+                    if ((chapterVM.UploadImages?.Count ?? 0) > MaxUploadImageCount)
+                    {
+                        ModelState.AddModelError(nameof(chapterVM.UploadImages), UploadCountLimitMessage);
+                        ViewData["StoryId"] = new SelectList(_context.Stories.Where(s => !s.IsDeleted), "Id", "StoryName", chapterVM.StoryId);
+                        return View(nameof(Create), chapterVM);
+                    }
                     var chapter = await _context.Chapters
                         .Include(c => c.Story)
                         .Include(c => c.Images)
