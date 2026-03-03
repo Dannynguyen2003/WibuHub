@@ -116,3 +116,33 @@ body {
     margin-top: 5px;
     display: none;
 }
+
+:root {
+    --identity-layout-offset: 73px;
+}
+
+.identity-account-page .divider:after,
+.identity-account-page .divider:before {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #eee;
+}
+
+.identity-account-page .h-custom {
+    height: calc(100% - var(--identity-layout-offset));
+}
+
+.identity-account-page .gradient-custom-3 {
+    background: linear-gradient(to right, rgba(132, 250, 176, 0.5), rgba(143, 211, 244, 0.5));
+}
+
+.identity-account-page .gradient-custom-4 {
+    background: linear-gradient(to right, #84fab0, #8fd3f4);
+}
+
+@media (max-width: 450px) {
+    .identity-account-page .h-custom {
+        height: 100%;
+    }
+}

@@ -555,3 +555,7 @@ canvas {
         grid-template-columns: 1fr;
     }
 }
+
+.navbar .dropdown-menu {
+    min-width: 12rem;
+}

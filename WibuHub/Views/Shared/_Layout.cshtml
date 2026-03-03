@@ -1,5 +1,6 @@
 ﻿@{
     Layout = null;
+    var isIdentityArea = string.Equals(ViewContext.RouteData.Values["area"]?.ToString(), "Identity", StringComparison.OrdinalIgnoreCase);
 }
 @using Microsoft.AspNetCore.Identity
 @using WibuHub.ApplicationCore.Entities.Identity
@@ -12,90 +13,130 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - WibuHub Admin</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @* <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" /> *@
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    @* <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" /> *@
+    @* @if (Context.Request.Path.StartsWithSegments("/Identity")) *@
+    @if (isIdentityArea)
+    {
+        <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+    }
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-primary border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="Admin" asp-controller="Home" asp-action="Index">
-                    <i class="bi bi-kanban"></i> WibuHub Admin
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="Admin" asp-controller="Home" asp-action="Index">Dashboard</a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Nội dung
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" asp-area="Admin" asp-controller="Stories" asp-action="Create">Truyện</a></li>
-                                <li><a class="dropdown-item" asp-area="Admin" asp-controller="Chapters" asp-action="Create">Chương</a></li>
-                                <li><a class="dropdown-item" asp-area="Admin" asp-controller="Authors" asp-action="Create">Tác giả</a></li>
-                                <li><a class="dropdown-item" asp-area="Admin" asp-controller="Categories" asp-action="Create">Danh mục</a></li>
-                            </ul>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Tương tác
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" asp-area="Admin" asp-controller="Comments" asp-action="Create">Bình luận</a></li>
-                                <li><a class="dropdown-item" asp-area="Admin" asp-controller="Ratings" asp-action="Create">Đánh giá</a></li>
-                                <li><a class="dropdown-item" asp-area="Admin" asp-controller="Reports" asp-action="Create">Báo cáo</a></li>
-                                <li><a class="dropdown-item" asp-area="Admin" asp-controller="Follows" asp-action="Create">Theo dõi</a></li>
-                            </ul>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Hệ thống
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" asp-area="Admin" asp-controller="Orders" asp-action="Create">Đơn hàng</a></li>
-                                <li><a class="dropdown-item" asp-area="Admin" asp-controller="Notifications" asp-action="Create">Thông báo</a></li>
-                                <li><a class="dropdown-item" asp-area="Admin" asp-controller="Histories" asp-action="Create">Lịch sử đọc</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                    <ul class="navbar-nav">
-                        @if (SignInManager.IsSignedIn(User))
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-white" asp-area="" asp-controller="Home" asp-action="Index" target="_blank">
-                                    <i class="bi bi-house-door"></i> Trang chủ
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-white" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">
-                                    <i class="bi bi-person-circle"></i> @UserManager.GetUserName(User)
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "Admin" })">
-                                    <button type="submit" class="nav-link btn btn-link text-white">
-                                        <i class="bi bi-box-arrow-right"></i> Đăng xuất
-                                    </button>
-                                </form>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-white" asp-area="Identity" asp-page="/Account/Login">Đăng nhập</a>
-                            </li>
-                        }
+    <!-- LOGIN PAGE -->
+    <div id="login-page" class="auth-container">
+        <div class="auth-header">
+            <i class="fas fa-book-open"></i>
+            <h2>Đăng nhập Admin</h2>
+            <p>Nhập thông tin để quản trị ReadStory</p>
+        </div>
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="login-email" class="form-control" placeholder="admin@readstory.com">
+        </div>
+        <div class="form-group">
+            <label>Mật khẩu</label>
+            <input type="password" id="login-password" class="form-control" placeholder="••••••••">
+        </div>
+        <div class="error-message" id="login-error">Email hoặc mật khẩu không đúng</div>
+        <button class="btn-auth" id="login-btn"><i class="fas fa-sign-in-alt" style="margin-right: 8px;"></i>Đăng nhập</button>
+        <div class="auth-footer">
+            Chưa có tài khoản? <a id="show-register">Đăng ký ngay</a>
+        </div>
+    </div>
+
+    <!-- REGISTER PAGE -->
+    <div id="register-page" class="auth-container" style="display: none;">
+        <div class="auth-header">
+            <i class="fas fa-user-plus"></i>
+            <h2>Đăng ký tài khoản</h2>
+            <p>Tạo tài khoản quản trị mới</p>
+        </div>
+        <div class="form-group">
+            <label>Họ tên</label>
+            <input type="text" id="reg-name" class="form-control" placeholder="Nguyễn Văn A">
+        </div>
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="reg-email" class="form-control" placeholder="admin@readstory.com">
+        </div>
+        <div class="form-group">
+            <label>Mật khẩu</label>
+            <input type="password" id="reg-password" class="form-control" placeholder="••••••••">
+        </div>
+        <div class="form-group">
+            <label>Xác nhận mật khẩu</label>
+            <input type="password" id="reg-confirm" class="form-control" placeholder="••••••••">
+        </div>
+        <div class="error-message" id="register-error" style="display: none;">Mật khẩu không khớp hoặc thiếu thông tin</div>
+        <button class="btn-auth" id="register-btn"><i class="fas fa-check-circle" style="margin-right: 8px;"></i>Đăng ký</button>
+        <div class="auth-footer">
+            Đã có tài khoản? <a id="show-login">Đăng nhập</a>
+        </div>
+    </div>
+
+    <!-- DASHBOARD WRAPPER (ẩn ban đầu) -->
+    <div id="dashboard-wrapper">
+        <div class="dashboard-container">
+            <!-- SIDEBAR -->
+            <div class="sidebar">
+                <div class="sidebar-header">
+                    <i class="fas fa-book-open"></i>
+                    <div>
+                        <h2>ReadStory</h2>
+                        <span>Admin Panel</span>
+                    </div>
+                </div>
+                <div class="sidebar-menu">
+                    <ul>
+                        <li class="active" data-page="dashboard"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></li>
+                        <li data-page="stories"><i class="fas fa-book"></i> <span>Quản lý Truyện</span></li>
+                        <li data-page="categories"><i class="fas fa-list"></i> <span>Thể loại</span></li>
+                        <li data-page="authors"><i class="fas fa-feather"></i> <span>Tác giả</span></li>
+                        <li data-page="users"><i class="fas fa-users"></i> <span>Người dùng</span></li>
+                        <li data-page="comments"><i class="fas fa-comments"></i> <span>Bình luận</span></li>
+                        <li data-page="statistics"><i class="fas fa-chart-line"></i> <span>Thống kê</span></li>
+                        <li data-page="settings"><i class="fas fa-cog"></i> <span>Cài đặt</span></li>
+                        <li data-page="profile"><i class="fas fa-id-card"></i> <span>Hồ sơ</span></li>
                     </ul>
                 </div>
+                <div class="sidebar-footer" id="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Đăng xuất</span>
+                </div>
             </div>
-        </nav>
-    </header>
+
+            <!-- MAIN CONTENT -->
+            <div class="main-content">
+                <!-- HEADER -->
+                <div class="header">
+                    <div class="header-left">
+                        <h3><i class="fas fa-crown" style="color: #fbbf24;"></i> Xin chào, Admin</h3>
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" placeholder="Tìm kiếm truyện, người dùng...">
+                        </div>
+                    </div>
+                    <div class="header-right">
+                        <div class="icon" onclick="alert('Thông báo')">
+                            <i class="far fa-bell"></i>
+                            <span class="badge">4</span>
+                        </div>
+                        <div class="icon" onclick="alert('Tin nhắn')">
+                            <i class="far fa-envelope"></i>
+                            <span class="badge">2</span>
+                        </div>
+                        <div class="admin-profile" onclick="navigateTo('profile')">
+                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Admin">
+                            <div class="admin-info">
+                                <div class="name">Nguyễn Văn A</div>
+                                <div class="role">Quản trị viên</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
     <div class="container-fluid">
         <main role="main" class="pb-3">
             @RenderBody()
