@@ -1,155 +1,113 @@
 ﻿@{
-    Layout = null;
     var isIdentityArea = string.Equals(ViewContext.RouteData.Values["area"]?.ToString(), "Identity", StringComparison.OrdinalIgnoreCase);
 }
 @using Microsoft.AspNetCore.Identity
 @using WibuHub.ApplicationCore.Entities.Identity
 @inject SignInManager<StoryUser> SignInManager
-@inject UserManager<StoryUser> UserManager
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - WibuHub Admin</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    @* <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" /> *@
-    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
-    @* <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" /> *@
-    @* @if (Context.Request.Path.StartsWithSegments("/Identity")) *@
-    @if (isIdentityArea)
+    <title>@ViewData["Title"] - ReadStory Admin</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    @if (!SignInManager.IsSignedIn(User))
     {
         <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
     }
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    else
+    {
+        <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    }
 </head>
 <body>
-    <!-- LOGIN PAGE -->
-    <div id="login-page" class="auth-container">
-        <div class="auth-header">
-            <i class="fas fa-book-open"></i>
-            <h2>Đăng nhập Admin</h2>
-            <p>Nhập thông tin để quản trị ReadStory</p>
-        </div>
-        <div class="form-group">
-            <label>Email</label>
-            <input type="email" id="login-email" class="form-control" placeholder="admin@readstory.com">
-        </div>
-        <div class="form-group">
-            <label>Mật khẩu</label>
-            <input type="password" id="login-password" class="form-control" placeholder="••••••••">
-        </div>
-        <div class="error-message" id="login-error">Email hoặc mật khẩu không đúng</div>
-        <button class="btn-auth" id="login-btn"><i class="fas fa-sign-in-alt" style="margin-right: 8px;"></i>Đăng nhập</button>
-        <div class="auth-footer">
-            Chưa có tài khoản? <a id="show-register">Đăng ký ngay</a>
-        </div>
-    </div>
 
-    <!-- REGISTER PAGE -->
-    <div id="register-page" class="auth-container" style="display: none;">
-        <div class="auth-header">
-            <i class="fas fa-user-plus"></i>
-            <h2>Đăng ký tài khoản</h2>
-            <p>Tạo tài khoản quản trị mới</p>
-        </div>
-        <div class="form-group">
-            <label>Họ tên</label>
-            <input type="text" id="reg-name" class="form-control" placeholder="Nguyễn Văn A">
-        </div>
-        <div class="form-group">
-            <label>Email</label>
-            <input type="email" id="reg-email" class="form-control" placeholder="admin@readstory.com">
-        </div>
-        <div class="form-group">
-            <label>Mật khẩu</label>
-            <input type="password" id="reg-password" class="form-control" placeholder="••••••••">
-        </div>
-        <div class="form-group">
-            <label>Xác nhận mật khẩu</label>
-            <input type="password" id="reg-confirm" class="form-control" placeholder="••••••••">
-        </div>
-        <div class="error-message" id="register-error" style="display: none;">Mật khẩu không khớp hoặc thiếu thông tin</div>
-        <button class="btn-auth" id="register-btn"><i class="fas fa-check-circle" style="margin-right: 8px;"></i>Đăng ký</button>
-        <div class="auth-footer">
-            Đã có tài khoản? <a id="show-login">Đăng nhập</a>
-        </div>
-    </div>
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <div id="dashboard-wrapper" style="display: block;">
+            <div class="dashboard-container">
 
-    <!-- DASHBOARD WRAPPER (ẩn ban đầu) -->
-    <div id="dashboard-wrapper">
-        <div class="dashboard-container">
-            <!-- SIDEBAR -->
-            <div class="sidebar">
-                <div class="sidebar-header">
-                    <i class="fas fa-book-open"></i>
-                    <div>
-                        <h2>ReadStory</h2>
-                        <span>Admin Panel</span>
-                    </div>
-                </div>
-                <div class="sidebar-menu">
-                    <ul>
-                        <li class="active" data-page="dashboard"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></li>
-                        <li data-page="stories"><i class="fas fa-book"></i> <span>Quản lý Truyện</span></li>
-                        <li data-page="categories"><i class="fas fa-list"></i> <span>Thể loại</span></li>
-                        <li data-page="authors"><i class="fas fa-feather"></i> <span>Tác giả</span></li>
-                        <li data-page="users"><i class="fas fa-users"></i> <span>Người dùng</span></li>
-                        <li data-page="comments"><i class="fas fa-comments"></i> <span>Bình luận</span></li>
-                        <li data-page="statistics"><i class="fas fa-chart-line"></i> <span>Thống kê</span></li>
-                        <li data-page="settings"><i class="fas fa-cog"></i> <span>Cài đặt</span></li>
-                        <li data-page="profile"><i class="fas fa-id-card"></i> <span>Hồ sơ</span></li>
-                    </ul>
-                </div>
-                <div class="sidebar-footer" id="logout-btn">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>Đăng xuất</span>
-                </div>
-            </div>
-
-            <!-- MAIN CONTENT -->
-            <div class="main-content">
-                <!-- HEADER -->
-                <div class="header">
-                    <div class="header-left">
-                        <h3><i class="fas fa-crown" style="color: #fbbf24;"></i> Xin chào, Admin</h3>
-                        <div class="search-box">
-                            <i class="fas fa-search"></i>
-                            <input type="text" placeholder="Tìm kiếm truyện, người dùng...">
+                <div class="sidebar">
+                    <div class="sidebar-header">
+                        <i class="fas fa-book-open"></i>
+                        <div>
+                            <h2>ReadStory</h2><span>Admin Panel</span>
                         </div>
                     </div>
-                    <div class="header-right">
-                        <div class="icon" onclick="alert('Thông báo')">
-                            <i class="far fa-bell"></i>
-                            <span class="badge">4</span>
+                    <div class="sidebar-menu">
+                        <ul>
+                            <li class="@(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" ? "active" : "")">
+                                <a asp-controller="Home" asp-action="Index" style="text-decoration:none; color:inherit; display:flex; gap:14px; width:100%">
+                                    <i class="fas fa-chart-pie"></i> <span>Dashboard</span>
+                                </a>
+                            </li>
+                            <li class="@(ViewContext.RouteData.Values["Controller"]?.ToString() == "Categories" ? "active" : "")">
+                                <a asp-controller="Categories" asp-action="Create" style="text-decoration:none; color:inherit; display:flex; gap:14px; width:100%">
+                                    <i class="fas fa-book"></i> <span>Categories Management</span>
+                                </a>
+                            </li>
+                            <li class="@(ViewContext.RouteData.Values["Controller"]?.ToString() == "Authors" ? "active" : "")">
+                                <a asp-controller="Authors" asp-action="Create" style="text-decoration:none; color:inherit; display:flex; gap:14px; width:100%">
+                                    <i class="fas fa-book"></i> <span>Authors Management</span>
+                                </a>
+                            </li>
+                            <li class="@(ViewContext.RouteData.Values["Controller"]?.ToString() == "Stories" ? "active" : "")">
+                                <a asp-controller="Stories" asp-action="Create" style="text-decoration:none; color:inherit; display:flex; gap:14px; width:100%">
+                                    <i class="fas fa-book"></i> <span>Stories Management</span>
+                                </a>
+                            </li>
+                            <li class="@(ViewContext.RouteData.Values["Controller"]?.ToString() == "Chapters" ? "active" : "")">
+                                <a asp-controller="Chapters" asp-action="Create" style="text-decoration:none; color:inherit; display:flex; gap:14px; width:100%">
+                                    <i class="fas fa-book"></i> <span>Chapters Management</span>
+                                </a>
+                            </li>
+
+                        </ul>
+                    </div>
+                    <div class="sidebar-footer">
+                        <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post" style="width: 100%;">
+                            <button type="submit" style="background:none; border:none; color:inherit; cursor:pointer; display:flex; gap:12px; align-items:center;">
+                                <i class="fas fa-sign-out-alt"></i> <span>Đăng xuất</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="main-content">
+                    <div class="header">
+                        <div class="header-left">
+                            <h3><i class="fas fa-crown" style="color: #fbbf24;"></i> Xin chào, Admin</h3>
                         </div>
-                        <div class="icon" onclick="alert('Tin nhắn')">
-                            <i class="far fa-envelope"></i>
-                            <span class="badge">2</span>
-                        </div>
-                        <div class="admin-profile" onclick="navigateTo('profile')">
-                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Admin">
-                            <div class="admin-info">
-                                <div class="name">Nguyễn Văn A</div>
-                                <div class="role">Quản trị viên</div>
+                        <div class="header-right">
+                            <div class="admin-profile">
+                                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Admin">
+                                <div class="admin-info">
+                                    <div class="name">@User.Identity?.Name</div>
+                                    <div class="role">Quản trị viên</div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-    <div class="container-fluid">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2024 - WibuHub Admin - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                    <div class="pages-container">
+                        @RenderBody()
+                    </div>
+
+                </div>
+            </div>
         </div>
-    </footer>
+    }
+    else
+    {
+        @RenderBody()
+    }
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

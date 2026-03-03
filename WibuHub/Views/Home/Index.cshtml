@@ -1,4 +1,32 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="stats-grid">
+    <div class="stat-card"><div class="stat-left"><h4>Tổng truyện</h4><div class="value">1,248</div></div><div class="stat-right"><i class="fas fa-book"></i></div></div>
+    <div class="stat-card"><div class="stat-left"><h4>Chapter</h4><div class="value">12.5k</div></div><div class="stat-right"><i class="fas fa-layer-group"></i></div></div>
+</div>
+
+<div class="row-chart-activity">
+    <div class="chart-box">
+        <div class="chart-header">
+            <h3><i class="fas fa-chart-bar" style="color:#2563eb;"></i> Lượt xem 7 ngày</h3>
+        </div>
+        <canvas id="viewsChart"></canvas>
+    </div>
+    <div class="activity-box">
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const ctx = document.getElementById('viewsChart')?.getContext('2d');
+        if (ctx) {
+            new Chart(ctx, {
+                type: 'line',
+                data: { labels: ['T2','T3','T4','T5','T6','T7','CN'], datasets: [{ data: [12,19,15,22,24,30,28], borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.1)' }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+        }
+    </script>
 }

@@ -59,6 +59,19 @@ namespace WibuHub.MVC.Admin.Areas.Identity.Pages.Account
             {
                 return NotFound($"Unable to load user with email '{email}'.");
             }
+            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+            // 2. Tự động xác nhận luôn trong nền
+            var result = await _userManager.ConfirmEmailAsync(user, code);
+
+            if (result.Succeeded)
+            {
+                // 3. Chuyển thẳng ra trang Login
+                return RedirectToPage("/Account/Login", new { area = "Identity" });
+            }
+
+            // Nếu lỗi thì trả về trang chủ
+            return RedirectToPage("/Index");
 
             Email = email;
             //Once you add a real email sender, you should remove this code that lets you confirm the account
@@ -66,12 +79,12 @@ namespace WibuHub.MVC.Admin.Areas.Identity.Pages.Account
             if (DisplayConfirmAccountLink)
             {
                 var userId = await _userManager.GetUserIdAsync(user);
-                var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                var confirmationCode = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                confirmationCode = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(confirmationCode));
                 EmailConfirmationUrl = Url.Page(
                     "/Account/ConfirmEmail",
                     pageHandler: null,
-                    values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
+                    values: new { area = "Identity", userId = userId, code = confirmationCode, returnUrl = returnUrl },
                     protocol: Request.Scheme);
             }
 

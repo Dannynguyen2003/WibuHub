@@ -4,75 +4,56 @@
     ViewData["Title"] = "Register";
 }
 
-<section class="vh-100 bg-image"
-         style="background-image: url('https://mdbcdn.b-cdn.net/img/Photos/new-templates/search-box/img4.webp');">
-    <div class="mask d-flex align-items-center h-100 gradient-custom-3">
-        <div class="container h-100">
-            <div class="row d-flex justify-content-center align-items-center h-100">
-                <div class="col-12 col-md-9 col-lg-7 col-xl-6">
-                    <div class="card" style="border-radius: 15px;">
-                        <div class="card-body p-5">
-                            <h2 class="text-uppercase text-center mb-5">Create an account</h2>
-
-                            @* We bind the form to the backend logic here *@
-                            <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-
-                                @* Validation Summary for global errors *@
-                                <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
-
-                                @* NOTE: The default Identity model does not have a "Name" property. 
-                   I have commented this out. If you add a Name property to your InputModel, 
-                   uncomment this and add asp-for="Input.Name".
-                *@
-                                @* Email Input *@
-                                <div class="form-outline mb-4">
-                                    <input asp-for="Input.Email" class="form-control form-control-lg" placeholder="name@example.com" />
-                                    <label asp-for="Input.Email" class="form-label">Your Email</label>
-                                    <span asp-validation-for="Input.Email" class="text-danger"></span>
-                                </div>
-
-                                @* Password Input *@
-                                <div class="form-outline mb-4">
-                                    <input asp-for="Input.Password" class="form-control form-control-lg" placeholder="Password" />
-                                    <label asp-for="Input.Password" class="form-label">Password</label>
-                                    <span asp-validation-for="Input.Password" class="text-danger"></span>
-                                </div>
-
-                                @* Confirm Password Input *@
-                                <div class="form-outline mb-4">
-                                    <input asp-for="Input.ConfirmPassword" class="form-control form-control-lg" placeholder="Repeat password" />
-                                    <label asp-for="Input.ConfirmPassword" class="form-label">Repeat your password</label>
-                                    <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
-                                </div>
-
-                                @* Terms Checkbox - Note: Logic usually requires backend binding *@
-                                <div class="form-check d-flex justify-content-center mb-5">
-                                    <input class="form-check-input me-2" type="checkbox" value="" id="form2Example3cg" />
-                                    <label class="form-check-label" for="form2Example3g">
-                                        I agree all statements in <a href="#!" class="text-body"><u>Terms of service</u></a>
-                                    </label>
-                                </div>
-
-                                @* Submit Button *@
-                                <div class="d-flex justify-content-center">
-                                    <button id="registerSubmit" type="submit" class="btn btn-success btn-block btn-lg gradient-custom-4 text-body">Register</button>
-                                </div>
-
-                                @* Link to Login Page *@
-                                <p class="text-center text-muted mt-5 mb-0">
-                                    Have already an account?
-                                    <a asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl" class="fw-bold text-body"><u>Login here</u></a>
-                                </p>
-
-                            </form>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="auth-container">
+    <div class="auth-header">
+        <i class="fas fa-user-plus"></i>
+        <h2>Register</h2>
+        <p>Create a new administrator account</p>
     </div>
-</section>
+
+    <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+
+        @* Hiển thị lỗi tổng quát (nếu có) *@
+        <div asp-validation-summary="ModelOnly" class="error-message" style="display: block; margin-bottom: 15px; text-align: center;" role="alert"></div>
+
+        @* Ghi chú: Mặc định Identity không có trường Name (Họ tên). 
+           Nếu ApplicationUser của bạn có thêm trường này, hãy mở comment đoạn dưới đây.
+        *@
+        @* <div class="form-group">
+            <label asp-for="Input.Name">Họ tên</label>
+            <input asp-for="Input.Name" class="form-control" placeholder="Nguyễn Văn A" />
+            <span asp-validation-for="Input.Name" style="color: #dc2626; font-size: 0.85rem; margin-top: 5px; display: block;"></span>
+        </div> 
+        *@
+
+        <div class="form-group">
+            <label asp-for="Input.Email">Email</label>
+            <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="admin@readstory.com" />
+            @* Span hiển thị lỗi validation của ASP.NET *@
+            <span asp-validation-for="Input.Email" style="color: #dc2626; font-size: 0.85rem; margin-top: 5px; display: block;"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Input.Password">Mật khẩu</label>
+            <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="••••••••" />
+            <span asp-validation-for="Input.Password" style="color: #dc2626; font-size: 0.85rem; margin-top: 5px; display: block;"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Input.ConfirmPassword">Xác nhận mật khẩu</label>
+            <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="••••••••" />
+            <span asp-validation-for="Input.ConfirmPassword" style="color: #dc2626; font-size: 0.85rem; margin-top: 5px; display: block;"></span>
+        </div>
+
+        <button id="registerSubmit" type="submit" class="btn-auth">
+            <i class="fas fa-check-circle" style="margin-right: 8px;"></i>Register
+        </button>
+    </form>
+
+    <div class="auth-footer">
+        Do you already have an account? <a asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl">Login</a>
+    </div>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
