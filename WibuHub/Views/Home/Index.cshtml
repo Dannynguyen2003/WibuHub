@@ -1,4 +1,148 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Dashboard";
     Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="pages-container">
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-left">
+                <h4>Tổng truyện</h4>
+                <div class="value" id="totalStories">128</div>
+            </div>
+            <div class="stat-right"><i class="bi bi-book"></i></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-left">
+                <h4>Chờ duyệt</h4>
+                <div class="value" id="pendingCount">0</div>
+            </div>
+            <div class="stat-right"><i class="bi bi-hourglass-split"></i></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-left">
+                <h4>Người dùng mới</h4>
+                <div class="value">34</div>
+            </div>
+            <div class="stat-right"><i class="bi bi-people"></i></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-left">
+                <h4>Tương tác hôm nay</h4>
+                <div class="value">5.2K</div>
+            </div>
+            <div class="stat-right"><i class="bi bi-activity"></i></div>
+        </div>
+    </div>
+
+    <div class="row-chart-activity">
+        <div class="chart-box">
+            <div class="chart-header">
+                <h5 class="mb-0">Hiệu suất nội dung</h5>
+                <select id="timeRange" class="form-select form-select-sm w-auto">
+                    <option value="week">7 ngày</option>
+                    <option value="month">30 ngày</option>
+                    <option value="quarter">90 ngày</option>
+                </select>
+            </div>
+            <div class="d-flex align-items-end gap-2 mt-4" id="miniChart" style="height: 220px;"></div>
+        </div>
+
+        <div class="activity-box">
+            <h5 class="mb-3">Hoạt động gần đây</h5>
+            <ul class="activity-list">
+                <li><div class="activity-icon"><i class="bi bi-upload"></i></div><div><strong>Chapter mới</strong><div class="text-muted small">One Piece #1114 - 3 phút trước</div></div></li>
+                <li><div class="activity-icon"><i class="bi bi-flag"></i></div><div><strong>Báo cáo mới</strong><div class="text-muted small">2 bình luận cần kiểm duyệt</div></div></li>
+                <li><div class="activity-icon"><i class="bi bi-person-plus"></i></div><div><strong>Người dùng mới</strong><div class="text-muted small">8 tài khoản đăng ký hôm nay</div></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+        <h5 class="mb-2">Danh sách truyện nổi bật</h5>
+        <div class="d-flex gap-2 flex-wrap">
+            <input id="storySearch" class="form-control form-control-sm" style="max-width: 240px;" placeholder="Tìm theo tên truyện..." />
+            <button type="button" class="btn btn-outline-primary btn-sm filter-btn active" data-status="all">Tất cả</button>
+            <button type="button" class="btn btn-outline-primary btn-sm filter-btn" data-status="published">Đã duyệt</button>
+            <button type="button" class="btn btn-outline-primary btn-sm filter-btn" data-status="pending">Chờ duyệt</button>
+        </div>
+    </div>
+
+    <table class="data-table" id="storiesTable">
+        <thead>
+            <tr>
+                <th>Tên truyện</th>
+                <th>Tác giả</th>
+                <th>Lượt xem</th>
+                <th>Trạng thái</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr data-status="published"><td>One Piece</td><td>Oda Eiichiro</td><td>240K</td><td><span class="badge-status">Đã duyệt</span></td></tr>
+            <tr data-status="pending"><td>Jujutsu Kaisen</td><td>Gege Akutami</td><td>178K</td><td><span class="badge-status pending">Chờ duyệt</span></td></tr>
+            <tr data-status="published"><td>Solo Leveling</td><td>Chugong</td><td>151K</td><td><span class="badge-status">Đã duyệt</span></td></tr>
+            <tr data-status="pending"><td>Blue Lock</td><td>Muneyuki Kaneshiro</td><td>89K</td><td><span class="badge-status pending">Chờ duyệt</span></td></tr>
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const dataMap = {
+                week: [52, 88, 67, 95, 74, 90, 83],
+                month: [35, 48, 61, 57, 74, 69, 80],
+                quarter: [22, 38, 41, 53, 62, 58, 71]
+            };
+            const chartEl = document.getElementById("miniChart");
+            const rangeEl = document.getElementById("timeRange");
+            const searchEl = document.getElementById("storySearch");
+            const rows = Array.from(document.querySelectorAll("#storiesTable tbody tr"));
+            const filterButtons = Array.from(document.querySelectorAll(".filter-btn"));
+            const pendingEl = document.getElementById("pendingCount");
+            let activeFilter = "all";
+
+            const renderChart = (range) => {
+                chartEl.innerHTML = "";
+                (dataMap[range] || []).forEach((value, index) => {
+                    const bar = document.createElement("div");
+                    bar.className = "rounded-3";
+                    bar.style.width = "100%";
+                    bar.style.height = `${value * 2}px`;
+                    bar.style.background = index === 6 ? "#2563eb" : "#93c5fd";
+                    bar.title = `Mốc ${index + 1}: ${value}`;
+                    chartEl.appendChild(bar);
+                });
+            };
+
+            const applyFilter = () => {
+                const keyword = (searchEl.value || "").toLowerCase().trim();
+                let pendingCount = 0;
+                rows.forEach((row) => {
+                    const title = row.cells[0].textContent.toLowerCase();
+                    const status = row.dataset.status;
+                    const matchStatus = activeFilter === "all" || status === activeFilter;
+                    const matchKeyword = title.includes(keyword);
+                    const visible = matchStatus && matchKeyword;
+                    row.style.display = visible ? "" : "none";
+                    if (visible && status === "pending") pendingCount++;
+                });
+                pendingEl.textContent = pendingCount.toString();
+            };
+
+            rangeEl?.addEventListener("change", (e) => renderChart(e.target.value));
+            searchEl?.addEventListener("input", applyFilter);
+            filterButtons.forEach((button) => {
+                button.addEventListener("click", () => {
+                    activeFilter = button.dataset.status;
+                    filterButtons.forEach((btn) => btn.classList.remove("active"));
+                    button.classList.add("active");
+                    applyFilter();
+                });
+            });
+
+            renderChart("week");
+            applyFilter();
+        })();
+    </script>
 }
