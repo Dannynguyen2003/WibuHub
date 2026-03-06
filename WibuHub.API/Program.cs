@@ -1,6 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using WibuHub.ApplicationCore.Configuration;
 using WibuHub.DataLayer;
+using WibuHub.Service.EmailSender;
+using WibuHub.Service.Implementations.EmailSender;
 using WibuHub.Service.Implementations;
 using WibuHub.Service.Interface;
 
@@ -21,6 +23,8 @@ builder.Services.AddScoped<IChapterService, ChapterService>();
 //builder.Services.AddScoped<IChapterService, ChapterService>();
 // 3. Configure MoMo Settings
 builder.Services.Configure<MomoSettings>(builder.Configuration.GetSection("MomoSettings"));
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+builder.Services.AddScoped<ICustomEmailSender, MimeKitEmailSender>();
 // 4. Register HttpClient for MoMo API calls with timeout
 builder.Services.AddHttpClient<MomoPaymentService>(client =>
 {
