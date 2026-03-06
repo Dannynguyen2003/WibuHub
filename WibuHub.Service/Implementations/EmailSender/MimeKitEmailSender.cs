@@ -1,5 +1,6 @@
 ﻿using MailKit.Net.Smtp;
 using MailKit.Security;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MimeKit;
@@ -10,7 +11,7 @@ using WibuHub.Service.Interface;
 
 namespace WibuHub.Service.Implementations.EmailSender
 {
-    public class MimeKitEmailSender : ICustomEmailSender
+    public class MimeKitEmailSender : IEmailSender
     {
         private readonly EmailSettings _settings;
         private readonly ILogger<MimeKitEmailSender> _logger;

@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 using MimeKit;
 using WibuHub.Service.EmailSender;
 
-namespace WibuHub.MVC.EmailSender
+namespace WibuHub.Service.EmailSender
 {
     public class EmailSender : IEmailSender
     {

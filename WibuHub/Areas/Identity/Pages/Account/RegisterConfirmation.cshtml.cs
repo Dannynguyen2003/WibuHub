@@ -19,13 +19,13 @@ namespace WibuHub.MVC.Admin.Areas.Identity.Pages.Account
     public class RegisterConfirmationModel : PageModel
     {
         private readonly UserManager<StoryUser> _userManager;
-        //private readonly IEmailSender _sender;
+        private readonly IEmailSender _sender;
 
-        //public RegisterConfirmationModel(UserManager<StoryUser> userManager, IEmailSender sender)
-        public RegisterConfirmationModel(UserManager<StoryUser> userManager)
+        public RegisterConfirmationModel(UserManager<StoryUser> userManager, IEmailSender sender)
+        //public RegisterConfirmationModel(UserManager<StoryUser> userManager)
         {
             _userManager = userManager;
-            //_sender = sender;
+            _sender = sender;
         }
 
         /// <summary>

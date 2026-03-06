@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using WibuHub.ApplicationCore.Entities.Identity;
 using WibuHub.DataLayer;
+using WibuHub.MVC.EmailSender;
+using WibuHub.Service.EmailSender;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -55,6 +58,9 @@ builder.Services.AddSession(options =>
 builder.Services.AddAuthentication();
 builder.Services.AddAuthorization();
 builder.Services.AddRazorPages();
+
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+builder.Services.AddTransient<IEmailSender, EmailSender>();
 
 builder.Services.AddControllersWithViews();
 var app = builder.Build();
