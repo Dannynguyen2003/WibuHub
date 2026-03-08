@@ -52,7 +52,29 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
-builder.Services.AddAuthentication();
+var authenticationBuilder = builder.Services.AddAuthentication();
+
+var customerGoogleClientId = builder.Configuration["Authentication:Google:ClientId"];
+var customerGoogleClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+if (!string.IsNullOrWhiteSpace(customerGoogleClientId) && !string.IsNullOrWhiteSpace(customerGoogleClientSecret))
+{
+    authenticationBuilder.AddGoogle(options =>
+    {
+        options.ClientId = customerGoogleClientId;
+        options.ClientSecret = customerGoogleClientSecret;
+    });
+}
+
+var customerFacebookAppId = builder.Configuration["Authentication:Facebook:AppId"];
+var customerFacebookAppSecret = builder.Configuration["Authentication:Facebook:AppSecret"];
+if (!string.IsNullOrWhiteSpace(customerFacebookAppId) && !string.IsNullOrWhiteSpace(customerFacebookAppSecret))
+{
+    authenticationBuilder.AddFacebook(options =>
+    {
+        options.AppId = customerFacebookAppId;
+        options.AppSecret = customerFacebookAppSecret;
+    });
+}
 builder.Services.AddAuthorization();
 builder.Services.AddRazorPages();
 
