@@ -1642,7 +1642,7 @@
         <div class="purchase-section">
             <h2><i class="fas fa-gem" style="color: #f97316;"></i> Mua chương / Ủng hộ truyện</h2>
             <div class="purchase-options">
-                <div class="purchase-card"><i class="fas fa-coins" style="font-size: 32px; color: #fbbf24;"></i><div class="price">10 Xu</div><p>Mua chương 126</p><button class="btn-buy" id="buyChapter">Mua ngay</button></div>
+                <div class="purchase-card"><i class="fas fa-coins" style="font-size: 32px; color: #fbbf24;"></i><div class="price">10 Xu</div><p>Mua chương 126</p><button class="btn-buy" id="buyChapter" data-chapter-id="126">Mua ngay</button></div>
                 <div class="purchase-card"><i class="fas fa-gem" style="font-size: 32px; color: #2563eb;"></i><div class="price">50 Xu</div><p>Ủng hộ tác giả</p><button class="btn-buy" id="donate">Ủng hộ</button></div>
                 <div class="purchase-card"><i class="fas fa-crown" style="font-size: 32px; color: #f97316;"></i><div class="price">Gói VIP</div><p>Đọc không giới hạn</p><button class="btn-buy" id="vip">Đăng ký</button></div>
             </div>
@@ -1654,6 +1654,9 @@
             <div class="chat-body" id="chatBody"><div class="message ai">Xin chào! Tôi là trợ lý đọc truyện. Bạn cần tìm gì?</div></div>
             <div class="chat-footer"><input type="text" id="chatInput" placeholder="Nhập tin nhắn..."><button id="sendChat"><i class="fas fa-paper-plane"></i></button></div>
         </div>
+        <form id="antiForgeryForm" style="display:none;">
+            @Html.AntiForgeryToken()
+        </form>
         @RenderBody()
     </div>
 
@@ -1853,7 +1856,39 @@
         document.getElementById('readFeaturedBtn').addEventListener('click', function() { alert('Đọc truyện "Shadow Warrior" (mô phỏng)'); });
         document.getElementById('viewAllUpdates').addEventListener('click', function() { alert('Xem tất cả truyện mới cập nhật'); });
         document.getElementById('viewMoreBtn').addEventListener('click', function() { alert('Tải thêm truyện (mô phỏng)'); });
-        document.getElementById('buyChapter').addEventListener('click', () => alert('Mô phỏng: Bạn đã mua chương 126 bằng 10 xu.'));
+        document.getElementById('buyChapter').addEventListener('click', async () => {
+            const buyButton = document.getElementById('buyChapter');
+            const chapterId = parseInt(buyButton?.dataset.chapterId || '', 10);
+            const antiForgeryToken = document.querySelector('#antiForgeryForm input[name="__RequestVerificationToken"]')?.value;
+            if (!Number.isInteger(chapterId) || chapterId <= 0) {
+                alert('Không tìm thấy chương để thêm vào giỏ hàng.');
+                return;
+            }
+            if (!antiForgeryToken) {
+                alert('Không thể xác thực yêu cầu. Vui lòng tải lại trang.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/cart/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': antiForgeryToken
+                    },
+                    body: JSON.stringify({ chapterId: chapterId, quantity: 1 })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Không thể thêm vào giỏ hàng.');
+                }
+
+                const result = await response.json();
+                alert(`${result.message} Tổng sản phẩm: ${result.totalItems}`);
+            } catch (error) {
+                alert(error?.message || 'Đã xảy ra lỗi khi thêm vào giỏ hàng.');
+            }
+        });
         document.getElementById('donate').addEventListener('click', () => alert('Cảm ơn bạn đã ủng hộ! (Mô phỏng)'));
         document.getElementById('vip').addEventListener('click', () => alert('Đăng ký gói VIP thành công! (Mô phỏng)'));
 
