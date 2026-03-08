@@ -1853,7 +1853,27 @@
         document.getElementById('readFeaturedBtn').addEventListener('click', function() { alert('Đọc truyện "Shadow Warrior" (mô phỏng)'); });
         document.getElementById('viewAllUpdates').addEventListener('click', function() { alert('Xem tất cả truyện mới cập nhật'); });
         document.getElementById('viewMoreBtn').addEventListener('click', function() { alert('Tải thêm truyện (mô phỏng)'); });
-        document.getElementById('buyChapter').addEventListener('click', () => alert('Mô phỏng: Bạn đã mua chương 126 bằng 10 xu.'));
+        document.getElementById('buyChapter').addEventListener('click', async () => {
+            const chapterLabel = document.querySelector('#buyChapter')?.closest('.purchase-card')?.querySelector('p')?.innerText || '';
+            const chapterId = parseInt((chapterLabel.match(/\d+/) || ['126'])[0], 10);
+
+            try {
+                const response = await fetch('/api/cart/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chapterId: chapterId, quantity: 1 })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Không thể thêm vào giỏ hàng.');
+                }
+
+                const result = await response.json();
+                alert(`${result.message} Tổng sản phẩm: ${result.totalItems}`);
+            } catch (error) {
+                alert(error.message || 'Đã xảy ra lỗi khi thêm vào giỏ hàng.');
+            }
+        });
         document.getElementById('donate').addEventListener('click', () => alert('Cảm ơn bạn đã ủng hộ! (Mô phỏng)'));
         document.getElementById('vip').addEventListener('click', () => alert('Đăng ký gói VIP thành công! (Mô phỏng)'));
 
