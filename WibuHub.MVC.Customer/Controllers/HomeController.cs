@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Text.Json;
+using WibuHub.MVC.Customer.DTOs;
 using WibuHub.MVC.Customer.Models;
 
 namespace WibuHub.MVC.Customer.Controllers
@@ -26,17 +27,26 @@ namespace WibuHub.MVC.Customer.Controllers
         }
 
         [HttpPost("api/cart/add")]
+        [ValidateAntiForgeryToken]
         public IActionResult AddToCart([FromBody] AddToCartRequest request)
         {
-            if (request == null || request.ChapterId <= 0 || request.Quantity <= 0)
+            if (request == null || !ModelState.IsValid)
             {
                 return BadRequest(new { message = "Dữ liệu giỏ hàng không hợp lệ." });
             }
 
             var cart = HttpContext.Session.GetString(CartSessionKey);
-            var cartItems = string.IsNullOrWhiteSpace(cart)
-                ? new Dictionary<int, int>()
-                : JsonSerializer.Deserialize<Dictionary<int, int>>(cart) ?? new Dictionary<int, int>();
+            Dictionary<int, int> cartItems;
+            try
+            {
+                cartItems = string.IsNullOrWhiteSpace(cart)
+                    ? new Dictionary<int, int>()
+                    : JsonSerializer.Deserialize<Dictionary<int, int>>(cart) ?? new Dictionary<int, int>();
+            }
+            catch (JsonException)
+            {
+                return BadRequest(new { message = "Giỏ hàng bị lỗi, vui lòng thử lại." });
+            }
 
             if (cartItems.ContainsKey(request.ChapterId))
             {
@@ -52,7 +62,6 @@ namespace WibuHub.MVC.Customer.Controllers
             return Ok(new
             {
                 message = "Đã thêm chương vào giỏ hàng.",
-                distinctItems = cartItems.Count,
                 totalItems = cartItems.Values.Sum()
             });
         }
@@ -61,12 +70,6 @@ namespace WibuHub.MVC.Customer.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
-
-        public class AddToCartRequest
-        {
-            public int ChapterId { get; set; }
-            public int Quantity { get; set; } = 1;
         }
     }
 }
