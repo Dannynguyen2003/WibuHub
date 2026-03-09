@@ -1,0 +1,33 @@
+@model IReadOnlyList<WibuHub.MVC.ViewModels.UserRoleListVM>
+
+@{
+    ViewData["Title"] = "Role Management";
+}
+
+<div class="chart-box">
+    <div class="chart-header">
+        <h3>Role Management</h3>
+    </div>
+
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Email</th>
+                <th>Roles</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.Email</td>
+                <td>@(user.Roles.Count > 0 ? string.Join(", ", user.Roles) : "-")</td>
+                <td>
+                    <a class="btn-secondary" asp-action="Edit" asp-route-id="@user.UserId">C?p nh?t</a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

@@ -8,1187 +8,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
-    <style>
-        /* ===== RESET & GLOBAL ===== */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f5f7fa;
-            color: #1e293b;
-            line-height: 1.5;
-        }
-
-        .app {
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        /* ===== HEADER ===== */
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px 0;
-            border-bottom: 1px solid #e2e8f0;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .logo-area {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .logo {
-            font-size: 28px;
-            font-weight: 700;
-            color: #2563eb;
-            text-decoration: none;
-            letter-spacing: -0.5px;
-        }
-
-            .logo span {
-                color: #f97316;
-            }
-
-        .mobile-menu-btn {
-            display: none;
-            background: none;
-            border: 1px solid #cbd5e1;
-            padding: 8px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 18px;
-        }
-
-        .search-bar {
-            flex: 1;
-            max-width: 500px;
-            display: flex;
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 40px;
-            overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-        }
-
-            .search-bar input {
-                flex: 1;
-                padding: 12px 20px;
-                border: none;
-                outline: none;
-                font-size: 15px;
-            }
-
-            .search-bar button {
-                background: #2563eb;
-                border: none;
-                color: white;
-                padding: 0 20px;
-                cursor: pointer;
-                font-size: 16px;
-                transition: background 0.2s;
-            }
-
-                .search-bar button:hover {
-                    background: #1d4ed8;
-                }
-
-        .user-actions {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-            .user-actions a {
-                color: #334155;
-                text-decoration: none;
-                font-weight: 500;
-                font-size: 15px;
-                display: flex;
-                align-items: center;
-                gap: 6px;
-                cursor: pointer;
-            }
-
-                .user-actions a i {
-                    font-size: 18px;
-                }
-
-        .avatar {
-            width: 40px;
-            height: 40px;
-            background: #94a3b8;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        /* ===== MOBILE MENU (SIDEBAR) ===== */
-        .mobile-menu-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 2000;
-            backdrop-filter: blur(4px);
-        }
-
-            .mobile-menu-overlay.active {
-                display: block;
-            }
-
-        .mobile-menu {
-            position: fixed;
-            top: 0;
-            left: -280px;
-            width: 280px;
-            height: 100%;
-            background: white;
-            box-shadow: 2px 0 20px rgba(0,0,0,0.2);
-            transition: left 0.3s ease;
-            z-index: 2001;
-            overflow-y: auto;
-            padding: 20px;
-        }
-
-            .mobile-menu.open {
-                left: 0;
-            }
-
-        .mobile-menu-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 30px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        .mobile-menu-logo {
-            font-size: 22px;
-            font-weight: 700;
-            color: #2563eb;
-        }
-
-            .mobile-menu-logo span {
-                color: #f97316;
-            }
-
-        .close-menu {
-            font-size: 24px;
-            cursor: pointer;
-            color: #64748b;
-        }
-
-        .mobile-menu-item {
-            display: block;
-            padding: 14px 16px;
-            border-radius: 12px;
-            color: #334155;
-            font-weight: 500;
-            text-decoration: none;
-            transition: background 0.2s;
-            margin-bottom: 4px;
-        }
-
-            .mobile-menu-item i {
-                width: 28px;
-                color: #2563eb;
-            }
-
-            .mobile-menu-item:hover {
-                background: #f1f5f9;
-            }
-
-            .mobile-menu-item.active {
-                background: #2563eb;
-                color: white;
-            }
-
-                .mobile-menu-item.active i {
-                    color: white;
-                }
-
-        /* ===== MODAL CHUNG ===== */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.6);
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            backdrop-filter: blur(4px);
-        }
-
-            .modal.active {
-                display: flex;
-            }
-
-        .modal-content {
-            background: white;
-            border-radius: 28px;
-            max-width: 500px;
-            width: 90%;
-            padding: 32px;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
-            position: relative;
-            animation: fadeInUp 0.3s;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-
-            .modal-content.large {
-                max-width: 700px;
-            }
-        @@keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 20px;
-            right: 24px;
-            font-size: 24px;
-            cursor: pointer;
-            color: #94a3b8;
-        }
-
-        .modal-title {
-            font-size: 26px;
-            font-weight: 700;
-            margin-bottom: 24px;
-            color: #0f172a;
-        }
-
-        /* ===== FORM INPUT ===== */
-        .input-group {
-            margin-bottom: 20px;
-        }
-
-            .input-group label {
-                display: block;
-                font-weight: 500;
-                margin-bottom: 6px;
-                color: #334155;
-            }
-
-            .input-group input {
-                width: 100%;
-                padding: 14px 16px;
-                border: 1px solid #cbd5e1;
-                border-radius: 18px;
-                font-size: 15px;
-                outline: none;
-                transition: border 0.2s;
-            }
-
-                .input-group input:focus {
-                    border-color: #2563eb;
-                }
-
-        /* ===== CAPTCHA ===== */
-        .captcha-box {
-            background: #f1f5f9;
-            border-radius: 18px;
-            padding: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-
-        .captcha-text {
-            font-family: monospace;
-            font-size: 24px;
-            font-weight: 700;
-            letter-spacing: 4px;
-            color: #1e293b;
-            background: #e2e8f0;
-            padding: 8px 16px;
-            border-radius: 12px;
-        }
-
-        .captcha-refresh {
-            color: #2563eb;
-            cursor: pointer;
-            font-size: 20px;
-        }
-
-        /* ===== BUTTON ===== */
-        .btn {
-            background: #2563eb;
-            border: none;
-            padding: 14px 24px;
-            border-radius: 40px;
-            font-weight: 600;
-            color: white;
-            cursor: pointer;
-            display: inline-block;
-            text-decoration: none;
-            text-align: center;
-            transition: background 0.2s;
-            width: 100%;
-            font-size: 16px;
-        }
-
-        .btn-secondary {
-            background: white;
-            border: 1px solid #2563eb;
-            color: #2563eb;
-        }
-
-        .switch-link {
-            text-align: center;
-            margin-top: 24px;
-            color: #475569;
-        }
-
-            .switch-link span {
-                color: #2563eb;
-                font-weight: 600;
-                cursor: pointer;
-            }
-
-        /* ===== PROFILE TABS ===== */
-        .profile-tabs {
-            display: flex;
-            gap: 10px;
-            border-bottom: 1px solid #e2e8f0;
-            margin-bottom: 24px;
-        }
-
-        .profile-tab {
-            padding: 12px 20px;
-            font-weight: 600;
-            color: #64748b;
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-        }
-
-            .profile-tab.active {
-                color: #2563eb;
-                border-bottom-color: #2563eb;
-            }
-
-        .profile-pane {
-            display: none;
-        }
-
-            .profile-pane.active {
-                display: block;
-            }
-
-        /* ===== HISTORY & FOLLOW LIST ===== */
-        .history-item, .follow-item {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            padding: 12px 0;
-            border-bottom: 1px solid #f1f5f9;
-        }
-
-        .history-cover, .follow-cover {
-            width: 50px;
-            height: 70px;
-            background: #cbd5e1;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #475569;
-            font-size: 12px;
-        }
-
-        .history-info, .follow-info {
-            flex: 1;
-        }
-
-        .history-title, .follow-title {
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-
-        .history-meta, .follow-meta {
-            font-size: 13px;
-            color: #64748b;
-            display: flex;
-            gap: 16px;
-        }
-
-        .unfollow-btn {
-            background: none;
-            border: 1px solid #f97316;
-            color: #f97316;
-            padding: 6px 14px;
-            border-radius: 30px;
-            font-size: 13px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-            .unfollow-btn:hover {
-                background: #f97316;
-                color: white;
-            }
-
-        /* ===== CHATBOX ===== */
-        .chatbox {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 360px;
-            background: white;
-            border-radius: 28px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-            overflow: hidden;
-            z-index: 999;
-            transition: transform 0.3s, opacity 0.3s;
-            border: 1px solid #e2e8f0;
-        }
-
-            .chatbox.closed {
-                transform: translateY(20px);
-                opacity: 0;
-                pointer-events: none;
-            }
-
-        .chat-header {
-            background: #1e293b;
-            color: white;
-            padding: 16px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            cursor: pointer;
-        }
-
-            .chat-header h3 {
-                font-weight: 600;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-            }
-
-        .chat-body {
-            height: 320px;
-            overflow-y: auto;
-            padding: 20px;
-            background: #f8fafc;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .message {
-            max-width: 80%;
-            padding: 12px 16px;
-            border-radius: 20px;
-            font-size: 14px;
-            line-height: 1.4;
-        }
-
-            .message.user {
-                background: #2563eb;
-                color: white;
-                align-self: flex-end;
-                border-bottom-right-radius: 4px;
-            }
-
-            .message.ai {
-                background: white;
-                border: 1px solid #e2e8f0;
-                align-self: flex-start;
-                border-bottom-left-radius: 4px;
-            }
-
-        .chat-footer {
-            display: flex;
-            padding: 12px;
-            border-top: 1px solid #e2e8f0;
-            background: white;
-        }
-
-            .chat-footer input {
-                flex: 1;
-                padding: 12px;
-                border: 1px solid #cbd5e1;
-                border-radius: 30px;
-                outline: none;
-                margin-right: 8px;
-            }
-
-            .chat-footer button {
-                background: #2563eb;
-                border: none;
-                color: white;
-                width: 46px;
-                height: 46px;
-                border-radius: 50%;
-                cursor: pointer;
-                font-size: 18px;
-            }
-
-        /* ===== PURCHASE SECTION ===== */
-        .purchase-section {
-            background: white;
-            border-radius: 20px;
-            padding: 24px;
-            margin: 30px 0;
-            border: 1px solid #e2e8f0;
-        }
-
-        .purchase-options {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            margin-top: 16px;
-        }
-
-        .purchase-card {
-            background: #f1f5f9;
-            border-radius: 20px;
-            padding: 20px;
-            flex: 1 1 200px;
-            text-align: center;
-        }
-
-            .purchase-card .price {
-                font-size: 28px;
-                font-weight: 700;
-                color: #2563eb;
-                margin: 10px 0;
-            }
-
-        .btn-buy {
-            background: #f97316;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 40px;
-            font-weight: 600;
-            color: white;
-            cursor: pointer;
-            width: 100%;
-        }
-
-        /* ===== RESPONSIVE ===== */
-        @@media (max-width: 900px) {
-            .mobile-menu-btn {
-                display: block;
-            }
-
-            .user-actions a span {
-                display: none;
-            }
-
-            .search-bar {
-                order: 3;
-                max-width: 100%;
-                flex-basis: 100%;
-            }
-
-            .nav-tabs {
-                display: none;
-            }
-        }
-
-        /* ===== NAV TABS (desktop) ===== */
-        .nav-tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 28px;
-            border-bottom: 1px solid #e2e8f0;
-            padding-bottom: 12px;
-            flex-wrap: wrap;
-        }
-
-        .nav-item {
-            padding: 8px 16px;
-            border-radius: 30px;
-            font-weight: 500;
-            color: #475569;
-            text-decoration: none;
-            transition: all 0.2s;
-            cursor: pointer;
-        }
-
-            .nav-item:hover {
-                background: #e2e8f0;
-            }
-
-            .nav-item.active {
-                background: #2563eb;
-                color: white;
-            }
-
-        /* ===== FEATURED ===== */
-        .featured {
-            background: linear-gradient(145deg, #1e293b, #0f172a);
-            border-radius: 20px;
-            padding: 24px;
-            color: white;
-            margin-bottom: 30px;
-            display: flex;
-            align-items: flex-end;
-            min-height: 220px;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none" width="100%" height="100%"><polygon points="0,100 100,0 100,100" fill="%23334155" opacity="0.3"/></svg>');
-            background-size: cover;
-            background-position: center;
-        }
-
-        .featured-content h3 {
-            font-size: 14px;
-            font-weight: 500;
-            letter-spacing: 1px;
-            color: #facc15;
-            margin-bottom: 8px;
-        }
-
-        .featured-content h2 {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .featured-content p {
-            opacity: 0.8;
-            margin-bottom: 16px;
-        }
-
-        /* ===== HOME PAGE STYLES ===== */
-        .featured-large {
-            background: linear-gradient(145deg, #1e293b, #0f172a);
-            border-radius: 24px;
-            padding: 40px;
-            color: white;
-            margin-bottom: 30px;
-            display: flex;
-            align-items: center;
-            gap: 40px;
-            flex-wrap: wrap;
-        }
-
-        .featured-large-content {
-            flex: 1;
-        }
-
-            .featured-large-content h3 {
-                font-size: 16px;
-                font-weight: 500;
-                letter-spacing: 1px;
-                color: #facc15;
-                margin-bottom: 12px;
-            }
-
-            .featured-large-content h2 {
-                font-size: 42px;
-                font-weight: 700;
-                margin-bottom: 16px;
-            }
-
-            .featured-large-content p {
-                opacity: 0.9;
-                margin-bottom: 20px;
-                max-width: 600px;
-            }
-
-        .featured-stats {
-            display: flex;
-            gap: 30px;
-            margin-bottom: 24px;
-        }
-
-            .featured-stats span {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-            }
-
-        .featured-large-cover {
-            width: 200px;
-            height: 280px;
-            background: #cbd5e1;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #475569;
-        }
-
-        .home-grid {
-            display: grid;
-            grid-template-columns: 1fr 300px;
-            gap: 30px;
-            margin-bottom: 40px;
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-            .section-header h2 {
-                font-size: 20px;
-                font-weight: 600;
-            }
-
-        .view-all-link {
-            color: #2563eb;
-            font-weight: 500;
-            font-size: 14px;
-            cursor: pointer;
-        }
-
-        .update-list {
-            background: white;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 30px;
-        }
-
-        .update-item {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            padding: 12px 0;
-            border-bottom: 1px solid #f1f5f9;
-            cursor: pointer;
-        }
-
-            .update-item:last-child {
-                border-bottom: none;
-            }
-
-        .update-cover {
-            width: 50px;
-            height: 70px;
-            background: #cbd5e1;
-            border-radius: 8px;
-        }
-
-        .update-info {
-            flex: 1;
-        }
-
-        .update-title {
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-
-        .update-chapter {
-            font-size: 13px;
-            color: #2563eb;
-        }
-
-        .update-meta {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            font-size: 13px;
-            color: #64748b;
-        }
-
-        .recommend-tabs {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .recommend-tab {
-            padding: 8px 20px;
-            border-radius: 30px;
-            background: #f1f5f9;
-            font-weight: 500;
-            cursor: pointer;
-        }
-
-            .recommend-tab.active {
-                background: #2563eb;
-                color: white;
-            }
-
-        .recommend-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
-        }
-
-        .recommend-card {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-            cursor: pointer;
-        }
-
-        .recommend-cover {
-            width: 100%;
-            aspect-ratio: 3/4;
-            background: #cbd5e1;
-        }
-
-        .recommend-info {
-            padding: 12px;
-        }
-
-        .recommend-title {
-            font-weight: 600;
-            font-size: 14px;
-            margin-bottom: 4px;
-        }
-
-        .recommend-stats {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            color: #64748b;
-        }
-
-        .top-list {
-            background: white;
-            border-radius: 16px;
-            padding: 20px;
-        }
-
-        .top-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 0;
-            border-bottom: 1px solid #f1f5f9;
-            cursor: pointer;
-        }
-
-            .top-item:last-child {
-                border-bottom: none;
-            }
-
-        .top-rank {
-            width: 28px;
-            height: 28px;
-            background: #f1f5f9;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            color: #2563eb;
-        }
-
-        .top-info {
-            flex: 1;
-        }
-
-        .top-title {
-            font-weight: 600;
-            margin-bottom: 2px;
-        }
-
-        .top-views {
-            font-size: 12px;
-            color: #64748b;
-        }
-
-        /* ===== CONTENT SECTIONS ===== */
-        .content-section {
-            display: block;
-        }
-
-            .content-section.hidden {
-                display: none;
-            }
-
-        /* ===== DETAIL SECTION STYLES ===== */
-        .breadcrumb {
-            font-size: 14px;
-            color: #64748b;
-            margin-bottom: 20px;
-        }
-
-            .breadcrumb a {
-                color: #2563eb;
-                text-decoration: none;
-                cursor: pointer;
-            }
-
-        .detail-container {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 30px;
-        }
-
-        .detail-header {
-            display: flex;
-            gap: 30px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
-
-        .detail-cover {
-            width: 200px;
-            height: 280px;
-            background: #cbd5e1;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #475569;
-            font-size: 14px;
-        }
-
-        .detail-info {
-            flex: 1;
-        }
-
-            .detail-info h1 {
-                font-size: 32px;
-                font-weight: 700;
-                margin-bottom: 8px;
-            }
-
-        .detail-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px 40px;
-            margin: 16px 0;
-        }
-
-        .detail-meta-item span {
-            color: #64748b;
-            font-size: 14px;
-            display: block;
-        }
-
-        .detail-meta-item strong {
-            font-weight: 600;
-            font-size: 16px;
-        }
-
-        .rating {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin: 16px 0;
-        }
-
-        .stars {
-            color: #fbbf24;
-            font-size: 20px;
-        }
-
-        .follow-info {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            margin: 16px 0;
-        }
-
-        .follow-btn {
-            background: #f97316;
-            color: white;
-            border: none;
-            padding: 12px 32px;
-            border-radius: 40px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 12px;
-            margin: 20px 0;
-            flex-wrap: wrap;
-        }
-
-        .action-btn {
-            background: #2563eb;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 40px;
-            font-weight: 500;
-            cursor: pointer;
-        }
-
-            .action-btn.secondary {
-                background: white;
-                border: 1px solid #2563eb;
-                color: #2563eb;
-            }
-
-        .description {
-            background: #f8fafc;
-            border-radius: 16px;
-            padding: 20px;
-            margin-top: 20px;
-        }
-
-        /* ===== SIDEBAR STYLES ===== */
-        .sidebar-card {
-            background: white;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 24px;
-            border: 1px solid #edf2f7;
-        }
-
-        .sidebar-title {
-            font-weight: 600;
-            margin-bottom: 16px;
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .hot-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 0;
-            border-bottom: 1px solid #f1f5f9;
-            cursor: pointer;
-        }
-
-            .hot-item:last-child {
-                border: none;
-            }
-
-        .hot-rank {
-            width: 26px;
-            height: 26px;
-            background: #f1f5f9;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            color: #2563eb;
-        }
-
-        .hot-info h4 {
-            font-size: 15px;
-            font-weight: 600;
-        }
-
-        .hot-info p {
-            font-size: 12px;
-            color: #64748b;
-        }
-
-        .genre-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .genre-tag {
-            background: #f1f5f9;
-            padding: 6px 14px;
-            border-radius: 30px;
-            font-size: 13px;
-            color: #1e293b;
-            text-decoration: none;
-            transition: background 0.2s;
-            cursor: pointer;
-        }
-
-            .genre-tag:hover {
-                background: #e2e8f0;
-            }
-
-        .rank-tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-
-        .rank-tab {
-            padding: 8px 16px;
-            border-radius: 30px;
-            font-weight: 500;
-            color: #475569;
-            background: #f1f5f9;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-            .rank-tab.active {
-                background: #2563eb;
-                color: white;
-            }
-
-        .rank-content {
-            display: none;
-        }
-
-            .rank-content.active {
-                display: block;
-            }
-
-        .history-card {
-            background: white;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 24px;
-        }
-
-            .history-card h3 {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 16px;
-            }
-
-            .history-card .delete-btn {
-                color: #ef4444;
-                cursor: pointer;
-                font-size: 14px;
-            }
-
-        .view-more-btn {
-            background: white;
-            border: 1px solid #2563eb;
-            color: #2563eb;
-            padding: 12px 32px;
-            border-radius: 40px;
-            text-decoration: none;
-            font-weight: 500;
-            display: inline-block;
-            cursor: pointer;
-            margin: 20px 0;
-        }
-    </style>
+    <link rel="stylesheet" href="~/css/layout.css" asp-append-version="true">
+    
 </head>
 <body>
     <div class="app">
@@ -1196,7 +17,7 @@
         <header class="header">
             <div class="logo-area">
                 <button class="mobile-menu-btn" id="mobileMenuBtn"><i class="fas fa-bars"></i></button>
-                <a href="#" class="logo" id="logo">TRUYỆN<span>HAY</span></a>
+                <a href="#" class="logo" id="logo">WIBU<span>HUB</span></a>
             </div>
             <div class="search-bar">
                 <input type="text" placeholder="Tìm truyện, tác giả..." id="searchInput">
@@ -1371,7 +192,7 @@
                                     <h2>Truyện Mới Cập Nhật</h2>
                                     <span class="view-all-link" id="viewAllUpdates">Xem tất cả</span>
                                 </div>
-                                <div class="update-item" data-id="steel-resolve" data-title="Steel Resolve" data-author="Tác giả A" data-genre="Hành động, Phiêu lưu" data-views="1680K">
+                                <div class="update-item" data-id="steel-resolve" data-title="Steel Resolve" data-author="Tác giả A" data-genre="Hành động, Phiêu lưu" data-views="1680K" data-rating="4.6" data-votes="1250">
                                     <div class="update-cover"></div>
                                     <div class="update-info">
                                         <div class="update-title">Steel Resolve</div>
@@ -1382,7 +203,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="update-item" data-id="cosmic-legends" data-title="Cosmic Legends" data-author="Tác giả B" data-genre="Khoa huyễn, Viễn tưởng" data-views="2100K">
+                                <div class="update-item" data-id="cosmic-legends" data-title="Cosmic Legends" data-author="Tác giả B" data-genre="Khoa huyễn, Viễn tưởng" data-views="2100K" data-rating="4.9" data-votes="2100">
                                     <div class="update-cover"></div>
                                     <div class="update-info">
                                         <div class="update-title">Cosmic Legends</div>
@@ -1394,7 +215,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="update-item" data-id="dragon-quest" data-title="Dragon Quest" data-author="Tác giả C" data-genre="Kỳ ảo, Phiêu lưu" data-views="1450K">
+                                <div class="update-item" data-id="dragon-quest" data-title="Dragon Quest" data-author="Tác giả C" data-genre="Kỳ ảo, Phiêu lưu" data-views="1450K" data-rating="4.7" data-votes="980">
                                     <div class="update-cover"></div>
                                     <div class="update-info">
                                         <div class="update-title">Dragon Quest</div>
@@ -1418,7 +239,7 @@
                                     </div>
                                 </div>
                                 <div class="recommend-grid" id="recommendAll">
-                                    <div class="recommend-card" data-title="Dạng ra 1">
+                                    <div class="recommend-card" data-title="Dạng ra 1" data-rating="4.5" data-votes="1300">
                                         <div class="recommend-cover"></div>
                                         <div class="recommend-info">
                                             <div class="recommend-title">Dạng ra</div>
@@ -1428,7 +249,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="recommend-card" data-title="Dạng ra 2">
+                                    <div class="recommend-card" data-title="Dạng ra 2" data-rating="4.2" data-votes="980">
                                         <div class="recommend-cover"></div>
                                         <div class="recommend-info">
                                             <div class="recommend-title">Dạng ra</div>
@@ -1438,7 +259,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="recommend-card" data-title="Hoàn thành">
+                                    <div class="recommend-card" data-title="Hoàn thành" data-rating="4.8" data-votes="2100">
                                         <div class="recommend-cover"></div>
                                         <div class="recommend-info">
                                             <div class="recommend-title">Hoàn thành</div>
@@ -1448,7 +269,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="recommend-card" data-title="Hỏi Tài">
+                                    <div class="recommend-card" data-title="Hỏi Tài" data-rating="4.4" data-votes="1400">
                                         <div class="recommend-cover"></div>
                                         <div class="recommend-info">
                                             <div class="recommend-title">Hỏi Tài</div>
@@ -1468,35 +289,35 @@
                                 <div class="section-header">
                                     <h2>Xem Nhiều Nhất</h2>
                                 </div>
-                                <div class="top-item" data-id="cosmic-legends" data-title="Cosmic Legends">
+                                <div class="top-item" data-id="cosmic-legends" data-title="Cosmic Legends" data-rating="4.9" data-votes="2100">
                                     <span class="top-rank">1</span>
                                     <div class="top-info">
                                         <div class="top-title">Cosmic Legends</div>
                                         <div class="top-views">2100K</div>
                                     </div>
                                 </div>
-                                <div class="top-item" data-id="steel-resolve" data-title="Steel Resolve">
+                                <div class="top-item" data-id="steel-resolve" data-title="Steel Resolve" data-rating="4.6" data-votes="1250">
                                     <span class="top-rank">2</span>
                                     <div class="top-info">
                                         <div class="top-title">Steel Resolve</div>
                                         <div class="top-views">1680K</div>
                                     </div>
                                 </div>
-                                <div class="top-item" data-id="dragon-quest" data-title="Dragon Quest">
+                                <div class="top-item" data-id="dragon-quest" data-title="Dragon Quest" data-rating="4.7" data-votes="980">
                                     <span class="top-rank">3</span>
                                     <div class="top-info">
                                         <div class="top-title">Dragon Quest</div>
                                         <div class="top-views">1450K</div>
                                     </div>
                                 </div>
-                                <div class="top-item" data-id="shadow-warrior" data-title="Shadow Warrior">
+                                <div class="top-item" data-id="shadow-warrior" data-title="Shadow Warrior" data-rating="4.8" data-votes="1250">
                                     <span class="top-rank">4</span>
                                     <div class="top-info">
                                         <div class="top-title">Shadow Warrior</div>
                                         <div class="top-views">1250K</div>
                                     </div>
                                 </div>
-                                <div class="top-item" data-id="mystic-dreams" data-title="Mystic Dreams">
+                                <div class="top-item" data-id="mystic-dreams" data-title="Mystic Dreams" data-rating="4.3" data-votes="980">
                                     <span class="top-rank">5</span>
                                     <div class="top-info">
                                         <div class="top-title">Mystic Dreams</div>
@@ -1517,7 +338,7 @@
                 <div id="groupsSection" class="content-section hidden"><h2>Nội dung Nhóm dịch</h2></div>
                 <div id="profilePageSection" class="content-section hidden"><h2>Nội dung Cá nhân</h2></div>
 
-                <!-- TRANG CHI TIẾT TRUYỆN (ẩn mặc định, hiện khi click vào card) -->
+                <!-- TRANG CHI TIẾT TRUYỆN -->
                 <div id="detailSection" class="content-section hidden">
                     <div class="breadcrumb">
                         <a href="#" id="breadcrumbHome">Trang chủ</a> > <a href="#" id="breadcrumbCategory">Thể loại</a> > <span id="breadcrumbTitle">Đồ Đệ Của Ta Đều Là Đại Phản Phái</span>
@@ -1534,10 +355,14 @@
                                     <div class="detail-meta-item"><span>Lượt xem</span><strong id="detailViews">427,480</strong></div>
                                 </div>
                                 <div class="rating">
-                                    <span class="stars">
-                                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
-                                    </span>
-                                    <span>5/5 - 605 Lượt đánh giá</span>
+                                    <div class="stars-interactive">
+                                        <i class="star fas fa-star" data-value="1"></i>
+                                        <i class="star fas fa-star" data-value="2"></i>
+                                        <i class="star fas fa-star" data-value="3"></i>
+                                        <i class="star fas fa-star" data-value="4"></i>
+                                        <i class="star fas fa-star" data-value="5"></i>
+                                    </div>
+                                    <span class="rating-text">5/5 - 605 Lượt đánh giá</span>
                                 </div>
                                 <div class="follow-info">
                                     <button class="follow-btn" id="followBtn">Theo dõi</button>
@@ -1553,6 +378,52 @@
                         <div class="description" id="detailDescription">
                             <strong>NỘI DUNG TRUYỆN ĐỒ ĐỆ CỦA TA ĐỀU LÀ ĐẠI PHẢN PHÁI</strong><br>
                             Chào mừng bạn đến với NetTruyen – không gian đọc truyện tranh online hoàn hảo dành cho tất cả các fan truyện tranh!
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TRANG ĐỌC TRUYỆN (READER) -->
+                <div id="readerSection" class="content-section hidden">
+                    <div class="breadcrumb">
+                        <a href="#" id="readerBreadcrumbHome">Trang chủ</a> > <a href="#" id="readerBreadcrumbCategory">Thể loại</a> > <a href="#" id="readerBreadcrumbDetail">Đỗ Đệ Của Ta Đều Là Đại Phản Phái</a> > <span id="readerBreadcrumbChapter">Chapter 0</span>
+                    </div>
+                    <div class="reader-container">
+                        <div class="reader-header">
+                            <h1 class="reader-title" id="readerTitle">Đỗ Đệ Của Ta Đều Là Đại Phản Phái - Chapter 0</h1>
+                            <div class="reader-update" id="readerUpdate">[Cập nhật lúc: 2024-02-29 00:56:44]</div>
+                            <div class="server-notice">
+                                <i class="fas fa-exclamation-triangle" style="color: #f97316;"></i> Nếu không xem được truyện vui lòng đổi "SERVER ẢNH" bên dưới
+                            </div>
+                            <div class="server-buttons">
+                                <button class="server-btn active" id="server1">Server 1</button>
+                                <button class="server-btn" id="server2">Server 2</button>
+                                <button class="report-btn" id="reportError"><i class="fas fa-flag"></i> Báo lỗi</button>
+                            </div>
+                        </div>
+
+                        <div class="reader-nav">
+                            <div class="chapter-nav">
+                                <span class="nav-arrow" id="prevChapter"><i class="fas fa-chevron-left"></i></span>
+                                <select class="chapter-select" id="chapterSelect">
+                                    <option value="0" selected>Chapter 0</option>
+                                    <option value="1">Chapter 1</option>
+                                    <option value="2">Chapter 2</option>
+                                </select>
+                                <span class="nav-arrow" id="nextChapter"><i class="fas fa-chevron-right"></i></span>
+                            </div>
+                            <div class="nav-hint">
+                                Sử dụng mũi tên trái (←) hoặc phải (→) để chuyển chapter
+                            </div>
+                        </div>
+
+                        <div class="reader-images">
+                            <div class="reader-page">Trang 1 - Nội dung truyện sẽ hiển thị ở đây</div>
+                            <div class="reader-page">Trang 2 - Cuộn dọc để đọc tiếp</div>
+                            <div class="reader-page">Trang 3 - Ảnh truyện sẽ được load từ server</div>
+                        </div>
+
+                        <div class="ad-placeholder">
+                            <i class="fas fa-ad"></i> Quảng cáo (Placeholder)
                         </div>
                     </div>
                 </div>
@@ -1648,11 +519,19 @@
             </div>
         </div>
 
-        <!-- CHATBOX AI -->
+        <!-- CHATBOX AI (đã sửa) -->
         <div class="chatbox" id="chatbox">
-            <div class="chat-header" id="toggleChat"><h3><i class="fas fa-robot" style="color: #f97316;"></i> Trợ lý AI</h3><i class="fas fa-minus" id="chatIcon"></i></div>
-            <div class="chat-body" id="chatBody"><div class="message ai">Xin chào! Tôi là trợ lý đọc truyện. Bạn cần tìm gì?</div></div>
-            <div class="chat-footer"><input type="text" id="chatInput" placeholder="Nhập tin nhắn..."><button id="sendChat"><i class="fas fa-paper-plane"></i></button></div>
+            <div class="chat-header" id="toggleChat">
+                <h3><i class="fas fa-robot" style="color: #f97316;"></i> Trợ lý AI</h3>
+                <i class="fas fa-minus" id="chatIcon"></i>
+            </div>
+            <div class="chat-body" id="chatBody">
+                <div class="message ai">Xin chào! Tôi là trợ lý đọc truyện. Bạn cần tìm gì?</div>
+            </div>
+            <div class="chat-footer">
+                <input type="text" id="chatInput" placeholder="Nhập tin nhắn...">
+                <button id="sendChat"><i class="fas fa-paper-plane"></i></button>
+            </div>
         </div>
         @RenderBody()
     </div>
@@ -1757,6 +636,7 @@
         const groupsSection = document.getElementById('groupsSection');
         const profilePageSection = document.getElementById('profilePageSection');
         const detailSection = document.getElementById('detailSection');
+        const readerSection = document.getElementById('readerSection');
 
         const tabHome = document.getElementById('tabHome');
         const tabNew = document.getElementById('tabNew');
@@ -1777,6 +657,7 @@
             groupsSection.classList.add('hidden');
             profilePageSection.classList.add('hidden');
             detailSection.classList.add('hidden');
+            readerSection.classList.add('hidden');
         }
 
         function removeActiveTabs() {
@@ -1799,6 +680,7 @@
         function showGroups() { hideAllSections(); groupsSection.classList.remove('hidden'); removeActiveTabs(); tabGroups.classList.add('active'); }
         function showProfilePage() { hideAllSections(); profilePageSection.classList.remove('hidden'); removeActiveTabs(); tabProfilePage.classList.add('active'); }
         function showDetail() { hideAllSections(); detailSection.classList.remove('hidden'); removeActiveTabs(); }
+        function showReader() { hideAllSections(); readerSection.classList.remove('hidden'); removeActiveTabs(); }
 
         // Mặc định hiện trang chủ
         showHome();
@@ -1834,17 +716,50 @@
             });
         });
 
-        // ===== CHATBOX =====
+        // ===== CHATBOX TOGGLE (thu nhỏ thành bong bóng) =====
         const chatbox = document.getElementById('chatbox');
         const toggleChat = document.getElementById('toggleChat');
+        const chatIcon = document.getElementById('chatIcon');
         const chatBody = document.getElementById('chatBody');
         const chatInput = document.getElementById('chatInput');
         const sendBtn = document.getElementById('sendChat');
-        toggleChat.addEventListener('click', () => { chatbox.classList.toggle('closed'); document.getElementById('chatIcon').className = chatbox.classList.contains('closed') ? 'fas fa-plus' : 'fas fa-minus'; });
-        function addMessage(text, sender) { const msgDiv = document.createElement('div'); msgDiv.classList.add('message', sender); msgDiv.innerText = text; chatBody.appendChild(msgDiv); chatBody.scrollTop = chatBody.scrollHeight; }
-        function sendMessage() { const text = chatInput.value.trim(); if (!text) return; addMessage(text, 'user'); chatInput.value = ''; setTimeout(() => { let reply = 'Tôi là AI, tôi có thể gợi ý truyện hot hoặc tìm kiếm. Bạn muốn gì?'; if (text.toLowerCase().includes('truyện hot') || text.toLowerCase().includes('đề xuất')) reply = 'Gợi ý cho bạn: "Đại chiến thần", "Solo Leveling", "One Piece" đang rất hot!'; else if (text.includes('cảm ơn')) reply = 'Không có gì! Đọc truyện vui vẻ nhé.'; addMessage(reply, 'ai'); }, 600); }
+
+        toggleChat.addEventListener('click', () => {
+            chatbox.classList.toggle('closed');
+            if (chatbox.classList.contains('closed')) {
+                chatIcon.className = 'fas fa-comment'; // khi thu nhỏ hiện icon chat
+            } else {
+                chatIcon.className = 'fas fa-minus'; // khi mở hiện dấu trừ
+            }
+        });
+
+        // Chat functions
+        function addMessage(text, sender) {
+            const msgDiv = document.createElement('div');
+            msgDiv.classList.add('message', sender);
+            msgDiv.innerText = text;
+            chatBody.appendChild(msgDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+        function sendMessage() {
+            const text = chatInput.value.trim();
+            if (!text) return;
+            addMessage(text, 'user');
+            chatInput.value = '';
+            setTimeout(() => {
+                let reply = 'Tôi là AI, tôi có thể gợi ý truyện hot hoặc tìm kiếm. Bạn muốn gì?';
+                if (text.toLowerCase().includes('truyện hot') || text.toLowerCase().includes('đề xuất')) {
+                    reply = 'Gợi ý cho bạn: "Đại chiến thần", "Solo Leveling", "One Piece" đang rất hot!';
+                } else if (text.includes('cảm ơn')) {
+                    reply = 'Không có gì! Đọc truyện vui vẻ nhé.';
+                }
+                addMessage(reply, 'ai');
+            }, 600);
+        }
         sendBtn.addEventListener('click', sendMessage);
-        chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
 
         // ===== CÁC BUTTON TƯƠNG TÁC =====
         document.getElementById('searchBtn').addEventListener('click', function() { alert('Bạn đang tìm: "' + document.getElementById('searchInput').value + '" (Mô phỏng tìm kiếm)'); });
@@ -1857,42 +772,64 @@
         document.getElementById('donate').addEventListener('click', () => alert('Cảm ơn bạn đã ủng hộ! (Mô phỏng)'));
         document.getElementById('vip').addEventListener('click', () => alert('Đăng ký gói VIP thành công! (Mô phỏng)'));
 
+        // ===== XỬ LÝ RATING (SAO) =====
+        const stars = document.querySelectorAll('.star');
+        const ratingText = document.querySelector('.rating-text');
+        let currentRating = 5;
+        let totalVotes = 605;
+
+        function updateRatingDisplay(rating) {
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('selected');
+                } else {
+                    star.classList.remove('selected');
+                }
+            });
+            ratingText.innerText = `${rating}/5 - ${totalVotes} Lượt đánh giá`;
+        }
+        updateRatingDisplay(currentRating);
+
+        stars.forEach(star => {
+            star.addEventListener('click', function() {
+                const value = parseInt(this.dataset.value);
+                currentRating = value;
+                totalVotes++;
+                updateRatingDisplay(value);
+                alert(`Bạn đã đánh giá ${value} sao! Cảm ơn bạn.`);
+            });
+        });
+
         // ===== CLICK CARD TRUYỆN -> HIỂN THỊ CHI TIẾT =====
         function fillDetailAndShow(card) {
-            // Lấy thông tin từ data attributes
             const title = card.dataset.title || 'Đồ Đệ Của Ta Đều Là Đại Phản Phái';
             const author = card.dataset.author || 'TruyenQQ, Mộng Tiên Giới';
             const genre = card.dataset.genre || 'Adventure - Chuyển Sinh - Cổ Đại - Manhua - Truyện Màu - Xuyên Không';
             const views = card.dataset.views || '427,480';
-            // Cập nhật chi tiết
+            const rating = parseFloat(card.dataset.rating) || 5.0;
+            const votes = parseInt(card.dataset.votes) || 605;
+
             document.getElementById('detailTitle').innerText = title;
             document.getElementById('detailAuthor').innerText = author;
             document.getElementById('detailGenre').innerText = genre;
             document.getElementById('detailViews').innerText = views;
             document.getElementById('breadcrumbTitle').innerText = title;
-            // Hiển thị section chi tiết
+
+            currentRating = Math.round(rating);
+            totalVotes = votes;
+            updateRatingDisplay(currentRating);
+
             showDetail();
         }
 
-        // Gán sự kiện cho các card trong mục "Truyện Mới Cập Nhật"
         document.querySelectorAll('.update-item').forEach(item => {
-            item.addEventListener('click', function() {
-                fillDetailAndShow(this);
-            });
+            item.addEventListener('click', function() { fillDetailAndShow(this); });
         });
-
-        // Gán sự kiện cho các card trong "Xem Nhiều Nhất"
         document.querySelectorAll('.top-item').forEach(item => {
-            item.addEventListener('click', function() {
-                fillDetailAndShow(this);
-            });
+            item.addEventListener('click', function() { fillDetailAndShow(this); });
         });
-
-        // Gán sự kiện cho các card trong "Truyện Đề Cử"
         document.querySelectorAll('.recommend-card').forEach(card => {
-            card.addEventListener('click', function() {
-                fillDetailAndShow(this);
-            });
+            card.addEventListener('click', function() { fillDetailAndShow(this); });
         });
 
         // Các nút xóa trong lịch sử
@@ -1912,11 +849,44 @@
 
         // Nút chi tiết trong trang detail
         document.getElementById('followBtn').addEventListener('click', () => alert('Đã theo dõi truyện (mô phỏng)'));
-        document.getElementById('readFirstBtn').addEventListener('click', () => alert('Đọc từ đầu'));
-        document.getElementById('readLatestBtn').addEventListener('click', () => alert('Đọc mới nhất'));
-        document.getElementById('readContinueBtn').addEventListener('click', () => alert('Đọc tiếp'));
+        document.getElementById('readFirstBtn').addEventListener('click', () => { alert('Đọc từ đầu'); showReader(); });
+        document.getElementById('readLatestBtn').addEventListener('click', () => { alert('Đọc mới nhất'); showReader(); });
+        document.getElementById('readContinueBtn').addEventListener('click', () => { alert('Đọc tiếp'); showReader(); });
         document.getElementById('breadcrumbHome').addEventListener('click', (e) => { e.preventDefault(); showHome(); });
         document.getElementById('breadcrumbCategory').addEventListener('click', (e) => { e.preventDefault(); showGenre(); });
+
+        // ===== READER PAGE INTERACTIONS =====
+        // Breadcrumb
+        document.getElementById('readerBreadcrumbHome').addEventListener('click', (e) => { e.preventDefault(); showHome(); });
+        document.getElementById('readerBreadcrumbCategory').addEventListener('click', (e) => { e.preventDefault(); showGenre(); });
+        document.getElementById('readerBreadcrumbDetail').addEventListener('click', (e) => { e.preventDefault(); showDetail(); });
+
+        // Server buttons
+        document.getElementById('server1').addEventListener('click', function() {
+            document.getElementById('server1').classList.add('active');
+            document.getElementById('server2').classList.remove('active');
+            alert('Chuyển sang Server 1');
+        });
+        document.getElementById('server2').addEventListener('click', function() {
+            document.getElementById('server2').classList.add('active');
+            document.getElementById('server1').classList.remove('active');
+            alert('Chuyển sang Server 2');
+        });
+        document.getElementById('reportError').addEventListener('click', () => alert('Báo lỗi thành công (mô phỏng)'));
+
+        // Chapter navigation
+        document.getElementById('prevChapter').addEventListener('click', () => alert('Chuyển đến chapter trước'));
+        document.getElementById('nextChapter').addEventListener('click', () => alert('Chuyển đến chapter sau'));
+        document.getElementById('chapterSelect').addEventListener('change', (e) => alert('Chuyển đến ' + e.target.value));
+
+        // Keyboard navigation hint (giả lập)
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                alert('← Chuyển chapter trước (mô phỏng)');
+            } else if (e.key === 'ArrowRight') {
+                alert('→ Chuyển chapter sau (mô phỏng)');
+            }
+        });
     </script>
 </body>
 </html>

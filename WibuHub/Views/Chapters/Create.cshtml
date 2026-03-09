@@ -51,6 +51,7 @@
                         <input asp-for="UploadImages" class="form-control" type="file" multiple accept="image/*" />
                         <small class="text-muted">Ảnh upload sẽ được thêm vào chung danh sách với URL khi lưu.</small>
                     </div>
+                    <div id="uploadPreviewList" class="d-flex flex-column gap-2"></div>
                     <div id="chapterImageList" class="d-flex flex-column gap-2">
                         @if (Model?.ImageUrls != null && Model.ImageUrls.Count > 0)
                         {
@@ -103,6 +104,103 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script>
+        const uploadInput = document.getElementById("UploadImages");
+        const uploadPreviewList = document.getElementById("uploadPreviewList");
+        let uploadFiles = [];
+
+        function getFileKey(file) {
+            return `${file.name}-${file.size}-${file.lastModified}`;
+        }
+
+        function updateUploadInputFiles() {
+            const dataTransfer = new DataTransfer();
+            uploadFiles.forEach(item => dataTransfer.items.add(item.file));
+            uploadInput.files = dataTransfer.files;
+        }
+
+        function buildUploadFilesFromInput(files) {
+            const existingMap = new Map(uploadFiles.map(item => [item.key, item]));
+            files.forEach(file => {
+                const key = getFileKey(file);
+                if (!existingMap.has(key)) {
+                    existingMap.set(key, {
+                        key,
+                        file
+                    });
+                }
+            });
+            uploadFiles = Array.from(existingMap.values());
+            updateUploadInputFiles();
+        }
+
+        function syncUploadFilesFromDom() {
+            const orderKeys = Array.from(uploadPreviewList.querySelectorAll(".upload-preview-item"))
+                .map(item => item.dataset.key);
+            const fileMap = new Map(uploadFiles.map(item => [item.key, item]));
+            uploadFiles = orderKeys.map(key => fileMap.get(key)).filter(Boolean);
+            updateUploadInputFiles();
+        }
+
+        function bindUploadRowEvents(row) {
+            row.addEventListener("dragstart", function () {
+                row.classList.add("dragging");
+            });
+            row.addEventListener("dragend", function () {
+                row.classList.remove("dragging");
+                syncUploadFilesFromDom();
+            });
+            row.querySelector(".btn-remove-upload").addEventListener("click", function () {
+                const key = row.dataset.key;
+                uploadFiles = uploadFiles.filter(item => item.key !== key);
+                row.remove();
+                updateUploadInputFiles();
+            });
+        }
+
+        function renderUploadPreview() {
+            uploadPreviewList.innerHTML = "";
+            uploadFiles.forEach(item => {
+                const row = document.createElement("div");
+                row.className = "input-group upload-preview-item";
+                row.setAttribute("draggable", "true");
+                row.dataset.key = item.key;
+                row.innerHTML = `
+                    <span class="input-group-text">↕</span>
+                    <span class="input-group-text p-0" style="width: 64px; justify-content: center;">
+                        <img alt="preview" style="max-width: 60px; max-height: 60px; object-fit: cover;" />
+                    </span>
+                    <input type="text" class="form-control" value="${item.file.name}" readonly />
+                    <button type="button" class="btn btn-outline-danger btn-remove-upload">Xóa</button>
+                `;
+                const img = row.querySelector("img");
+                img.src = URL.createObjectURL(item.file);
+                img.onload = function () {
+                    URL.revokeObjectURL(img.src);
+                };
+                bindUploadRowEvents(row);
+                uploadPreviewList.appendChild(row);
+            });
+        }
+
+        uploadPreviewList.addEventListener("dragover", function (e) {
+            e.preventDefault();
+            const dragging = uploadPreviewList.querySelector(".dragging");
+            if (!dragging) return;
+            const rows = [...uploadPreviewList.querySelectorAll(".upload-preview-item:not(.dragging)")];
+            const nextRow = rows.find(r => e.clientY <= r.getBoundingClientRect().top + r.offsetHeight / 2);
+            if (nextRow) {
+                uploadPreviewList.insertBefore(dragging, nextRow);
+            } else {
+                uploadPreviewList.appendChild(dragging);
+            }
+        });
+
+        uploadInput.addEventListener("change", function () {
+            buildUploadFilesFromInput(Array.from(uploadInput.files));
+            renderUploadPreview();
+        });
+    </script>
     <script>
         const chapterImageList = document.getElementById("chapterImageList");
         function createImageRow(value = "") {
@@ -223,8 +321,8 @@
                 }
             });
         }
-        function refreshChapterList() {
-            $.get('/Chapters/Reload', function (data) {
+        function refreshChapterList(page = 1) {
+            $.get('/Chapters/Reload', { page: page }, function (data) {
                 $('#divChapterList').html(data);
             });
         }

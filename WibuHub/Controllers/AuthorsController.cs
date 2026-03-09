@@ -57,7 +57,8 @@ namespace WibuHub.Areas.Admin.Controllers
                 if (existingAuthors.Count > 0) return View(authorVM);
                 var author = new Author
                 {
-                    Name = authorVM.Name.Trim()
+                    Name = authorVM.Name.Trim(),
+                    Slug = GenerateSlug(authorVM.Name)
                 };
                 _context.Authors.Add(author);
                 await _context.SaveChangesAsync();
@@ -108,6 +109,7 @@ namespace WibuHub.Areas.Admin.Controllers
                     }
 
                     existingAuthor.Name = authorVM.Name.Trim();
+                    existingAuthor.Slug = GenerateSlug(authorVM.Name);
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Create));
                 }
@@ -156,13 +158,38 @@ namespace WibuHub.Areas.Admin.Controllers
             return Json(new { isOK = true });
         }
         // GET: Admin/Authors/Reload
-        public async Task<IActionResult> Reload()
+        public async Task<IActionResult> Reload(int page = 1, int pageSize = 10)
         {
-            return ViewComponent("AuthorList");
+            return ViewComponent("AuthorList", new { page, pageSize });
         }
         private bool AuthorExists(Guid id)
         {
             return _context.Authors.Any(e => e.Id == id && !e.IsDeleted);
+        }
+        private string GenerateSlug(string phrase)
+        {
+            if (string.IsNullOrWhiteSpace(phrase)) return "";
+
+            string str = phrase.ToLower().Trim();
+            string[] vietnameseSigns = {
+            "aAeEoOuUiIdDyY",
+            "áàạảãâấầậẩẫăắằặẳẵ", "ÁÀẠẢÃÂẤẦẬẨẪĂẮẰẶẲẴ",
+            "éèẹẻẽêếềệểễ", "ÉÈẸẺẼÊẾỀỆỂỄ",
+            "óòọỏõôốồộổỗơớờợởỡ", "ÓÒỌỎÕÔỐỒỘỔỖƠỚỜỢỞỠ",
+            "úùụủũưứừựửữ", "ÚÙỤỦŨƯỨỪỰỬỮ",
+            "íìịỉĩ", "ÍÌỊỈĨ",
+            "đ", "Đ",
+            "ýỳỵỷỹ", "ÝỲỴỶỸ"
+            };
+            for (int i = 1; i < vietnameseSigns.Length; i++)
+            {
+                for (int j = 0; j < vietnameseSigns[i].Length; j++)
+                    str = str.Replace(vietnameseSigns[i][j], vietnameseSigns[0][i - 1]);
+            }
+            str = System.Text.RegularExpressions.Regex.Replace(str, @"[^a-z0-9\s-]", "");
+            str = System.Text.RegularExpressions.Regex.Replace(str, @"\s+", "-").Trim();
+            str = System.Text.RegularExpressions.Regex.Replace(str, @"-+", "-");
+            return str;
         }
     }
 }

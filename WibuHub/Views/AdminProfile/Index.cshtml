@@ -1,0 +1,39 @@
+﻿@model WibuHub.ApplicationCore.Entities.Identity.StoryUser
+
+@{
+    ViewData["Title"] = "Admin Profile";
+    var avatarUrl = string.IsNullOrWhiteSpace(Model?.Avatar)
+        ? "https://randomuser.me/api/portraits/men/32.jpg"
+        : Model.Avatar;
+    var displayName = string.IsNullOrWhiteSpace(Model?.FullName)
+        ? User.Identity?.Name
+        : Model.FullName;
+}
+
+<div class="profile-card">
+    <div class="profile-header">
+        <div class="profile-avatar">
+            <img src="@avatarUrl" alt="@displayName">
+        </div>
+        <div class="profile-title">
+            <h2>@displayName</h2>
+            <span class="role-badge">Admin</span>
+            <p class="text-muted">@User.Identity?.Name</p>
+        </div>
+    </div>
+
+    <div class="profile-details">
+        <div class="detail-item">
+            <div class="label">Email</div>
+            <div class="value">@Model?.Email</div>
+        </div>
+        <div class="detail-item">
+            <div class="label">Phone</div>
+            <div class="value">@(string.IsNullOrWhiteSpace(Model?.PhoneNumber) ? "Chưa cập nhật" : Model.PhoneNumber)</div>
+        </div>
+        <div class="detail-item">
+            <div class="label">Account</div>
+            <div class="value">@Model?.UserName</div>
+        </div>
+    </div>
+</div>

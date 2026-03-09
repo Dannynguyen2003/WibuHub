@@ -1,7 +1,7 @@
-﻿@model IEnumerable<WibuHub.MVC.ViewModels.CategoryVM>
+﻿@model WibuHub.ApplicationCore.DTOs.Shared.PagedResult<WibuHub.MVC.ViewModels.CategoryVM>
 
-<table class="table table-hover mt-3 border">
-    <thead class="table-dark">
+<table class="data-table">
+    <thead>
         <tr>
             <th style="width: 10%">Position</th>
             <th style="width: 20%">Name</th>
@@ -11,15 +11,13 @@
         </tr>
     </thead>
     <tbody>
-        @if (Model != null && Model.Any())
+        @if (Model?.Items != null && Model.Items.Any())
         {
-            @foreach (var item in Model)
+            @foreach (var item in Model.Items)
             {
                 <tr>
                     <td>
-                        <span class="badge bg-secondary" style="padding: 8px 12px;">
-                            @item.Position
-                        </span>
+                        <span class="badge-status">@item.Position</span>
                     </td>
                     <td><strong>@item.Name</strong></td>
                     <td>
@@ -28,20 +26,18 @@
                     <td>
                         <small class="text-muted">@(item.Description ?? "Không có mô tả")</small>
                     </td>
-                    <td class="text-center">
-                        <div class="btn-group" role="group">
-                            <a asp-action="Edit" asp-route-id="@item.Id"
-                               class="btn btn-sm btn-primary mx-1">Sửa</a>
+                    <td class="action-cell">
+                        <a asp-action="Edit" asp-route-id="@item.Id"
+                           class="btn-primary btn-sm">Sửa</a>
 
-                            <a asp-action="Details" asp-route-id="@item.Id"
-                               class="btn btn-sm btn-info text-white mx-1">Chi tiết</a>
+                        <a asp-action="Details" asp-route-id="@item.Id"
+                           class="btn-secondary btn-sm">Chi tiết</a>
 
-                            @* Nút Xóa gọi hàm JS để hiện Modal xác nhận *@
-                            <button type="button" onclick="openModalDeleteCategory('@item.Id')"
-                                    class="btn btn-sm btn-danger mx-1">
-                                Xóa
-                            </button>
-                        </div>
+                        @* Nút Xóa gọi hàm JS để hiện Modal xác nhận *@
+                        <button type="button" onclick="openModalDeleteCategory('@item.Id')"
+                                class="btn-danger btn-sm">
+                            Xóa
+                        </button>
                     </td>
                 </tr>
             }

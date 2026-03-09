@@ -7,16 +7,16 @@ namespace WibuHub.ApplicationCore.Configuration
     {
         public static async Task SeedRolesAsync(RoleManager<StoryRole> roleManager)
         {
-            // Seed Customer role
-            if (!await roleManager.RoleExistsAsync(AppConstants.Roles.Customer))
+            if (!await roleManager.RoleExistsAsync(AppConstants.Roles.SuperAdmin))
             {
-                var customerRole = new StoryRole
+                var superAdminRole = new StoryRole
                 {
-                    Name = AppConstants.Roles.Customer,
-                    Description = "Người dùng đọc truyện và mua truyện"
+                    Name = AppConstants.Roles.SuperAdmin,
+                    Description = "Quản trị cao nhất, có toàn quyền hệ thống"
                 };
-                await roleManager.CreateAsync(customerRole);
+                await roleManager.CreateAsync(superAdminRole);
             }
+
             // Seed Admin role
             if (!await roleManager.RoleExistsAsync(AppConstants.Roles.Admin))
             {
@@ -26,6 +26,16 @@ namespace WibuHub.ApplicationCore.Configuration
                     Description = "Người vận hành hệ thống, quản lý truyện, chapter và người dùng"
                 };
                 await roleManager.CreateAsync(adminRole);
+            }
+
+            if (!await roleManager.RoleExistsAsync(AppConstants.Roles.Uploader))
+            {
+                var uploaderRole = new StoryRole
+                {
+                    Name = AppConstants.Roles.Uploader,
+                    Description = "Người upload truyện và chapter"
+                };
+                await roleManager.CreateAsync(uploaderRole);
             }
         }
     }

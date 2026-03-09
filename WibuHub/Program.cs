@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
+using WibuHub.ApplicationCore.Configuration;
 using WibuHub.ApplicationCore.Entities.Identity;
+using WibuHub.Common.Contants;
 using WibuHub.DataLayer;
-using WibuHub.MVC.EmailSender;
 using WibuHub.Service.EmailSender;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -93,5 +94,19 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.MapRazorPages();
+
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<StoryRole>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<StoryUser>>();
+
+    await RoleSeeder.SeedRolesAsync(roleManager);
+
+    var superAdmin = await userManager.FindByEmailAsync(AppConstants.SuperAdminEmail);
+    if (superAdmin != null && !await userManager.IsInRoleAsync(superAdmin, AppConstants.Roles.SuperAdmin))
+    {
+        await userManager.AddToRoleAsync(superAdmin, AppConstants.Roles.SuperAdmin);
+    }
+}
 
 app.Run();

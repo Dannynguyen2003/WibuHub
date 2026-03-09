@@ -44,6 +44,22 @@
                     </p>
                 </div>
             </form>
+            @if ((Model.ExternalLogins?.Count ?? 0) > 0)
+            {
+                <div style="margin-top: 20px;">
+                    <p style="text-align: center; color: #64748b; margin-bottom: 12px;">Or continue with</p>
+                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                        <div style="display: flex; gap: 10px;">
+                            @foreach (var provider in Model.ExternalLogins!)
+                            {
+                                <button type="submit" class="btn-auth" style="margin-top: 0;" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">
+                                    @provider.DisplayName
+                                </button>
+                            }
+                        </div>
+                    </form>
+                </div>
+            }
         </section>
     </div>
     <div class="col-md-6 col-md-offset-2">

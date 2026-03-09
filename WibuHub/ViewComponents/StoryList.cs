@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WibuHub.ApplicationCore.DTOs.Shared;
 using WibuHub.DataLayer;
 using WibuHub.MVC.ViewModels;
 namespace WibuHub.MVC.ViewComponents
@@ -11,13 +12,22 @@ namespace WibuHub.MVC.ViewComponents
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
-        public async Task<IViewComponentResult> InvokeAsync()
+        public async Task<IViewComponentResult> InvokeAsync(int page = 1, int pageSize = 10)
         {
-            var stories = await _context.Stories
+            page = page < 1 ? 1 : page;
+            pageSize = pageSize < 1 ? 10 : pageSize;
+
+            var query = _context.Stories
                 .Where(s => !s.IsDeleted)
                 .Include(s => s.Author)
-                .Include(s => s.Category)
+                .Include(s => s.Category);
+
+            var totalCount = await query.LongCountAsync();
+
+            var stories = await query
                 .OrderByDescending(s => s.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
             // Map to ViewModel
             var storyVMs = stories.Select(s => new StoryVM
@@ -38,7 +48,9 @@ namespace WibuHub.MVC.ViewComponents
                 Author = s.Author,
                 CategoryName = s.Category != null ? s.Category.Name : null
             }).ToList();
-            return View(storyVMs);
+
+            var result = new PagedResult<StoryVM>(storyVMs, page, pageSize, totalCount);
+            return View(result);
         }
     }
 }

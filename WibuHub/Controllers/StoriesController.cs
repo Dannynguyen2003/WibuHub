@@ -3,12 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WibuHub.ApplicationCore.Entities;
+using WibuHub.Common.Contants;
 using WibuHub.DataLayer;
 using WibuHub.MVC.ViewModels;
 namespace WibuHub.Areas.Admin.Controllers
 {
     //[Area("Admin")]
-    [Authorize]
+    [Authorize(Roles = AppConstants.Roles.Uploader + "," + AppConstants.Roles.SuperAdmin)]
     public class StoriesController : Controller
     {
         private readonly StoryDbContext _context;
@@ -49,7 +50,7 @@ namespace WibuHub.Areas.Admin.Controllers
         public IActionResult Create()
         {
             ViewData["AuthorId"] = new SelectList(_context.Authors.Where(a => !a.IsDeleted), "Id", "Name");
-            ViewData["CategoryId"] = new SelectList(_context.Categories.Where(c => !c.IsDeleted), "Id", "Name");
+            ViewData["CategoryId"] = new MultiSelectList(_context.Categories.Where(c => !c.IsDeleted), "Id", "Name");
             return View();
         }
         // POST: Admin/Stories/Create
@@ -57,6 +58,16 @@ namespace WibuHub.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(StoryVM storyVM)
         {
+            var selectedCategoryIds = storyVM.CategoryIds?.Distinct().ToList() ?? new List<Guid>();
+            if (!selectedCategoryIds.Any())
+            {
+                ModelState.AddModelError(nameof(storyVM.CategoryIds), "Vui lòng chọn ít nhất một danh mục.");
+            }
+            else
+            {
+                storyVM.CategoryId = selectedCategoryIds.First();
+                ModelState.Remove(nameof(storyVM.CategoryId));
+            }
             if (ModelState.IsValid)
             {
                 var story = new Story
@@ -75,15 +86,18 @@ namespace WibuHub.Areas.Admin.Controllers
                     CreatedAt = DateTime.UtcNow,
                     UpdateDate = DateTime.UtcNow,
                     AuthorId = storyVM.AuthorId,
-                    CategoryId = storyVM.CategoryId
+                    CategoryId = selectedCategoryIds.First()
                 };
+                story.StoryCategories = selectedCategoryIds
+                    .Select(categoryId => new StoryCategory { StoryId = story.Id, CategoryId = categoryId })
+                    .ToList();
                 _context.Add(story);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Create));
             }
 
             ViewData["AuthorId"] = new SelectList(_context.Authors.Where(a => !a.IsDeleted), "Id", "Name", storyVM.AuthorId);
-            ViewData["CategoryId"] = new SelectList(_context.Categories.Where(c => !c.IsDeleted), "Id", "Name", storyVM.CategoryId);
+            ViewData["CategoryId"] = new MultiSelectList(_context.Categories.Where(c => !c.IsDeleted), "Id", "Name", storyVM.CategoryIds);
             return View(storyVM);
         }
         private string GenerateSlug(string phrase)
@@ -117,10 +131,17 @@ namespace WibuHub.Areas.Admin.Controllers
             {
                 return NotFound();
             }
-            var story = await _context.Stories.FindAsync(id);
+            var story = await _context.Stories
+                .Include(s => s.StoryCategories)
+                .FirstOrDefaultAsync(s => s.Id == id);
             if (story == null || story.IsDeleted)
             {
                 return NotFound();
+            }
+            var categoryIds = story.StoryCategories.Select(sc => sc.CategoryId).ToList();
+            if (!categoryIds.Any())
+            {
+                categoryIds.Add(story.CategoryId);
             }
             var storyVM = new StoryVM
             {
@@ -134,10 +155,11 @@ namespace WibuHub.Areas.Admin.Controllers
                 FollowCount = story.FollowCount,
                 RatingScore = story.RatingScore,
                 AuthorId = story.AuthorId,
-                CategoryId = story.CategoryId
+                CategoryId = story.CategoryId,
+                CategoryIds = categoryIds
             };
             ViewData["AuthorId"] = new SelectList(_context.Authors.Where(a => !a.IsDeleted), "Id", "Name", story.AuthorId);
-            ViewData["CategoryId"] = new SelectList(_context.Categories.Where(c => !c.IsDeleted), "Id", "Name", story.CategoryId);
+            ViewData["CategoryId"] = new MultiSelectList(_context.Categories.Where(c => !c.IsDeleted), "Id", "Name", storyVM.CategoryIds);
             return View(nameof(Create), storyVM);
         }
         // POST: Admin/Stories/Edit/5
@@ -149,11 +171,23 @@ namespace WibuHub.Areas.Admin.Controllers
             {
                 return BadRequest();
             }
+            var selectedCategoryIds = storyVM.CategoryIds?.Distinct().ToList() ?? new List<Guid>();
+            if (!selectedCategoryIds.Any())
+            {
+                ModelState.AddModelError(nameof(storyVM.CategoryIds), "Vui lòng chọn ít nhất một danh mục.");
+            }
+            else
+            {
+                storyVM.CategoryId = selectedCategoryIds.First();
+                ModelState.Remove(nameof(storyVM.CategoryId));
+            }
             if (ModelState.IsValid)
             {
                 try
                 {
-                    var story = await _context.Stories.FindAsync(id);
+                    var story = await _context.Stories
+                        .Include(s => s.StoryCategories)
+                        .FirstOrDefaultAsync(s => s.Id == id);
                     if (story == null || story.IsDeleted)
                     {
                         return NotFound();
@@ -164,8 +198,15 @@ namespace WibuHub.Areas.Admin.Controllers
                     story.Slug = storyVM.Slug.Trim();
                     story.Status = storyVM.Status;
                     story.AuthorId = storyVM.AuthorId;
-                    story.CategoryId = storyVM.CategoryId;
+                    story.CategoryId = selectedCategoryIds.First();
                     story.UpdateDate = DateTime.UtcNow;
+                    if (story.StoryCategories.Any())
+                    {
+                        _context.StoryCategories.RemoveRange(story.StoryCategories);
+                    }
+                    story.StoryCategories = selectedCategoryIds
+                        .Select(categoryId => new StoryCategory { StoryId = story.Id, CategoryId = categoryId })
+                        .ToList();
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Create));
                 }
@@ -183,7 +224,7 @@ namespace WibuHub.Areas.Admin.Controllers
             }
 
             ViewData["AuthorId"] = new SelectList(_context.Authors.Where(a => !a.IsDeleted), "Id", "Name", storyVM.AuthorId);
-            ViewData["CategoryId"] = new SelectList(_context.Categories.Where(c => !c.IsDeleted), "Id", "Name", storyVM.CategoryId);
+            ViewData["CategoryId"] = new MultiSelectList(_context.Categories.Where(c => !c.IsDeleted), "Id", "Name", storyVM.CategoryIds);
             return View(nameof(Create), storyVM);
         }
         // GET: Admin/Stories/Delete/5
@@ -217,9 +258,9 @@ namespace WibuHub.Areas.Admin.Controllers
             return Json(new { isOK = true });
         }
         // GET: Admin/Stories/Reload
-        public async Task<IActionResult> Reload()
+        public async Task<IActionResult> Reload(int page = 1, int pageSize = 10)
         {
-            return ViewComponent("StoryList");
+            return ViewComponent("StoryList", new { page, pageSize });
         }
         
         private bool StoryExists(Guid id)

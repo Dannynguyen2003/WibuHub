@@ -19,6 +19,22 @@ body {
     margin: 0;
 }
 
+.text-center {
+    text-align: center;
+}
+
+.text-muted {
+    color: #64748b;
+}
+
+.text-danger {
+    color: #ef4444;
+}
+
+.fw-bold {
+    font-weight: 600;
+}
+
 #dashboard-wrapper {
     display: none;
     width: 100%;
@@ -334,6 +350,10 @@ canvas {
     border-collapse: collapse;
 }
 
+    .data-table thead th {
+        background-color: #f8fafc;
+    }
+
     .data-table th {
         text-align: left;
         padding: 12px 8px;
@@ -394,6 +414,66 @@ canvas {
     display: inline-flex;
     align-items: center;
     gap: 8px;
+}
+
+.btn-outline-danger {
+    background-color: transparent;
+    color: #ef4444;
+    border: 1px solid #ef4444;
+    padding: 6px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
+}
+
+.btn-outline-danger:hover {
+    background-color: #fee2e2;
+    box-shadow: 0 6px 12px rgba(239, 68, 68, 0.2);
+}
+
+.btn-outline-danger:active {
+    transform: translateY(1px);
+}
+
+.btn-outline-danger:focus-visible {
+    outline: 2px solid rgba(239, 68, 68, 0.35);
+    outline-offset: 2px;
+}
+
+.btn-outline-secondary {
+    background-color: transparent;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+    padding: 6px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #f1f5f9;
+    box-shadow: 0 6px 12px rgba(148, 163, 184, 0.25);
+}
+
+.btn-outline-secondary:active {
+    transform: translateY(1px);
+}
+
+.btn-outline-secondary:focus-visible {
+    outline: 2px solid rgba(148, 163, 184, 0.5);
+    outline-offset: 2px;
 }
 
 .btn-outline {
@@ -597,6 +677,7 @@ canvas {
     gap: 10px;
     align-items: center;
     flex-wrap: nowrap;
+    justify-content: center;
 }
 
 .action-cell form {
@@ -606,12 +687,30 @@ canvas {
 /* Nút xóa kích thước nhỏ gọn */
 .btn-danger {
     background-color: #ef4444;
-    color: white;
+    color: #fff;
     padding: 6px 12px;
-    border-radius: 20px;
-    border: none;
+    border-radius: 999px;
+    border: 1px solid transparent;
     cursor: pointer;
     font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
+}
+
+.btn-sm {
+    padding: 6px 14px;
+    font-size: 0.85rem;
+    border-radius: 18px;
+}
+
+.data-table .btn-primary,
+.data-table .btn-secondary,
+.data-table .btn-danger {
+    margin-bottom: 0;
 }
 .form-group {
     margin-bottom: 15px;
@@ -655,10 +754,30 @@ canvas {
 /* Nút xóa kích thước nhỏ gọn */
 .btn-danger {
     background-color: #ef4444;
-    color: white;
+    color: #fff;
     padding: 6px 12px;
-    border-radius: 20px;
-    border: none;
+    border-radius: 999px;
+    border: 1px solid transparent;
     cursor: pointer;
     font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
+}
+
+.btn-danger:hover {
+    background-color: #dc2626;
+    box-shadow: 0 6px 12px rgba(239, 68, 68, 0.3);
+}
+
+.btn-danger:active {
+    transform: translateY(1px);
+}
+
+.btn-danger:focus-visible {
+    outline: 2px solid rgba(239, 68, 68, 0.4);
+    outline-offset: 2px;
 }

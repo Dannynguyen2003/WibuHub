@@ -12,6 +12,10 @@ namespace WibuHub.Common.Contants
         {
             public const string Customer = "Customer";
             public const string Admin = "Admin";
+            public const string SuperAdmin = "SuperAdmin";
+            public const string Uploader = "Uploader";
         }
+
+        public const string SuperAdminEmail = "danh49003@gmail.com";
     }
 }

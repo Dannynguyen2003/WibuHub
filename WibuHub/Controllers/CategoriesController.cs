@@ -243,9 +243,9 @@ namespace WibuHub.MVC.Controllers
             return Json(new { isOK = true });
         }
         // GET: Categories/Reload
-        public async Task<IActionResult> Reload()
+        public async Task<IActionResult> Reload(int page = 1, int pageSize = 10)
         {
-            return ViewComponent("CategoryList");
+            return ViewComponent("CategoryList", new { page, pageSize });
         }
         private bool CategoryExists(Guid id)
         {

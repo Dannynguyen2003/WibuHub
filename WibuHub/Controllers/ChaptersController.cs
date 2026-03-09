@@ -4,13 +4,14 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MimeKit;
 using WibuHub.ApplicationCore.Entities;
+using WibuHub.Common.Contants;
 using WibuHub.DataLayer;
 using WibuHub.MVC.ViewModels;
 
 namespace WibuHub.Controllers
 {
     //[Area("Admin")]
-    [Authorize]
+    [Authorize(Roles = AppConstants.Roles.Uploader + "," + AppConstants.Roles.SuperAdmin)]
     public class ChaptersController : Controller
     {
         private readonly StoryDbContext _context;
@@ -266,9 +267,9 @@ namespace WibuHub.Controllers
             return Json(new { isOK = true });
         }
         // GET: Chapters/Reload
-        public async Task<IActionResult> Reload()
+        public async Task<IActionResult> Reload(int page = 1, int pageSize = 10)
         {
-            return ViewComponent("ChapterList");
+            return ViewComponent("ChapterList", new { page, pageSize });
         }
 
         private bool ChapterExists(Guid id)

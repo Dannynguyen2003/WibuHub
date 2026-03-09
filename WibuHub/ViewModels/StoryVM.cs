@@ -6,7 +6,7 @@ using WibuHub.ApplicationCore.Entities;
 
 namespace WibuHub.MVC.ViewModels
 {
-    [Bind("Id,Title,AlternativeName,Description,Slug,Status,ViewCount,FollowCount,RatingScore,CreatedAt,UpdateDate,AuthorId,CategoryId")]
+[Bind("Id,Title,AlternativeName,Description,Slug,Status,ViewCount,FollowCount,RatingScore,CreatedAt,UpdateDate,AuthorId,CategoryId,CategoryIds")]
     public class StoryVM
     {
         [Key]
@@ -62,5 +62,8 @@ namespace WibuHub.MVC.ViewModels
         [Required]
         public Guid CategoryId { get; set; }
         public string? CategoryName { get; set; }
+
+    [MinLength(1, ErrorMessage = "Vui lòng chọn ít nhất một danh mục.")]
+    public List<Guid> CategoryIds { get; set; } = new();
     }
 }

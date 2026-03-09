@@ -89,13 +89,8 @@
                 }
             });
         }
-         function refreshAuthorList() {
-            $.get('/Authors/Reload', function (data) {
-                $('#divAuthorList').html(data);
-            });
-        }
-        function refreshAuthorList() {
-            $.get('/Authors/Reload', function (data) {
+        function refreshAuthorList(page = 1) {
+            $.get('/Authors/Reload', { page: page }, function (data) {
                 $('#divAuthorList').html(data);
             });
         }

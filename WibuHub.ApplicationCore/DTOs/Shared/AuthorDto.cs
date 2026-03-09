@@ -8,5 +8,6 @@ namespace WibuHub.ApplicationCore.DTOs.Shared
         [MaxLength(150, ErrorMessage = "Tên tác giả không được vượt quá 150 ký tự")]
         [Display(Name = "Tên tác giả")]
         public string Name { get; set; } = string.Empty;
+        public string Slug { get; set; } = string.Empty;
     }
 }

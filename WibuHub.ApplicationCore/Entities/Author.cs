@@ -14,6 +14,11 @@ namespace WibuHub.ApplicationCore.Entities
         [MaxLength(150)]
         public string Name { get; set; } = string.Empty;
 
+        [Required]
+        [MaxLength(150)]
+        [Column(TypeName = "varchar(150)")]
+        public string Slug { get; set; } = string.Empty;
+
         public bool IsDeleted { get; set; } = false;
         public DateTime? DeletedAt { get; set; }
         // Comics: ICollection<Story>

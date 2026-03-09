@@ -1,0 +1,38 @@
+@using WibuHub.Common.Contants
+@model WibuHub.MVC.ViewModels.UserRoleEditVM
+
+@{
+    ViewData["Title"] = "C?p quy?n";
+}
+
+<div class="chart-box">
+    <div class="chart-header">
+        <h3>C?p quy?n</h3>
+    </div>
+
+    <form method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="UserId" />
+
+        <div class="text-muted">
+            Email: <strong>@Model.Email</strong>
+        </div>
+
+        <div style="margin-top: 16px; display: grid; gap: 10px;">
+            @foreach (var role in Model.AllRoles)
+            {
+                var isChecked = Model.SelectedRoles.Contains(role);
+                var disableRole = Model.IsSuperAdmin && role == AppConstants.Roles.SuperAdmin;
+                <label style="display: flex; align-items: center; gap: 8px;">
+                    <input type="checkbox" name="SelectedRoles" value="@role" @(isChecked ? "checked" : "") @(disableRole ? "disabled" : "") />
+                    <span>@role</span>
+                </label>
+            }
+        </div>
+
+        <div style="margin-top: 20px; display: flex; gap: 10px;">
+            <button class="btn-primary" type="submit">Lýu</button>
+            <a class="btn-secondary" asp-action="Index">Quay l?i</a>
+        </div>
+    </form>
+</div>

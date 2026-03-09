@@ -99,8 +99,8 @@
         }
 
         // Đừng quên hàm này để cập nhật lại danh sách sau khi xóa thành công
-        function refreshCategoryList() {
-            $.get('/Categories/Reload', function(data) {
+        function refreshCategoryList(page = 1) {
+            $.get('/Categories/Reload', { page: page }, function(data) {
                 $('#divCategoryList').html(data);
             });
         }
@@ -192,11 +192,11 @@
             });
         }
 
-        function refreshCategoryList(){
+        function refreshCategoryList(page = 1){
             $.ajax({
                 url: '/Categories/Reload',
                 type: 'GET',
-                // data: { id: idCategory },
+                data: { page: page },
                 beforeSend: function () {
                     console.log("Sending...");
                 },

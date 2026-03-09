@@ -11,5 +11,6 @@ namespace WibuHub.MVC.ViewModels
         [Required]
         [MaxLength(MaxLengths.NAME)]
         public string Name { get; set; } = string.Empty;
+        public string Slug { get; set; } = string.Empty;
     }
 }

@@ -10,7 +10,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - ReadStory Admin</title>
+    <title>@ViewData["Title"] - WIBUHUB Admin</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
@@ -35,7 +35,7 @@
                     <div class="sidebar-header">
                         <i class="fas fa-book-open"></i>
                         <div>
-                            <h2>ReadStory</h2><span>Admin Panel</span>
+                            <h2>WIBUHUB</h2><span>Admin Panel</span>
                         </div>
                     </div>
                     <div class="sidebar-menu">
@@ -43,6 +43,19 @@
                             <li class="@(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" ? "active" : "")">
                                 <a asp-controller="Home" asp-action="Index" style="text-decoration:none; color:inherit; display:flex; gap:14px; width:100%">
                                     <i class="fas fa-chart-pie"></i> <span>Dashboard</span>
+                                </a>
+                            </li>
+                            @if (User.IsInRole("SuperAdmin"))
+                            {
+                                <li class="@(ViewContext.RouteData.Values["Controller"]?.ToString() == "RoleManagement" ? "active" : "")">
+                                    <a asp-controller="RoleManagement" asp-action="Index" style="text-decoration:none; color:inherit; display:flex; gap:14px; width:100%">
+                                        <i class="fas fa-user-shield"></i> <span>Role Management</span>
+                                    </a>
+                                </li>
+                            }
+                            <li class="@(ViewContext.RouteData.Values["Controller"]?.ToString() == "AdminProfile" ? "active" : "")">
+                                <a asp-controller="AdminProfile" asp-action="Index" style="text-decoration:none; color:inherit; display:flex; gap:14px; width:100%">
+                                    <i class="fas fa-user-circle"></i> <span>Admin Profile</span>
                                 </a>
                             </li>
                             <li class="@(ViewContext.RouteData.Values["Controller"]?.ToString() == "Categories" ? "active" : "")">

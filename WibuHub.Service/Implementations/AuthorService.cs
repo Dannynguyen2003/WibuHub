@@ -27,7 +27,8 @@ namespace WibuHub.Service.Implementations
                 .Select(a => new AuthorDto
                 {
                     Id = a.Id,
-                    Name = a.Name
+                    Name = a.Name,
+                    Slug = a.Slug
                 })
                 .SingleOrDefaultAsync();
         }
@@ -38,7 +39,8 @@ namespace WibuHub.Service.Implementations
                 var author = new Author
                 {
                     Id = Guid.NewGuid(),
-                    Name = authorDto.Name.Trim()
+                    Name = authorDto.Name.Trim(),
+                    Slug = GenerateSlug(authorDto.Name)
                 };
                 _context.Authors.Add(author);
                 await _context.SaveChangesAsync();
@@ -56,6 +58,7 @@ namespace WibuHub.Service.Implementations
                 var author = await _context.Authors.FindAsync(authorDto.Id);
                 if (author == null) return false;
                 author.Name = authorDto.Name.Trim();
+                author.Slug = GenerateSlug(authorDto.Name);
                 _context.Update(author);
                 await _context.SaveChangesAsync();
                 return true;
@@ -79,6 +82,31 @@ namespace WibuHub.Service.Implementations
             {
                 return false;
             }
+        }
+        private static string GenerateSlug(string phrase)
+        {
+            if (string.IsNullOrWhiteSpace(phrase)) return "";
+
+            string str = phrase.ToLower().Trim();
+            string[] vietnameseSigns = {
+            "aAeEoOuUiIdDyY",
+            "áàạảãâấầậẩẫăắằặẳẵ", "ÁÀẠẢÃÂẤẦẬẨẪĂẮẰẶẲẴ",
+            "éèẹẻẽêếềệểễ", "ÉÈẸẺẼÊẾỀỆỂỄ",
+            "óòọỏõôốồộổỗơớờợởỡ", "ÓÒỌỎÕÔỐỒỘỔỖƠỚỜỢỞỠ",
+            "úùụủũưứừựửữ", "ÚÙỤỦŨƯỨỪỰỬỮ",
+            "íìịỉĩ", "ÍÌỊỈĨ",
+            "đ", "Đ",
+            "ýỳỵỷỹ", "ÝỲỴỶỸ"
+            };
+            for (int i = 1; i < vietnameseSigns.Length; i++)
+            {
+                for (int j = 0; j < vietnameseSigns[i].Length; j++)
+                    str = str.Replace(vietnameseSigns[i][j], vietnameseSigns[0][i - 1]);
+            }
+            str = System.Text.RegularExpressions.Regex.Replace(str, @"[^a-z0-9\s-]", "");
+            str = System.Text.RegularExpressions.Regex.Replace(str, @"\s+", "-").Trim();
+            str = System.Text.RegularExpressions.Regex.Replace(str, @"-+", "-");
+            return str;
         }
     }
 }
