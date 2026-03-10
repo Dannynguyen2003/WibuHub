@@ -93,6 +93,10 @@ namespace WibuHub.DataLayer
                 entity.ToTable("Authors");
                 entity.HasKey(a => a.Id);
                 entity.Property(a => a.Name).HasMaxLength(150).IsRequired();
+                entity.Property(a => a.Slug)
+                      .HasColumnType("varchar(150)")
+                      .HasMaxLength(150)
+                      .IsRequired();
             });
 
             // 3. StoryCategory (MANY-TO-MANY Configuration) - UPDATE QUAN TRỌNG

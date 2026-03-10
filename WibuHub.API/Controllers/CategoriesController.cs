@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WibuHub.ApplicationCore.DTOs.Shared;
 using WibuHub.Service.Interface;
 
@@ -6,7 +7,7 @@ namespace WibuHub.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")] // URL sẽ là: api/categories
-    //[Authorize] // Bảo vệ API nếu cần
+    [Authorize] // Bảo vệ API nếu cần
     public class CategoriesController : ControllerBase
     {
         private readonly ICategoryService _categoryService;

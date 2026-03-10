@@ -177,7 +177,7 @@
                                 <span><i class="fas fa-eye"></i> 1250K lượt xem</span>
                                 <span><i class="fas fa-book-open"></i> 4 chương</span>
                             </div>
-                            <button class="btn" style="width: auto; padding: 12px 32px;" id="readFeaturedBtn">Đọc ngay</button>
+                            <button class="btn" style="width: auto; padding: 12px 32px;" id="readFeaturedBtn" data-id="shadow-warrior" data-title="Shadow Warrior" data-author="Tác giả D" data-genre="Hành động, Phiêu lưu" data-views="1250K" data-rating="4.8" data-votes="1250">Đọc ngay</button>
                         </div>
                         <div class="featured-large-cover">Ảnh bìa</div>
                     </div>
@@ -765,7 +765,7 @@
         document.getElementById('searchBtn').addEventListener('click', function() { alert('Bạn đang tìm: "' + document.getElementById('searchInput').value + '" (Mô phỏng tìm kiếm)'); });
         document.getElementById('logo').addEventListener('click', function(e) { e.preventDefault(); showHome(); });
         document.getElementById('notificationBtn').addEventListener('click', function(e) { e.preventDefault(); alert('Bạn có 3 thông báo mới (mô phỏng)'); });
-        document.getElementById('readFeaturedBtn').addEventListener('click', function() { alert('Đọc truyện "Shadow Warrior" (mô phỏng)'); });
+        document.getElementById('readFeaturedBtn').addEventListener('click', function() { fillDetailAndShow(this); });
         document.getElementById('viewAllUpdates').addEventListener('click', function() { alert('Xem tất cả truyện mới cập nhật'); });
         document.getElementById('viewMoreBtn').addEventListener('click', function() { alert('Tải thêm truyện (mô phỏng)'); });
         document.getElementById('buyChapter').addEventListener('click', () => alert('Mô phỏng: Bạn đã mua chương 126 bằng 10 xu.'));
@@ -808,12 +808,32 @@
             const views = card.dataset.views || '427,480';
             const rating = parseFloat(card.dataset.rating) || 5.0;
             const votes = parseInt(card.dataset.votes) || 605;
+            const description = card.dataset.description || '';
+            const cover = card.dataset.cover || '';
+            const status = card.dataset.status || 'Đang tiến hành';
 
             document.getElementById('detailTitle').innerText = title;
             document.getElementById('detailAuthor').innerText = author;
             document.getElementById('detailGenre').innerText = genre;
             document.getElementById('detailViews').innerText = views;
+            document.getElementById('detailStatus').innerText = status;
             document.getElementById('breadcrumbTitle').innerText = title;
+
+            const detailDescription = document.getElementById('detailDescription');
+            detailDescription.innerHTML = description
+                ? `<strong>NỘI DUNG TRUYỆN ${title.toUpperCase()}</strong><br>${description}`
+                : '<strong>NỘI DUNG TRUYỆN ĐỒ ĐỆ CỦA TA ĐỀU LÀ ĐẠI PHẢN PHÁI</strong><br>Chào mừng bạn đến với NetTruyen – không gian đọc truyện tranh online hoàn hảo dành cho tất cả các fan truyện tranh!';
+
+            const detailCover = document.getElementById('detailCover');
+            if (cover) {
+                detailCover.style.backgroundImage = `url('${cover}')`;
+                detailCover.style.backgroundSize = 'cover';
+                detailCover.style.backgroundPosition = 'center';
+                detailCover.innerText = '';
+            } else {
+                detailCover.style.backgroundImage = '';
+                detailCover.innerText = 'Ảnh bìa';
+            }
 
             currentRating = Math.round(rating);
             totalVotes = votes;
@@ -822,15 +842,149 @@
             showDetail();
         }
 
-        document.querySelectorAll('.update-item').forEach(item => {
-            item.addEventListener('click', function() { fillDetailAndShow(this); });
+        document.addEventListener('click', (event) => {
+            const card = event.target.closest('.update-item, .top-item, .recommend-card');
+            if (card) {
+                fillDetailAndShow(card);
+            }
         });
-        document.querySelectorAll('.top-item').forEach(item => {
-            item.addEventListener('click', function() { fillDetailAndShow(this); });
-        });
-        document.querySelectorAll('.recommend-card').forEach(card => {
-            card.addEventListener('click', function() { fillDetailAndShow(this); });
-        });
+
+        async function loadStories() {
+            try {
+                const response = await fetch('/api/stories');
+                if (!response.ok) {
+                    throw new Error('Không tải được danh sách truyện');
+                }
+                const stories = await response.json();
+                if (!Array.isArray(stories) || stories.length === 0) {
+                    return;
+                }
+
+                renderFeaturedStory(stories[0]);
+                renderUpdateStories(stories);
+                renderTopStories(stories);
+                renderRecommendStories(stories);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        function buildStoryData(story) {
+            const title = story.title || story.Title || 'Chưa có tiêu đề';
+            return {
+                id: story.id || story.Id,
+                title,
+                description: story.description || story.Description || '',
+                author: story.authorName || story.AuthorName || 'Đang cập nhật',
+                genre: story.categoryName || story.CategoryName || 'Đang cập nhật',
+                status: story.status || story.Status || 'Đang tiến hành',
+                cover: story.coverImage || story.CoverImage || '',
+                views: story.views || story.Views || '0',
+                rating: story.rating || story.Rating || '5',
+                votes: story.votes || story.Votes || '0'
+            };
+        }
+
+        function setStoryDataset(element, storyData) {
+            element.dataset.id = storyData.id || '';
+            element.dataset.title = storyData.title;
+            element.dataset.author = storyData.author;
+            element.dataset.genre = storyData.genre;
+            element.dataset.views = storyData.views;
+            element.dataset.rating = storyData.rating;
+            element.dataset.votes = storyData.votes;
+            element.dataset.description = storyData.description;
+            element.dataset.cover = storyData.cover;
+            element.dataset.status = storyData.status;
+        }
+
+        function renderFeaturedStory(story) {
+            const storyData = buildStoryData(story);
+            document.querySelector('.featured-large-content h2').innerText = storyData.title;
+            document.querySelector('.featured-large-content p').innerText = storyData.description || 'Đang cập nhật nội dung.';
+            const stats = document.querySelectorAll('.featured-stats span');
+            if (stats.length >= 2) {
+                stats[1].innerHTML = `<i class="fas fa-eye"></i> ${storyData.views} lượt xem`;
+            }
+
+            const featuredCover = document.querySelector('.featured-large-cover');
+            if (storyData.cover) {
+                featuredCover.style.backgroundImage = `url('${storyData.cover}')`;
+                featuredCover.style.backgroundSize = 'cover';
+                featuredCover.style.backgroundPosition = 'center';
+                featuredCover.innerText = '';
+            } else {
+                featuredCover.style.backgroundImage = '';
+                featuredCover.innerText = 'Ảnh bìa';
+            }
+
+            const featuredButton = document.getElementById('readFeaturedBtn');
+            setStoryDataset(featuredButton, storyData);
+        }
+
+        function renderUpdateStories(stories) {
+            const list = document.querySelector('.update-list');
+            list.querySelectorAll('.update-item').forEach(item => item.remove());
+            stories.slice(0, 5).forEach(story => {
+                const storyData = buildStoryData(story);
+                const item = document.createElement('div');
+                item.className = 'update-item';
+                setStoryDataset(item, storyData);
+                item.innerHTML = `
+                    <div class="update-cover" style="${storyData.cover ? `background-image:url('${storyData.cover}')` : ''}"></div>
+                    <div class="update-info">
+                        <div class="update-title">${storyData.title}</div>
+                        <div class="update-chapter">Cập nhật gần đây</div>
+                        <div class="update-meta">
+                            <span><i class="fas fa-star" style="color: #fbbf24;"></i> ${storyData.rating}</span>
+                            <span><i class="fas fa-eye"></i> ${storyData.views}</span>
+                        </div>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function renderTopStories(stories) {
+            const list = document.querySelector('.top-list');
+            list.querySelectorAll('.top-item').forEach(item => item.remove());
+            stories.slice(0, 5).forEach((story, index) => {
+                const storyData = buildStoryData(story);
+                const item = document.createElement('div');
+                item.className = 'top-item';
+                setStoryDataset(item, storyData);
+                item.innerHTML = `
+                    <span class="top-rank">${index + 1}</span>
+                    <div class="top-info">
+                        <div class="top-title">${storyData.title}</div>
+                        <div class="top-views">${storyData.views}</div>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function renderRecommendStories(stories) {
+            const grid = document.getElementById('recommendAll');
+            grid.querySelectorAll('.recommend-card').forEach(card => card.remove());
+            stories.slice(0, 4).forEach(story => {
+                const storyData = buildStoryData(story);
+                const card = document.createElement('div');
+                card.className = 'recommend-card';
+                setStoryDataset(card, storyData);
+                card.innerHTML = `
+                    <div class="recommend-cover" style="${storyData.cover ? `background-image:url('${storyData.cover}')` : ''}"></div>
+                    <div class="recommend-info">
+                        <div class="recommend-title">${storyData.title}</div>
+                        <div class="recommend-stats">
+                            <span>${storyData.status}</span>
+                            <span>${storyData.views}</span>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
 
         // Các nút xóa trong lịch sử
         document.querySelectorAll('.delete-btn').forEach(btn => {
@@ -854,6 +1008,8 @@
         document.getElementById('readContinueBtn').addEventListener('click', () => { alert('Đọc tiếp'); showReader(); });
         document.getElementById('breadcrumbHome').addEventListener('click', (e) => { e.preventDefault(); showHome(); });
         document.getElementById('breadcrumbCategory').addEventListener('click', (e) => { e.preventDefault(); showGenre(); });
+
+        loadStories();
 
         // ===== READER PAGE INTERACTIONS =====
         // Breadcrumb

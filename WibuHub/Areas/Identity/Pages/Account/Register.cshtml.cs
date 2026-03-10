@@ -3,7 +3,6 @@
 #nullable disable
 
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -13,11 +12,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Text;
 using System.Text.Encodings.Web;
 using WibuHub.ApplicationCore.Entities.Identity;
-using WibuHub.Common.Contants;
 
 namespace WibuHub.MVC.Admin.Areas.Identity.Pages.Account
 {
-    [Authorize(Roles = AppConstants.Roles.SuperAdmin)]
     public class RegisterModel : PageModel
     {
         private readonly SignInManager<StoryUser> _signInManager;

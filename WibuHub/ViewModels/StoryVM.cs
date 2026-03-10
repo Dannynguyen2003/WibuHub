@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -6,7 +7,7 @@ using WibuHub.ApplicationCore.Entities;
 
 namespace WibuHub.MVC.ViewModels
 {
-[Bind("Id,Title,AlternativeName,Description,Slug,Status,ViewCount,FollowCount,RatingScore,CreatedAt,UpdateDate,AuthorId,CategoryId,CategoryIds")]
+[Bind("Id,Title,AlternativeName,Description,Slug,Status,ViewCount,FollowCount,RatingScore,CreatedAt,UpdateDate,AuthorId,CategoryId,CategoryIds,CoverImage,CoverImageFile")]
     public class StoryVM
     {
         [Key]
@@ -44,6 +45,10 @@ namespace WibuHub.MVC.ViewModels
 
         // RatingScore: float
         public double RatingScore { get; set; } = 0;
+
+        // Cover Image
+        public string? CoverImage { get; set; }
+        public IFormFile? CoverImageFile { get; set; }
 
         // DateCreated & UpdateDate
         [Description("Ngày tạo")]

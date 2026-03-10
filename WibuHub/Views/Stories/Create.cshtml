@@ -14,7 +14,7 @@
         <hr />
         <div class="row">
             <div class="col-md-4">
-                <form asp-action="@actionString">
+                <form asp-action="@actionString" enctype="multipart/form-data">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     @if (!isCreate)
                     {
@@ -40,6 +40,17 @@
                     <input asp-for="Slug" class="form-control" placeholder="tu-dong-sinh-ra-tu-tieu-de" id="txtSlug" />
                     <small class="form-text text-muted">Đây là đường dẫn trên URL (không dấu, gạch ngang).</small>
                     <span asp-validation-for="Slug" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="CoverImageFile" class="control-label fw-bold">Ảnh bìa</label>
+                    <input asp-for="CoverImageFile" class="form-control" type="file" accept="image/*" />
+                    <span asp-validation-for="CoverImageFile" class="text-danger"></span>
+                    @if (!string.IsNullOrWhiteSpace(Model?.CoverImage))
+                    {
+                        <div class="mt-2">
+                            <img src="@Model.CoverImage" alt="cover" class="img-thumbnail" style="max-width: 200px;" />
+                        </div>
+                    }
                 </div>
                 <div class="form-group mb-3">
                     <label asp-for="Status" class="control-label fw-bold">Trạng thái</label>

@@ -1,4 +1,4 @@
-﻿@model WibuHub.ApplicationCore.Entities.Identity.StoryUser
+﻿@model WibuHub.ViewModels.AdminProfileVM
 
 @{
     ViewData["Title"] = "Admin Profile";
@@ -6,11 +6,11 @@
         ? "https://randomuser.me/api/portraits/men/32.jpg"
         : Model.Avatar;
     var displayName = string.IsNullOrWhiteSpace(Model?.FullName)
-        ? User.Identity?.Name
+        ? Model?.UserName
         : Model.FullName;
 }
 
-<div class="profile-card">
+<form asp-action="Index" method="post" class="profile-card">
     <div class="profile-header">
         <div class="profile-avatar">
             <img src="@avatarUrl" alt="@displayName">
@@ -18,9 +18,14 @@
         <div class="profile-title">
             <h2>@displayName</h2>
             <span class="role-badge">Admin</span>
-            <p class="text-muted">@User.Identity?.Name</p>
+            <p class="text-muted">@Model?.Email</p>
         </div>
     </div>
+
+    @if (ViewData["StatusMessage"] is string statusMessage)
+    {
+        <div class="status-message">@statusMessage</div>
+    }
 
     <div class="profile-details">
         <div class="detail-item">
@@ -28,12 +33,31 @@
             <div class="value">@Model?.Email</div>
         </div>
         <div class="detail-item">
-            <div class="label">Phone</div>
-            <div class="value">@(string.IsNullOrWhiteSpace(Model?.PhoneNumber) ? "Chưa cập nhật" : Model.PhoneNumber)</div>
-        </div>
-        <div class="detail-item">
             <div class="label">Account</div>
             <div class="value">@Model?.UserName</div>
         </div>
+        <div class="detail-item">
+            <label class="label" asp-for="FullName"></label>
+            <input asp-for="FullName" class="form-control" />
+            <span asp-validation-for="FullName" class="text-danger"></span>
+        </div>
+        <div class="detail-item">
+            <label class="label" asp-for="PhoneNumber"></label>
+            <input asp-for="PhoneNumber" class="form-control" />
+            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+        </div>
+        <div class="detail-item">
+            <label class="label" asp-for="Avatar"></label>
+            <input asp-for="Avatar" class="form-control" />
+            <span asp-validation-for="Avatar" class="text-danger"></span>
+        </div>
     </div>
-</div>
+
+    <div class="profile-actions">
+        <button type="submit" class="btn-primary">Lưu thay đổi</button>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

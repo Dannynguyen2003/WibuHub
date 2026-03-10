@@ -26,6 +26,12 @@
                     <input asp-for="Name" class="form-control" placeholder="Ví dụ: Nguyễn Nhật Ánh..." autofocus />
                     <span asp-validation-for="Name" class="text-danger"></span>
                 </div>
+                <div class="form-group mb-3">
+                    <label asp-for="Slug" class="control-label fw-bold">Đường dẫn (Slug)</label>
+                    <input asp-for="Slug" class="form-control" placeholder="tu-dong-sinh-ra-tu-tieu-de" id="txtSlug" />
+                    <small class="form-text text-muted">Đây là đường dẫn trên URL (không dấu, gạch ngang).</small>
+                    <span asp-validation-for="Slug" class="text-danger"></span>
+                </div>
                 <div class="form-group" style="text-align: center; margin-top: 10px;">
                     <input type="submit" value="@buttonString" class="btn btn-primary" />
                 </div>

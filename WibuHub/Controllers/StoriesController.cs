@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System.IO;
 using WibuHub.ApplicationCore.Entities;
 using WibuHub.Common.Contants;
 using WibuHub.DataLayer;
@@ -13,9 +15,16 @@ namespace WibuHub.Areas.Admin.Controllers
     public class StoriesController : Controller
     {
         private readonly StoryDbContext _context;
-        public StoriesController(StoryDbContext context)
+        private readonly IWebHostEnvironment _env;
+        private static readonly HashSet<string> AllowedImageExtensions = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ".jpg", ".jpeg", ".jfif", ".png", ".webp", ".gif", ".bmp"
+        };
+        private const long MaxImageSizeBytes = 10 * 1024 * 1024;
+        public StoriesController(StoryDbContext context, IWebHostEnvironment env)
         {
             _context = context;
+            _env = env;
         }
         // GET: Admin/Stories
         public async Task<IActionResult> Index()
@@ -68,11 +77,21 @@ namespace WibuHub.Areas.Admin.Controllers
                 storyVM.CategoryId = selectedCategoryIds.First();
                 ModelState.Remove(nameof(storyVM.CategoryId));
             }
+            var storyId = storyVM.Id == Guid.Empty ? Guid.NewGuid() : storyVM.Id;
+            string? coverImagePath = null;
+            if (storyVM.CoverImageFile != null && storyVM.CoverImageFile.Length > 0)
+            {
+                coverImagePath = await SaveCoverImageAsync(storyVM.CoverImageFile, storyId);
+                if (string.IsNullOrWhiteSpace(coverImagePath))
+                {
+                    ModelState.AddModelError(nameof(storyVM.CoverImageFile), "Ảnh bìa không hợp lệ hoặc vượt quá dung lượng cho phép.");
+                }
+            }
             if (ModelState.IsValid)
             {
                 var story = new Story
                 {
-                    Id = Guid.NewGuid(),
+                    Id = storyId,
                     StoryName = storyVM.Title.Trim(),
                     AlternativeName = storyVM.AlternativeName?.Trim(),
                     Description = storyVM.Description?.Trim(),
@@ -86,7 +105,8 @@ namespace WibuHub.Areas.Admin.Controllers
                     CreatedAt = DateTime.UtcNow,
                     UpdateDate = DateTime.UtcNow,
                     AuthorId = storyVM.AuthorId,
-                    CategoryId = selectedCategoryIds.First()
+                    CategoryId = selectedCategoryIds.First(),
+                    CoverImage = coverImagePath
                 };
                 story.StoryCategories = selectedCategoryIds
                     .Select(categoryId => new StoryCategory { StoryId = story.Id, CategoryId = categoryId })
@@ -156,7 +176,8 @@ namespace WibuHub.Areas.Admin.Controllers
                 RatingScore = story.RatingScore,
                 AuthorId = story.AuthorId,
                 CategoryId = story.CategoryId,
-                CategoryIds = categoryIds
+                CategoryIds = categoryIds,
+                CoverImage = story.CoverImage
             };
             ViewData["AuthorId"] = new SelectList(_context.Authors.Where(a => !a.IsDeleted), "Id", "Name", story.AuthorId);
             ViewData["CategoryId"] = new MultiSelectList(_context.Categories.Where(c => !c.IsDeleted), "Id", "Name", storyVM.CategoryIds);
@@ -181,6 +202,15 @@ namespace WibuHub.Areas.Admin.Controllers
                 storyVM.CategoryId = selectedCategoryIds.First();
                 ModelState.Remove(nameof(storyVM.CategoryId));
             }
+            string? coverImagePath = null;
+            if (storyVM.CoverImageFile != null && storyVM.CoverImageFile.Length > 0)
+            {
+                coverImagePath = await SaveCoverImageAsync(storyVM.CoverImageFile, storyVM.Id);
+                if (string.IsNullOrWhiteSpace(coverImagePath))
+                {
+                    ModelState.AddModelError(nameof(storyVM.CoverImageFile), "Ảnh bìa không hợp lệ hoặc vượt quá dung lượng cho phép.");
+                }
+            }
             if (ModelState.IsValid)
             {
                 try
@@ -200,6 +230,10 @@ namespace WibuHub.Areas.Admin.Controllers
                     story.AuthorId = storyVM.AuthorId;
                     story.CategoryId = selectedCategoryIds.First();
                     story.UpdateDate = DateTime.UtcNow;
+                    if (!string.IsNullOrWhiteSpace(coverImagePath))
+                    {
+                        story.CoverImage = coverImagePath;
+                    }
                     if (story.StoryCategories.Any())
                     {
                         _context.StoryCategories.RemoveRange(story.StoryCategories);
@@ -226,6 +260,30 @@ namespace WibuHub.Areas.Admin.Controllers
             ViewData["AuthorId"] = new SelectList(_context.Authors.Where(a => !a.IsDeleted), "Id", "Name", storyVM.AuthorId);
             ViewData["CategoryId"] = new MultiSelectList(_context.Categories.Where(c => !c.IsDeleted), "Id", "Name", storyVM.CategoryIds);
             return View(nameof(Create), storyVM);
+        }
+        private async Task<string?> SaveCoverImageAsync(IFormFile file, Guid storyId)
+        {
+            var extension = Path.GetExtension(file.FileName);
+            if (string.IsNullOrWhiteSpace(extension) || !AllowedImageExtensions.Contains(extension))
+            {
+                return null;
+            }
+            if (file.Length == 0 || file.Length > MaxImageSizeBytes)
+            {
+                return null;
+            }
+            var folderPath = Path.Combine(_env.WebRootPath, "uploads", "stories", storyId.ToString());
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+            var fileName = $"cover{extension}";
+            var fullPath = Path.Combine(folderPath, fileName);
+            await using (var stream = new FileStream(fullPath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+            return $"/uploads/stories/{storyId}/{fileName}";
         }
         // GET: Admin/Stories/Delete/5
         public async Task<IActionResult> Delete(Guid? id)

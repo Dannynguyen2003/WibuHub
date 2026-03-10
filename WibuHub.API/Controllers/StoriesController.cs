@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WibuHub.ApplicationCore.DTOs.Shared;
 using WibuHub.Service.Interface;
 namespace WibuHub.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")] // URL: api/stories
+    [Authorize] // Bảo vệ API nếu cần
     public class StoriesController : ControllerBase
     {
         private readonly IStoryService _storyService;
