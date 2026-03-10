@@ -20,7 +20,9 @@ namespace WibuHub.MVC.ViewComponents
             var query = _context.Stories
                 .Where(s => !s.IsDeleted)
                 .Include(s => s.Author)
-                .Include(s => s.Category);
+                .Include(s => s.Category)
+                .Include(s => s.StoryCategories)
+                .ThenInclude(sc => sc.Category);
 
             var totalCount = await query.LongCountAsync();
 
@@ -30,23 +32,38 @@ namespace WibuHub.MVC.ViewComponents
                 .Take(pageSize)
                 .ToListAsync();
             // Map to ViewModel
-            var storyVMs = stories.Select(s => new StoryVM
+            var storyVMs = stories.Select(s =>
             {
-                Id = s.Id,
-                Title = s.StoryName,
-                AlternativeName = s.AlternativeName,
-                Description = s.Description,
-                Slug = s.Slug,
-                Status = s.Status,
-                ViewCount = s.ViewCount,
-                FollowCount = s.FollowCount,
-                RatingScore = s.RatingScore,
-                CreatedAt = s.CreatedAt,
-                UpdateDate = s.UpdateDate,
-                AuthorId = s.AuthorId,
-                CategoryId = s.CategoryId,
-                Author = s.Author,
-                CategoryName = s.Category != null ? s.Category.Name : null
+                var categoryNames = s.StoryCategories
+                    .Select(sc => sc.Category?.Name)
+                    .Where(name => !string.IsNullOrWhiteSpace(name))
+                    .Distinct()
+                    .ToList();
+
+                if (!categoryNames.Any() && s.Category?.Name is { Length: > 0 } fallbackName)
+                {
+                    categoryNames.Add(fallbackName);
+                }
+
+                return new StoryVM
+                {
+                    Id = s.Id,
+                    Title = s.StoryName,
+                    AlternativeName = s.AlternativeName,
+                    Description = s.Description,
+                    Slug = s.Slug,
+                    Status = s.Status,
+                    ViewCount = s.ViewCount,
+                    FollowCount = s.FollowCount,
+                    RatingScore = s.RatingScore,
+                    CreatedAt = s.CreatedAt,
+                    UpdateDate = s.UpdateDate,
+                    AuthorId = s.AuthorId,
+                    CategoryId = s.CategoryId,
+                    Author = s.Author,
+                    CategoryName = s.Category?.Name,
+                    CategoryDisplay = categoryNames.Any() ? string.Join(", ", categoryNames) : null
+                };
             }).ToList();
 
             var result = new PagedResult<StoryVM>(storyVMs, page, pageSize, totalCount);

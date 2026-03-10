@@ -1,0 +1,56 @@
+﻿@model WibuHub.MVC.ViewModels.ShoppingCart.Cart
+@{
+    ViewData["Title"] = "Thanh toán";
+    var total = Model.Items.Sum(i => i.Total);
+    var tax = total * 0.1m;
+    var totalAmount = total + tax;
+}
+
+<div class="cart-page">
+    <div class="cart-header">
+        <h1>Thanh toán</h1>
+        <a class="cart-checkout-link" asp-action="Index">Quay lại giỏ hàng</a>
+    </div>
+
+    @if (TempData["PaymentError"] != null)
+    {
+        <div class="cart-alert">
+            @TempData["PaymentError"]
+        </div>
+    }
+
+    <div class="cart-section">
+        <div class="cart-items">
+            @foreach (var item in Model.Items)
+            {
+                <div class="cart-item">
+                    <div>
+                        <div class="cart-item-title">@item.StoryTitle</div>
+                        <div class="cart-item-sub">@item.ChapterName</div>
+                    </div>
+                    <div class="cart-item-actions">
+                        <span class="cart-price">@item.Price.ToString("N0") đ</span>
+                        <span>x @item.Quantity</span>
+                    </div>
+                </div>
+            }
+        </div>
+        <div class="cart-summary">
+            <span>Tạm tính</span>
+            <strong>@total.ToString("N0") đ</strong>
+        </div>
+        <div class="cart-summary">
+            <span>Thu (10%)</span>
+            <strong>@tax.ToString("N0") đ</strong>
+        </div>
+        <div class="cart-summary total">
+            <span>Tổng cộng</span>
+            <strong>@totalAmount.ToString("N0") đ</strong>
+        </div>
+
+        <form asp-action="PayWithMomo" method="post">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="cart-checkout">Thanh toán bằng MoMo</button>
+        </form>
+    </div>
+</div>

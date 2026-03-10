@@ -1,0 +1,50 @@
+@model IEnumerable<WibuHub.ApplicationCore.Entities.Order>
+
+@{
+    ViewData["Title"] = "Qu?n l? ðõn hàng";
+    var statuses = ViewBag.StatusOptions as IEnumerable<string> ?? Enumerable.Empty<string>();
+    var selectedStatus = ViewBag.SelectedStatus as string;
+}
+
+<h1>Qu?n l? ðõn hàng</h1>
+
+<form method="get" class="mb-3">
+    <label for="status">Tr?ng thái thanh toán:</label>
+    <select id="status" name="status" class="form-select" style="max-width: 240px; display: inline-block;">
+        <option value="">T?t c?</option>
+        @foreach (var status in statuses)
+        {
+            <option value="@status" selected="@(status == selectedStatus)">@status</option>
+        }
+    </select>
+    <button type="submit" class="btn btn-primary">L?c</button>
+</form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>M? ðõn</th>
+            <th>User</th>
+            <th>T?ng ti?n</th>
+            <th>Phýõng th?c</th>
+            <th>Tr?ng thái</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Id</td>
+            <td>@item.UserId</td>
+            <td>@item.TotalAmount.ToString("N0") ð</td>
+            <td>@item.PaymentMethod</td>
+            <td>@item.PaymentStatus</td>
+            <td>
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

@@ -1,18 +1,20 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace WibuHub.ViewModels
 {
     public class AdminProfileVM
     {
-        [Display(Name = "H? và tên")]
+        [Display(Name = "Full name")]
         public string? FullName { get; set; }
 
-        [Display(Name = "S? ði?n tho?i")]
+        [Display(Name = "Phone number")]
         [Phone]
         public string? PhoneNumber { get; set; }
 
-        [Display(Name = "?nh ð?i di?n")]
-        [Url]
+        [Display(Name = "Avatar")]
+        public IFormFile? AvatarFile { get; set; }
+
         public string? Avatar { get; set; }
 
         public string? Email { get; set; }

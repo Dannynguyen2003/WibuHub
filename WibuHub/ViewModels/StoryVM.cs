@@ -68,6 +68,8 @@ namespace WibuHub.MVC.ViewModels
         public Guid CategoryId { get; set; }
         public string? CategoryName { get; set; }
 
+        public string? CategoryDisplay { get; set; }
+
     [MinLength(1, ErrorMessage = "Vui lòng chọn ít nhất một danh mục.")]
     public List<Guid> CategoryIds { get; set; } = new();
     }

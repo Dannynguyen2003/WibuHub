@@ -1,7 +1,12 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
+using WibuHub.ApplicationCore.Configuration;
 using WibuHub.ApplicationCore.Entities.Identity;
 using WibuHub.DataLayer;
+using WibuHub.Service.EmailSender;
+using WibuHub.Service.Implementations;
+using WibuHub.Service.Interface;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -77,7 +82,18 @@ if (!string.IsNullOrWhiteSpace(adminFacebookAppId) && !string.IsNullOrWhiteSpace
 builder.Services.AddAuthorization();
 builder.Services.AddRazorPages();
 
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+builder.Services.AddTransient<IEmailSender, EmailSender>();
+
 builder.Services.AddControllersWithViews();
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.Configure<MomoSettings>(builder.Configuration.GetSection("MomoSettings"));
+builder.Services.AddHttpClient<MomoPaymentService>(client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
+builder.Services.AddScoped<IPaymentService, MomoPaymentService>();
 
 var app = builder.Build();
 

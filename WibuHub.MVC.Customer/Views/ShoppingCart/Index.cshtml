@@ -1,0 +1,69 @@
+﻿@model WibuHub.MVC.Customer.Models.ShoppingCart.ShoppingCartViewModel
+@{
+    ViewData["Title"] = "Gi? hàng";
+    var total = Model.Cart.Items.Sum(i => i.Total);
+}
+
+<div class="cart-page">
+    <div class="cart-header">
+        <h1>Giỏ hàng</h1>
+        <a class="cart-checkout-link" asp-action="Cart">Xem giỏ hàng</a>
+    </div>
+
+    <div class="cart-grid">
+        <section class="cart-section">
+            <h2>Chọn chương để mua</h2>
+            <div class="cart-list">
+                @if (Model.Chapters.Count == 0)
+                {
+                    <p class="cart-empty">Chưa có chương nào để hiển thị.</p>
+                }
+                else
+                {
+                    foreach (var chapter in Model.Chapters)
+                    {
+                        <div class="cart-card">
+                            <div class="cart-card-info">
+                                <div class="cart-card-title">@chapter.StoryTitle</div>
+                                <div class="cart-card-sub">@chapter.ChapterName</div>
+                            </div>
+                            <div class="cart-card-actions">
+                                <span class="cart-price">@chapter.Price.ToString("N0") đ</span>
+                                <form asp-action="AddChapter" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="idChapter" value="@chapter.Id" />
+                                    <input type="hidden" name="quantity" value="1" />
+                                    <button type="submit" class="cart-btn">Thêm vào giỏ</button>
+                                </form>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </section>
+
+        <section class="cart-section">
+            <h2>Gói VIP</h2>
+            <div class="cart-list">
+                @foreach (var package in Model.VipPackages)
+                {
+                    <div class="cart-card">
+                        <div class="cart-card-info">
+                            <div class="cart-card-title">@package.Name</div>
+                            <div class="cart-card-sub">@package.Description</div>
+                        </div>
+                        <div class="cart-card-actions">
+                            <span class="cart-price">@package.Price.ToString("N0") đ</span>
+                            <form asp-action="AddVipPackage" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="code" value="@package.Code" />
+                                <button type="submit" class="cart-btn">Đăng ký</button>
+                            </form>
+                        </div>
+                    </div>
+                }
+            </div>
+        </section>
+
+    </div>
+</div>

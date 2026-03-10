@@ -2,84 +2,97 @@
 
 @{
     ViewData["Title"] = "Details";
+    var coverUrl = string.IsNullOrWhiteSpace(Model?.CoverImage)
+        ? "https://via.placeholder.com/320x450?text=No+Cover"
+        : Model.CoverImage;
+    var statusText = Model?.Status switch
+    {
+        1 => "Hoàn thành",
+        2 => "Tạm ngưng",
+        _ => "Đang tiến hành"
+    };
 }
 
-<h1>Details</h1>
+<div class="container py-4">
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <img class="card-img-top" src="@coverUrl" alt="@Model?.StoryName" />
+                <div class="card-body">
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="badge bg-primary">@statusText</span>
+                        <span class="badge bg-light text-dark">@Model?.Category?.Name</span>
+                    </div>
+                    <div class="mt-3 text-muted">
+                        <div><strong>Lượt xem:</strong> @Model?.ViewCount</div>
+                        <div><strong>Theo dõi:</strong> @Model?.FollowCount</div>
+                        <div><strong>Đánh giá:</strong> @Model?.RatingScore</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h1 class="h3 mb-2">@Model?.StoryName</h1>
+                    <div class="text-muted mb-3">@Model?.AlternativeName</div>
 
-<div>
-    <h4>Story</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.StoryName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.StoryName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.AlternativeName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.AlternativeName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Description)
-        </dd>
-        
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Status)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Status)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ViewCount)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ViewCount)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.FollowCount)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.FollowCount)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.RatingScore)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.RatingScore)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreatedAt)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UpdateDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UpdateDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Author)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Author.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Category)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Category.Name)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <div class="text-muted">Tác giả</div>
+                            <div class="fw-semibold">@Model?.Author?.Name</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="text-muted">Thể loại</div>
+                            <div class="fw-semibold">@Model?.Category?.Name</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="text-muted">Ngày tạo</div>
+                            <div class="fw-semibold">@Model?.CreatedAt</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="text-muted">Cập nhật</div>
+                            <div class="fw-semibold">@Model?.UpdateDate</div>
+                        </div>
+                    </div>
+
+                    <div class="border-top pt-3">
+                        <h6 class="text-uppercase text-muted">Mô tả</h6>
+                        <p class="mb-0">@Model?.Description</p>
+                    </div>
+                </div>
+                <div class="card-footer bg-white d-flex gap-2">
+                    <a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model?.Id">Edit</a>
+                    <a class="btn btn-outline-secondary" asp-action="Index">Back to List</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mt-4">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">Danh sách chương</h5>
+        </div>
+        <div class="card-body">
+            @if (Model?.Chapters != null && Model.Chapters.Any())
+            {
+                <div class="list-group">
+                    @foreach (var chapter in Model.Chapters.OrderByDescending(c => c.ChapterNumber))
+                    {
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="fw-semibold">@chapter.Name</div>
+                                <div class="text-muted">Chapter @chapter.ChapterNumber</div>
+                            </div>
+                            <span class="text-muted">@chapter.CreatedAt</span>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="text-muted">Chưa có chương.</div>
+            }
+        </div>
+    </div>
 </div>

@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
+using System.IO;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MimeKit;
@@ -21,16 +23,16 @@ namespace WibuHub.Controllers
             ".jpg", ".jpeg", ".jfif", ".png", ".webp", ".gif", ".bmp"
         };
         const long maxImageSizeBytes = 10 * 1024 * 1024;
-        public ChaptersController(StoryDbContext context)
+        public ChaptersController(StoryDbContext context, IWebHostEnvironment env)
         {
             _context = context;
+            _env = env;
         }
 
         // GET: Chapters
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            var StoryDbContext = _context.Chapters.Include(c => c.Story);
-            return View(await StoryDbContext.ToListAsync());
+            return View();
         }
 
         // GET: Chapters/Details/5
@@ -43,6 +45,7 @@ namespace WibuHub.Controllers
 
             var chapter = await _context.Chapters
                 .Include(c => c.Story)
+                .Include(c => c.Images)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (chapter == null)
             {
@@ -66,6 +69,17 @@ namespace WibuHub.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ChapterVM chapterVM)
         {
+            var uploadFiles = chapterVM.UploadImages?.Where(file => file != null && file.Length > 0).ToList()
+                ?? new List<IFormFile>();
+            foreach (var file in uploadFiles)
+            {
+                var extension = Path.GetExtension(file.FileName);
+                if (string.IsNullOrWhiteSpace(extension) || !AllowedImageExtensions.Contains(extension) || file.Length > maxImageSizeBytes)
+                {
+                    ModelState.AddModelError(nameof(chapterVM.UploadImages), "Ảnh upload không hợp lệ hoặc vượt quá dung lượng cho phép.");
+                    break;
+                }
+            }
             if (ModelState.IsValid)
             {
                 var imageUrls = (chapterVM.ImageUrls ?? new List<string>())
@@ -80,8 +94,15 @@ namespace WibuHub.Controllers
                         .Where(url => !string.IsNullOrWhiteSpace(url))
                         .ToList();
                 }
+                var chapterId = chapterVM.Id != Guid.Empty ? chapterVM.Id : Guid.NewGuid();
+                if (uploadFiles.Count > 0)
+                {
+                    var uploadedUrls = await SaveUploadImagesAsync(uploadFiles, chapterVM.StoryId, chapterId, imageUrls.Count + 1);
+                    imageUrls.AddRange(uploadedUrls);
+                }
                 var chapter = new Chapter
                 {
+                    Id = chapterId,
                     StoryId = chapterVM.StoryId,
                     Name = chapterVM.Name.Trim(),
                     ChapterNumber = chapterVM.ChapterNumber,
@@ -184,7 +205,17 @@ namespace WibuHub.Controllers
             {
                 return BadRequest();
             }
-
+            var uploadFiles = chapterVM.UploadImages?.Where(file => file != null && file.Length > 0).ToList()
+                ?? new List<IFormFile>();
+            foreach (var file in uploadFiles)
+            {
+                var extension = Path.GetExtension(file.FileName);
+                if (string.IsNullOrWhiteSpace(extension) || !AllowedImageExtensions.Contains(extension) || file.Length > maxImageSizeBytes)
+                {
+                    ModelState.AddModelError(nameof(chapterVM.UploadImages), "Ảnh upload không hợp lệ hoặc vượt quá dung lượng cho phép.");
+                    break;
+                }
+            }
             if (ModelState.IsValid)
             {
                 try
@@ -201,6 +232,11 @@ namespace WibuHub.Controllers
                         .Where(url => !string.IsNullOrWhiteSpace(url))
                         .Select(url => url.Trim())
                         .ToList();
+                    if (uploadFiles.Count > 0)
+                    {
+                        var uploadedUrls = await SaveUploadImagesAsync(uploadFiles, chapter.StoryId, chapter.Id, imageUrls.Count + 1);
+                        imageUrls.AddRange(uploadedUrls);
+                    }
                     chapter.StoryId = chapterVM.StoryId;
                     chapter.Name = chapterVM.Name.Trim();
                     chapter.ChapterNumber = chapterVM.ChapterNumber;
@@ -233,6 +269,34 @@ namespace WibuHub.Controllers
             }
             ViewData["StoryId"] = new SelectList(_context.Stories.Where(s => !s.IsDeleted), "Id", "StoryName", chapterVM.StoryId);
             return View(nameof(Create), chapterVM);
+        }
+
+        private async Task<List<string>> SaveUploadImagesAsync(IReadOnlyList<IFormFile> files, Guid storyId, Guid chapterId, int startIndex)
+        {
+            var results = new List<string>();
+            if (files.Count == 0)
+            {
+                return results;
+            }
+            var folderPath = Path.Combine(_env.WebRootPath, "uploads", "stories", storyId.ToString(), chapterId.ToString());
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+            var orderIndex = startIndex;
+            foreach (var file in files)
+            {
+                var extension = Path.GetExtension(file.FileName);
+                var fileName = $"{orderIndex:D3}{extension}";
+                var fullPath = Path.Combine(folderPath, fileName);
+                await using (var stream = new FileStream(fullPath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+                results.Add($"/uploads/stories/{storyId}/{chapterId}/{fileName}");
+                orderIndex++;
+            }
+            return results;
         }
 
         // GET: Chapters/Delete/5

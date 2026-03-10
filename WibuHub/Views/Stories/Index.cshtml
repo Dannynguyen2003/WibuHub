@@ -1,97 +1,63 @@
-﻿@model IEnumerable<WibuHub.ApplicationCore.Entities.Story>
-
-@{
-    ViewData["Title"] = "Index";
+﻿@{
+    ViewData["Title"] = "Quản lý Truyện";
 }
 
-<h1>Index</h1>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <h1>Quản lý Truyện</h1>
+        <p>
+            <a asp-action="Create" class="btn btn-success">
+                <i class="fas fa-plus"></i> Tạo mới
+            </a>
+        </p>
+    </div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.StoryName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AlternativeName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            
-            <th>
-                @Html.DisplayNameFor(model => model.Status)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ViewCount)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.FollowCount)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.RatingScore)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UpdateDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Author)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Category)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.StoryName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AlternativeName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            
-            <td>
-                @Html.DisplayFor(modelItem => item.Status)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ViewCount)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FollowCount)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.RatingScore)
-            </td>
-            <td>
-                    @Html.DisplayFor(modelItem => item.CreatedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UpdateDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Author.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Category.Name)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
+    <form id="antiForgeryForm" method="post" class="d-none">
+        @Html.AntiForgeryToken()
+    </form>
+
+    <div id="divStoryList">
+        @await Component.InvokeAsync("StoryList")
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function openModalDeleteStory(idStory) {
+            if (!confirm("Bạn có chắc chắn muốn xóa truyện này không?")) {
+                return;
+            }
+            deleteStory(idStory);
+        }
+        function deleteStory(idStory) {
+            let inputToken = document.querySelector("#antiForgeryForm input[name='__RequestVerificationToken']");
+            if (!inputToken) {
+                console.error("Không tìm thấy Token bảo mật!");
+                return;
+            }
+            $.ajax({
+                url: '/Stories/Delete',
+                type: 'POST',
+                data: {
+                    id: idStory,
+                    __RequestVerificationToken: inputToken.value
+                },
+                success: function (response) {
+                    if (response.isOK) {
+                        refreshStoryList();
+                    } else {
+                        alert("Xóa thất bại!");
+                    }
+                },
+                error: function () {
+                    alert("Có lỗi xảy ra khi kết nối với máy chủ.");
+                }
+            });
+        }
+        function refreshStoryList(page = 1) {
+            $.get('/Stories/Reload', { page: page }, function (data) {
+                $('#divStoryList').html(data);
+            });
+        }
+    </script>
 }
-    </tbody>
-</table>

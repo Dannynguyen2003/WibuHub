@@ -16,13 +16,9 @@ namespace WibuHub.Areas.Admin.Controllers
             _context = context;
         }
         // GET: Admin/Authors
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            var authors = await _context.Authors
-                .Where(a => !a.IsDeleted)
-                .OrderBy(a => a.Name)
-                .ToListAsync();
-            return View(authors);
+            return View();
         }
         // GET: Admin/Authors/Details/5
         public async Task<IActionResult> Details(Guid? id)

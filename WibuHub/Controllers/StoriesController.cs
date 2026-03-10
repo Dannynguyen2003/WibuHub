@@ -27,15 +27,9 @@ namespace WibuHub.Areas.Admin.Controllers
             _env = env;
         }
         // GET: Admin/Stories
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            var stories = await _context.Stories
-                .Include(s => s.Author)
-                .Include(s => s.Category)
-                .Where(s => !s.IsDeleted)
-                .OrderByDescending(s => s.CreatedAt)
-                .ToListAsync();
-            return View(stories);
+            return View();
         }
         // GET: Admin/Stories/Details/5
         public async Task<IActionResult> Details(Guid? id)

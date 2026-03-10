@@ -1,0 +1,133 @@
+﻿@model WibuHub.MVC.ViewModels.ShoppingCart.Cart
+@{
+    ViewData["Title"] = "Giỏ hàng";
+    var total = Model.Items.Sum(i => i.Total);
+}
+
+<div class="cart-page">
+    <div class="cart-header">
+        <h1>Giỏ hàng của bạn</h1>
+        <a class="cart-checkout-link" asp-action="Index">Chọn thêm sản phẩm</a>
+    </div>
+
+@section Scripts {
+    <script>
+        const cartSection = document.getElementById('cartSection');
+        const membershipSection = document.getElementById('membershipSection');
+        const tabCart = document.getElementById('tabCart');
+        const tabMembership = document.getElementById('tabMembership');
+
+        if (cartSection && membershipSection && tabCart && tabMembership) {
+            cartSection.classList.add('hidden');
+            membershipSection.classList.add('hidden');
+            tabCart.classList.remove('active');
+            tabMembership.classList.remove('active');
+
+            function showCart() {
+                cartSection.classList.remove('hidden');
+                membershipSection.classList.add('hidden');
+                tabCart.classList.add('active');
+                tabMembership.classList.remove('active');
+            }
+
+            function showMembership() {
+                membershipSection.classList.remove('hidden');
+                cartSection.classList.add('hidden');
+                tabMembership.classList.add('active');
+                tabCart.classList.remove('active');
+            }
+
+            tabCart.addEventListener('click', (e) => { e.preventDefault(); showCart(); });
+            tabMembership.addEventListener('click', (e) => { e.preventDefault(); showMembership(); });
+
+            document.getElementById('mobileCart')?.addEventListener('click', (e) => { e.preventDefault(); showCart(); });
+            document.getElementById('mobileMembership')?.addEventListener('click', (e) => { e.preventDefault(); showMembership(); });
+
+            showCart();
+        }
+
+        document.querySelectorAll('.cart-item-remove').forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                this.closest('.cart-item')?.remove();
+                alert('Đã xóa sản phẩm khỏi giỏ hàng');
+            });
+        });
+
+        document.getElementById('checkoutBtn')?.addEventListener('click', (e) => {
+            if (e.target instanceof HTMLAnchorElement) {
+                return;
+            }
+            window.location.href = '/ShoppingCart/Checkout';
+        });
+
+        document.getElementById('continueShoppingBtn')?.addEventListener('click', (e) => {
+            if (e.target instanceof HTMLAnchorElement) {
+                return;
+            }
+            window.location.href = '/ShoppingCart';
+        });
+
+        document.querySelectorAll('.plan-select').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const plan = this.dataset.plan;
+                alert(`Bạn đã chọn gói ${plan?.toUpperCase()}. Vui lòng hoàn tất thanh toán.`);
+            });
+        });
+    </script>
+}
+
+    @if (TempData["CartMessage"] != null)
+    {
+        <div class="cart-alert">
+            @TempData["CartMessage"]
+        </div>
+    }
+
+    <section class="cart-section">
+        @if (Model.Items.Count == 0)
+        {
+            <p class="cart-empty">Giỏ hàng đang trống. Hãy chọn chương hoặc gói VIP để mua.</p>
+        }
+        else
+        {
+            <div class="cart-items">
+                @foreach (var item in Model.Items)
+                {
+                    <div class="cart-item">
+                        <div>
+                            <div class="cart-item-title">@item.StoryTitle</div>
+                            <div class="cart-item-sub">@item.ChapterName</div>
+                        </div>
+                        <div class="cart-item-actions">
+                            <span class="cart-price">@item.Price.ToString("N0") đ</span>
+                            <form asp-action="UpdateQuantity" method="post" class="cart-qty-form">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="itemId" value="@item.Id" />
+                                <input type="number" name="quantity" value="@item.Quantity" min="0" />
+                                <button type="submit" class="cart-btn secondary">Cập nhật</button>
+                            </form>
+                            <form asp-action="RemoveItem" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="itemId" value="@item.Id" />
+                                <button type="submit" class="cart-btn ghost">Xóa</button>
+                            </form>
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="cart-summary">
+                <span>Tạm tính</span>
+                <strong>@total.ToString("N0") đ</strong>
+            </div>
+            @if (User.Identity?.IsAuthenticated ?? false)
+            {
+                <a class="cart-checkout" asp-action="Checkout">Tiến hành thanh toán</a>
+            }
+            else
+            {
+                <a class="cart-checkout" asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="@Url.Action("Checkout", "ShoppingCart")">Đăng nhập để thanh toán</a>
+            }
+        }
+    </section>
+</div>

@@ -1,7 +1,5 @@
-﻿@model IEnumerable<WibuHub.ApplicationCore.Entities.Category>
-
-@{
-    ViewData["Title"] = "Danh sách Danh mục";
+﻿@{
+    ViewData["Title"] = "Quản lý Danh mục";
 }
 
 <div class="container mt-4">
@@ -14,32 +12,61 @@
         </p>
     </div>
 
-    <table class="table table-hover table-striped border">
-        <thead class="table-dark">
-            <tr>
-                <th>@Html.DisplayNameFor(model => model.Position)</th>
-                <th>@Html.DisplayNameFor(model => model.Name)</th>
-                <th>Slug (Đường dẫn)</th> @* Cột mới thêm *@
-                <th>@Html.DisplayNameFor(model => model.Description)</th>
-                <th class="text-center">Thao tác</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.OrderBy(x => x.Position))
-            {
-                <tr>
-                    <td><span class="badge bg-secondary">@item.Position</span></td>
-                    <td><strong>@item.Name</strong></td>
-                    <td><code>@item.Slug</code></td> @* Hiển thị Slug *@
-                    <td>@item.Description</td>
-                    <td class="text-center">
-                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-primary">Sửa</a>
-                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info text-white">Chi tiết</a>
-                        @* Nút Delete thường gọi JS Modal bạn đã viết *@
-                        <button onclick="openModalDeleteCategory('@item.Id')" class="btn btn-sm btn-danger">Xóa</button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <form id="antiForgeryForm" method="post" class="d-none">
+        @Html.AntiForgeryToken()
+    </form>
+
+    <div id="divCategoryList">
+        @await Component.InvokeAsync("CategoryList")
+    </div>
 </div>
+
+@section Scripts {
+    <script>
+        function openModalDeleteCategory(idCategory) {
+            if (!confirm("Bạn có chắc chắn muốn xóa danh mục này không?")) {
+                return;
+            }
+            deleteCategory(idCategory);
+        }
+        function deleteCategory(idCategory) {
+            let inputToken = document.querySelector("#antiForgeryForm input[name='__RequestVerificationToken']");
+            if (!inputToken) {
+                console.error("Không tìm thấy Token bảo mật!");
+                return;
+            }
+            $.ajax({
+                url: '/Categories/Delete',
+                type: 'POST',
+                data: {
+                    id: idCategory,
+                    __RequestVerificationToken: inputToken.value
+                },
+                success: function (response) {
+                    if (response.isOK) {
+                        refreshCategoryList();
+                    }
+                },
+                error: function () {
+                    alert("Có lỗi xảy ra khi kết nối với máy chủ.");
+                }
+            });
+        }
+        function refreshCategoryList(page = 1) {
+            $.ajax({
+                url: '/Categories/Reload',
+                type: 'GET',
+                data: { page: page },
+                success: function (response) {
+                    let divCategoryList = document.getElementById("divCategoryList");
+                    if (divCategoryList) {
+                        divCategoryList.innerHTML = response;
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error:", status, error);
+                }
+            });
+        }
+    </script>
+}

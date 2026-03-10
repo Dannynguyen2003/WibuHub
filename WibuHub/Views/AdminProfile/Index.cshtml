@@ -10,7 +10,7 @@
         : Model.FullName;
 }
 
-<form asp-action="Index" method="post" class="profile-card">
+<form asp-action="Index" method="post" enctype="multipart/form-data" class="profile-card">
     <div class="profile-header">
         <div class="profile-avatar">
             <img src="@avatarUrl" alt="@displayName">
@@ -47,14 +47,16 @@
             <span asp-validation-for="PhoneNumber" class="text-danger"></span>
         </div>
         <div class="detail-item">
-            <label class="label" asp-for="Avatar"></label>
-            <input asp-for="Avatar" class="form-control" />
-            <span asp-validation-for="Avatar" class="text-danger"></span>
+            <label class="label" asp-for="AvatarFile"></label>
+            <input asp-for="AvatarFile" type="file" class="form-control" accept="image/*" />
+            <span asp-validation-for="AvatarFile" class="text-danger"></span>
         </div>
     </div>
 
+    <input asp-for="Avatar" type="hidden" />
+
     <div class="profile-actions">
-        <button type="submit" class="btn-primary">Lưu thay đổi</button>
+        <button type="submit" class="btn-primary">Save changes</button>
     </div>
 </form>
 

@@ -1,0 +1,58 @@
+@model WibuHub.ApplicationCore.Entities.Order
+
+@{
+    ViewData["Title"] = "Chi ti?t ðõn hàng";
+}
+
+<h1>Chi ti?t ðõn hàng</h1>
+
+<div>
+    <dl class="row">
+        <dt class="col-sm-3">M? ðõn</dt>
+        <dd class="col-sm-9">@Model.Id</dd>
+        <dt class="col-sm-3">User</dt>
+        <dd class="col-sm-9">@Model.UserId</dd>
+        <dt class="col-sm-3">T?m tính</dt>
+        <dd class="col-sm-9">@Model.Amount.ToString("N0") ð</dd>
+        <dt class="col-sm-3">Thu?</dt>
+        <dd class="col-sm-9">@Model.Tax.ToString("N0") ð</dd>
+        <dt class="col-sm-3">T?ng c?ng</dt>
+        <dd class="col-sm-9">@Model.TotalAmount.ToString("N0") ð</dd>
+        <dt class="col-sm-3">Phýõng th?c</dt>
+        <dd class="col-sm-9">@Model.PaymentMethod</dd>
+        <dt class="col-sm-3">Tr?ng thái</dt>
+        <dd class="col-sm-9">@Model.PaymentStatus</dd>
+        <dt class="col-sm-3">M? giao d?ch</dt>
+        <dd class="col-sm-9">@Model.TransactionId</dd>
+        <dt class="col-sm-3">Ghi chú</dt>
+        <dd class="col-sm-9">@Model.Note</dd>
+    </dl>
+</div>
+
+<h4>Chi ti?t s?n ph?m</h4>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Chapter</th>
+            <th>S? lý?ng</th>
+            <th>Ðõn giá</th>
+            <th>Thành ti?n</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var detail in Model.OrderDetails)
+        {
+            <tr>
+                <td>@detail.Chapter?.Name</td>
+                <td>@detail.Quantity</td>
+                <td>@detail.UnitPrice.ToString("N0") ð</td>
+                <td>@detail.Amount.ToString("N0") ð</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

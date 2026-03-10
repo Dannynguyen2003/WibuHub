@@ -20,14 +20,9 @@ namespace WibuHub.MVC.Controllers
         }
 
         // GET: Categories
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            // Chỉ lấy những cái IsDeleted == false
-            var list = await _context.Categories
-                                     .Where(c => !c.IsDeleted)
-                                     .OrderBy(c => c.Position)
-                                     .ToListAsync();
-            return View(list);
+            return View();
         }
 
         // GET: Categories/Details/5

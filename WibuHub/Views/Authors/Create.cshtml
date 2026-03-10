@@ -48,26 +48,35 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
     <script>
+        // Tự động tạo Slug khi gõ Tên tác giả
+        document.getElementById("Name").addEventListener("keyup", function () {
+            let name = this.value;
+            let slug = generateSlug(name);
+            document.getElementById("txtSlug").value = slug;
+        });
+
+        function generateSlug(text) {
+            return text.toString().toLowerCase()
+                .replace(/á|à|ả|ạ|ã|ă|ắ|ằ|ẳ|ặ|ẵ|â|ấ|ầ|ẩ|ậ|ẫ/g, 'a')
+                .replace(/é|è|ẻ|ẹ|ẽ|ê|ế|ề|ể|ệ|ễ/g, 'e')
+                .replace(/i|í|ì|ỉ|ị|ĩ/g, 'i')
+                .replace(/ó|ò|ỏ|ọ|õ|ô|ố|ồ|ổ|ộ|ỗ|ơ|ớ|ờ|ở|ợ|ỡ/g, 'o')
+                .replace(/ú|ù|ủ|ụ|ũ|ư|ứ|ừ|ử|ự|ữ/g, 'u')
+                .replace(/ý|ỳ|ỷ|ỵ|ỹ/g, 'y')
+                .replace(/đ/g, 'd')
+                .replace(/\s+/g, '-')
+                .replace(/[^\w\-]+/g, '')
+                .replace(/\-\-+/g, '-')
+                .replace(/^-+/, '')
+                .replace(/-+$/, '');
+        }
+    </script>
+    <script>
         function openModalDeleteAuthor(idAuthor) {
-            let inputToken = document.querySelector("input[name='__RequestVerificationToken']");
-            $.ajax({
-                url: '/Authors/Delete',
-                type: 'GET',
-                data: { id: idAuthor },
-                beforeSend: function () {
-                    console.log("Sending...");
-                },
-                success: function (responseHTML) {
-                    openModal("Xóa Tác giả", responseHTML, "modal-lg");
-                },
-                error: function (xhr, status, error) {
-                    console.error("Error:", status, error);
-                },
-                complete: function () {
-                    console.log("Request completed");
-                },
-                timeout: 10000
-            });
+            if (!confirm("Bạn có chắc chắn muốn xóa tác giả này không?")) {
+                return;
+            }
+            deleteAuthor(idAuthor);
         }
         function deleteAuthor(idAuthor) {
             let inputToken = document.querySelector("input[name='__RequestVerificationToken']");
@@ -84,7 +93,6 @@
                 },
                 success: function (response) {
                     if (response.isOK) {
-                        closeModal();
                         refreshAuthorList();
                     } else {
                         alert("Xóa thất bại!");

@@ -111,25 +111,10 @@
         </script>
         <script>
             function openModalDeleteStory(idStory) {
-                let inputToken = document.querySelector("input[name='__RequestVerificationToken']");
-                $.ajax({
-                    url: '/Stories/Delete',
-                    type: 'GET',
-                    data: { id: idStory },
-                    beforeSend: function () {
-                        console.log("Sending...");
-                    },
-                    success: function (responseHTML) {
-                        openModal("Xóa Truyện", responseHTML, "modal-lg");
-                    },
-                    error: function (xhr, status, error) {
-                        console.error("Error:", status, error);
-                    },
-                    complete: function () {
-                        console.log("Request completed");
-                    },
-                    timeout: 10000
-                });
+                if (!confirm("Bạn có chắc chắn muốn xóa truyện này không?")) {
+                    return;
+                }
+                deleteStory(idStory);
             }
             function deleteStory(idStory) {
                 let inputToken = document.querySelector("input[name='__RequestVerificationToken']");
@@ -146,7 +131,6 @@
                     },
                     success: function (response) {
                         if (response.isOK) {
-                            closeModal();
                             refreshStoryList();
                         } else {
                             alert("Xóa thất bại!");
