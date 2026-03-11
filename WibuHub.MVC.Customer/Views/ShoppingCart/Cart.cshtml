@@ -12,6 +12,7 @@
 
 @section Scripts {
     <script>
+        const authModal = document.getElementById('authModal');
         const cartSection = document.getElementById('cartSection');
         const membershipSection = document.getElementById('membershipSection');
         const tabCart = document.getElementById('tabCart');
@@ -74,6 +75,24 @@
                 alert(`Bạn đã chọn gói ${plan?.toUpperCase()}. Vui lòng hoàn tất thanh toán.`);
             });
         });
+
+        const checkoutLoginBtn = document.getElementById('checkoutLoginBtn');
+        const loginBtn = document.getElementById('loginBtn');
+        if (checkoutLoginBtn) {
+            checkoutLoginBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (loginBtn) {
+                    loginBtn.click();
+                    return;
+                }
+                authModal?.classList.add('active');
+            });
+        }
+
+        const requireLoginFlag = document.getElementById('requireLoginFlag');
+        if (requireLoginFlag && authModal) {
+            authModal.classList.add('active');
+        }
     </script>
 }
 
@@ -82,6 +101,11 @@
         <div class="cart-alert">
             @TempData["CartMessage"]
         </div>
+    }
+
+    @if (TempData["RequireLogin"] != null)
+    {
+        <div id="requireLoginFlag" data-require-login="true"></div>
     }
 
     <section class="cart-section">
@@ -126,7 +150,7 @@
             }
             else
             {
-                <a class="cart-checkout" asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="@Url.Action("Checkout", "ShoppingCart")">Đăng nhập để thanh toán</a>
+                <a class="cart-checkout" href="#" id="checkoutLoginBtn" data-open-login="true">Đăng nhập để thanh toán</a>
             }
         }
     </section>

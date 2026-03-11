@@ -5,7 +5,7 @@ using WibuHub.ApplicationCore.Entities;
 
 namespace WibuHub.MVC.ViewModels
 {
-    [Bind("Id,StoryId,Name,ChapterNumber,Slug,ViewCount,ImageUrls,UploadImages,ServerId,CreateAt,Price")]
+    [Bind("Id,StoryId,Name,ChapterNumber,Slug,ViewCount,ImageUrls,UploadImages,ServerId,CreatedAt,Price,Discount")]
     public class ChapterVM
     {
         [Key]

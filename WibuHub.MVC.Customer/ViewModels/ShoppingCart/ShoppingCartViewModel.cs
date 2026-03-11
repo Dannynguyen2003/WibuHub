@@ -1,6 +1,6 @@
 using WibuHub.MVC.ViewModels.ShoppingCart;
 
-namespace WibuHub.MVC.Customer.Models.ShoppingCart
+namespace WibuHub.MVC.Customer.ViewModels.ShoppingCart
 {
     public class ShoppingCartViewModel
     {

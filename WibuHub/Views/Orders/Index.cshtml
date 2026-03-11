@@ -6,45 +6,61 @@
     var selectedStatus = ViewBag.SelectedStatus as string;
 }
 
-<h1>Qu?n l? ðõn hàng</h1>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <h1>Qu?n l? ðõn hàng</h1>
+        <div class="d-flex align-items-center" style="gap: 12px;">
+            <a asp-action="History" class="btn-secondary btn-sm">L?ch s? giao d?ch</a>
+            <form method="get" class="filter-bar filter-bar-inline">
+                <label for="status" class="form-label">Tr?ng thái thanh toán:</label>
+                <select id="status" name="status" class="form-control" style="max-width: 220px;">
+                    <option value="">T?t c?</option>
+                    @foreach (var status in statuses)
+                    {
+                        <option value="@status" selected="@(status == selectedStatus)">@status</option>
+                    }
+                </select>
+                <button type="submit" class="btn-primary btn-sm">L?c</button>
+            </form>
+        </div>
+    </div>
 
-<form method="get" class="mb-3">
-    <label for="status">Tr?ng thái thanh toán:</label>
-    <select id="status" name="status" class="form-select" style="max-width: 240px; display: inline-block;">
-        <option value="">T?t c?</option>
-        @foreach (var status in statuses)
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th style="width: 28%">M? ðõn</th>
+                <th style="width: 16%">User</th>
+                <th style="width: 14%">Th?i gian</th>
+                <th style="width: 14%">T?ng ti?n</th>
+                <th style="width: 14%">Phýõng th?c</th>
+                <th style="width: 12%">Tr?ng thái</th>
+                <th style="width: 14%" class="text-center">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+        @if (Model != null && Model.Any())
         {
-            <option value="@status" selected="@(status == selectedStatus)">@status</option>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td class="text-break">@item.Id</td>
+                    <td>@item.UserId</td>
+                    <td>@item.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@item.TotalAmount.ToString("N0") þ</td>
+                    <td>@item.PaymentMethod</td>
+                    <td><span class="badge-status">@item.PaymentStatus</span></td>
+                    <td class="action-cell">
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn-secondary btn-sm">Chi ti?t</a>
+                    </td>
+                </tr>
+            }
         }
-    </select>
-    <button type="submit" class="btn btn-primary">L?c</button>
-</form>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>M? ðõn</th>
-            <th>User</th>
-            <th>T?ng ti?n</th>
-            <th>Phýõng th?c</th>
-            <th>Tr?ng thái</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-    @foreach (var item in Model)
-    {
-        <tr>
-            <td>@item.Id</td>
-            <td>@item.UserId</td>
-            <td>@item.TotalAmount.ToString("N0") ð</td>
-            <td>@item.PaymentMethod</td>
-            <td>@item.PaymentStatus</td>
-            <td>
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
-            </td>
-        </tr>
-    }
-    </tbody>
-</table>
+        else
+        {
+            <tr>
+                <td colspan="7" class="text-center">Chýa có ðõn hàng nào.</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

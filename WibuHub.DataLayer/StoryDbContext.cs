@@ -259,6 +259,7 @@ namespace WibuHub.DataLayer
                 entity.Property(o => o.PaymentMethod).HasMaxLength(50);
                 entity.Property(o => o.TransactionId).HasMaxLength(100);
                 entity.Property(o => o.PaymentStatus).HasMaxLength(50);
+                entity.Property(o => o.CreatedAt).HasColumnType("datetime2").HasDefaultValueSql("GETUTCDATE()");
             });
 
             // 13. OrderDetail

@@ -1,0 +1,64 @@
+@using System.Globalization
+@model WibuHub.MVC.Customer.ViewModels.CategoryStoriesViewModel
+
+@{
+    ViewData["Title"] = $"Th? lo?i - {Model.CategoryName}";
+}
+
+<div class="category-page">
+    <div class="category-page-header">
+        <h2>@Model.CategoryName</h2>
+        <span>@Model.Stories.Count truy?n</span>
+    </div>
+
+    @if (Model.Stories.Count == 0)
+    {
+        <div class="category-empty">Chýa có truy?n trong th? lo?i này.</div>
+    }
+    else
+    {
+        <div class="category-grid">
+            @foreach (var story in Model.Stories)
+            {
+                var coverImage = string.IsNullOrWhiteSpace(story.CoverImage)
+                    ? string.Empty
+                    : (story.CoverImage.StartsWith("http", StringComparison.OrdinalIgnoreCase)
+                        ? story.CoverImage
+                        : Url.Content($"~/{story.CoverImage.TrimStart('/') }"));
+                var updatedAt = story.UpdateDate.ToLocalTime();
+                var timeSpan = DateTime.Now - updatedAt;
+                var timeLabel = timeSpan.TotalHours < 24
+                    ? $"{Math.Max(1, (int)Math.Round(timeSpan.TotalHours))} Gi? Trý?c"
+                    : $"{Math.Max(1, (int)Math.Round(timeSpan.TotalDays))} Ngày Trý?c";
+                var latestChapter = story.Chapters?
+                    .OrderByDescending(c => c.ChapterNumber)
+                    .FirstOrDefault();
+                var chapterLabel = latestChapter != null ? $"Chýõng {latestChapter.ChapterNumber}" : "Chýa có chýõng";
+                var storySlug = string.IsNullOrWhiteSpace(story.Slug) ? story.StoryName : story.Slug;
+                var chapterUrl = latestChapter == null
+                    ? "#"
+                    : Url.RouteUrl("ChapterReadSeo", new
+                    {
+                        storySlug,
+                        chapterNumber = latestChapter.ChapterNumber.ToString(CultureInfo.InvariantCulture)
+                    }) ?? "#";
+                var isHot = story.ViewCount >= 10000;
+                <div class="category-card">
+                    <a class="category-cover" href="@chapterUrl" style="@(string.IsNullOrWhiteSpace(coverImage) ? string.Empty : $"background-image:url('{coverImage}')")">
+                        <div class="category-badges">
+                            <span class="category-badge">@timeLabel</span>
+                            @if (isHot)
+                            {
+                                <span class="category-badge hot">Hot</span>
+                            }
+                        </div>
+                    </a>
+                    <div class="category-info">
+                        <a class="category-title" href="@chapterUrl">@story.StoryName</a>
+                        <div class="category-chapter">@chapterLabel</div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

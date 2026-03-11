@@ -326,6 +326,11 @@ namespace WibuHub.DataLayer.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("money");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
                     b.Property<string>("Email")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");

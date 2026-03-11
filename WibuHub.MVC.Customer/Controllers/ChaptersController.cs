@@ -1,0 +1,107 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Globalization;
+using WibuHub.ApplicationCore.Entities;
+using WibuHub.ApplicationCore.Entities.Identity;
+using WibuHub.DataLayer;
+using WibuHub.MVC.Customer.ViewModels;
+
+namespace WibuHub.MVC.Customer.Controllers
+{
+    public class ChaptersController : Controller
+    {
+        private readonly StoryDbContext _context;
+        private readonly UserManager<StoryUser> _userManager;
+
+        public ChaptersController(StoryDbContext context, UserManager<StoryUser> userManager)
+        {
+            _context = context;
+            _userManager = userManager;
+        }
+
+        public async Task<IActionResult> Read(Guid id)
+        {
+            var chapter = await _context.Chapters
+                .AsNoTracking()
+                .Include(c => c.Story)
+                .Include(c => c.Images)
+                .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted);
+
+            if (chapter == null)
+            {
+                return NotFound();
+            }
+
+            var storySlug = string.IsNullOrWhiteSpace(chapter.Story?.Slug)
+                ? chapter.StoryName
+                : chapter.Story!.Slug;
+
+            return RedirectToRoute("ChapterReadSeo", new
+            {
+                storySlug,
+                chapterNumber = chapter.ChapterNumber.ToString(CultureInfo.InvariantCulture)
+            });
+        }
+
+        public async Task<IActionResult> ReadBySlug(string storySlug, double chapterNumber)
+        {
+            if (string.IsNullOrWhiteSpace(storySlug))
+            {
+                return NotFound();
+            }
+
+            var chapter = await _context.Chapters
+                .AsNoTracking()
+                .Include(c => c.Story)
+                .Include(c => c.Images)
+                .FirstOrDefaultAsync(c => !c.IsDeleted
+                    && c.Story != null
+                    && c.Story.Slug == storySlug
+                    && c.ChapterNumber == chapterNumber);
+
+            if (chapter == null)
+            {
+                return NotFound();
+            }
+
+            return View("Read", await BuildReadViewModelAsync(chapter));
+        }
+
+        private async Task<ChapterReadViewModel> BuildReadViewModelAsync(Chapter chapter)
+        {
+            var chapterList = await _context.Chapters
+                .AsNoTracking()
+                .Where(c => c.StoryId == chapter.StoryId && !c.IsDeleted)
+                .OrderBy(c => c.ChapterNumber)
+                .ToListAsync();
+
+            var currentIndex = chapterList.FindIndex(c => c.Id == chapter.Id);
+            var previousId = currentIndex > 0 ? chapterList[currentIndex - 1].Id : (Guid?)null;
+            var nextId = currentIndex >= 0 && currentIndex < chapterList.Count - 1
+                ? chapterList[currentIndex + 1].Id
+                : (Guid?)null;
+
+            var isFollowed = false;
+            if (User?.Identity?.IsAuthenticated == true)
+            {
+                var userId = _userManager.GetUserId(User);
+                if (!string.IsNullOrWhiteSpace(userId) && Guid.TryParse(userId, out var userGuid))
+                {
+                    isFollowed = await _context.Follows
+                        .AsNoTracking()
+                        .AnyAsync(f => f.UserId == userGuid && f.StoryId == chapter.StoryId);
+                }
+            }
+
+            return new ChapterReadViewModel
+            {
+                Chapter = chapter,
+                Chapters = chapterList,
+                PreviousChapterId = previousId,
+                NextChapterId = nextId,
+                IsFollowed = isFollowed
+            };
+        }
+    }
+}

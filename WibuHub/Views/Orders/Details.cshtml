@@ -1,58 +1,396 @@
+@using WibuHub.ApplicationCore.Entities.Identity
 @model WibuHub.ApplicationCore.Entities.Order
 
 @{
     ViewData["Title"] = "Chi ti?t ðõn hàng";
+    var statusText = string.IsNullOrWhiteSpace(Model.PaymentStatus) ? "Chýa c?p nh?t" : Model.PaymentStatus;
+    var statusClass = (Model.PaymentStatus ?? string.Empty).ToLowerInvariant() switch
+    {
+        "pending" => "order-badge pending",
+        "cancelled" => "order-badge cancelled",
+        "canceled" => "order-badge cancelled",
+        _ => "order-badge"
+    };
+    var customer = ViewBag.Customer as StoryUser;
+    var customerName = customer?.FullName ?? customer?.UserName ?? (string.IsNullOrWhiteSpace(Model.UserId) ? "Khách hàng" : Model.UserId);
+    var customerEmail = customer?.Email ?? Model.Email ?? "Chýa c?p nh?t";
+    var customerPhone = customer?.PhoneNumber ?? Model.Phone ?? "Chýa c?p nh?t";
+    var customerAddress = string.IsNullOrWhiteSpace(Model.ShippingAddress) ? "Chýa c?p nh?t" : Model.ShippingAddress;
+    var customerAvatar = string.IsNullOrWhiteSpace(customer?.Avatar)
+        ? "https://ui-avatars.com/api/?name=Anonymous&background=E2E8F0&color=475569"
+        : customer.Avatar;
+    var vipPackagePrices = new Dictionary<string, decimal>(StringComparer.OrdinalIgnoreCase)
+    {
+        ["VIP 1 Tháng"] = 99000m,
+        ["VIP 3 Tháng"] = 249000m,
+        ["VIP 12 Tháng"] = 799000m
+    };
+    var vipItems = new List<(string Name, int Quantity, decimal? Price)>();
+    if (!string.IsNullOrWhiteSpace(Model.Note) && Model.Note.StartsWith("Ðãng k? VIP:", StringComparison.OrdinalIgnoreCase))
+    {
+        var rawItems = Model.Note.Substring("Ðãng k? VIP:".Length).Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        foreach (var rawItem in rawItems)
+        {
+            var parts = rawItem.Split('x', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            var name = parts.Length > 0 ? parts[0] : rawItem;
+            var quantity = 1;
+            if (parts.Length > 1 && int.TryParse(parts[1], out var parsedQuantity))
+            {
+                quantity = parsedQuantity;
+            }
+            vipPackagePrices.TryGetValue(name, out var price);
+            vipItems.Add((name, quantity, price == 0 ? null : price));
+        }
+    }
 }
 
-<h1>Chi ti?t ðõn hàng</h1>
+<style>
+    .order-container {
+        padding: 25px 30px;
+        overflow-y: auto;
+    }
 
-<div>
-    <dl class="row">
-        <dt class="col-sm-3">M? ðõn</dt>
-        <dd class="col-sm-9">@Model.Id</dd>
-        <dt class="col-sm-3">User</dt>
-        <dd class="col-sm-9">@Model.UserId</dd>
-        <dt class="col-sm-3">T?m tính</dt>
-        <dd class="col-sm-9">@Model.Amount.ToString("N0") ð</dd>
-        <dt class="col-sm-3">Thu?</dt>
-        <dd class="col-sm-9">@Model.Tax.ToString("N0") ð</dd>
-        <dt class="col-sm-3">T?ng c?ng</dt>
-        <dd class="col-sm-9">@Model.TotalAmount.ToString("N0") ð</dd>
-        <dt class="col-sm-3">Phýõng th?c</dt>
-        <dd class="col-sm-9">@Model.PaymentMethod</dd>
-        <dt class="col-sm-3">Tr?ng thái</dt>
-        <dd class="col-sm-9">@Model.PaymentStatus</dd>
-        <dt class="col-sm-3">M? giao d?ch</dt>
-        <dd class="col-sm-9">@Model.TransactionId</dd>
-        <dt class="col-sm-3">Ghi chú</dt>
-        <dd class="col-sm-9">@Model.Note</dd>
-    </dl>
-</div>
+    .breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 20px;
+        color: #64748b;
+    }
 
-<h4>Chi ti?t s?n ph?m</h4>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Chapter</th>
-            <th>S? lý?ng</th>
-            <th>Ðõn giá</th>
-            <th>Thành ti?n</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var detail in Model.OrderDetails)
-        {
-            <tr>
-                <td>@detail.Chapter?.Name</td>
-                <td>@detail.Quantity</td>
-                <td>@detail.UnitPrice.ToString("N0") ð</td>
-                <td>@detail.Amount.ToString("N0") ð</td>
-            </tr>
+    .breadcrumb a {
+        color: #2563eb;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .breadcrumb i {
+        font-size: 0.8rem;
+    }
+
+    .order-header-card {
+        background: white;
+        border-radius: 24px;
+        padding: 25px;
+        margin-bottom: 25px;
+        border: 1px solid #ecf3fa;
+        box-shadow: 0 6px 12px rgba(0,0,0,0.02);
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .order-badge {
+        background-color: #dcfce7;
+        color: #166534;
+        padding: 6px 16px;
+        border-radius: 30px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .order-badge.pending {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+
+    .order-badge.cancelled {
+        background-color: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .order-info h1 {
+        font-size: 1.8rem;
+        font-weight: 600;
+        color: #0f172a;
+        margin-bottom: 5px;
+    }
+
+    .order-meta {
+        display: flex;
+        gap: 25px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #475569;
+    }
+
+    .meta-item i {
+        color: #2563eb;
+        width: 20px;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .btn-primary {
+        background-color: #2563eb;
+        color: white;
+        padding: 10px 24px;
+        border-radius: 40px;
+        border: none;
+        font-weight: 500;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: 0.2s;
+        text-decoration: none;
+    }
+
+    .btn-primary:hover {
+        background-color: #1d4ed8;
+    }
+
+    .btn-outline {
+        background: transparent;
+        border: 1px solid #cbd5e1;
+        color: #334155;
+        padding: 10px 24px;
+        border-radius: 40px;
+        font-weight: 500;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: 0.2s;
+        text-decoration: none;
+    }
+
+    .btn-outline:hover {
+        background-color: #f1f5f9;
+    }
+
+    .order-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 25px;
+        margin-bottom: 25px;
+    }
+
+    .card {
+        background: white;
+        border-radius: 24px;
+        padding: 22px;
+        border: 1px solid #ecf3fa;
+        box-shadow: 0 6px 12px rgba(0,0,0,0.02);
+    }
+
+    .card-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 18px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .card-title i {
+        color: #2563eb;
+    }
+
+    .order-items {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .order-items th {
+        text-align: left;
+        padding: 12px 8px;
+        font-weight: 500;
+        color: #64748b;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .order-items td {
+        padding: 14px 8px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .order-items tr:last-child td {
+        border-bottom: none;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px dashed #e2e8f0;
+    }
+
+    .summary-row.total {
+        font-weight: 700;
+        font-size: 1.2rem;
+        border-bottom: none;
+        padding-top: 15px;
+    }
+
+    .customer-row {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .customer-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .customer-details h4 {
+        font-size: 1.2rem;
+        font-weight: 500;
+        margin-bottom: 4px;
+    }
+
+    .customer-details p {
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin: 3px 0;
+    }
+
+    .info-list {
+        list-style: none;
+        padding-left: 0;
+    }
+
+    .info-list li {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 0;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .info-list li:last-child {
+        border-bottom: none;
+    }
+
+    .info-list i {
+        width: 22px;
+        color: #2563eb;
+    }
+
+    @@media (max-width: 1000px) {
+        .order-grid {
+            grid-template-columns: 1fr;
         }
-    </tbody>
-</table>
+    }
+</style>
 
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+<div class="order-container">
+    <div class="breadcrumb">
+        <a asp-action="Index">Ðõn hàng</a>
+        <i class="fas fa-chevron-right"></i>
+        <span>Chi ti?t ðõn #@Model.Id</span>
+    </div>
+
+    <div class="order-header-card">
+        <div class="order-info">
+            <h1>Ðõn hàng #@Model.Id</h1>
+            <div class="order-meta">
+                <span class="meta-item"><i class="fas fa-user"></i> @customerName</span>
+                <span class="meta-item"><i class="fas fa-credit-card"></i> @(string.IsNullOrWhiteSpace(Model.PaymentMethod) ? "Chýa c?p nh?t" : Model.PaymentMethod)</span>
+                <span class="meta-item"><i class="fas fa-hashtag"></i> @(string.IsNullOrWhiteSpace(Model.TransactionId) ? "Chýa c?p nh?t" : Model.TransactionId)</span>
+                <span class="meta-item"><i class="fas fa-clock"></i> @Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</span>
+            </div>
+        </div>
+        <div>
+            <span class="@statusClass"><i class="fas fa-check-circle"></i> @statusText</span>
+        </div>
+        <div class="action-buttons">
+            <a class="btn-outline" asp-action="Index"><i class="fas fa-arrow-left"></i> Quay l?i</a>
+        </div>
+    </div>
+
+    <div class="order-grid">
+        <div class="card">
+            <div class="card-title"><i class="fas fa-box"></i> S?n ph?m trong ðõn</div>
+            <table class="order-items">
+                <thead>
+                    <tr><th>S?n ph?m</th><th>Giá</th><th>S? lý?ng</th><th>T?ng</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var detail in Model.OrderDetails)
+                    {
+                        <tr>
+                            <td>@(detail.Chapter?.Name ?? "Chýa c?p nh?t")</td>
+                            <td>@detail.UnitPrice.ToString("N0")ð</td>
+                            <td>@detail.Quantity</td>
+                            <td>@detail.Amount.ToString("N0")ð</td>
+                        </tr>
+                    }
+                    @foreach (var vipItem in vipItems)
+                    {
+                        var vipTotal = vipItem.Price.HasValue ? vipItem.Price.Value * vipItem.Quantity : (decimal?)null;
+                        <tr>
+                            <td>@vipItem.Name</td>
+                            <td>@(vipItem.Price.HasValue ? vipItem.Price.Value.ToString("N0") + "ð" : "-")</td>
+                            <td>@vipItem.Quantity</td>
+                            <td>@(vipTotal.HasValue ? vipTotal.Value.ToString("N0") + "ð" : "-")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <div style="margin-top: 20px;">
+                <div class="summary-row">
+                    <span>T?m tính</span>
+                    <span>@Model.Amount.ToString("N0")ð</span>
+                </div>
+                <div class="summary-row">
+                    <span>Thu?</span>
+                    <span>@Model.Tax.ToString("N0")ð</span>
+                </div>
+                <div class="summary-row total">
+                    <span>T?ng c?ng</span>
+                    <span>@Model.TotalAmount.ToString("N0")ð</span>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <div class="card" style="margin-bottom: 25px;">
+                <div class="card-title"><i class="fas fa-user-circle"></i> Khách hàng</div>
+                <div class="customer-row">
+                    <img src="@customerAvatar" class="customer-avatar" alt="Khách hàng">
+                    <div class="customer-details">
+                        <h4>@customerName</h4>
+                        <p><i class="fas fa-envelope"></i> @customerEmail</p>
+                        <p><i class="fas fa-phone-alt"></i> @customerPhone</p>
+                    </div>
+                </div>
+                <ul class="info-list">
+                    <li><i class="fas fa-map-marker-alt"></i> @customerAddress</li>
+                    <li><i class="fas fa-pen"></i> @(string.IsNullOrWhiteSpace(Model.Note) ? "Không có ghi chú" : Model.Note)</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><i class="fas fa-credit-card"></i> Thanh toán</div>
+                <ul class="info-list">
+                    <li><i class="fas fa-qrcode"></i> M? giao d?ch: <strong>@(string.IsNullOrWhiteSpace(Model.TransactionId) ? "Chýa c?p nh?t" : Model.TransactionId)</strong></li>
+                    <li><i class="fas fa-credit-card"></i> Phýõng th?c: @(string.IsNullOrWhiteSpace(Model.PaymentMethod) ? "Chýa c?p nh?t" : Model.PaymentMethod)</li>
+                    <li><i class="fas fa-check-circle" style="color:#16a34a;"></i> Tr?ng thái: @statusText</li>
+                </ul>
+            </div>
+        </div>
+    </div>
 </div>

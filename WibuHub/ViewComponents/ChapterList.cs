@@ -12,14 +12,21 @@ namespace WibuHub.MVC.ViewComponents
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
-        public async Task<IViewComponentResult> InvokeAsync(int page = 1, int pageSize = 10)
+        public async Task<IViewComponentResult> InvokeAsync(Guid? storyId = null, int page = 1, int pageSize = 10)
         {
             page = page < 1 ? 1 : page;
             pageSize = pageSize < 1 ? 10 : pageSize;
 
-            var query = _context.Chapters
+            var query = _context.Chapters.AsQueryable();
+
+            query = query
                 .Include(c => c.Story)
                 .Include(c => c.Images);
+
+            if (storyId.HasValue)
+            {
+                query = query.Where(c => c.StoryId == storyId.Value);
+            }
 
             var totalCount = await query.LongCountAsync();
 

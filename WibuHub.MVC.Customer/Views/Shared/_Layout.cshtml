@@ -1,10 +1,17 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using WibuHub.ApplicationCore.Entities.Identity
+@using WibuHub.Service.Interface
 @inject SignInManager<StoryUser> SignInManager
+@inject ICategoryService CategoryService
 
 @{
     var returnUrl = Url.Action("Index", "Home", new { area = "" }) ?? "/";
     var externalSchemes = (await SignInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+    var categories = await CategoryService.GetAllAsync();
+    var categoryColumnCount = categories.Count == 0 ? 1 : 4;
+    var categoriesPerColumn = categories.Count > 0
+        ? (int)Math.Ceiling(categories.Count / (double)categoryColumnCount)
+        : 0;
 }
 
 <!DOCTYPE html>
@@ -24,13 +31,14 @@
 @{
     var isHomePage = string.Equals(ViewContext.RouteData.Values["controller"]?.ToString(), "Home", StringComparison.OrdinalIgnoreCase)
         && string.Equals(ViewContext.RouteData.Values["action"]?.ToString(), "Index", StringComparison.OrdinalIgnoreCase);
+    var isIdentityArea = string.Equals(ViewContext.RouteData.Values["area"]?.ToString(), "Identity", StringComparison.OrdinalIgnoreCase);
 }
     <div class="app">
         <!-- HEADER -->
         <header class="header">
             <div class="logo-area">
                 <button class="mobile-menu-btn" id="mobileMenuBtn"><i class="fas fa-bars"></i></button>
-                <a href="#" class="logo" id="logo">WIBU<span>HUB</span></a>
+                <a asp-controller="Home" asp-action="Index" asp-area="" class="logo" id="logo">WIBU<span>HUB</span></a>
             </div>
             <div class="search-bar">
                 <input type="text" placeholder="Tìm truyện, tác giả..." id="searchInput">
@@ -153,29 +161,65 @@
                 <a href="#" class="mobile-menu-item active" id="mobileHome"><i class="fas fa-home"></i> Trang chủ</a>
                 <a href="#" class="mobile-menu-item" id="mobileNew"><i class="fas fa-history"></i> Mới cập nhật</a>
                 <a href="#" class="mobile-menu-item" id="mobileHot"><i class="fas fa-fire"></i> Hot nhất</a>
-                <a href="#" class="mobile-menu-item" id="mobileGenre"><i class="fas fa-tags"></i> Thể loại</a>
+                <a asp-controller="Categories" asp-action="Index" class="mobile-menu-item" id="mobileGenre"><i class="fas fa-tags"></i> Thể loại</a>
                 <a href="#" class="mobile-menu-item" id="mobileRank"><i class="fas fa-crown"></i> BXH</a>
                 <a href="#" class="mobile-menu-item" id="mobileCompleted"><i class="fas fa-check-circle"></i> Hoàn thành</a>
                 <a href="#" class="mobile-menu-item" id="mobileGroups"><i class="fas fa-users"></i> Nhóm dịch</a>
                 <a href="#" class="mobile-menu-item" id="mobileProfilePage"><i class="fas fa-user"></i> Cá nhân</a>
             </div>
         }
+        <!-- Navigation tabs (desktop) -->
+        <nav class="nav-tabs">
+            <a class="nav-item" id="tabHome" asp-controller="Home" asp-action="Index">Trang chủ</a>
+            <a class="nav-item" id="tabNew" asp-controller="Home" asp-action="Index">Mới cập nhật</a>
+            <a class="nav-item" id="tabHot" asp-controller="Home" asp-action="Index">Hot nhất</a>
+            <div class="nav-dropdown">
+                <span class="nav-item nav-item-static" id="tabGenre">Thể loại <i class="fas fa-chevron-down"></i></span>
+                <div class="genre-dropdown">
+                    <div class="genre-column">
+                        <a class="genre-link genre-link-all" asp-controller="Categories" asp-action="Index">Tất cả</a>
+                        @foreach (var category in categories.Take(categoriesPerColumn))
+                        {
+                            <a class="genre-link" asp-controller="Categories" asp-action="Index" asp-route-id="@category.Id">@category.Name</a>
+                        }
+                    </div>
+                    @for (var columnIndex = 1; columnIndex < categoryColumnCount; columnIndex++)
+                    {
+                        var columnCategories = categories
+                            .Skip(columnIndex * categoriesPerColumn)
+                            .Take(categoriesPerColumn)
+                            .ToList();
+
+                        <div class="genre-column">
+                            @foreach (var category in columnCategories)
+                            {
+                                <a class="genre-link" asp-controller="Categories" asp-action="Index" asp-route-id="@category.Id">@category.Name</a>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="nav-dropdown nav-dropdown-rank">
+                <span class="nav-item nav-item-static" id="tabRank">BXH <i class="fas fa-chevron-down"></i></span>
+                <div class="rank-dropdown">
+                    <a class="rank-link" asp-controller="Rankings" asp-action="Index" asp-route-type="top-day">Top Ngày</a>
+                    <a class="rank-link" asp-controller="Rankings" asp-action="Index" asp-route-type="top-week">Top Tuần</a>
+                    <a class="rank-link" asp-controller="Rankings" asp-action="Index" asp-route-type="top-month">Top Tháng</a>
+                    <a class="rank-link" asp-controller="Rankings" asp-action="Index" asp-route-type="favorites">Yêu Thích</a>
+                    <a class="rank-link" asp-controller="Rankings" asp-action="Index" asp-route-type="latest">Mới Cập Nhật</a>
+                    <a class="rank-link" asp-controller="Rankings" asp-action="Index" asp-route-type="new">Truyện Mới</a>
+                    <a class="rank-link" asp-controller="Rankings" asp-action="Index" asp-route-type="full">Truyện Full</a>
+                    <a class="rank-link" asp-controller="Rankings" asp-action="Index" asp-route-type="random">Truyện Ngẫu Nhiên</a>
+                </div>
+            </div>
+            <a class="nav-item" id="tabCompleted" asp-controller="Home" asp-action="Index">Hoàn thành</a>
+            <a class="nav-item" id="tabGroups" asp-controller="Home" asp-action="Index">Nhóm dịch</a>
+            <a class="nav-item" id="tabProfilePage" asp-controller="Home" asp-action="Index">Cá nhân</a>
+        </nav>
 
 
         @if (isHomePage)
         {
-            <!-- Navigation tabs (desktop) -->
-            <nav class="nav-tabs">
-                <a class="nav-item" id="tabHome">Trang chủ</a>
-                <a class="nav-item" id="tabNew">Mới cập nhật</a>
-                <a class="nav-item" id="tabHot">Hot nhất</a>
-                <a class="nav-item" id="tabGenre">Thể loại</a>
-                <a class="nav-item" id="tabRank">BXH</a>
-                <a class="nav-item" id="tabCompleted">Hoàn thành</a>
-                <a class="nav-item" id="tabGroups">Nhóm dịch</a>
-                <a class="nav-item" id="tabProfilePage">Cá nhân</a>
-            </nav>
-
             <!-- Main grid -->
             <div class="main-grid">
                 <!-- Left column -->
@@ -349,7 +393,6 @@
                 <!-- Các section khác (ẩn mặc định) -->
                 <div id="newSection" class="content-section hidden"><h2>Nội dung Mới cập nhật</h2></div>
                 <div id="hotSection" class="content-section hidden"><h2>Nội dung Hot nhất</h2></div>
-                <div id="genreSection" class="content-section hidden"><h2>Nội dung Thể loại</h2></div>
                 <div id="rankSection" class="content-section hidden"><h2>Nội dung BXH</h2></div>
                 <div id="completedSection" class="content-section hidden"><h2>Nội dung Hoàn thành</h2></div>
                 <div id="groupsSection" class="content-section hidden"><h2>Nội dung Nhóm dịch</h2></div>
@@ -513,28 +556,15 @@
                 <div class="sidebar-card">
                     <div class="sidebar-title"><i class="fas fa-tags"></i> Thể loại</div>
                     <div class="genre-tags">
-                        <span class="genre-tag">Hành động</span>
-                        <span class="genre-tag">Hài hước</span>
-                        <span class="genre-tag">Ngôn tình</span>
-                        <span class="genre-tag">Đam mỹ</span>
-                        <span class="genre-tag">Xuyên không</span>
-                        <span class="genre-tag">Kiếm hiệp</span>
-                        <span class="genre-tag">Khoa huyễn</span>
-                        <span class="genre-tag">Trọng sinh</span>
+                        @foreach (var category in categories)
+                        {
+                            <a class="genre-tag" asp-controller="Categories" asp-action="Index" asp-route-id="@category.Id">@category.Name</a>
+                        }
                     </div>
                 </div>
                 </aside>
             </div>
 
-            <!-- PHẦN MUA TRUYỆN -->
-            <div class="purchase-section">
-                <h2><i class="fas fa-gem" style="color: #f97316;"></i> Mua chương / Ủng hộ truyện</h2>
-                <div class="purchase-options">
-                    <div class="purchase-card"><i class="fas fa-coins" style="font-size: 32px; color: #fbbf24;"></i><div class="price">10 Xu</div><p>Mua chương 126</p><button class="btn-buy" id="buyChapter">Mua ngay</button></div>
-                    <div class="purchase-card"><i class="fas fa-gem" style="font-size: 32px; color: #2563eb;"></i><div class="price">50 Xu</div><p>Ủng hộ tác giả</p><button class="btn-buy" id="donate">Ủng hộ</button></div>
-                    <div class="purchase-card"><i class="fas fa-crown" style="font-size: 32px; color: #f97316;"></i><div class="price">Gói VIP</div><p>Đọc không giới hạn</p><button class="btn-buy" id="vip">Đăng ký</button></div>
-                </div>
-            </div>
 
             <!-- CHATBOX AI (đã sửa) -->
             <div class="chatbox" id="chatbox">
@@ -611,6 +641,29 @@
             });
         }
 
+        const urlParams = new URLSearchParams(window.location.search);
+        const openLoginParam = urlParams.get('openLogin');
+        const shouldOpenLoginFromQuery = openLoginParam === '1' || openLoginParam === 'true';
+
+        if (shouldOpenLoginFromQuery && authModal) {
+            if (registerModal) {
+                registerModal.classList.remove('active');
+            }
+            authModal.classList.add('active');
+        }
+
+        document.addEventListener('click', (e) => {
+            const trigger = e.target.closest('[data-open-login="true"]');
+            if (!trigger || !authModal) {
+                return;
+            }
+            e.preventDefault();
+            if (registerModal) {
+                registerModal.classList.remove('active');
+            }
+            authModal.classList.add('active');
+        });
+
         const loginForm = document.getElementById('loginModalForm');
         const registerForm = document.getElementById('registerModalForm');
         const loginError = document.getElementById('loginError');
@@ -665,6 +718,22 @@
             });
         }
 
+        const followForms = document.querySelectorAll('.story-follow-form');
+        followForms.forEach((form) => {
+            form.addEventListener('submit', (e) => {
+                if (isAuthenticated) {
+                    return;
+                }
+                e.preventDefault();
+                if (registerModal) {
+                    registerModal.classList.remove('active');
+                }
+                if (authModal) {
+                    authModal.classList.add('active');
+                }
+            });
+        });
+
         window.addEventListener('click', (e) => {
             if (authModal && e.target === authModal) {
                 authModal.classList.remove('active');
@@ -690,13 +759,24 @@
             const homeSection = document.getElementById('homeSection');
             const newSection = document.getElementById('newSection');
             const hotSection = document.getElementById('hotSection');
-            const genreSection = document.getElementById('genreSection');
             const rankSection = document.getElementById('rankSection');
             const completedSection = document.getElementById('completedSection');
             const groupsSection = document.getElementById('groupsSection');
             const profilePageSection = document.getElementById('profilePageSection');
             const detailSection = document.getElementById('detailSection');
             const readerSection = document.getElementById('readerSection');
+
+            const sections = [
+                homeSection,
+                newSection,
+                hotSection,
+                rankSection,
+                completedSection,
+                groupsSection,
+                profilePageSection,
+                detailSection,
+                readerSection
+            ];
 
             const tabHome = document.getElementById('tabHome');
             const tabNew = document.getElementById('tabNew');
@@ -708,16 +788,7 @@
             const tabProfilePage = document.getElementById('tabProfilePage');
 
             function hideAllSections() {
-                homeSection.classList.add('hidden');
-                newSection.classList.add('hidden');
-                hotSection.classList.add('hidden');
-                genreSection.classList.add('hidden');
-                rankSection.classList.add('hidden');
-                completedSection.classList.add('hidden');
-                groupsSection.classList.add('hidden');
-                profilePageSection.classList.add('hidden');
-                detailSection.classList.add('hidden');
-                readerSection.classList.add('hidden');
+                sections.forEach(section => section?.classList.add('hidden'));
             }
 
             function removeActiveTabs() {
@@ -734,7 +805,6 @@
             function showHome() { hideAllSections(); homeSection.classList.remove('hidden'); removeActiveTabs(); tabHome.classList.add('active'); }
             function showNew() { hideAllSections(); newSection.classList.remove('hidden'); removeActiveTabs(); tabNew.classList.add('active'); }
             function showHot() { hideAllSections(); hotSection.classList.remove('hidden'); removeActiveTabs(); tabHot.classList.add('active'); }
-            function showGenre() { hideAllSections(); genreSection.classList.remove('hidden'); removeActiveTabs(); tabGenre.classList.add('active'); }
             function showRank() { hideAllSections(); rankSection.classList.remove('hidden'); removeActiveTabs(); tabRank.classList.add('active'); }
             function showCompleted() { hideAllSections(); completedSection.classList.remove('hidden'); removeActiveTabs(); tabCompleted.classList.add('active'); }
             function showGroups() { hideAllSections(); groupsSection.classList.remove('hidden'); removeActiveTabs(); tabGroups.classList.add('active'); }
@@ -757,8 +827,6 @@
             tabHome.addEventListener('click', (e) => { e.preventDefault(); showHome(); });
             tabNew.addEventListener('click', (e) => { e.preventDefault(); showNew(); });
             tabHot.addEventListener('click', (e) => { e.preventDefault(); showHot(); });
-            tabGenre.addEventListener('click', (e) => { e.preventDefault(); showGenre(); });
-            tabRank.addEventListener('click', (e) => { e.preventDefault(); showRank(); });
             tabCompleted.addEventListener('click', (e) => { e.preventDefault(); showCompleted(); });
             tabGroups.addEventListener('click', (e) => { e.preventDefault(); showGroups(); });
             tabProfilePage.addEventListener('click', (e) => { e.preventDefault(); showProfilePage(); });
@@ -767,7 +835,7 @@
             document.getElementById('mobileHome').addEventListener('click', (e) => { e.preventDefault(); showHome(); closeMobileMenu(); });
             document.getElementById('mobileNew').addEventListener('click', (e) => { e.preventDefault(); showNew(); closeMobileMenu(); });
             document.getElementById('mobileHot').addEventListener('click', (e) => { e.preventDefault(); showHot(); closeMobileMenu(); });
-            document.getElementById('mobileGenre').addEventListener('click', (e) => { e.preventDefault(); showGenre(); closeMobileMenu(); });
+            document.getElementById('mobileGenre').addEventListener('click', () => { closeMobileMenu(); });
             document.getElementById('mobileRank').addEventListener('click', (e) => { e.preventDefault(); showRank(); closeMobileMenu(); });
             document.getElementById('mobileCompleted').addEventListener('click', (e) => { e.preventDefault(); showCompleted(); closeMobileMenu(); });
             document.getElementById('mobileGroups').addEventListener('click', (e) => { e.preventDefault(); showGroups(); closeMobileMenu(); });
@@ -836,9 +904,6 @@
             document.getElementById('readFeaturedBtn').addEventListener('click', function() { fillDetailAndShow(this); });
             document.getElementById('viewAllUpdates').addEventListener('click', function() { alert('Xem tất cả truyện mới cập nhật'); });
             document.getElementById('viewMoreBtn').addEventListener('click', function() { alert('Tải thêm truyện (mô phỏng)'); });
-            document.getElementById('buyChapter').addEventListener('click', () => { window.location.href = '/ShoppingCart'; });
-            document.getElementById('donate').addEventListener('click', () => { window.location.href = '/ShoppingCart'; });
-            document.getElementById('vip').addEventListener('click', () => { window.location.href = '/ShoppingCart'; });
 
             // ===== XỬ LÝ RATING (SAO) =====
             const stars = document.querySelectorAll('.star');
@@ -1071,12 +1136,10 @@
             document.getElementById('readLatestBtn').addEventListener('click', () => { alert('Đọc mới nhất'); showReader(); });
             document.getElementById('readContinueBtn').addEventListener('click', () => { alert('Đọc tiếp'); showReader(); });
             document.getElementById('breadcrumbHome').addEventListener('click', (e) => { e.preventDefault(); showHome(); });
-            document.getElementById('breadcrumbCategory').addEventListener('click', (e) => { e.preventDefault(); showGenre(); });
 
             loadStories();
 
             document.getElementById('readerBreadcrumbHome').addEventListener('click', (e) => { e.preventDefault(); showHome(); });
-            document.getElementById('readerBreadcrumbCategory').addEventListener('click', (e) => { e.preventDefault(); showGenre(); });
             document.getElementById('readerBreadcrumbDetail').addEventListener('click', (e) => { e.preventDefault(); showDetail(); });
 
             document.getElementById('server1').addEventListener('click', function() {

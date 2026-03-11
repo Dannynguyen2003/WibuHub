@@ -1,10 +1,85 @@
-﻿@{
+﻿@using System.Text.Json
+@model WibuHub.ViewModels.AdminDashboardVM
+
+@{
     ViewData["Title"] = "Dashboard";
+    var labelsJson = JsonSerializer.Serialize(Model.ViewLabels);
+    var countsJson = JsonSerializer.Serialize(Model.ViewCounts);
+    string GetStatusText(int status) => status switch
+    {
+        1 => "Hoàn thành",
+        2 => "Tạm ngưng",
+        _ => "Đang tiến hành"
+    };
+    string GetStatusClass(int status) => status switch
+    {
+        1 => "badge-status",
+        2 => "badge-status pending",
+        _ => "badge-status"
+    };
+    string GetRelativeTime(DateTime occurredAt)
+    {
+        var span = DateTime.UtcNow - occurredAt;
+        if (span.TotalMinutes < 1)
+        {
+            return "Vừa xong";
+        }
+        if (span.TotalHours < 1)
+        {
+            return $"{(int)span.TotalMinutes} phút trước";
+        }
+        if (span.TotalDays < 1)
+        {
+            return $"{(int)span.TotalHours} giờ trước";
+        }
+        return $"{(int)span.TotalDays} ngày trước";
+    }
+    string GetRelativeTimeClient(DateTime occurredAt) => occurredAt.ToString("o");
 }
 
 <div class="stats-grid">
-    <div class="stat-card"><div class="stat-left"><h4>Tổng truyện</h4><div class="value">1,248</div></div><div class="stat-right"><i class="fas fa-book"></i></div></div>
-    <div class="stat-card"><div class="stat-left"><h4>Chapter</h4><div class="value">12.5k</div></div><div class="stat-right"><i class="fas fa-layer-group"></i></div></div>
+    <div class="stat-card">
+        <div class="stat-left">
+            <h4>Tổng truyện</h4>
+            <div class="value">@Model.TotalStories.ToString("N0")</div>
+        </div>
+        <div class="stat-right"><i class="fas fa-book"></i></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-left">
+            <h4>Chapter</h4>
+            <div class="value">@Model.TotalChapters.ToString("N0")</div>
+        </div>
+        <div class="stat-right"><i class="fas fa-layer-group"></i></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-left">
+            <h4>Người dùng</h4>
+            <div class="value">@Model.TotalUsers.ToString("N0")</div>
+        </div>
+        <div class="stat-right"><i class="fas fa-users"></i></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-left">
+            <h4>Lượt xem</h4>
+            <div class="value">@Model.TotalViews.ToString("N0")</div>
+        </div>
+        <div class="stat-right"><i class="fas fa-eye"></i></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-left">
+            <h4>Tổng đơn hàng</h4>
+            <div class="value">@Model.TotalOrders.ToString("N0")</div>
+        </div>
+        <div class="stat-right"><i class="fas fa-receipt"></i></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-left">
+            <h4>Tổng tiền bán</h4>
+            <div class="value">@Model.TotalRevenue.ToString("N0")</div>
+        </div>
+        <div class="stat-right"><i class="fas fa-wallet"></i></div>
+    </div>
 </div>
 
 <div class="row-chart-activity">
@@ -15,18 +90,121 @@
         <canvas id="viewsChart"></canvas>
     </div>
     <div class="activity-box">
+        <div class="chart-header">
+            <h3><i class="fas fa-clock" style="color:#2563eb;"></i> Hoạt động gần đây</h3>
+        </div>
+        <ul class="activity-list">
+            @if (Model.RecentActivities.Any())
+            {
+                foreach (var activity in Model.RecentActivities)
+                {
+                    <li>
+                        <div class="activity-icon"><i class="@activity.IconClass"></i></div>
+                        <div>
+                            <div class="fw-bold">@activity.Title</div>
+                            <div class="text-muted" data-occurred="@GetRelativeTimeClient(activity.OccurredAt)">@GetRelativeTime(activity.OccurredAt)</div>
+                        </div>
+                    </li>
+                }
+            }
+            else
+            {
+                <li>
+                    <div class="text-muted">Chưa có hoạt động mới.</div>
+                </li>
+            }
+        </ul>
     </div>
+</div>
+
+<div class="chart-box">
+    <div class="chart-header">
+        <h3><i class="fas fa-star" style="color:#fbbf24;"></i> Truyện mới cập nhật</h3>
+    </div>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Truyện</th>
+                <th>Tác giả</th>
+                <th>Chapter</th>
+                <th>Lượt xem</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.RecentStories.Any())
+            {
+                foreach (var story in Model.RecentStories)
+                {
+                    <tr>
+                        <td>@story.StoryName</td>
+                        <td>@(string.IsNullOrWhiteSpace(story.AuthorName) ? "N/A" : story.AuthorName)</td>
+                        <td>@story.ChapterCount</td>
+                        <td>@story.ViewCount.ToString("N0")</td>
+                        <td><span class="@GetStatusClass(story.Status)">@GetStatusText(story.Status)</span></td>
+                        <td class="action-btns">
+                            <a asp-controller="Stories" asp-action="Details" asp-route-id="@story.Id"><i class="fas fa-eye"></i></a>
+                            <a asp-controller="Stories" asp-action="Edit" asp-route-id="@story.Id"><i class="fas fa-pen"></i></a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="6" class="text-center text-muted">Chưa có dữ liệu.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>
 
 @section Scripts {
     <script>
         const ctx = document.getElementById('viewsChart')?.getContext('2d');
         if (ctx) {
+            const labels = @Html.Raw(labelsJson);
+            const dataPoints = @Html.Raw(countsJson);
             new Chart(ctx, {
                 type: 'line',
-                data: { labels: ['T2','T3','T4','T5','T6','T7','CN'], datasets: [{ data: [12,19,15,22,24,30,28], borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.1)' }] },
+                data: {
+                    labels: labels,
+                    datasets: [{ data: dataPoints, borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.1)' }]
+                },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
         }
+
+        const updateRelativeTime = () => {
+            const elements = document.querySelectorAll('[data-occurred]');
+            const now = new Date();
+            elements.forEach((element) => {
+                const occurred = new Date(element.dataset.occurred);
+                if (Number.isNaN(occurred.getTime())) {
+                    return;
+                }
+                const diffMs = now - occurred;
+                const diffMinutes = Math.floor(diffMs / 60000);
+                if (diffMinutes < 1) {
+                    element.textContent = 'Vừa xong';
+                    return;
+                }
+                if (diffMinutes < 60) {
+                    element.textContent = `${diffMinutes} phút trước`;
+                    return;
+                }
+                const diffHours = Math.floor(diffMinutes / 60);
+                if (diffHours < 24) {
+                    element.textContent = `${diffHours} giờ trước`;
+                    return;
+                }
+                const diffDays = Math.floor(diffHours / 24);
+                element.textContent = `${diffDays} ngày trước`;
+            });
+        };
+
+        updateRelativeTime();
+        setInterval(updateRelativeTime, 60000);
     </script>
 }

@@ -13,6 +13,7 @@ namespace WibuHub.ApplicationCore.Entities
         public Order()
         {
             Id = Guid.NewGuid();
+            CreatedAt = DateTime.UtcNow;
             OrderDetails = new Collection<OrderDetail>();
         }
 
@@ -38,6 +39,7 @@ namespace WibuHub.ApplicationCore.Entities
         public string? TransactionId { get; set; }
         [Description("Trạng thái thanh toán")]
         public string? PaymentStatus { get; set; }
+        public DateTime CreatedAt { get; set; }
         public virtual ICollection<OrderDetail> OrderDetails { get; set; }
     }
 }

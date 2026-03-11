@@ -41,6 +41,8 @@ namespace WibuHub.Areas.Admin.Controllers
             var story = await _context.Stories
                 .Include(s => s.Author)
                 .Include(s => s.Category)
+                .Include(s => s.StoryCategories)
+                .ThenInclude(sc => sc.Category)
                 .Include(s => s.Chapters)
                 .FirstOrDefaultAsync(m => m.Id == id && !m.IsDeleted);
             if (story == null)

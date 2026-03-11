@@ -44,7 +44,9 @@
 
                 <div class="sidebar">
                     <div class="sidebar-header">
-                        <i class="fas fa-book-open"></i>
+                        <button class="sidebar-toggle" type="button" aria-label="Toggle sidebar">
+                            <i class="fas fa-book-open"></i>
+                        </button>
                         <div>
                             <h2>WIBUHUB</h2><span>Admin Panel</span>
                         </div>
@@ -71,27 +73,32 @@
                             </li>
                             <li class="@(ViewContext.RouteData.Values["Controller"]?.ToString() == "Categories" ? "active" : "")">
                                 <a asp-controller="Categories" asp-action="Create" style="text-decoration:none; color:inherit; display:flex; gap:14px; width:100%">
-                                    <i class="fas fa-book"></i> <span>Categories Management</span>
+                                    <i class="fas fa-tags"></i> <span>Categories Management</span>
                                 </a>
                             </li>
                             <li class="@(ViewContext.RouteData.Values["Controller"]?.ToString() == "Authors" ? "active" : "")">
                                 <a asp-controller="Authors" asp-action="Create" style="text-decoration:none; color:inherit; display:flex; gap:14px; width:100%">
-                                    <i class="fas fa-book"></i> <span>Authors Management</span>
+                                    <i class="fas fa-user-pen"></i> <span>Authors Management</span>
                                 </a>
                             </li>
                             <li class="@(ViewContext.RouteData.Values["Controller"]?.ToString() == "Stories" ? "active" : "")">
                                 <a asp-controller="Stories" asp-action="Create" style="text-decoration:none; color:inherit; display:flex; gap:14px; width:100%">
-                                    <i class="fas fa-book"></i> <span>Stories Management</span>
+                                    <i class="fas fa-book-open"></i> <span>Stories Management</span>
                                 </a>
                             </li>
                             <li class="@(ViewContext.RouteData.Values["Controller"]?.ToString() == "Chapters" ? "active" : "")">
                                 <a asp-controller="Chapters" asp-action="Create" style="text-decoration:none; color:inherit; display:flex; gap:14px; width:100%">
-                                    <i class="fas fa-book"></i> <span>Chapters Management</span>
+                                    <i class="fas fa-list-ol"></i> <span>Chapters Management</span>
                                 </a>
                             </li>
-                            <li class="@(ViewContext.RouteData.Values["Controller"]?.ToString() == "Orders" ? "active" : "")">
+                            <li class="@(ViewContext.RouteData.Values["Controller"]?.ToString() == "Orders" && ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")">
                                 <a asp-controller="Orders" asp-action="Index" style="text-decoration:none; color:inherit; display:flex; gap:14px; width:100%">
                                     <i class="fas fa-receipt"></i> <span>Orders Management</span>
+                                </a>
+                            </li>
+                            <li class="@(ViewContext.RouteData.Values["Controller"]?.ToString() == "Orders" && ViewContext.RouteData.Values["Action"]?.ToString() == "History" ? "active" : "")">
+                                <a asp-controller="Orders" asp-action="History" style="text-decoration:none; color:inherit; display:flex; gap:14px; width:100%">
+                                    <i class="fas fa-clock-rotate-left"></i> <span>Transaction History</span>
                                 </a>
                             </li>
 
@@ -139,6 +146,23 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script>
+        const sidebar = document.querySelector('.sidebar');
+        const toggleButton = document.querySelector('.sidebar-toggle');
+        const storageKey = 'wibuhub.sidebar.collapsed';
+
+        if (sidebar && toggleButton) {
+            const isCollapsed = localStorage.getItem(storageKey) === 'true';
+            if (isCollapsed) {
+                sidebar.classList.add('collapsed');
+            }
+
+            toggleButton.addEventListener('click', () => {
+                sidebar.classList.toggle('collapsed');
+                localStorage.setItem(storageKey, sidebar.classList.contains('collapsed'));
+            });
+        }
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

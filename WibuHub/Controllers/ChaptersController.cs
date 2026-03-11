@@ -331,9 +331,9 @@ namespace WibuHub.Controllers
             return Json(new { isOK = true });
         }
         // GET: Chapters/Reload
-        public async Task<IActionResult> Reload(int page = 1, int pageSize = 10)
+        public async Task<IActionResult> Reload(Guid? storyId, int page = 1, int pageSize = 10)
         {
-            return ViewComponent("ChapterList", new { page, pageSize });
+            return ViewComponent("ChapterList", new { storyId, page, pageSize });
         }
 
         private bool ChapterExists(Guid id)

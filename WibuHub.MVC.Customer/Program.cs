@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
+using System.IO;
+using Microsoft.Extensions.FileProviders;
 using WibuHub.ApplicationCore.Configuration;
 using WibuHub.ApplicationCore.Entities.Identity;
 using WibuHub.DataLayer;
@@ -84,6 +86,7 @@ builder.Services.AddRazorPages();
 
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddTransient<IEmailSender, EmailSender>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpContextAccessor();
@@ -110,6 +113,12 @@ app.UseSession();
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(app.Environment.ContentRootPath, "..", "WibuHub", "wwwroot", "uploads")),
+    RequestPath = "/uploads"
+});
 
 app.UseRouting();
 
@@ -118,6 +127,11 @@ app.UseAuthorization();
 
 // Enable routing for areas (e.g., /Admin/Stories)
 
+
+app.MapControllerRoute(
+    name: "ChapterReadSeo",
+    pattern: "truyen-tranh/{storySlug}-chap-{chapterNumber:double}.html",
+    defaults: new { controller = "Chapters", action = "ReadBySlug" });
 
 app.MapControllerRoute(
     name: "Customer",

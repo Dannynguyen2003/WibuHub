@@ -1,0 +1,123 @@
+@using System.Globalization
+@model WibuHub.MVC.Customer.ViewModels.ChapterReadViewModel
+
+@{
+    var chapter = Model.Chapter;
+    var storyName = chapter.Story?.StoryName ?? chapter.StoryName;
+    var storySlug = string.IsNullOrWhiteSpace(chapter.Story?.Slug)
+        ? chapter.StoryName
+        : chapter.Story!.Slug;
+    var chapterTitle = $"{storyName} - Chapter {chapter.ChapterNumber}";
+    var updatedAt = chapter.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss");
+    var orderedChapters = Model.Chapters.OrderByDescending(c => c.ChapterNumber).ToList();
+    string BuildChapterUrl(WibuHub.ApplicationCore.Entities.Chapter item)
+    {
+        return Url.RouteUrl("ChapterReadSeo", new
+        {
+            storySlug,
+            chapterNumber = item.ChapterNumber.ToString(CultureInfo.InvariantCulture)
+        }) ?? "#";
+    }
+    var previousChapter = Model.PreviousChapterId.HasValue
+        ? Model.Chapters.FirstOrDefault(c => c.Id == Model.PreviousChapterId.Value)
+        : null;
+    var nextChapter = Model.NextChapterId.HasValue
+        ? Model.Chapters.FirstOrDefault(c => c.Id == Model.NextChapterId.Value)
+        : null;
+}
+
+<div class="chapter-read-page">
+    <div class="chapter-read-header">
+        <h2>@chapterTitle</h2>
+        <div class="chapter-updated">[C?p nh?t lúc: @updatedAt]</div>
+    </div>
+
+    <div class="chapter-warning">
+        <i class="fas fa-exclamation-triangle"></i>
+        N?u không xem ðý?c truy?n vui l?ng ð?i "SERVER ?NH" bên dý?i
+    </div>
+
+    <div class="chapter-toolbar">
+        <div class="chapter-servers">
+            <button class="chapter-server active" type="button">Server 1</button>
+            <button class="chapter-server" type="button">Server 2</button>
+        </div>
+        <button class="chapter-report" type="button"><i class="fas fa-flag"></i> Báo l?i</button>
+    </div>
+
+    <div class="chapter-nav">
+        <a class="chapter-nav-btn @(previousChapter == null ? "disabled" : "")" href="@(previousChapter == null ? "#" : BuildChapterUrl(previousChapter))">
+            <i class="fas fa-chevron-left"></i>
+        </a>
+        <select class="chapter-select" onchange="if (this.value) window.location.href = this.value;">
+            @foreach (var item in orderedChapters)
+            {
+                var url = BuildChapterUrl(item);
+                <option value="@url" selected="@(item.Id == chapter.Id)">Chapter @item.ChapterNumber</option>
+            }
+        </select>
+        <a class="chapter-nav-btn @(nextChapter == null ? "disabled" : "")" href="@(nextChapter == null ? "#" : BuildChapterUrl(nextChapter))">
+            <i class="fas fa-chevron-right"></i>
+        </a>
+        <div class="chapter-nav-hint">S? d?ng m?i tên trái (?) ho?c ph?i (?) ð? chuy?n chapter</div>
+    </div>
+
+    <div class="chapter-content">
+        @if (chapter.Images != null && chapter.Images.Any())
+        {
+            foreach (var image in chapter.Images.OrderBy(i => i.OrderIndex))
+            {
+                var imageUrl = image.ImageUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase)
+                    ? image.ImageUrl
+                    : Url.Content($"~/{image.ImageUrl.TrimStart('/') }");
+                <img src="@imageUrl" alt="@chapterTitle" />
+            }
+        }
+        else if (!string.IsNullOrWhiteSpace(chapter.Content))
+        {
+            <div class="chapter-text">@Html.Raw(chapter.Content)</div>
+        }
+        else
+        {
+            <div class="chapter-placeholder">Trang 1 - N?i dung truy?n s? hi?n th? ? ðây</div>
+        }
+    </div>
+    <div class="chapter-bottom-bar">
+        <div class="chapter-bottom-bar-inner">
+            <a class="chapter-bar-btn" asp-controller="Home" asp-action="Index"><i class="fas fa-home"></i></a>
+            <a class="chapter-bar-btn" asp-controller="Stories" asp-action="Details" asp-route-id="@chapter.StoryId"><i class="fas fa-undo"></i></a>
+            <a class="chapter-bar-btn @(previousChapter == null ? "disabled" : "")" href="@(previousChapter == null ? "#" : BuildChapterUrl(previousChapter))">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+            <select class="chapter-bar-select" onchange="if (this.value) window.location.href = this.value;">
+                @foreach (var item in orderedChapters)
+                {
+                    var url = BuildChapterUrl(item);
+                    <option value="@url" selected="@(item.Id == chapter.Id)">Chýõng @item.ChapterNumber</option>
+                }
+            </select>
+            <a class="chapter-bar-btn @(nextChapter == null ? "disabled" : "")" href="@(nextChapter == null ? "#" : BuildChapterUrl(nextChapter))">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+            @if (User?.Identity?.IsAuthenticated ?? false)
+            {
+                <form class="chapter-bar-follow-form" asp-controller="Follows" asp-action="Toggle" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="storyId" value="@chapter.StoryId" />
+                    <input type="hidden" name="returnUrl" value="@Context.Request.Path" />
+                    <button class="chapter-bar-follow" type="submit">
+                        <i class="@(Model.IsFollowed ? "fas fa-heart" : "far fa-heart")"></i>
+                        @(Model.IsFollowed ? "Ð? theo d?i" : "Theo d?i")
+                    </button>
+                </form>
+            }
+            else
+            {
+                <button class="chapter-bar-follow" type="button" data-open-login="true">
+                    <i class="far fa-heart"></i>
+                    Theo d?i
+                </button>
+            }
+        </div>
+    </div>
+</div>

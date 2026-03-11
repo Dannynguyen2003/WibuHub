@@ -1,0 +1,129 @@
+@using System.Globalization
+@model WibuHub.ApplicationCore.Entities.Story
+
+@{
+    ViewData["Title"] = Model.StoryName;
+    var coverUrl = string.IsNullOrWhiteSpace(Model.CoverImage)
+        ? "https://via.placeholder.com/240x340?text=No+Cover"
+        : (Model.CoverImage.StartsWith("http", StringComparison.OrdinalIgnoreCase)
+            ? Model.CoverImage
+            : Url.Content($"~/{Model.CoverImage.TrimStart('/') }"));
+    var storySlug = string.IsNullOrWhiteSpace(Model.Slug)
+        ? Model.StoryName
+        : Model.Slug;
+    var statusText = Model.Status switch
+    {
+        1 => "Hoàn thành",
+        2 => "T?m ngýng",
+        _ => "Ðang ti?n hành"
+    };
+    var authorName = !string.IsNullOrWhiteSpace(Model.AuthorName)
+        ? Model.AuthorName
+        : Model.Author?.Name ?? "Ðang c?p nh?t";
+    var createdDate = Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy");
+    var chapterCount = Model.Chapters?.Count ?? 0;
+    var categories = Model.StoryCategories
+        .Select(sc => sc.Category?.Name)
+        .Where(name => !string.IsNullOrWhiteSpace(name))
+        .Distinct()
+        .ToList();
+    if (!categories.Any() && !string.IsNullOrWhiteSpace(Model.Category?.Name))
+    {
+        categories.Add(Model.Category.Name);
+    }
+    var categoryDisplay = categories.Any() ? string.Join(", ", categories) : "Ðang c?p nh?t";
+    var ratingValue = Math.Clamp((int)Math.Round(Model.RatingScore), 0, 5);
+    var isFollowed = (ViewData["IsFollowed"] as bool?) ?? false;
+}
+
+<div class="story-detail-shell">
+    <div class="story-detail-header">
+        <div class="story-detail-cover">
+            <img src="@coverUrl" alt="@Model.StoryName" />
+        </div>
+        <div class="story-detail-content">
+            <h1 class="story-detail-title">@Model.StoryName</h1>
+            <div class="story-detail-stats">
+                <div class="story-detail-stat">
+                    <span class="stat-label">Tác gi?</span>
+                    <span class="stat-value">@authorName</span>
+                </div>
+                <div class="story-detail-stat">
+                    <span class="stat-label">T?nh tr?ng</span>
+                    <span class="stat-value">@statusText</span>
+                </div>
+                <div class="story-detail-stat">
+                    <span class="stat-label">Th? lo?i</span>
+                    <span class="stat-value">@categoryDisplay</span>
+                </div>
+                <div class="story-detail-stat">
+                    <span class="stat-label">Lý?t xem</span>
+                    <span class="stat-value">@Model.ViewCount</span>
+                </div>
+            </div>
+            <div class="story-detail-rating">
+                <div class="rating-stars">
+                    @for (var i = 1; i <= 5; i++)
+                    {
+                        <i class="@(i <= ratingValue ? "fas fa-star" : "far fa-star")"></i>
+                    }
+                </div>
+                <span class="rating-text">@Model.RatingScore.ToString("0.0")/5</span>
+                <span class="rating-divider">-</span>
+                <span class="rating-meta">@chapterCount Chap</span>
+            </div>
+            <div class="story-detail-follow">
+                @if (User?.Identity?.IsAuthenticated ?? false)
+                {
+                    <form class="story-follow-form" asp-controller="Follows" asp-action="Toggle" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="storyId" value="@Model.Id" />
+                        <input type="hidden" name="returnUrl" value="@Context.Request.Path" />
+                        <button type="submit" class="story-follow-btn @(isFollowed ? "active" : "")">
+                            @(isFollowed ? "Ð? theo d?i" : "Theo d?i")
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <button type="button" class="story-follow-btn" data-open-login="true">Theo d?i</button>
+                }
+                <span>@Model.FollowCount.ToString("N0") Ngý?i ð? theo d?i</span>
+            </div>
+            <div class="story-detail-actions">
+                <button type="button" class="story-action primary">Ð?c t? ð?u</button>
+                <button type="button" class="story-action primary">Ð?c m?i nh?t</button>
+                <button type="button" class="story-action outline">Ð?c ti?p &gt;</button>
+            </div>
+        </div>
+    </div>
+    <div class="story-detail-description">
+        <h3>N?I DUNG TRUY?N</h3>
+        <p>@(string.IsNullOrWhiteSpace(Model.Description) ? "Chýa có mô t?." : Model.Description)</p>
+    </div>
+    <div class="story-chapters">
+        <div class="story-chapters-header">Danh sách chýõng</div>
+        @if (Model.Chapters != null && Model.Chapters.Any())
+        {
+            <div class="story-chapters-list">
+                @foreach (var chapter in Model.Chapters.OrderByDescending(c => c.ChapterNumber))
+                {
+                    var chapterUrl = Url.RouteUrl("ChapterReadSeo", new
+                    {
+                        storySlug,
+                        chapterNumber = chapter.ChapterNumber.ToString(CultureInfo.InvariantCulture)
+                    });
+                    chapterUrl ??= "#";
+                    <a class="story-chapter-item" href="@chapterUrl">
+                        <span>Chýõng @chapter.ChapterNumber</span>
+                        <span class="chapter-date">@chapter.CreatedAt.ToString("dd/MM/yyyy")</span>
+                    </a>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="story-chapters-empty">Chýa có chýõng.</div>
+        }
+    </div>
+</div>

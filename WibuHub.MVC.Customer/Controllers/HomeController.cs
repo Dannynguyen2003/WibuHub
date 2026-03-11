@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
-using WibuHub.MVC.Customer.Models;
+using WibuHub.MVC.Customer.ViewModels;
 
 namespace WibuHub.MVC.Customer.Controllers
 {

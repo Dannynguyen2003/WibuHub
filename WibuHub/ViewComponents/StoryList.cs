@@ -58,6 +58,7 @@ namespace WibuHub.MVC.ViewComponents
                     RatingScore = s.RatingScore,
                     CreatedAt = s.CreatedAt,
                     UpdateDate = s.UpdateDate,
+                    CoverImage = s.CoverImage,
                     AuthorId = s.AuthorId,
                     CategoryId = s.CategoryId,
                     Author = s.Author,

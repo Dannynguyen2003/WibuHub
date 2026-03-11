@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+ï»¿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
 using WibuHub.ApplicationCore.DTOs.Shared;
@@ -6,7 +6,7 @@ using WibuHub.ApplicationCore.Configuration;
 using WibuHub.ApplicationCore.Entities;
 using WibuHub.DataLayer;
 using WibuHub.MVC.Customer.ExtensionsMethod;
-using WibuHub.MVC.Customer.Models.ShoppingCart;
+using WibuHub.MVC.Customer.ViewModels.ShoppingCart;
 using WibuHub.MVC.ViewModels.ShoppingCart;
 using WibuHub.Service.Interface;
 
@@ -101,7 +101,7 @@ namespace WibuHub.MVC.Customer.Controllers
             }
 
             SaveCart(cart);
-            TempData["CartMessage"] = "Ð? thêm vào gi? hàng.";
+            TempData["CartMessage"] = "ÄÃ£ thÃªm vÃ o giá» hÃ ng.";
             return RedirectToAction(nameof(Cart));
         }
 
@@ -125,7 +125,7 @@ namespace WibuHub.MVC.Customer.Controllers
                     CartId = cart.Id,
                     ChapterId = Guid.Empty,
                     ChapterName = package.Name,
-                    StoryTitle = "Gói VIP",
+                    StoryTitle = "GÃ³i VIP",
                     Price = package.Price,
                     Quantity = 1
                 });
@@ -136,7 +136,7 @@ namespace WibuHub.MVC.Customer.Controllers
             }
 
             SaveCart(cart);
-            TempData["CartMessage"] = "Ð? thêm gói VIP vào gi? hàng.";
+            TempData["CartMessage"] = "ÄÃ£ thÃªm gÃ³i VIP vÃ o giá» hÃ ng.";
             return RedirectToAction(nameof(Cart));
         }
 
@@ -184,7 +184,8 @@ namespace WibuHub.MVC.Customer.Controllers
         {
             if (!User.Identity?.IsAuthenticated ?? true)
             {
-                return RedirectToPage("/Account/Login", new { area = "Identity", returnUrl = Url.Action(nameof(Checkout), "ShoppingCart") });
+                TempData["RequireLogin"] = true;
+                return RedirectToAction(nameof(Cart));
             }
 
             var cart = GetCart();
@@ -202,7 +203,8 @@ namespace WibuHub.MVC.Customer.Controllers
         {
             if (!User.Identity?.IsAuthenticated ?? true)
             {
-                return RedirectToPage("/Account/Login", new { area = "Identity", returnUrl = Url.Action(nameof(Checkout), "ShoppingCart") });
+                TempData["RequireLogin"] = true;
+                return RedirectToAction(nameof(Cart));
             }
 
             var cart = GetCart();
@@ -215,7 +217,7 @@ namespace WibuHub.MVC.Customer.Controllers
                 || string.IsNullOrWhiteSpace(_momoSettings.SecretKey)
                 || string.IsNullOrWhiteSpace(_momoSettings.PartnerCode))
             {
-                TempData["PaymentError"] = "Chýa c?u h?nh MoMo. Vui l?ng c?p nh?t MomoSettings trong appsettings.json.";
+                TempData["PaymentError"] = "ChÆ°a cáº¥u hÃ¬nh MoMo. Vui lÃ²ng cáº­p nháº­t MomoSettings trong appsettings.json.";
                 return RedirectToAction(nameof(Checkout));
             }
 
@@ -257,7 +259,7 @@ namespace WibuHub.MVC.Customer.Controllers
             {
                 OrderId = order.Id.ToString(),
                 FullName = _httpContextAccessor.HttpContext?.User?.Identity?.Name ?? "Customer",
-                OrderInfo = $"Thanh toán ðõn hàng {order.Id}",
+                OrderInfo = $"Thanh toÃ¡n Ä‘Æ¡n hÃ ng {order.Id}",
                 Amount = (long)order.TotalAmount
             };
 
@@ -318,24 +320,24 @@ namespace WibuHub.MVC.Customer.Controllers
                 new VipPackageItem
                 {
                     Code = "VIP_MONTH",
-                    Name = "VIP 1 Tháng",
-                    Description = "Ð?c không gi?i h?n trong 30 ngày",
+                    Name = "VIP 1 ThÃ¡ng",
+                    Description = "Äá»c khÃ´ng giá»›i háº¡n trong 30 ngÃ y",
                     Price = 99000,
                     DurationDays = 30
                 },
                 new VipPackageItem
                 {
                     Code = "VIP_QUARTER",
-                    Name = "VIP 3 Tháng",
-                    Description = "Ti?t ki?m hõn khi ðãng k? 90 ngày",
+                    Name = "VIP 3 ThÃ¡ng",
+                    Description = "Tiáº¿t kiá»‡m hÆ¡n khi Ä‘Äƒng kÃ½ 90 ngÃ y",
                     Price = 249000,
                     DurationDays = 90
                 },
                 new VipPackageItem
                 {
                     Code = "VIP_YEAR",
-                    Name = "VIP 12 Tháng",
-                    Description = "Gói ti?t ki?m nh?t cho fan truy?n",
+                    Name = "VIP 12 ThÃ¡ng",
+                    Description = "GÃ³i tiáº¿t kiá»‡m nháº¥t cho fan truyá»‡n",
                     Price = 799000,
                     DurationDays = 365
                 }
@@ -350,7 +352,7 @@ namespace WibuHub.MVC.Customer.Controllers
                 return string.Empty;
             }
 
-            return "Ðãng k? VIP: " + string.Join(", ", vipItems.Select(i => $"{i.ChapterName} x{i.Quantity}"));
+            return "ÄÄƒng kÃ½ VIP: " + string.Join(", ", vipItems.Select(i => $"{i.ChapterName} x{i.Quantity}"));
         }
     }
 }
