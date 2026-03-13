@@ -65,6 +65,17 @@ namespace WibuHub.MVC.Controllers
                 .Take(3)
                 .ToListAsync();
 
+            var recentCategories = await _dbContext.Categories
+                .OrderByDescending(c => c.CreatedAt)
+                .Select(c => new DashboardActivityItem
+                {
+                    IconClass = "fas fa-tags",
+                    Title = $"Danh m?c m?i: {c.Name}",
+                    OccurredAt = c.CreatedAt
+                })
+                .Take(3)
+                .ToListAsync();
+
             var recentOrders = await _dbContext.Orders
                 .OrderByDescending(o => o.CreatedAt)
                 .Select(o => new DashboardActivityItem
@@ -78,6 +89,7 @@ namespace WibuHub.MVC.Controllers
 
             var recentActivities = recentChapters
                 .Concat(recentComments)
+                .Concat(recentCategories)
                 .Concat(recentOrders)
                 .OrderByDescending(a => a.OccurredAt)
                 .Take(5)

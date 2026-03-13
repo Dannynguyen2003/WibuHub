@@ -65,7 +65,35 @@ namespace WibuHub.MVC.Customer.Controllers
                 return NotFound();
             }
 
+            await RecordViewAsync(chapter);
+
             return View("Read", await BuildReadViewModelAsync(chapter));
+        }
+
+        private async Task RecordViewAsync(Chapter chapter)
+        {
+            await _context.Stories
+                .Where(s => s.Id == chapter.StoryId)
+                .ExecuteUpdateAsync(s => s.SetProperty(story => story.ViewCount, story => story.ViewCount + 1));
+
+            Guid? userId = null;
+            if (User?.Identity?.IsAuthenticated == true)
+            {
+                var userIdValue = _userManager.GetUserId(User);
+                if (!string.IsNullOrWhiteSpace(userIdValue) && Guid.TryParse(userIdValue, out var userGuid))
+                {
+                    userId = userGuid;
+                }
+            }
+
+            _context.Histories.Add(new History
+            {
+                StoryId = chapter.StoryId,
+                ChapterId = chapter.Id,
+                UserId = userId
+            });
+
+            await _context.SaveChangesAsync();
         }
 
         private async Task<ChapterReadViewModel> BuildReadViewModelAsync(Chapter chapter)

@@ -5,7 +5,7 @@ using WibuHub.ApplicationCore.Entities;
 
 namespace WibuHub.MVC.ViewModels
 {
-    [Bind("Id,StoryId,Name,ChapterNumber,Slug,ViewCount,ImageUrls,UploadImages,ServerId,CreatedAt,Price,Discount")]
+    [Bind("Id,StoryId,Name,ChapterNumber,Slug,ViewCount,ImageUrls,UploadImages,ServerId,CreatedAt")]
     public class ChapterVM
     {
         [Key]
@@ -54,10 +54,5 @@ namespace WibuHub.MVC.ViewModels
         // CreateDate: DateTime
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        // UnlockPrice: money
-        // Dùng decimal cho tiền tệ trong C#, map sang "money" trong SQL
-        [Column(TypeName = "money")]
-        public decimal Price { get; set; } = 0;
-        public decimal Discount { get; set; }
     }
 }

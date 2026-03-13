@@ -34,7 +34,7 @@ namespace WibuHub.MVC.Controllers
             return View(cart);
         }
 
-        public async Task<IActionResult> AddToCart(Guid idChapter, int quantity)
+        public async Task<IActionResult> AddToCart(Guid idStory, int quantity)
         {
             // Logic to add the specified video to the shopping cart with the given quantity
             // This could involve checking if the cart exists, creating one if it doesn't,
@@ -45,7 +45,7 @@ namespace WibuHub.MVC.Controllers
             var cart = HttpContext.Session.GetObject<Cart>(CartSessionKey);
             if (cart != null)
             {
-                var cartItem = cart.Items.FirstOrDefault(item => item.ChapterId == idChapter);
+                var cartItem = cart.Items.FirstOrDefault(item => item.StoryId == idStory);
                 if (cartItem != null)
                 {
                     // Video đã có trong giỏ hàng, cập nhật số lượng
@@ -54,18 +54,17 @@ namespace WibuHub.MVC.Controllers
                 else
                 {
                     // Video chưa có trong giỏ hàng, thêm mới
-                    var chapter = await _context.Chapters.FindAsync(idChapter);
-                    if (chapter != null)
+                    var story = await _context.Stories.FindAsync(idStory);
+                    if (story != null)
                     {
                         cart.Items.Add(new CartItem
                         {
                             Id = Guid.NewGuid(),
                             CartId = cart.Id,
-                            ChapterId = idChapter,
-                            ChapterName = chapter.Name,
-                            StoryTitle = chapter.Story?.StoryName ?? "",
+                            StoryId = idStory,
+                            StoryTitle = story.StoryName,
                             Quantity = quantity,
-                            Price = chapter.Price // Giá tiền có thể được lấy từ cơ sở dữ liệu hoặc dịch vụ khác
+                            Price = story.Price // Giá tiền có thể được lấy từ cơ sở dữ liệu hoặc dịch vụ khác
                         });
                     }
                 }
@@ -83,16 +82,16 @@ namespace WibuHub.MVC.Controllers
                 };
 
                 //cart.Items = new List<CartItem>();
-                var chapter = await _context.Chapters.FindAsync(idChapter);
-                if (chapter != null)
+                var story = await _context.Stories.FindAsync(idStory);
+                if (story != null)
                 {
                     cart.Items.Add(new CartItem
                     {
                         Id = Guid.NewGuid(),
                         CartId = cart.Id,
-                        ChapterId = idChapter,
+                        StoryId = idStory,
                         Quantity = quantity,
-                        Price = chapter.Price // Giá tiền có thể được lấy từ cơ sở dữ liệu hoặc dịch vụ khác
+                        Price = story.Price // Giá tiền có thể được lấy từ cơ sở dữ liệu hoặc dịch vụ khác
                     });
                 }
             }
@@ -102,12 +101,12 @@ namespace WibuHub.MVC.Controllers
             return Content(cart.Items.Count.ToString());
         }
 
-        public async Task<IActionResult> UpdateQuantity(Guid idChapter, int quantity)
+        public async Task<IActionResult> UpdateQuantity(Guid idStory, int quantity)
         {
             var cart = HttpContext.Session.GetObject<Cart>(CartSessionKey);
             if (cart != null)
             {
-                var item = cart.Items.FirstOrDefault(x => x.ChapterId == idChapter);
+                var item = cart.Items.FirstOrDefault(x => x.StoryId == idStory);
                 if (item != null)
                 {
                     item.Quantity = quantity;

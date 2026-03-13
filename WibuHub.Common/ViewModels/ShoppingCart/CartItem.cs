@@ -5,9 +5,8 @@ namespace WibuHub.MVC.ViewModels.ShoppingCart
         public Guid Id { get; set; }
 
         public Guid CartId { get; set; }
-        public Guid ChapterId { get; set; }
-        public string ChapterName { get; set; } // VD: "Chapter 100"
-        public string StoryTitle { get; set; }  // VD: "Ð?o H?i T?c"
+        public Guid StoryId { get; set; }
+        public string StoryTitle { get; set; } = string.Empty;
         public string ImageUrl { get; set; }
         public decimal Price { get; set; }      // Giá ti?n
         public int Quantity { get; set; } = 1;

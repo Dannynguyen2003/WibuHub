@@ -55,6 +55,9 @@ namespace WibuHub.DataLayer.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
@@ -105,10 +108,6 @@ namespace WibuHub.DataLayer.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<decimal>("Discount")
-                        .HasPrecision(5, 2)
-                        .HasColumnType("decimal(5,2)");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -116,10 +115,6 @@ namespace WibuHub.DataLayer.Migrations
                         .IsRequired()
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
-
-                    b.Property<decimal>("Price")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("money");
 
                     b.Property<int>("ServerId")
                         .HasColumnType("int");
@@ -381,7 +376,7 @@ namespace WibuHub.DataLayer.Migrations
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("ChapterId")
+                    b.Property<Guid>("StoryId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("Amount")
@@ -398,9 +393,9 @@ namespace WibuHub.DataLayer.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("money");
 
-                    b.HasKey("OrderId", "ChapterId");
+                    b.HasKey("OrderId", "StoryId");
 
-                    b.HasIndex("ChapterId");
+                    b.HasIndex("StoryId");
 
                     b.ToTable("OrderDetails", (string)null);
                 });
@@ -505,11 +500,19 @@ namespace WibuHub.DataLayer.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<decimal>("Discount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("money");
+
                     b.Property<int>("FollowCount")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("money");
 
                     b.Property<double>("RatingScore")
                         .HasColumnType("float");
@@ -642,21 +645,21 @@ namespace WibuHub.DataLayer.Migrations
 
             modelBuilder.Entity("WibuHub.ApplicationCore.Entities.OrderDetail", b =>
                 {
-                    b.HasOne("WibuHub.ApplicationCore.Entities.Chapter", "Chapter")
-                        .WithMany()
-                        .HasForeignKey("ChapterId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("WibuHub.ApplicationCore.Entities.Order", "Order")
                         .WithMany("OrderDetails")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Chapter");
+                    b.HasOne("WibuHub.ApplicationCore.Entities.Story", "Story")
+                        .WithMany()
+                        .HasForeignKey("StoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Order");
+
+                    b.Navigation("Story");
                 });
 
             modelBuilder.Entity("WibuHub.ApplicationCore.Entities.Rating", b =>

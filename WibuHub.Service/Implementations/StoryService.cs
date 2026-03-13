@@ -26,6 +26,8 @@ namespace WibuHub.Service.Implementations
                     Description = s.Description,
                     AuthorName = s.AuthorName,
                     CoverImage = s.CoverImage,
+                    Price = s.Price,
+                    Discount = s.Discount,
                     CategoryId = s.CategoryId,
                     CategoryName = s.Category != null ? s.Category.Name : "N/A"
                 })
@@ -48,6 +50,8 @@ namespace WibuHub.Service.Implementations
                 Description = story.Description,
                 AuthorName = story.AuthorName,
                 CoverImage = story.CoverImage,
+                Price = story.Price,
+                Discount = story.Discount,
                 CategoryId = story.CategoryId,
                 CategoryName = story.Category?.Name
             };
@@ -64,6 +68,8 @@ namespace WibuHub.Service.Implementations
                     Description = dto.Description,
                     AuthorName = dto.AuthorName,
                     CoverImage = dto.CoverImage,
+                    Price = dto.Price,
+                    Discount = dto.Discount,
                     Status = (int)StoryStatus.Ongoing,
                     CategoryId = dto.CategoryId,
                     CreatedAt = DateTime.Now
@@ -89,6 +95,8 @@ namespace WibuHub.Service.Implementations
             entity.Description = dto.Description;
             entity.AuthorName = dto.AuthorName;
             entity.CategoryId = dto.CategoryId;
+            entity.Price = dto.Price;
+            entity.Discount = dto.Discount;
 
             // Nếu có upload ảnh mới thì mới cập nhật ảnh, không thì giữ nguyên
             if (!string.IsNullOrEmpty(dto.CoverImage))

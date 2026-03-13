@@ -46,9 +46,7 @@ namespace WibuHub.MVC.ViewComponents
                     Content = c.Content,
                     ImageCount = c.Images.Count,
                     ServerId = c.ServerId,
-                    CreatedAt = c.CreatedAt,
-                    Price = c.Price,
-                    Discount = c.Discount
+                    CreatedAt = c.CreatedAt
                 })
                 .ToListAsync();
 

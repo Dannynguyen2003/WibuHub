@@ -31,6 +31,10 @@ namespace WibuHub.ApplicationCore.Entities
         [Column(TypeName = "varchar(150)")]
         public string Slug { get; set; } = string.Empty;
 
+        public decimal Price { get; set; }
+
+        public decimal Discount { get; set; }
+
         // Status: tinyint (0: Đang tiến hành, 1: Hoàn thành, 2: Tạm ngưng)
         // Map int của C# sang tinyint của SQL
         [Column(TypeName = "tinyint")]

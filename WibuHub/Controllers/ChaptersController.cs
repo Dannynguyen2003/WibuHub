@@ -113,8 +113,6 @@ namespace WibuHub.Controllers
                     Content = string.Join(Environment.NewLine, imageUrls),
                     ServerId = chapterVM.ServerId,
                     CreatedAt = DateTime.UtcNow,
-                    Price = chapterVM.Price,
-                    Discount = chapterVM.Discount,
                     ImageUrls = imageUrls,
                     Images = imageUrls
                         .Select((url, index) => new ChapterImage
@@ -186,9 +184,7 @@ namespace WibuHub.Controllers
                 Content = chapter.Content,
                 ImageUrls = chapter.Images.OrderBy(i => i.OrderIndex).Select(i => i.ImageUrl).ToList(),
                 ServerId = chapter.ServerId,
-                CreatedAt = chapter.CreatedAt,
-                Price = chapter.Price,
-                Discount = chapter.Discount
+                CreatedAt = chapter.CreatedAt
             };
             ViewData["StoryId"] = new SelectList(_context.Stories.Where(s => !s.IsDeleted), "Id", "StoryName", chapter.StoryId);
             return View(nameof(Create), chapterVM);
@@ -243,8 +239,6 @@ namespace WibuHub.Controllers
                     chapter.Slug = chapterVM.Slug.Trim();
                     chapter.Content = string.Join(Environment.NewLine, imageUrls);
                     chapter.ServerId = chapterVM.ServerId;
-                    chapter.Price = chapterVM.Price;
-                    chapter.Discount = chapterVM.Discount;
                     _context.ChapterImages.RemoveRange(chapter.Images);
                     chapter.Images = imageUrls
                         .Select((url, index) => new ChapterImage

@@ -29,11 +29,6 @@ namespace WibuHub.ApplicationCore.DTOs.Shared
         public int ServerId { get; set; } = 1;
         [Display(Name = "Ngày tạo")]
         public DateTime CreateDate { get; set; } = DateTime.UtcNow;
-        [Display(Name = "Giá")]
-        public decimal Price { get; set; } = 0;
-        [Display(Name = "Giảm giá")]
-        public decimal Discount { get; set; } = 0;
-
         // Ảnh đã lưu (để trả về)
         public List<string> ImageUrls { get; set; } = new();
 

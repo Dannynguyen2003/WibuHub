@@ -35,23 +35,22 @@ namespace WibuHub.MVC.Customer.Controllers
         public async Task<IActionResult> Index()
         {
             var cart = GetCart();
-            var chapters = await _context.Chapters
+            var stories = await _context.Stories
                 .AsNoTracking()
-                .OrderByDescending(c => c.CreatedAt)
+                .OrderByDescending(s => s.CreatedAt)
                 .Take(12)
-                .Select(c => new ChapterCatalogItem
+                .Select(s => new StoryCatalogItem
                 {
-                    Id = c.Id,
-                    ChapterName = c.Name,
-                    StoryTitle = c.StoryName,
-                    Price = c.Price
+                    Id = s.Id,
+                    StoryTitle = s.StoryName,
+                    Price = s.Price
                 })
                 .ToListAsync();
 
             var model = new ShoppingCartViewModel
             {
                 Cart = cart,
-                Chapters = chapters,
+                Stories = stories,
                 VipPackages = BuildVipPackages()
             };
 
@@ -67,31 +66,30 @@ namespace WibuHub.MVC.Customer.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddChapter(Guid idChapter, int quantity = 1)
+        public async Task<IActionResult> AddStory(Guid idStory, int quantity = 1)
         {
             if (quantity < 1)
             {
                 quantity = 1;
             }
 
-            var chapter = await _context.Chapters.AsNoTracking().FirstOrDefaultAsync(c => c.Id == idChapter);
-            if (chapter == null)
+            var story = await _context.Stories.AsNoTracking().FirstOrDefaultAsync(s => s.Id == idStory);
+            if (story == null)
             {
                 return NotFound();
             }
 
             var cart = GetCart();
-            var item = cart.Items.FirstOrDefault(i => i.ChapterId == idChapter);
+            var item = cart.Items.FirstOrDefault(i => i.StoryId == idStory);
             if (item == null)
             {
                 cart.Items.Add(new CartItem
                 {
                     Id = Guid.NewGuid(),
                     CartId = cart.Id,
-                    ChapterId = idChapter,
-                    ChapterName = chapter.Name,
-                    StoryTitle = chapter.StoryName,
-                    Price = chapter.Price,
+                    StoryId = idStory,
+                    StoryTitle = story.StoryName,
+                    Price = story.Price,
                     Quantity = quantity
                 });
             }
@@ -116,16 +114,15 @@ namespace WibuHub.MVC.Customer.Controllers
             }
 
             var cart = GetCart();
-            var item = cart.Items.FirstOrDefault(i => i.ChapterId == Guid.Empty && i.ChapterName == package.Name);
+            var item = cart.Items.FirstOrDefault(i => i.StoryId == Guid.Empty && i.StoryTitle == package.Name);
             if (item == null)
             {
                 cart.Items.Add(new CartItem
                 {
                     Id = Guid.NewGuid(),
                     CartId = cart.Id,
-                    ChapterId = Guid.Empty,
-                    ChapterName = package.Name,
-                    StoryTitle = "Gói VIP",
+                    StoryId = Guid.Empty,
+                    StoryTitle = package.Name,
                     Price = package.Price,
                     Quantity = 1
                 });
@@ -239,12 +236,12 @@ namespace WibuHub.MVC.Customer.Controllers
 
             await _context.Orders.AddAsync(order);
 
-            foreach (var item in cart.Items.Where(i => i.ChapterId != Guid.Empty))
+            foreach (var item in cart.Items.Where(i => i.StoryId != Guid.Empty))
             {
                 var detail = new OrderDetail
                 {
                     OrderId = order.Id,
-                    ChapterId = item.ChapterId,
+                    StoryId = item.StoryId,
                     Quantity = item.Quantity,
                     UnitPrice = item.Price,
                     Amount = item.Total,
@@ -346,13 +343,13 @@ namespace WibuHub.MVC.Customer.Controllers
 
         private static string BuildVipNote(Cart cart)
         {
-            var vipItems = cart.Items.Where(i => i.ChapterId == Guid.Empty).ToList();
+            var vipItems = cart.Items.Where(i => i.StoryId == Guid.Empty).ToList();
             if (vipItems.Count == 0)
             {
                 return string.Empty;
             }
 
-            return "Đăng ký VIP: " + string.Join(", ", vipItems.Select(i => $"{i.ChapterName} x{i.Quantity}"));
+            return "Đăng ký VIP: " + string.Join(", ", vipItems.Select(i => $"{i.StoryTitle} x{i.Quantity}"));
         }
     }
 }

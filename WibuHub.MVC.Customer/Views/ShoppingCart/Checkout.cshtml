@@ -12,6 +12,10 @@
         <a class="cart-checkout-link" asp-action="Index">Quay lại giỏ hàng</a>
     </div>
 
+@section Scripts {
+    <script src="~/js/unsaved-guard.js" asp-append-version="true"></script>
+}
+
     @if (TempData["PaymentError"] != null)
     {
         <div class="cart-alert">
@@ -26,7 +30,6 @@
                 <div class="cart-item">
                     <div>
                         <div class="cart-item-title">@item.StoryTitle</div>
-                        <div class="cart-item-sub">@item.ChapterName</div>
                     </div>
                     <div class="cart-item-actions">
                         <span class="cart-price">@item.Price.ToString("N0") đ</span>
@@ -48,7 +51,7 @@
             <strong>@totalAmount.ToString("N0") đ</strong>
         </div>
 
-        <form asp-action="PayWithMomo" method="post">
+        <form asp-action="PayWithMomo" method="post" data-unsaved-guard="true" data-unsaved-always="true">
             @Html.AntiForgeryToken()
             <button type="submit" class="cart-checkout">Thanh toán bằng MoMo</button>
         </form>

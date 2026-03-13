@@ -332,7 +332,7 @@
                     @foreach (var detail in Model.OrderDetails)
                     {
                         <tr>
-                            <td>@(detail.Chapter?.Name ?? "Chýa c?p nh?t")</td>
+                            <td>@(detail.Story?.StoryName ?? "Chýa c?p nh?t")</td>
                             <td>@detail.UnitPrice.ToString("N0")ð</td>
                             <td>@detail.Quantity</td>
                             <td>@detail.Amount.ToString("N0")ð</td>

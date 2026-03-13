@@ -5,15 +5,14 @@ namespace WibuHub.MVC.Customer.ViewModels.ShoppingCart
     public class ShoppingCartViewModel
     {
         public Cart Cart { get; set; } = new();
-        public List<ChapterCatalogItem> Chapters { get; set; } = new();
+        public List<StoryCatalogItem> Stories { get; set; } = new();
         public List<VipPackageItem> VipPackages { get; set; } = new();
     }
 
-    public class ChapterCatalogItem
+    public class StoryCatalogItem
     {
         public Guid Id { get; set; }
         public string StoryTitle { get; set; } = string.Empty;
-        public string ChapterName { get; set; } = string.Empty;
         public decimal Price { get; set; }
     }
 

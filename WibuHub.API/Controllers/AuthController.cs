@@ -1,4 +1,4 @@
-using System.IdentityModel.Tokens.Jwt;
+ï»¿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
@@ -41,18 +41,18 @@ namespace WibuHub.API.Controllers
 
             if (user == null)
             {
-                return Unauthorized(new { message = "Thông tin ðãng nh?p không h?p l?." });
+                return Unauthorized(new { message = "ThÃ´ng tin Ä‘Äƒng nháº­p khÃ´ng há»£p lá»‡." });
             }
 
             var passwordValid = await _userManager.CheckPasswordAsync(user, request.Password);
             if (!passwordValid)
             {
-                return Unauthorized(new { message = "Thông tin ðãng nh?p không h?p l?." });
+                return Unauthorized(new { message = "ThÃ´ng tin Ä‘Äƒng nháº­p khÃ´ng há»£p lá»‡." });
             }
 
             if (_userManager.Options.SignIn.RequireConfirmedEmail && !user.EmailConfirmed)
             {
-                return Unauthorized(new { message = "Email chýa ðý?c xác nh?n." });
+                return Unauthorized(new { message = "Email chÆ°a Ä‘Æ°á»£c xÃ¡c nháº­n." });
             }
 
             var roles = await _userManager.GetRolesAsync(user);

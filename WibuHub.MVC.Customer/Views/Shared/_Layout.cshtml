@@ -161,7 +161,7 @@
                 <a href="#" class="mobile-menu-item active" id="mobileHome"><i class="fas fa-home"></i> Trang chủ</a>
                 <a href="#" class="mobile-menu-item" id="mobileNew"><i class="fas fa-history"></i> Mới cập nhật</a>
                 <a href="#" class="mobile-menu-item" id="mobileHot"><i class="fas fa-fire"></i> Hot nhất</a>
-                <a asp-controller="Categories" asp-action="Index" class="mobile-menu-item" id="mobileGenre"><i class="fas fa-tags"></i> Thể loại</a>
+                <a asp-controller="Categories" asp-action="Index" asp-route-id="" class="mobile-menu-item" id="mobileGenre"><i class="fas fa-tags"></i> Thể loại</a>
                 <a href="#" class="mobile-menu-item" id="mobileRank"><i class="fas fa-crown"></i> BXH</a>
                 <a href="#" class="mobile-menu-item" id="mobileCompleted"><i class="fas fa-check-circle"></i> Hoàn thành</a>
                 <a href="#" class="mobile-menu-item" id="mobileGroups"><i class="fas fa-users"></i> Nhóm dịch</a>
@@ -177,7 +177,7 @@
                 <span class="nav-item nav-item-static" id="tabGenre">Thể loại <i class="fas fa-chevron-down"></i></span>
                 <div class="genre-dropdown">
                     <div class="genre-column">
-                        <a class="genre-link genre-link-all" asp-controller="Categories" asp-action="Index">Tất cả</a>
+                        <a class="genre-link genre-link-all" asp-controller="Categories" asp-action="Index" asp-route-id="">Tất cả</a>
                         @foreach (var category in categories.Take(categoriesPerColumn))
                         {
                             <a class="genre-link" asp-controller="Categories" asp-action="Index" asp-route-id="@category.Id">@category.Name</a>

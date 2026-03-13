@@ -52,6 +52,8 @@ namespace WibuHub.MVC.ViewComponents
                     AlternativeName = s.AlternativeName,
                     Description = s.Description,
                     Slug = s.Slug,
+                    Price = s.Price,
+                    Discount = s.Discount,
                     Status = s.Status,
                     ViewCount = s.ViewCount,
                     FollowCount = s.FollowCount,

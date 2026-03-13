@@ -1,4 +1,4 @@
-@using System.Globalization
+﻿@using System.Globalization
 @model WibuHub.MVC.Customer.ViewModels.ChapterReadViewModel
 
 @{
@@ -29,12 +29,12 @@
 <div class="chapter-read-page">
     <div class="chapter-read-header">
         <h2>@chapterTitle</h2>
-        <div class="chapter-updated">[C?p nh?t l�c: @updatedAt]</div>
+        <div class="chapter-updated">[C?p nh?t lúc: @updatedAt]</div>
     </div>
 
     <div class="chapter-warning">
         <i class="fas fa-exclamation-triangle"></i>
-        N?u kh�ng xem ��?c truy?n vui l?ng �?i "SERVER ?NH" b�n d�?i
+        Nếu không xem được truyện vui lòng đổi "SERVER ẢNH" bên dưới
     </div>
 
     <div class="chapter-toolbar">
@@ -42,7 +42,7 @@
             <button class="chapter-server active" type="button">Server 1</button>
             <button class="chapter-server" type="button">Server 2</button>
         </div>
-        <button class="chapter-report" type="button"><i class="fas fa-flag"></i> B�o l?i</button>
+        <button class="chapter-report" type="button"><i class="fas fa-flag"></i> Báo lỗi</button>
     </div>
 
     <div class="chapter-nav">
@@ -59,7 +59,7 @@
         <a class="chapter-nav-btn @(nextChapter == null ? "disabled" : "")" href="@(nextChapter == null ? "#" : BuildChapterUrl(nextChapter))">
             <i class="fas fa-chevron-right"></i>
         </a>
-        <div class="chapter-nav-hint">S? d?ng m?i t�n tr�i (?) ho?c ph?i (?) �? chuy?n chapter</div>
+        <div class="chapter-nav-hint">Sử dụng mũi tên trái (←) hoặc phải (→)) để chuyển chapter</div>
     </div>
 
     <div class="chapter-content">
@@ -79,7 +79,7 @@
         }
         else
         {
-            <div class="chapter-placeholder">Trang 1 - N?i dung truy?n s? hi?n th? ? ��y</div>
+            <div class="chapter-placeholder">Trang 1 - Nội dung truyện sẽ hiển thị ở đây</div>
         }
     </div>
     <div class="chapter-bottom-bar">
@@ -93,7 +93,7 @@
                 @foreach (var item in orderedChapters)
                 {
                     var url = BuildChapterUrl(item);
-                    <option value="@url" selected="@(item.Id == chapter.Id)">Ch��ng @item.ChapterNumber</option>
+                    <option value="@url" selected="@(item.Id == chapter.Id)">Chương @item.ChapterNumber</option>
                 }
             </select>
             <a class="chapter-bar-btn @(nextChapter == null ? "disabled" : "")" href="@(nextChapter == null ? "#" : BuildChapterUrl(nextChapter))">
@@ -107,7 +107,7 @@
                     <input type="hidden" name="returnUrl" value="@Context.Request.Path" />
                     <button class="chapter-bar-follow" type="submit">
                         <i class="@(Model.IsFollowed ? "fas fa-heart" : "far fa-heart")"></i>
-                        @(Model.IsFollowed ? "�? theo d?i" : "Theo d?i")
+                        @(Model.IsFollowed ? "Đã theo dõi" : "Theo dõi")
                     </button>
                 </form>
             }
@@ -115,7 +115,7 @@
             {
                 <button class="chapter-bar-follow" type="button" data-open-login="true">
                     <i class="far fa-heart"></i>
-                    Theo d?i
+                    Theo dõi
                 </button>
             }
         </div>

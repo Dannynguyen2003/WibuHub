@@ -23,6 +23,10 @@ namespace WibuHub.ApplicationCore.DTOs.Shared
 
         [Display(Name = "Ảnh bìa")]
         public string? CoverImage { get; set; }
+        [Display(Name = "Giá bán")]
+        public decimal Price { get; set; }
+        [Display(Name = "Giảm giá")]
+        public decimal Discount { get; set; }
         [Display(Name = "Trạng thái")]
         public string? Status { get; set; }
         [Display(Name = "Ngày tạo")]

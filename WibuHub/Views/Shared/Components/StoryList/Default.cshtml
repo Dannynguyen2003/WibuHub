@@ -10,6 +10,8 @@
             <th style="width: 12%">Trạng thái</th>
             <th style="width: 8%">Lượt xem</th>
             <th style="width: 8%">Theo dõi</th>
+            <th style="width: 8%">Giá</th>
+            <th style="width: 8%">Giảm giá</th>
             <th style="width: 10%">Ngày tạo</th>
             <th style="width: 12%" class="text-center">Thao tác</th>
         </tr>
@@ -52,6 +54,8 @@
                     </td>
                     <td>@item.ViewCount</td>
                     <td>@item.FollowCount</td>
+                    <td>@item.Price.ToString("N0")</td>
+                    <td>@item.Discount.ToString("N0")</td>
                     <td>@item.CreatedAt.ToString("dd/MM/yyyy")</td>
                     <td class="action-cell">
                         <a asp-action="Edit" asp-route-id="@item.Id"
@@ -70,7 +74,7 @@
         else
         {
             <tr>
-                <td colspan="10" class="text-center">Chưa có truyện nào được tạo.</td>
+                <td colspan="12" class="text-center">Chưa có truyện nào được tạo.</td>
             </tr>
         }
     </tbody>
@@ -78,7 +82,7 @@
 @if (Model != null && Model.TotalPages > 1)
 {
     <nav class="mt-3">
-        <ul class="pagination justify-content-end">
+        <ul class="pagination justify-content-center">
             <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
                 <a class="page-link" href="javascript:void(0)" onclick="refreshStoryList(@(Model.PageIndex - 1))">&laquo;</a>
             </li>

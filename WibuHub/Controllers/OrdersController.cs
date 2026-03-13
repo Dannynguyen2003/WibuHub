@@ -68,7 +68,7 @@ namespace WibuHub.Controllers
 
             var order = await _context.Orders
                 .Include(o => o.OrderDetails)
-                .ThenInclude(od => od.Chapter)
+                .ThenInclude(od => od.Story)
                 .FirstOrDefaultAsync(o => o.Id == id);
 
             if (order == null)

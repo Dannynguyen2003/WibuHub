@@ -13,8 +13,8 @@ namespace WibuHub.ApplicationCore.Entities
         public Guid OrderId { get; set; }
         public virtual Order Order { get; set; }
 
-        public Guid ChapterId { get; set; }
-        public virtual Chapter Chapter { get; set; }
+        public Guid StoryId { get; set; }
+        public virtual Story Story { get; set; }
 
         public int Quantity { get; set; }
         public decimal UnitPrice { get; set; }

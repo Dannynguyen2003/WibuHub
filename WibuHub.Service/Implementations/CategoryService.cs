@@ -53,7 +53,8 @@ namespace WibuHub.Service.Implementations
                 {
                     Id = Guid.NewGuid(),
                     Name = request.Name,
-                    Description = request.Description
+                    Description = request.Description,
+                    CreatedAt = DateTime.UtcNow
                 };
 
                 _context.Categories.Add(entity);

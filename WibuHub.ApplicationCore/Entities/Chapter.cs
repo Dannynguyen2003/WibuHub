@@ -56,12 +56,6 @@ namespace WibuHub.ApplicationCore.Entities
         [Description("Ngày tạo")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        // UnlockPrice: money
-        // Dùng decimal cho tiền tệ trong C#, map sang "money" trong SQL
-        [Column(TypeName = "money")]
-        public decimal Price { get; set; } = 0;
-        public decimal Discount { get; set; }
-
         public bool IsDeleted { get; set; } = false;
         public DateTime? DeletedAt { get; set; }
 

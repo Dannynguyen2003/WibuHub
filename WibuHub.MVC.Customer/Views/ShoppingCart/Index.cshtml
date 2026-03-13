@@ -12,26 +12,25 @@
 
     <div class="cart-grid">
         <section class="cart-section">
-            <h2>Chọn chương để mua</h2>
+            <h2>Chọn truyện để mua</h2>
             <div class="cart-list">
-                @if (Model.Chapters.Count == 0)
+                @if (Model.Stories.Count == 0)
                 {
-                    <p class="cart-empty">Chưa có chương nào để hiển thị.</p>
+                    <p class="cart-empty">Chưa có truyện nào để hiển thị.</p>
                 }
                 else
                 {
-                    foreach (var chapter in Model.Chapters)
+                    foreach (var story in Model.Stories)
                     {
                         <div class="cart-card">
                             <div class="cart-card-info">
-                                <div class="cart-card-title">@chapter.StoryTitle</div>
-                                <div class="cart-card-sub">@chapter.ChapterName</div>
+                                <div class="cart-card-title">@story.StoryTitle</div>
                             </div>
                             <div class="cart-card-actions">
-                                <span class="cart-price">@chapter.Price.ToString("N0") đ</span>
-                                <form asp-action="AddChapter" method="post">
+                                <span class="cart-price">@story.Price.ToString("N0") đ</span>
+                                <form asp-action="AddStory" method="post">
                                     @Html.AntiForgeryToken()
-                                    <input type="hidden" name="idChapter" value="@chapter.Id" />
+                                    <input type="hidden" name="idStory" value="@story.Id" />
                                     <input type="hidden" name="quantity" value="1" />
                                     <button type="submit" class="cart-btn">Thêm vào giỏ</button>
                                 </form>

@@ -111,7 +111,7 @@
     <section class="cart-section">
         @if (Model.Items.Count == 0)
         {
-            <p class="cart-empty">Giỏ hàng đang trống. Hãy chọn chương hoặc gói VIP để mua.</p>
+            <p class="cart-empty">Giỏ hàng đang trống. Hãy chọn truyện hoặc gói VIP để mua.</p>
         }
         else
         {
@@ -121,7 +121,6 @@
                     <div class="cart-item">
                         <div>
                             <div class="cart-item-title">@item.StoryTitle</div>
-                            <div class="cart-item-sub">@item.ChapterName</div>
                         </div>
                         <div class="cart-item-actions">
                             <span class="cart-price">@item.Price.ToString("N0") đ</span>

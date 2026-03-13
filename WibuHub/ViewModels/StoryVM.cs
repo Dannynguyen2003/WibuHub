@@ -7,7 +7,7 @@ using WibuHub.ApplicationCore.Entities;
 
 namespace WibuHub.MVC.ViewModels
 {
-[Bind("Id,Title,AlternativeName,Description,Slug,Status,ViewCount,FollowCount,RatingScore,CreatedAt,UpdateDate,AuthorId,CategoryId,CategoryIds,CoverImage,CoverImageFile")]
+[Bind("Id,Title,AlternativeName,Description,Slug,Price,Discount,Status,ViewCount,FollowCount,RatingScore,CreatedAt,UpdateDate,AuthorId,CategoryId,CategoryIds,CoverImage,CoverImageFile")]
     public class StoryVM
     {
         [Key]
@@ -31,6 +31,12 @@ namespace WibuHub.MVC.ViewModels
         [MaxLength(150)]
         [Column(TypeName = "varchar(150)")]
         public string Slug { get; set; } = string.Empty;
+
+        [Range(0, double.MaxValue)]
+        public decimal Price { get; set; }
+
+        [Range(0, double.MaxValue)]
+        public decimal Discount { get; set; }
 
         // Status: tinyint (0: Đang tiến hành, 1: Hoàn thành, 2: Tạm ngưng)
         // Map int của C# sang tinyint của SQL

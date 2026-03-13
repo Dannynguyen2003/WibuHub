@@ -1,4 +1,4 @@
-@using System.Globalization
+ï»¿@using System.Globalization
 @model WibuHub.MVC.Customer.ViewModels.RankingStoriesViewModel
 
 @{
@@ -8,12 +8,12 @@
 <div class="category-page">
     <div class="category-page-header">
         <h2>@Model.Title</h2>
-        <span>@Model.Stories.Count truy?n</span>
+        <span>@Model.Stories.Count truyá»‡n</span>
     </div>
 
     @if (Model.Stories.Count == 0)
     {
-        <div class="category-empty">Chýa có truy?n trong b?ng x?p h?ng này.</div>
+        <div class="category-empty">ChÆ°a cÃ³ truyá»‡n trong báº£ng xáº¿p háº¡ng nÃ y.</div>
     }
     else
     {
@@ -25,26 +25,20 @@
                     : (story.CoverImage.StartsWith("http", StringComparison.OrdinalIgnoreCase)
                         ? story.CoverImage
                         : Url.Content($"~/{story.CoverImage.TrimStart('/') }"));
-                var updatedAt = story.UpdateDate.ToLocalTime();
-                var timeSpan = DateTime.Now - updatedAt;
+                var createdAt = story.CreatedAt.ToLocalTime();
+                var timeSpan = DateTime.Now - createdAt;
                 var timeLabel = timeSpan.TotalHours < 24
-                    ? $"{Math.Max(1, (int)Math.Round(timeSpan.TotalHours))} Gi? Trý?c"
-                    : $"{Math.Max(1, (int)Math.Round(timeSpan.TotalDays))} Ngày Trý?c";
+                    ? $"{Math.Max(1, (int)Math.Round(timeSpan.TotalHours))} Giá» TrÆ°á»›c"
+                    : $"{Math.Max(1, (int)Math.Round(timeSpan.TotalDays))} NgÃ y TrÆ°á»›c";
                 var latestChapter = story.Chapters?
                     .OrderByDescending(c => c.ChapterNumber)
                     .FirstOrDefault();
-                var chapterLabel = latestChapter != null ? $"Chýõng {latestChapter.ChapterNumber}" : "Chýa có chýõng";
+                var chapterLabel = latestChapter != null ? $"ChÆ°Æ¡ng {latestChapter.ChapterNumber}" : "ChÆ°a cÃ³ chÆ°Æ¡ng";
                 var storySlug = string.IsNullOrWhiteSpace(story.Slug) ? story.StoryName : story.Slug;
-                var chapterUrl = latestChapter == null
-                    ? "#"
-                    : Url.RouteUrl("ChapterReadSeo", new
-                    {
-                        storySlug,
-                        chapterNumber = latestChapter.ChapterNumber.ToString(CultureInfo.InvariantCulture)
-                    }) ?? "#";
+                var storyUrl = Url.Action("Details", "Stories", new { id = story.Id }) ?? "#";
                 var isHot = story.ViewCount >= 10000;
                 <div class="category-card">
-                    <a class="category-cover" href="@chapterUrl" style="@(string.IsNullOrWhiteSpace(coverImage) ? string.Empty : $"background-image:url('{coverImage}')")">
+                    <a class="category-cover" href="@storyUrl" style="@(string.IsNullOrWhiteSpace(coverImage) ? string.Empty : $"background-image:url('{coverImage}')")">
                         <div class="category-badges">
                             <span class="category-badge">@timeLabel</span>
                             @if (isHot)
@@ -54,7 +48,7 @@
                         </div>
                     </a>
                     <div class="category-info">
-                        <a class="category-title" href="@chapterUrl">@story.StoryName</a>
+                        <a class="category-title" href="@storyUrl">@story.StoryName</a>
                         <div class="category-chapter">@chapterLabel</div>
                     </div>
                 </div>

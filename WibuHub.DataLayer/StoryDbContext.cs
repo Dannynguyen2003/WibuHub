@@ -122,6 +122,8 @@ namespace WibuHub.DataLayer
                 entity.HasKey(s => s.Id);
                 entity.Property(s => s.StoryName).HasMaxLength(255).IsRequired();
                 entity.Property(s => s.Status).HasColumnType("tinyint");
+                entity.Property(s => s.Price).HasColumnType("money").HasPrecision(18, 2);
+                entity.Property(s => s.Discount).HasColumnType("money").HasPrecision(18, 2);
 
                 // Author relationship
                 entity.HasOne(s => s.Author)
@@ -141,8 +143,6 @@ namespace WibuHub.DataLayer
             {
                 entity.ToTable("Chapters");
                 entity.HasKey(c => c.Id);
-                entity.Property(c => c.Price).HasColumnType("money").HasPrecision(18, 2);
-                entity.Property(c => c.Discount).HasPrecision(5, 2);
                 entity.HasIndex(c => new { c.StoryId, c.ChapterNumber });
 
                 entity.HasOne(c => c.Story)
@@ -266,7 +266,7 @@ namespace WibuHub.DataLayer
             modelBuilder.Entity<OrderDetail>(entity =>
             {
                 entity.ToTable("OrderDetails");
-                entity.HasKey(od => new { od.OrderId, od.ChapterId });
+                entity.HasKey(od => new { od.OrderId, od.StoryId });
                 entity.Property(od => od.UnitPrice).HasColumnType("money").HasPrecision(18, 2);
                 entity.Property(od => od.Amount).HasColumnType("money").HasPrecision(18, 2);
 
@@ -275,9 +275,9 @@ namespace WibuHub.DataLayer
                       .HasForeignKey(od => od.OrderId)
                       .OnDelete(DeleteBehavior.Cascade);
 
-                entity.HasOne(od => od.Chapter)
+                entity.HasOne(od => od.Story)
                       .WithMany()
-                      .HasForeignKey(od => od.ChapterId)
+                      .HasForeignKey(od => od.StoryId)
                       .OnDelete(DeleteBehavior.Restrict);
             });
         }

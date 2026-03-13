@@ -94,6 +94,8 @@ namespace WibuHub.Areas.Admin.Controllers
                     Slug = string.IsNullOrEmpty(storyVM.Slug)
                            ? GenerateSlug(storyVM.Title)
                            : storyVM.Slug.Trim(),
+                    Price = storyVM.Price,
+                    Discount = storyVM.Discount,
                     Status = storyVM.Status,
                     ViewCount = 0,
                     FollowCount = 0,
@@ -166,6 +168,8 @@ namespace WibuHub.Areas.Admin.Controllers
                 AlternativeName = story.AlternativeName,
                 Description = story.Description,
                 Slug = story.Slug,
+                    Price = story.Price,
+                    Discount = story.Discount,
                 Status = story.Status,
                 ViewCount = story.ViewCount,
                 FollowCount = story.FollowCount,
@@ -222,6 +226,8 @@ namespace WibuHub.Areas.Admin.Controllers
                     story.AlternativeName = storyVM.AlternativeName?.Trim();
                     story.Description = storyVM.Description?.Trim();
                     story.Slug = storyVM.Slug.Trim();
+                    story.Price = storyVM.Price;
+                    story.Discount = storyVM.Discount;
                     story.Status = storyVM.Status;
                     story.AuthorId = storyVM.AuthorId;
                     story.CategoryId = selectedCategoryIds.First();

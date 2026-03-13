@@ -42,6 +42,15 @@ namespace WibuHub.MVC.Customer.Controllers
                     isFollowed = await _context.Follows
                         .AsNoTracking()
                         .AnyAsync(f => f.UserId == userGuid && f.StoryId == story.Id);
+
+                    var continueChapterNumber = await _context.Histories
+                        .AsNoTracking()
+                        .Where(h => h.UserId == userGuid && h.StoryId == story.Id)
+                        .OrderByDescending(h => h.ReadTime)
+                        .Select(h => (double?)h.Chapter.ChapterNumber)
+                        .FirstOrDefaultAsync();
+
+                    ViewData["ContinueChapterNumber"] = continueChapterNumber;
                 }
             }
 

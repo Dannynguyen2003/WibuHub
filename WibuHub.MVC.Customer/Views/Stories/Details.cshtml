@@ -1,4 +1,5 @@
-@using System.Globalization
+﻿@using System.Globalization
+@using WibuHub.ApplicationCore.Entities
 @model WibuHub.ApplicationCore.Entities.Story
 
 @{
@@ -13,15 +14,44 @@
         : Model.Slug;
     var statusText = Model.Status switch
     {
-        1 => "Ho�n th�nh",
-        2 => "T?m ng�ng",
-        _ => "�ang ti?n h�nh"
+        1 => "Hoàn thành",
+        2 => "Tạm ngưng",
+        _ => "Đang tiến hành"
     };
     var authorName = !string.IsNullOrWhiteSpace(Model.AuthorName)
         ? Model.AuthorName
-        : Model.Author?.Name ?? "�ang c?p nh?t";
+        : Model.Author?.Name ?? "Đang cập nhật";
     var createdDate = Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy");
-    var chapterCount = Model.Chapters?.Count ?? 0;
+    var orderedChapters = (Model.Chapters ?? Array.Empty<Chapter>())
+        .OrderBy(c => c.ChapterNumber)
+        .ToList();
+    var chapterCount = orderedChapters.Count;
+    var firstChapter = orderedChapters.FirstOrDefault();
+    var latestChapter = orderedChapters.LastOrDefault();
+    var continueChapterNumber = ViewData["ContinueChapterNumber"] is double number
+        ? number
+        : (double?)null;
+    var firstChapterUrl = firstChapter == null
+        ? "#"
+        : Url.RouteUrl("ChapterReadSeo", new
+        {
+            storySlug,
+            chapterNumber = firstChapter.ChapterNumber.ToString(CultureInfo.InvariantCulture)
+        }) ?? "#";
+    var latestChapterUrl = latestChapter == null
+        ? "#"
+        : Url.RouteUrl("ChapterReadSeo", new
+        {
+            storySlug,
+            chapterNumber = latestChapter.ChapterNumber.ToString(CultureInfo.InvariantCulture)
+        }) ?? "#";
+    var continueChapterUrl = continueChapterNumber.HasValue
+        ? Url.RouteUrl("ChapterReadSeo", new
+        {
+            storySlug,
+            chapterNumber = continueChapterNumber.Value.ToString(CultureInfo.InvariantCulture)
+        }) ?? "#"
+        : "#";
     var categories = Model.StoryCategories
         .Select(sc => sc.Category?.Name)
         .Where(name => !string.IsNullOrWhiteSpace(name))
@@ -31,7 +61,7 @@
     {
         categories.Add(Model.Category.Name);
     }
-    var categoryDisplay = categories.Any() ? string.Join(", ", categories) : "�ang c?p nh?t";
+    var categoryDisplay = categories.Any() ? string.Join(", ", categories) : "Đang cập nhật";
     var ratingValue = Math.Clamp((int)Math.Round(Model.RatingScore), 0, 5);
     var isFollowed = (ViewData["IsFollowed"] as bool?) ?? false;
 }
@@ -45,19 +75,19 @@
             <h1 class="story-detail-title">@Model.StoryName</h1>
             <div class="story-detail-stats">
                 <div class="story-detail-stat">
-                    <span class="stat-label">T�c gi?</span>
+                    <span class="stat-label">Tác giả</span>
                     <span class="stat-value">@authorName</span>
                 </div>
                 <div class="story-detail-stat">
-                    <span class="stat-label">T?nh tr?ng</span>
+                    <span class="stat-label">Tình trạng</span>
                     <span class="stat-value">@statusText</span>
                 </div>
                 <div class="story-detail-stat">
-                    <span class="stat-label">Th? lo?i</span>
+                    <span class="stat-label">Thể loại</span>
                     <span class="stat-value">@categoryDisplay</span>
                 </div>
                 <div class="story-detail-stat">
-                    <span class="stat-label">L�?t xem</span>
+                    <span class="stat-label">Lượt xem</span>
                     <span class="stat-value">@Model.ViewCount</span>
                 </div>
             </div>
@@ -80,33 +110,36 @@
                         <input type="hidden" name="storyId" value="@Model.Id" />
                         <input type="hidden" name="returnUrl" value="@Context.Request.Path" />
                         <button type="submit" class="story-follow-btn @(isFollowed ? "active" : "")">
-                            @(isFollowed ? "�? theo d?i" : "Theo d?i")
+                            @(isFollowed ? "Đã theo dõi" : "Theo dõi")
                         </button>
                     </form>
                 }
                 else
                 {
-                    <button type="button" class="story-follow-btn" data-open-login="true">Theo d?i</button>
+                    <button type="button" class="story-follow-btn" data-open-login="true">Theo dõi</button>
                 }
-                <span>@Model.FollowCount.ToString("N0") Ng�?i �? theo d?i</span>
+                <span>@Model.FollowCount.ToString("N0") Người đã theo dõi</span>
             </div>
             <div class="story-detail-actions">
-                <button type="button" class="story-action primary">�?c t? �?u</button>
-                <button type="button" class="story-action primary">�?c m?i nh?t</button>
-                <button type="button" class="story-action outline">�?c ti?p &gt;</button>
+                <a class="story-action primary" href="@firstChapterUrl">Đọc từ đầu</a>
+                <a class="story-action primary" href="@latestChapterUrl">Đọc mới nhất</a>
+                @if (User?.Identity?.IsAuthenticated == true && continueChapterNumber.HasValue)
+                {
+                    <a class="story-action outline" href="@continueChapterUrl">Đọc tiếp &gt;</a>
+                }
             </div>
         </div>
     </div>
     <div class="story-detail-description">
-        <h3>N?I DUNG TRUY?N</h3>
-        <p>@(string.IsNullOrWhiteSpace(Model.Description) ? "Ch�a c� m� t?." : Model.Description)</p>
+        <h3>NỘI DUNG TRUYỆN</h3>
+        <p>@(string.IsNullOrWhiteSpace(Model.Description) ? "Chưa có mô tả." : Model.Description)</p>
     </div>
     <div class="story-chapters">
-        <div class="story-chapters-header">Danh s�ch ch��ng</div>
-        @if (Model.Chapters != null && Model.Chapters.Any())
+        <div class="story-chapters-header">Danh sách chương</div>
+        @if (orderedChapters.Any())
         {
             <div class="story-chapters-list">
-                @foreach (var chapter in Model.Chapters.OrderByDescending(c => c.ChapterNumber))
+                @foreach (var chapter in orderedChapters.OrderByDescending(c => c.ChapterNumber))
                 {
                     var chapterUrl = Url.RouteUrl("ChapterReadSeo", new
                     {
@@ -115,7 +148,7 @@
                     });
                     chapterUrl ??= "#";
                     <a class="story-chapter-item" href="@chapterUrl">
-                        <span>Ch��ng @chapter.ChapterNumber</span>
+                        <span>Chương @chapter.ChapterNumber</span>
                         <span class="chapter-date">@chapter.CreatedAt.ToString("dd/MM/yyyy")</span>
                     </a>
                 }
@@ -123,7 +156,7 @@
         }
         else
         {
-            <div class="story-chapters-empty">Ch�a c� ch��ng.</div>
+            <div class="story-chapters-empty">Chưa có chương.</div>
         }
     </div>
 </div>
