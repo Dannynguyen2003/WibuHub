@@ -669,38 +669,173 @@
         const loginError = document.getElementById('loginError');
         const registerError = document.getElementById('registerError');
 
-        async function submitAuthForm(form, errorEl) {
-            if (!form) {
-                return;
-            }
+            //           async function submitAuthForm(form, errorEl) {
+            // if (!form) return;
+
+            // 1. Lấy dữ liệu từ Form
+            // const formData = new FormData(form);
+            // const dataObject = {};
+            // let antiForgeryToken = ''; Tạo biến để hứng token
+
+            // formData.forEach((value, key) => {
+            //     if (key === '__RequestVerificationToken') {
+            //         antiForgeryToken = value; Nhặt token ra giữ lại
+            //     } else {
+            //         dataObject[key] = value; Các trường khác như email, password... thì bỏ vào object
+            //     }
+            // });
+
+            // if (errorEl) {
+            //     errorEl.classList.remove('active');
+            //     errorEl.textContent = '';
+            // }
+
+            // try {
+            //     2. Gửi request dạng JSON kèm Token trong Header
+            //     const response = await fetch(form.action, {
+            //         method: 'POST',
+            //         headers: {
+            //             'Content-Type': 'application/json',
+            //             Truyền token vào header để backend [ValidateAntiForgeryToken] cho phép đi qua
+            //             'RequestVerificationToken': antiForgeryToken
+            //         },
+            //         body: JSON.stringify(dataObject)
+            //     });
+
+            //     3. Đọc dữ liệu thô
+            //     const textResponse = await response.text();
+            //     let payload = {};
+
+            //     if (textResponse) {
+            //         try {
+            //             payload = JSON.parse(textResponse);
+            //         } catch (e) {
+            //             console.error("Lỗi parse JSON:", e);
+            //         }
+            //     }
+                    // Thêm tham số isRegister để phân biệt form
+        async function submitAuthForm(form, errorEl, isRegister = false) {
+            if (!form) return;
 
             const formData = new FormData(form);
-            const token = formData.get('__RequestVerificationToken');
+            const dataObject = {};
+            let antiForgeryToken = '';
+
+            formData.forEach((value, key) => {
+                if (key === '__RequestVerificationToken') {
+                    antiForgeryToken = value;
+                } else {
+                    dataObject[key] = value;
+                }
+            });
 
             if (errorEl) {
                 errorEl.classList.remove('active');
                 errorEl.textContent = '';
+                // Reset lại màu nền/màu chữ về lỗi (phòng trường hợp trước đó báo thành công)
+                errorEl.style.backgroundColor = '';
+                errorEl.style.color = '';
             }
 
-            const response = await fetch(form.action, {
-                method: 'POST',
-                headers: token ? { 'RequestVerificationToken': token } : {},
-                body: formData
-            });
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': antiForgeryToken
+                    },
+                    body: JSON.stringify(dataObject)
+                });
 
-            const payload = await response.json();
-            if (payload?.success) {
-                if (payload.redirectUrl) {
-                    window.location.href = payload.redirectUrl;
-                } else {
-                    window.location.reload();
+                const textResponse = await response.text();
+                let payload = {};
+                if (textResponse) {
+                    try { payload = JSON.parse(textResponse); } catch (e) {}
                 }
-                return;
-            }
 
-            if (errorEl) {
-                errorEl.textContent = payload?.message || 'Không thể xử lý yêu cầu.';
-                errorEl.classList.add('active');
+                // NẾU API TRẢ VỀ THÀNH CÔNG
+                if (response.ok && payload.success) {
+
+                    // Xử lý riêng cho form Đăng Ký
+                    if (isRegister) {
+                        // 1. Tắt popup đăng ký
+                        const registerModal = document.getElementById('registerModal'); // Sửa ID nếu HTML của bạn khác
+                        if (registerModal) registerModal.classList.remove('active');
+
+                        // 2. Bật popup đăng nhập
+                        const authModal = document.getElementById('authModal'); // Sửa ID nếu HTML của bạn khác
+                        if (authModal) {
+                            authModal.classList.add('active');
+
+                            // 3. Hiển thị thông báo màu xanh lá cây vào popup đăng nhập
+                            const loginError = document.getElementById('loginError');
+                            if (loginError) {
+                                loginError.textContent = payload.message || 'Đăng ký thành công! Vui lòng đăng nhập.';
+                                loginError.classList.add('active');
+                                // Đổi CSS sang màu xanh để báo thành công
+                                loginError.style.backgroundColor = '#d4edda';
+                                loginError.style.color = '#155724';
+                                loginError.style.border = '1px solid #c3e6cb';
+                            }
+                        }
+                        return; // Dừng lại, không cho reload trang
+                    }
+
+                    // Xử lý riêng cho form Đăng Nhập (như cũ)
+                    if (payload.redirectUrl) {
+                        window.location.href = payload.redirectUrl;
+                    } else {
+                        window.location.reload();
+                    }
+                    return;
+                }
+
+                // NẾU API BÁO LỖI (Success = false hoặc HTTP 400)
+                if (errorEl) {
+                    errorEl.textContent = payload?.message || payload?.title || 'Thông tin không hợp lệ.';
+                    errorEl.classList.add('active');
+                }
+
+            } catch (error) {
+                console.error("Lỗi:", error);
+                if (errorEl) {
+                    errorEl.textContent = 'Mất kết nối tới máy chủ. Vui lòng thử lại!';
+                    errorEl.classList.add('active');
+                }
+            }
+        }
+
+                // 4. Xử lý logic khi thành công (Status 200)
+                if (response.ok) {
+                    if (payload.success) { // Thay đổi nhẹ ở đây để bắt cờ success từ AuthResponse C#
+                        if (payload.redirectUrl) {
+                            window.location.href = payload.redirectUrl;
+                        } else {
+                            window.location.reload();
+                        }
+                        return;
+                    } else {
+                        // Đôi khi server trả về 200 OK nhưng logic bên trong báo lỗi (Success = false)
+                        if (errorEl) {
+                            errorEl.textContent = payload.message || 'Có lỗi xảy ra.';
+                            errorEl.classList.add('active');
+                        }
+                        return;
+                    }
+                }
+
+                // 5. Xử lý khi API trả về lỗi HTTP (400, 401...)
+                if (errorEl) {
+                    errorEl.textContent = payload?.message || payload?.title || 'Tài khoản, mật khẩu không hợp lệ hoặc lỗi máy chủ.';
+                    errorEl.classList.add('active');
+                }
+
+            } catch (error) {
+                console.error("Lỗi khi submit form:", error);
+                if (errorEl) {
+                    errorEl.textContent = 'Mất kết nối tới máy chủ. Vui lòng thử lại!';
+                    errorEl.classList.add('active');
+                }
             }
         }
 
@@ -983,7 +1118,16 @@
 
             async function loadStories() {
                 try {
-                    const response = await fetch('/api/stories');
+                    const token = localStorage.getItem('token'); // Hoặc nơi bạn lưu token
+                    const headers = {};
+                    if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                    }
+
+                    const response = await fetch('/api/stories', {
+                        method: 'GET',
+                        headers: headers
+                    });
                     if (!response.ok) {
                         throw new Error('Không tải được danh sách truyện');
                     }

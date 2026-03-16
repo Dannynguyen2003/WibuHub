@@ -18,10 +18,10 @@ namespace WibuHub.MVC.Customer.Controllers
         private readonly RoleManager<StoryRole> _roleManager;
 
         public AuthController(
-            SignInManager<StoryUser> signInManager,
-            UserManager<StoryUser> userManager,
-            IEmailSender emailSender,
-            RoleManager<StoryRole> roleManager)
+          SignInManager<StoryUser> signInManager,
+          UserManager<StoryUser> userManager,
+          IEmailSender emailSender,
+          RoleManager<StoryRole> roleManager)
         {
             _signInManager = signInManager;
             _userManager = userManager;
@@ -30,26 +30,12 @@ namespace WibuHub.MVC.Customer.Controllers
         }
 
         [HttpPost("login")]
-        [ValidateAntiForgeryToken] // Lưu ý: Nếu dùng API thuần với JSON từ frontend khác domain, đôi khi bạn cần bỏ dòng này đi, hoặc setup header gửi token lên.
-        public async Task<IActionResult> Login([FromBody] LoginRequest request)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Login([FromForm] LoginRequest request)
         {
-            if (!ModelState.IsValid) // Thay TryValidateModel bằng ModelState.IsValid
+            if (!TryValidateModel(request))
             {
-                // Lấy tất cả các thông báo lỗi từ ModelState, nối lại thành một chuỗi
-                var errors = ModelState.Values
-                    .SelectMany(v => v.Errors)
-                    .Select(e => e.ErrorMessage)
-                    .ToList();
-
-                var errorMessage = string.Join(" ", errors);
-
-                // Nếu không lấy được lỗi cụ thể, mới dùng câu chung chung
-                if (string.IsNullOrWhiteSpace(errorMessage))
-                {
-                    errorMessage = "Thông tin đăng ký chưa hợp lệ.";
-                }
-
-                return Json(new AuthResponse(false, errorMessage));
+                return Json(new AuthResponse(false, "Thông tin đăng nhập chưa hợp lệ."));
             }
 
             var result = await _signInManager.PasswordSignInAsync(request.Email, request.Password, request.RememberMe, lockoutOnFailure: true);
@@ -73,26 +59,12 @@ namespace WibuHub.MVC.Customer.Controllers
         }
 
         [HttpPost("register")]
-        //[ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register([FromForm] RegisterRequest request)
         {
-            if (!ModelState.IsValid) // Thay TryValidateModel bằng ModelState.IsValid
+            if (!TryValidateModel(request))
             {
-                // Lấy tất cả các thông báo lỗi từ ModelState, nối lại thành một chuỗi
-                var errors = ModelState.Values
-                    .SelectMany(v => v.Errors)
-                    .Select(e => e.ErrorMessage)
-                    .ToList();
-
-                var errorMessage = string.Join(" ", errors);
-
-                // Nếu không lấy được lỗi cụ thể, mới dùng câu chung chung
-                if (string.IsNullOrWhiteSpace(errorMessage))
-                {
-                    errorMessage = "Thông tin đăng ký chưa hợp lệ.";
-                }
-
-                return Json(new AuthResponse(false, errorMessage));
+                return Json(new AuthResponse(false, "Thông tin đăng ký chưa hợp lệ."));
             }
 
             if (!string.Equals(request.Password, request.ConfirmPassword, StringComparison.Ordinal))
@@ -132,10 +104,10 @@ namespace WibuHub.MVC.Customer.Controllers
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
             var callbackUrl = Url.Page(
-                "/Account/ConfirmEmail",
-                pageHandler: null,
-                values: new { area = "Identity", userId = user.Id, code = encodedToken, returnUrl = GetReturnUrl(request.ReturnUrl) },
-                protocol: Request.Scheme);
+              "/Account/ConfirmEmail",
+              pageHandler: null,
+              values: new { area = "Identity", userId = user.Id, code = encodedToken, returnUrl = GetReturnUrl(request.ReturnUrl) },
+              protocol: Request.Scheme);
 
             if (!string.IsNullOrWhiteSpace(callbackUrl))
             {
