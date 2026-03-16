@@ -109,4 +109,47 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<StoryRole>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<StoryUser>>();
+
+    // 1. Vẫn gọi RoleSeeder của ông để nạp danh sách Role
+    await RoleSeeder.SeedRolesAsync(roleManager);
+
+    string superAdminEmail = AppConstants.SuperAdminEmail;
+    string superAdminRole = AppConstants.Roles.SuperAdmin;
+
+    // 2. [TÍNH ĐỘC TÔN] Quét và tước quyền tất cả những kẻ mạo danh
+    var allSuperAdmins = await userManager.GetUsersInRoleAsync(superAdminRole);
+    foreach (var admin in allSuperAdmins)
+    {
+        if (!string.Equals(admin.Email, superAdminEmail, StringComparison.OrdinalIgnoreCase))
+        {
+            await userManager.RemoveFromRoleAsync(admin, superAdminRole);
+        }
+    }
+
+    // 3. Tự động TẠO LẠI nếu tài khoản bị ông lỡ tay xóa
+    var superAdmin = await userManager.FindByEmailAsync(superAdminEmail);
+    if (superAdmin == null)
+    {
+        superAdmin = new StoryUser
+        {
+            UserName = superAdminEmail,
+            Email = superAdminEmail,
+            EmailConfirmed = true // Cho pass luôn để đăng nhập được ngay
+        };
+
+        // Nhớ thay "Admin@123!" bằng mật khẩu mặc định ông muốn set nhé
+        await userManager.CreateAsync(superAdmin, "Admin@123!");
+    }
+
+    // 4. Đảm bảo tài khoản này phải cầm quyền SuperAdmin
+    if (!await userManager.IsInRoleAsync(superAdmin, superAdminRole))
+    {
+        await userManager.AddToRoleAsync(superAdmin, superAdminRole);
+    }
+}
+
 app.Run();

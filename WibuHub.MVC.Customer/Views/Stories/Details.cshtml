@@ -5,7 +5,7 @@
 @{
     ViewData["Title"] = Model.StoryName;
     var coverUrl = string.IsNullOrWhiteSpace(Model.CoverImage)
-        ? "https://via.placeholder.com/240x340?text=No+Cover"
+        ? "https://ui-avatars.com/api/?name=Anonymous&background=E2E8F0&color=475569"
         : (Model.CoverImage.StartsWith("http", StringComparison.OrdinalIgnoreCase)
             ? Model.CoverImage
             : Url.Content($"~/{Model.CoverImage.TrimStart('/') }"));

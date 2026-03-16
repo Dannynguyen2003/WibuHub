@@ -31,7 +31,7 @@ namespace WibuHub.MVC.Customer.Controllers
 
         [HttpPost("login")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login([FromForm] LoginRequest request)
+        public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
             if (!TryValidateModel(request))
             {
@@ -60,7 +60,7 @@ namespace WibuHub.MVC.Customer.Controllers
 
         [HttpPost("register")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register([FromForm] RegisterRequest request)
+        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
             if (!TryValidateModel(request))
             {
@@ -103,15 +103,39 @@ namespace WibuHub.MVC.Customer.Controllers
 
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-            var callbackUrl = Url.Page(
-              "/Account/ConfirmEmail",
-              pageHandler: null,
-              values: new { area = "Identity", userId = user.Id, code = encodedToken, returnUrl = GetReturnUrl(request.ReturnUrl) },
-              protocol: Request.Scheme);
+            //    var callbackUrl = Url.Page(
+            //      "/Account/ConfirmEmail",
+            //      pageHandler: null,
+            //      values: new { area = "Identity", userId = user.Id, code = encodedToken, returnUrl = GetReturnUrl(request.ReturnUrl) },
+            //      protocol: Request.Scheme);
 
-            if (!string.IsNullOrWhiteSpace(callbackUrl))
+            //    if (!string.IsNullOrWhiteSpace(callbackUrl))
+            //    {
+            //        await _emailSender.SendEmailAsync(request.Email, "Xác nhận email", $"Vui lòng xác nhận tài khoản bằng cách <a href='{callbackUrl}'>b?m vào đây</a>.");
+            //    }
+
+            //    return Json(new AuthResponse(true, "Đăng ký thành công. Vui lòng kiểm tra email đã xác nhận tài khoản.", GetReturnUrl(request.ReturnUrl)));
+            var callbackUrl = Url.Page(
+    "/Account/ConfirmEmail",
+    pageHandler: null,
+    values: new { area = "Identity", userId = user.Id, code = encodedToken, returnUrl = GetReturnUrl(request.ReturnUrl) },
+    protocol: Request.Scheme);
+
+            // BỌC TRY-CATCH VÀO ĐÂY
+            try
             {
-                await _emailSender.SendEmailAsync(request.Email, "Xác nhận email", $"Vui lòng xác nhận tài khoản bằng cách <a href='{callbackUrl}'>b?m vào đây</a>.");
+                if (!string.IsNullOrWhiteSpace(callbackUrl))
+                {
+                    await _emailSender.SendEmailAsync(request.Email, "Xác nhận email", $"Vui lòng xác nhận tài khoản bằng cách <a href='{callbackUrl}'>bấm vào đây</a>.");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log lỗi ra để dev biết đường sửa, không làm chết app
+                Console.WriteLine($"[LỖI GỬI EMAIL]: {ex.Message}");
+
+                // Mặc dù gửi mail lỗi nhưng tài khoản ĐÃ VÀO DATABASE, nên vẫn phải báo thành công!
+                return Json(new AuthResponse(true, "Đăng ký thành công nhưng hệ thống đang lỗi gửi mail xác nhận. Vui lòng thử đăng nhập!"));
             }
 
             return Json(new AuthResponse(true, "Đăng ký thành công. Vui lòng kiểm tra email đã xác nhận tài khoản.", GetReturnUrl(request.ReturnUrl)));

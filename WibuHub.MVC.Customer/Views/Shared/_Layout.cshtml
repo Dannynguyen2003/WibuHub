@@ -25,14 +25,14 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/css/layout.css" asp-append-version="true">
-    
+
 </head>
 <body>
-@{
-    var isHomePage = string.Equals(ViewContext.RouteData.Values["controller"]?.ToString(), "Home", StringComparison.OrdinalIgnoreCase)
+    @{
+        var isHomePage = string.Equals(ViewContext.RouteData.Values["controller"]?.ToString(), "Home", StringComparison.OrdinalIgnoreCase)
         && string.Equals(ViewContext.RouteData.Values["action"]?.ToString(), "Index", StringComparison.OrdinalIgnoreCase);
-    var isIdentityArea = string.Equals(ViewContext.RouteData.Values["area"]?.ToString(), "Identity", StringComparison.OrdinalIgnoreCase);
-}
+        var isIdentityArea = string.Equals(ViewContext.RouteData.Values["area"]?.ToString(), "Identity", StringComparison.OrdinalIgnoreCase);
+    }
     <div class="app">
         <!-- HEADER -->
         <header class="header">
@@ -65,29 +65,29 @@
         <div id="authModal" class="modal">
             <div class="modal-content">
                 <span class="modal-close" id="closeModal">&times;</span>
-                <div class="modal-title">Đăng nhập</div>
+                <div class="modal-title">Login</div>
                 <form id="loginModalForm" action="/api/auth/login" method="post">
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="returnUrl" value="@returnUrl" />
                     <div class="form-error" id="loginError"></div>
                     <div class="input-group">
                         <label>Email</label>
-                        <input type="email" name="Input.Email" autocomplete="username" placeholder="your@gmail.com" required>
+                        <input type="email" name="email" autocomplete="username" placeholder="your@gmail.com" required>
                     </div>
                     <div class="input-group">
-                        <label>Mật khẩu</label>
-                        <input type="password" name="Input.Password" autocomplete="current-password" placeholder="••••••••" required>
+                        <label>Password</label>
+                        <input type="password" name="password" autocomplete="current-password" placeholder="••••••••" required>
                     </div>
                     <div class="login-meta">
                         <label class="remember-me">
-                            <input type="checkbox" name="Input.RememberMe">
-                            Ghi nhớ đăng nhập
+                            <input type="checkbox" name="rememberMe">
+                            Remember me?
                         </label>
-                        <a asp-area="Identity" asp-page="/Account/ForgotPassword" class="forgot-link">Quên mật khẩu?</a>
+                        <a asp-area="Identity" asp-page="/Account/ForgotPassword" class="forgot-link">Forgot your password?</a>
                     </div>
-                    <button class="btn" type="submit">Đăng nhập</button>
+                    <button class="btn" type="submit">LOGIN</button>
                     <div class="switch-link">
-                        Chưa có tài khoản? <a href="#" id="showRegisterModal">Đăng ký ngay</a>
+                        Chưa có tài khoản? <a href="#" id="showRegisterModal">Register Now</a>
                     </div>
                     @if (externalSchemes.Count > 0)
                     {
@@ -110,26 +110,26 @@
         <div id="registerModal" class="modal">
             <div class="modal-content">
                 <span class="modal-close" id="closeRegisterModal">&times;</span>
-                <div class="modal-title">Đăng ký</div>
+                <div class="modal-title">Register</div>
                 <form id="registerModalForm" action="/api/auth/register" method="post">
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="returnUrl" value="@returnUrl" />
                     <div class="form-error" id="registerError"></div>
                     <div class="input-group">
                         <label>Email</label>
-                        <input type="email" name="Input.Email" autocomplete="username" placeholder="your@email.com" required>
+                        <input type="email" name="email" autocomplete="username" placeholder="your@email.com" required>
                     </div>
                     <div class="input-group">
-                        <label>Mật khẩu</label>
-                        <input type="password" name="Input.Password" autocomplete="new-password" placeholder="••••••••" required>
+                        <label>Password</label>
+                        <input type="password" name="password" autocomplete="new-password" placeholder="••••••••" required>
                     </div>
                     <div class="input-group">
-                        <label>Xác nhận mật khẩu</label>
-                        <input type="password" name="Input.ConfirmPassword" autocomplete="new-password" placeholder="••••••••" required>
+                        <label>Confirmed Password</label>
+                        <input type="password" name="confirmPassword" autocomplete="new-password" placeholder="••••••••" required>
                     </div>
-                    <button class="btn" type="submit">Đăng ký</button>
+                    <button class="btn" type="submit">REGISTER</button>
                     <div class="switch-link">
-                        Đã có tài khoản? <a href="#" id="showLoginModal">Đăng nhập</a>
+                        Have a account? <a href="#" id="showLoginModal">Login</a>
                     </div>
                     @if (externalSchemes.Count > 0)
                     {
@@ -186,9 +186,9 @@
                     @for (var columnIndex = 1; columnIndex < categoryColumnCount; columnIndex++)
                     {
                         var columnCategories = categories
-                            .Skip(columnIndex * categoriesPerColumn)
-                            .Take(categoriesPerColumn)
-                            .ToList();
+                        .Skip(columnIndex * categoriesPerColumn)
+                        .Take(categoriesPerColumn)
+                        .ToList();
 
                         <div class="genre-column">
                             @foreach (var category in columnCategories)
@@ -227,341 +227,391 @@
                     <!-- Content sections -->
                     <!-- TRANG CHỦ (có featured, update list, recommend, top views) -->
                     <div id="homeSection" class="content-section">
-                    <!-- Featured large -->
-                    <div class="featured-large">
-                        <div class="featured-large-content">
-                            <h3>NỔI BẬT</h3>
-                            <h2>Shadow Warrior</h2>
-                            <p>In a world where darkness threatens to consume everything, one warrior stands against the shadows. Follow the journey of Kai as he battles ancient evil forces.</p>
-                            <div class="featured-stats">
-                                <span><i class="fas fa-star" style="color: #fbbf24;"></i> 4.8</span>
-                                <span><i class="fas fa-eye"></i> 1250K lượt xem</span>
-                                <span><i class="fas fa-book-open"></i> 4 chương</span>
+                        @* <div class="new-upload-section">
+                            <div class="section-header">
+                                <h2><i class="fas fa-star" style="color: #f97316;"></i> Truyện Mới Upload</h2>
+                                <span class="view-all-link">Xem tất cả</span>
                             </div>
-                            <button class="btn" style="width: auto; padding: 12px 32px;" id="readFeaturedBtn" data-id="shadow-warrior" data-title="Shadow Warrior" data-author="Tác giả D" data-genre="Hành động, Phiêu lưu" data-views="1250K" data-rating="4.8" data-votes="1250">Đọc ngay</button>
+
+                            <div class="swiper newUploadSwiper">
+                                <div class="swiper-wrapper">
+                                    <div class="swiper-slide">
+                                        <a href="/truyen/chi-tiet-truyen" class="slider-comic-card">
+                                            <div class="slider-comic-thumb">
+                                                <div class="decor-top"></div>
+
+                                                <img src="https://images.unsplash.com/photo-1613376023733-7740951b9824?w=300&h=400&fit=crop" alt="Bìa truyện">
+
+                                                <div class="badge-time">4 Giờ trước</div>
+                                                <div class="badge-group-right">
+                                                    <span class="badge-hot">Hot</span>
+                                                    <span class="badge-bookmark"><i class="fas fa-bookmark"></i></span>
+                                                </div>
+                                            </div>
+                                            <div class="slider-comic-info">
+                                                <h3 class="slider-comic-title">Hội Pháp Sư: Nhiệm Vụ...</h3>
+                                                <p class="slider-comic-chapter">Chương 203</p>
+                                            </div>
+                                        </a>
+                                    </div>
+
+                                    <div class="swiper-slide">
+                                        <a href="#" class="slider-comic-card">
+                                            <div class="slider-comic-thumb">
+                                                <div class="decor-top"></div>
+                                                <img src="https://images.unsplash.com/photo-1578632767115-351597cf2477?w=300&h=400&fit=crop" alt="Bìa truyện">
+                                                <div class="badge-time" style="background-color: #0ea5e9;">5 Giờ Trước</div>
+                                                <div class="badge-group-right">
+                                                    <span class="badge-hot">Hot</span>
+                                                    <span class="badge-bookmark"><i class="fas fa-bookmark"></i></span>
+                                                </div>
+                                            </div>
+                                            <div class="slider-comic-info">
+                                                <h3 class="slider-comic-title">Chư Thiên Kỷ</h3>
+                                                <p class="slider-comic-chapter">Chương 381</p>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="swiper-button-next"></div>
+                                <div class="swiper-button-prev"></div>
+                            </div>
+                        </div> *@
+                        <!-- Featured large -->
+                        <div class="featured-large">
+                            <div class="featured-large-content">
+                                <h3>NỔI BẬT</h3>
+                                <h2>Shadow Warrior</h2>
+                                <p>In a world where darkness threatens to consume everything, one warrior stands against the shadows. Follow the journey of Kai as he battles ancient evil forces.</p>
+                                <div class="featured-stats">
+                                    <span><i class="fas fa-star" style="color: #fbbf24;"></i> 4.8</span>
+                                    <span><i class="fas fa-eye"></i> 1250K lượt xem</span>
+                                    <span><i class="fas fa-book-open"></i> 4 chương</span>
+                                </div>
+                                <button class="btn" style="width: auto; padding: 12px 32px;" id="readFeaturedBtn" data-id="shadow-warrior" data-title="Shadow Warrior" data-author="Tác giả D" data-genre="Hành động, Phiêu lưu" data-views="1250K" data-rating="4.8" data-votes="1250">Đọc ngay</button>
+                            </div>
+                            <div class="featured-large-cover">Ảnh bìa</div>
                         </div>
-                        <div class="featured-large-cover">Ảnh bìa</div>
-                    </div>
 
-                    <!-- Grid 2 cột: update list và top views -->
-                    <div class="home-grid">
-                        <!-- Left column -->
-                        <div>
-                            <!-- Truyện mới cập nhật dạng list -->
-                            <div class="update-list">
-                                <div class="section-header">
-                                    <h2>Truyện Mới Cập Nhật</h2>
-                                    <span class="view-all-link" id="viewAllUpdates">Xem tất cả</span>
-                                </div>
-                                <div class="update-item" data-id="steel-resolve" data-title="Steel Resolve" data-author="Tác giả A" data-genre="Hành động, Phiêu lưu" data-views="1680K" data-rating="4.6" data-votes="1250">
-                                    <div class="update-cover"></div>
-                                    <div class="update-info">
-                                        <div class="update-title">Steel Resolve</div>
-                                        <div class="update-chapter">Chapter 1 • 01-12</div>
-                                        <div class="update-meta">
-                                            <span><i class="fas fa-star" style="color: #fbbf24;"></i> 4.6</span>
-                                            <span><i class="fas fa-eye"></i> 1680K</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="update-item" data-id="cosmic-legends" data-title="Cosmic Legends" data-author="Tác giả B" data-genre="Khoa huyễn, Viễn tưởng" data-views="2100K" data-rating="4.9" data-votes="2100">
-                                    <div class="update-cover"></div>
-                                    <div class="update-info">
-                                        <div class="update-title">Cosmic Legends</div>
-                                        <div class="update-chapter">Chapter 2 • 08-11</div>
-                                        <div class="update-chapter">Chapter 1 • 01-11</div>
-                                        <div class="update-meta">
-                                            <span><i class="fas fa-star" style="color: #fbbf24;"></i> 4.9</span>
-                                            <span><i class="fas fa-eye"></i> 2100K</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="update-item" data-id="dragon-quest" data-title="Dragon Quest" data-author="Tác giả C" data-genre="Kỳ ảo, Phiêu lưu" data-views="1450K" data-rating="4.7" data-votes="980">
-                                    <div class="update-cover"></div>
-                                    <div class="update-info">
-                                        <div class="update-title">Dragon Quest</div>
-                                        <div class="update-chapter">Chapter 5 • 15-12</div>
-                                        <div class="update-meta">
-                                            <span><i class="fas fa-star" style="color: #fbbf24;"></i> 4.7</span>
-                                            <span><i class="fas fa-eye"></i> 1450K</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Truyện đề cử với tabs -->
+                        <!-- Grid 2 cột: update list và top views -->
+                        <div class="home-grid">
+                            <!-- Left column -->
                             <div>
-                                <div class="section-header">
-                                    <h2>Truyện Đề Cử</h2>
-                                    <div class="recommend-tabs">
-                                        <span class="recommend-tab active" data-recommend="all">Tất cả</span>
-                                        <span class="recommend-tab" data-recommend="popular">Phổ biến</span>
-                                        <span class="recommend-tab" data-recommend="latest">Mới nhất</span>
+                                <!-- Truyện mới cập nhật dạng list -->
+                                <div class="update-list">
+                                    <div class="section-header">
+                                        <h2>Truyện Mới Cập Nhật</h2>
+                                        <span class="view-all-link" id="viewAllUpdates">Xem tất cả</span>
                                     </div>
-                                </div>
-                                <div class="recommend-grid" id="recommendAll">
-                                    <div class="recommend-card" data-title="Dạng ra 1" data-rating="4.5" data-votes="1300">
-                                        <div class="recommend-cover"></div>
-                                        <div class="recommend-info">
-                                            <div class="recommend-title">Dạng ra</div>
-                                            <div class="recommend-stats">
-                                                <span>4 chương</span>
-                                                <span>1.3M</span>
+                                    <div class="update-item" data-id="steel-resolve" data-title="Steel Resolve" data-author="Tác giả A" data-genre="Hành động, Phiêu lưu" data-views="1680K" data-rating="4.6" data-votes="1250">
+                                        <div class="update-cover"></div>
+                                        <div class="update-info">
+                                            <div class="update-title">Steel Resolve</div>
+                                            <div class="update-chapter">Chapter 1 • 01-12</div>
+                                            <div class="update-meta">
+                                                <span><i class="fas fa-star" style="color: #fbbf24;"></i> 4.6</span>
+                                                <span><i class="fas fa-eye"></i> 1680K</span>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="recommend-card" data-title="Dạng ra 2" data-rating="4.2" data-votes="980">
-                                        <div class="recommend-cover"></div>
-                                        <div class="recommend-info">
-                                            <div class="recommend-title">Dạng ra</div>
-                                            <div class="recommend-stats">
-                                                <span>2 chương</span>
-                                                <span>980K</span>
+                                    <div class="update-item" data-id="cosmic-legends" data-title="Cosmic Legends" data-author="Tác giả B" data-genre="Khoa huyễn, Viễn tưởng" data-views="2100K" data-rating="4.9" data-votes="2100">
+                                        <div class="update-cover"></div>
+                                        <div class="update-info">
+                                            <div class="update-title">Cosmic Legends</div>
+                                            <div class="update-chapter">Chapter 2 • 08-11</div>
+                                            <div class="update-chapter">Chapter 1 • 01-11</div>
+                                            <div class="update-meta">
+                                                <span><i class="fas fa-star" style="color: #fbbf24;"></i> 4.9</span>
+                                                <span><i class="fas fa-eye"></i> 2100K</span>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="recommend-card" data-title="Hoàn thành" data-rating="4.8" data-votes="2100">
-                                        <div class="recommend-cover"></div>
-                                        <div class="recommend-info">
-                                            <div class="recommend-title">Hoàn thành</div>
-                                            <div class="recommend-stats">
-                                                <span>2 chương</span>
-                                                <span>2.1M</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="recommend-card" data-title="Hỏi Tài" data-rating="4.4" data-votes="1400">
-                                        <div class="recommend-cover"></div>
-                                        <div class="recommend-info">
-                                            <div class="recommend-title">Hỏi Tài</div>
-                                            <div class="recommend-stats">
-                                                <span>1 chương</span>
-                                                <span>1.4M</span>
+                                    <div class="update-item" data-id="dragon-quest" data-title="Dragon Quest" data-author="Tác giả C" data-genre="Kỳ ảo, Phiêu lưu" data-views="1450K" data-rating="4.7" data-votes="980">
+                                        <div class="update-cover"></div>
+                                        <div class="update-info">
+                                            <div class="update-title">Dragon Quest</div>
+                                            <div class="update-chapter">Chapter 5 • 15-12</div>
+                                            <div class="update-meta">
+                                                <span><i class="fas fa-star" style="color: #fbbf24;"></i> 4.7</span>
+                                                <span><i class="fas fa-eye"></i> 1450K</span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
 
-                        <!-- Right column (trong home-grid) -->
-                        <div>
-                            <div class="top-list">
-                                <div class="section-header">
-                                    <h2>Xem Nhiều Nhất</h2>
-                                </div>
-                                <div class="top-item" data-id="cosmic-legends" data-title="Cosmic Legends" data-rating="4.9" data-votes="2100">
-                                    <span class="top-rank">1</span>
-                                    <div class="top-info">
-                                        <div class="top-title">Cosmic Legends</div>
-                                        <div class="top-views">2100K</div>
+                                <!-- Truyện đề cử với tabs -->
+                                <div>
+                                    <div class="section-header">
+                                        <h2>Truyện Đề Cử</h2>
+                                        <div class="recommend-tabs">
+                                            <span class="recommend-tab active" data-recommend="all">Tất cả</span>
+                                            <span class="recommend-tab" data-recommend="popular">Phổ biến</span>
+                                            <span class="recommend-tab" data-recommend="latest">Mới nhất</span>
+                                        </div>
+                                    </div>
+                                    <div class="recommend-grid" id="recommendAll">
+                                        <div class="recommend-card" data-title="Dạng ra 1" data-rating="4.5" data-votes="1300">
+                                            <div class="recommend-cover"></div>
+                                            <div class="recommend-info">
+                                                <div class="recommend-title">Dạng ra</div>
+                                                <div class="recommend-stats">
+                                                    <span>4 chương</span>
+                                                    <span>1.3M</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="recommend-card" data-title="Dạng ra 2" data-rating="4.2" data-votes="980">
+                                            <div class="recommend-cover"></div>
+                                            <div class="recommend-info">
+                                                <div class="recommend-title">Dạng ra</div>
+                                                <div class="recommend-stats">
+                                                    <span>2 chương</span>
+                                                    <span>980K</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="recommend-card" data-title="Hoàn thành" data-rating="4.8" data-votes="2100">
+                                            <div class="recommend-cover"></div>
+                                            <div class="recommend-info">
+                                                <div class="recommend-title">Hoàn thành</div>
+                                                <div class="recommend-stats">
+                                                    <span>2 chương</span>
+                                                    <span>2.1M</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="recommend-card" data-title="Hỏi Tài" data-rating="4.4" data-votes="1400">
+                                            <div class="recommend-cover"></div>
+                                            <div class="recommend-info">
+                                                <div class="recommend-title">Hỏi Tài</div>
+                                                <div class="recommend-stats">
+                                                    <span>1 chương</span>
+                                                    <span>1.4M</span>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="top-item" data-id="steel-resolve" data-title="Steel Resolve" data-rating="4.6" data-votes="1250">
-                                    <span class="top-rank">2</span>
-                                    <div class="top-info">
-                                        <div class="top-title">Steel Resolve</div>
-                                        <div class="top-views">1680K</div>
+                            </div>
+
+                            <!-- Right column (trong home-grid) -->
+                            <div>
+                                <div class="top-list">
+                                    <div class="section-header">
+                                        <h2>Xem Nhiều Nhất</h2>
+                                    </div>
+                                    <div class="top-item" data-id="cosmic-legends" data-title="Cosmic Legends" data-rating="4.9" data-votes="2100">
+                                        <span class="top-rank">1</span>
+                                        <div class="top-info">
+                                            <div class="top-title">Cosmic Legends</div>
+                                            <div class="top-views">2100K</div>
+                                        </div>
+                                    </div>
+                                    <div class="top-item" data-id="steel-resolve" data-title="Steel Resolve" data-rating="4.6" data-votes="1250">
+                                        <span class="top-rank">2</span>
+                                        <div class="top-info">
+                                            <div class="top-title">Steel Resolve</div>
+                                            <div class="top-views">1680K</div>
+                                        </div>
+                                    </div>
+                                    <div class="top-item" data-id="dragon-quest" data-title="Dragon Quest" data-rating="4.7" data-votes="980">
+                                        <span class="top-rank">3</span>
+                                        <div class="top-info">
+                                            <div class="top-title">Dragon Quest</div>
+                                            <div class="top-views">1450K</div>
+                                        </div>
+                                    </div>
+                                    <div class="top-item" data-id="shadow-warrior" data-title="Shadow Warrior" data-rating="4.8" data-votes="1250">
+                                        <span class="top-rank">4</span>
+                                        <div class="top-info">
+                                            <div class="top-title">Shadow Warrior</div>
+                                            <div class="top-views">1250K</div>
+                                        </div>
+                                    </div>
+                                    <div class="top-item" data-id="mystic-dreams" data-title="Mystic Dreams" data-rating="4.3" data-votes="980">
+                                        <span class="top-rank">5</span>
+                                        <div class="top-info">
+                                            <div class="top-title">Mystic Dreams</div>
+                                            <div class="top-views">980K</div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="top-item" data-id="dragon-quest" data-title="Dragon Quest" data-rating="4.7" data-votes="980">
-                                    <span class="top-rank">3</span>
-                                    <div class="top-info">
-                                        <div class="top-title">Dragon Quest</div>
-                                        <div class="top-views">1450K</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Các section khác (ẩn mặc định) -->
+                    <div id="newSection" class="content-section hidden"><h2>Nội dung Mới cập nhật</h2></div>
+                    <div id="hotSection" class="content-section hidden"><h2>Nội dung Hot nhất</h2></div>
+                    <div id="rankSection" class="content-section hidden"><h2>Nội dung BXH</h2></div>
+                    <div id="completedSection" class="content-section hidden"><h2>Nội dung Hoàn thành</h2></div>
+                    <div id="groupsSection" class="content-section hidden"><h2>Nội dung Nhóm dịch</h2></div>
+                    <div id="profilePageSection" class="content-section hidden"><h2>Nội dung Cá nhân</h2></div>
+
+                    <!-- TRANG CHI TIẾT TRUYỆN -->
+                    <div id="detailSection" class="content-section hidden">
+                        <div class="breadcrumb">
+                            <a href="#" id="breadcrumbHome">Trang chủ</a> > <a href="#" id="breadcrumbCategory">Thể loại</a> > <span id="breadcrumbTitle">Đồ Đệ Của Ta Đều Là Đại Phản Phái</span>
+                        </div>
+                        <div class="detail-container">
+                            <div class="detail-header">
+                                <div class="detail-cover" id="detailCover">Ảnh bìa</div>
+                                <div class="detail-info">
+                                    <h1 id="detailTitle">Đồ Đệ Của Ta Đều Là Đại Phản Phái</h1>
+                                    <div class="detail-meta">
+                                        <div class="detail-meta-item"><span>Tác giả</span><strong id="detailAuthor">TruyenQQ, Mộng Tiên Giới</strong></div>
+                                        <div class="detail-meta-item"><span>Tình trạng</span><strong id="detailStatus">Đang tiến hành</strong></div>
+                                        <div class="detail-meta-item"><span>Thể loại</span><strong id="detailGenre">Adventure - Chuyển Sinh - Cổ Đại - Manhua - Truyện Màu - Xuyên Không</strong></div>
+                                        <div class="detail-meta-item"><span>Lượt xem</span><strong id="detailViews">427,480</strong></div>
+                                    </div>
+                                    <div class="rating">
+                                        <div class="stars-interactive">
+                                            <i class="star fas fa-star" data-value="1"></i>
+                                            <i class="star fas fa-star" data-value="2"></i>
+                                            <i class="star fas fa-star" data-value="3"></i>
+                                            <i class="star fas fa-star" data-value="4"></i>
+                                            <i class="star fas fa-star" data-value="5"></i>
+                                        </div>
+                                        <span class="rating-text">5/5 - 605 Lượt đánh giá</span>
+                                    </div>
+                                    <div class="follow-info">
+                                        <button class="follow-btn" id="followBtn">Theo dõi</button>
+                                        <span><strong>155.492</strong> Người đã theo dõi</span>
+                                    </div>
+                                    <div class="action-buttons">
+                                        <button class="action-btn" id="readFirstBtn">Đọc từ đầu</button>
+                                        <button class="action-btn" id="readLatestBtn">Đọc mới nhất</button>
+                                        <button class="action-btn secondary" id="readContinueBtn">Đọc tiếp ></button>
                                     </div>
                                 </div>
-                                <div class="top-item" data-id="shadow-warrior" data-title="Shadow Warrior" data-rating="4.8" data-votes="1250">
-                                    <span class="top-rank">4</span>
-                                    <div class="top-info">
-                                        <div class="top-title">Shadow Warrior</div>
-                                        <div class="top-views">1250K</div>
-                                    </div>
-                                </div>
-                                <div class="top-item" data-id="mystic-dreams" data-title="Mystic Dreams" data-rating="4.3" data-votes="980">
-                                    <span class="top-rank">5</span>
-                                    <div class="top-info">
-                                        <div class="top-title">Mystic Dreams</div>
-                                        <div class="top-views">980K</div>
-                                    </div>
-                                </div>
+                            </div>
+                            <div class="description" id="detailDescription">
+                                <strong>NỘI DUNG TRUYỆN ĐỒ ĐỆ CỦA TA ĐỀU LÀ ĐẠI PHẢN PHÁI</strong><br>
+                                Chào mừng bạn đến với NetTruyen – không gian đọc truyện tranh online hoàn hảo dành cho tất cả các fan truyện tranh!
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Các section khác (ẩn mặc định) -->
-                <div id="newSection" class="content-section hidden"><h2>Nội dung Mới cập nhật</h2></div>
-                <div id="hotSection" class="content-section hidden"><h2>Nội dung Hot nhất</h2></div>
-                <div id="rankSection" class="content-section hidden"><h2>Nội dung BXH</h2></div>
-                <div id="completedSection" class="content-section hidden"><h2>Nội dung Hoàn thành</h2></div>
-                <div id="groupsSection" class="content-section hidden"><h2>Nội dung Nhóm dịch</h2></div>
-                <div id="profilePageSection" class="content-section hidden"><h2>Nội dung Cá nhân</h2></div>
-
-                <!-- TRANG CHI TIẾT TRUYỆN -->
-                <div id="detailSection" class="content-section hidden">
-                    <div class="breadcrumb">
-                        <a href="#" id="breadcrumbHome">Trang chủ</a> > <a href="#" id="breadcrumbCategory">Thể loại</a> > <span id="breadcrumbTitle">Đồ Đệ Của Ta Đều Là Đại Phản Phái</span>
-                    </div>
-                    <div class="detail-container">
-                        <div class="detail-header">
-                            <div class="detail-cover" id="detailCover">Ảnh bìa</div>
-                            <div class="detail-info">
-                                <h1 id="detailTitle">Đồ Đệ Của Ta Đều Là Đại Phản Phái</h1>
-                                <div class="detail-meta">
-                                    <div class="detail-meta-item"><span>Tác giả</span><strong id="detailAuthor">TruyenQQ, Mộng Tiên Giới</strong></div>
-                                    <div class="detail-meta-item"><span>Tình trạng</span><strong id="detailStatus">Đang tiến hành</strong></div>
-                                    <div class="detail-meta-item"><span>Thể loại</span><strong id="detailGenre">Adventure - Chuyển Sinh - Cổ Đại - Manhua - Truyện Màu - Xuyên Không</strong></div>
-                                    <div class="detail-meta-item"><span>Lượt xem</span><strong id="detailViews">427,480</strong></div>
+                    <!-- TRANG ĐỌC TRUYỆN (READER) -->
+                    <div id="readerSection" class="content-section hidden">
+                        <div class="breadcrumb">
+                            <a href="#" id="readerBreadcrumbHome">Trang chủ</a> > <a href="#" id="readerBreadcrumbCategory">Thể loại</a> > <a href="#" id="readerBreadcrumbDetail">Đỗ Đệ Của Ta Đều Là Đại Phản Phái</a> > <span id="readerBreadcrumbChapter">Chapter 0</span>
+                        </div>
+                        <div class="reader-container">
+                            <div class="reader-header">
+                                <h1 class="reader-title" id="readerTitle">Đỗ Đệ Của Ta Đều Là Đại Phản Phái - Chapter 0</h1>
+                                <div class="reader-update" id="readerUpdate">[Cập nhật lúc: 2024-02-29 00:56:44]</div>
+                                <div class="server-notice">
+                                    <i class="fas fa-exclamation-triangle" style="color: #f97316;"></i> Nếu không xem được truyện vui lòng đổi "SERVER ẢNH" bên dưới
                                 </div>
-                                <div class="rating">
-                                    <div class="stars-interactive">
-                                        <i class="star fas fa-star" data-value="1"></i>
-                                        <i class="star fas fa-star" data-value="2"></i>
-                                        <i class="star fas fa-star" data-value="3"></i>
-                                        <i class="star fas fa-star" data-value="4"></i>
-                                        <i class="star fas fa-star" data-value="5"></i>
-                                    </div>
-                                    <span class="rating-text">5/5 - 605 Lượt đánh giá</span>
-                                </div>
-                                <div class="follow-info">
-                                    <button class="follow-btn" id="followBtn">Theo dõi</button>
-                                    <span><strong>155.492</strong> Người đã theo dõi</span>
-                                </div>
-                                <div class="action-buttons">
-                                    <button class="action-btn" id="readFirstBtn">Đọc từ đầu</button>
-                                    <button class="action-btn" id="readLatestBtn">Đọc mới nhất</button>
-                                    <button class="action-btn secondary" id="readContinueBtn">Đọc tiếp ></button>
+                                <div class="server-buttons">
+                                    <button class="server-btn active" id="server1">Server 1</button>
+                                    <button class="server-btn" id="server2">Server 2</button>
+                                    <button class="report-btn" id="reportError"><i class="fas fa-flag"></i> Báo lỗi</button>
                                 </div>
                             </div>
-                        </div>
-                        <div class="description" id="detailDescription">
-                            <strong>NỘI DUNG TRUYỆN ĐỒ ĐỆ CỦA TA ĐỀU LÀ ĐẠI PHẢN PHÁI</strong><br>
-                            Chào mừng bạn đến với NetTruyen – không gian đọc truyện tranh online hoàn hảo dành cho tất cả các fan truyện tranh!
-                        </div>
-                    </div>
-                </div>
 
-                <!-- TRANG ĐỌC TRUYỆN (READER) -->
-                <div id="readerSection" class="content-section hidden">
-                    <div class="breadcrumb">
-                        <a href="#" id="readerBreadcrumbHome">Trang chủ</a> > <a href="#" id="readerBreadcrumbCategory">Thể loại</a> > <a href="#" id="readerBreadcrumbDetail">Đỗ Đệ Của Ta Đều Là Đại Phản Phái</a> > <span id="readerBreadcrumbChapter">Chapter 0</span>
-                    </div>
-                    <div class="reader-container">
-                        <div class="reader-header">
-                            <h1 class="reader-title" id="readerTitle">Đỗ Đệ Của Ta Đều Là Đại Phản Phái - Chapter 0</h1>
-                            <div class="reader-update" id="readerUpdate">[Cập nhật lúc: 2024-02-29 00:56:44]</div>
-                            <div class="server-notice">
-                                <i class="fas fa-exclamation-triangle" style="color: #f97316;"></i> Nếu không xem được truyện vui lòng đổi "SERVER ẢNH" bên dưới
+                            <div class="reader-nav">
+                                <div class="chapter-nav">
+                                    <span class="nav-arrow" id="prevChapter"><i class="fas fa-chevron-left"></i></span>
+                                    <select class="chapter-select" id="chapterSelect">
+                                        <option value="0" selected>Chapter 0</option>
+                                        <option value="1">Chapter 1</option>
+                                        <option value="2">Chapter 2</option>
+                                    </select>
+                                    <span class="nav-arrow" id="nextChapter"><i class="fas fa-chevron-right"></i></span>
+                                </div>
+                                <div class="nav-hint">
+                                    Sử dụng mũi tên trái (←) hoặc phải (→) để chuyển chapter
+                                </div>
                             </div>
-                            <div class="server-buttons">
-                                <button class="server-btn active" id="server1">Server 1</button>
-                                <button class="server-btn" id="server2">Server 2</button>
-                                <button class="report-btn" id="reportError"><i class="fas fa-flag"></i> Báo lỗi</button>
-                            </div>
-                        </div>
 
-                        <div class="reader-nav">
-                            <div class="chapter-nav">
-                                <span class="nav-arrow" id="prevChapter"><i class="fas fa-chevron-left"></i></span>
-                                <select class="chapter-select" id="chapterSelect">
-                                    <option value="0" selected>Chapter 0</option>
-                                    <option value="1">Chapter 1</option>
-                                    <option value="2">Chapter 2</option>
-                                </select>
-                                <span class="nav-arrow" id="nextChapter"><i class="fas fa-chevron-right"></i></span>
+                            <div class="reader-images">
+                                <div class="reader-page">Trang 1 - Nội dung truyện sẽ hiển thị ở đây</div>
+                                <div class="reader-page">Trang 2 - Cuộn dọc để đọc tiếp</div>
+                                <div class="reader-page">Trang 3 - Ảnh truyện sẽ được load từ server</div>
                             </div>
-                            <div class="nav-hint">
-                                Sử dụng mũi tên trái (←) hoặc phải (→) để chuyển chapter
+
+                            <div class="ad-placeholder">
+                                <i class="fas fa-ad"></i> Quảng cáo (Placeholder)
                             </div>
                         </div>
+                    </div>
 
-                        <div class="reader-images">
-                            <div class="reader-page">Trang 1 - Nội dung truyện sẽ hiển thị ở đây</div>
-                            <div class="reader-page">Trang 2 - Cuộn dọc để đọc tiếp</div>
-                            <div class="reader-page">Trang 3 - Ảnh truyện sẽ được load từ server</div>
-                        </div>
-
-                        <div class="ad-placeholder">
-                            <i class="fas fa-ad"></i> Quảng cáo (Placeholder)
-                        </div>
+                    <!-- Xem thêm button -->
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a class="view-more-btn" id="viewMoreBtn">Xem thêm truyện <i class="fas fa-chevron-down"></i></a>
                     </div>
                 </div>
 
-                <!-- Xem thêm button -->
-                <div style="text-align: center; margin: 30px 0;">
-                    <a class="view-more-btn" id="viewMoreBtn">Xem thêm truyện <i class="fas fa-chevron-down"></i></a>
-                </div>
-            </div>
-
-            <!-- Sidebar (lịch sử đọc, bảng xếp hạng, thể loại) -->
-            <aside class="sidebar">
-                <!-- Bảng xếp hạng với tabs -->
-                <div class="sidebar-card">
-                    <div class="sidebar-title"><i class="fas fa-crown" style="color: #fbbf24;"></i> Bảng xếp hạng</div>
-                    <div class="rank-tabs">
-                        <span class="rank-tab active" data-rank="day">Top ngày</span>
-                        <span class="rank-tab" data-rank="week">Top tuần</span>
-                        <span class="rank-tab" data-rank="month">Top tháng</span>
-                    </div>
-                    <div class="rank-content active" id="rankDay">
-                        <div class="hot-item"><span class="hot-rank">1</span><div class="hot-info"><h4>Bách Luyện Thành Thần</h4><p>Chapter 1295 • 193K</p></div></div>
-                        <div class="hot-item"><span class="hot-rank">2</span><div class="hot-info"><h4>Đại Phụng Đa Canh Nhân</h4><p>Chapter 619 • 297K</p></div></div>
-                        <div class="hot-item"><span class="hot-rank">3</span><div class="hot-info"><h4>Tinh Giáp Hôn Tướng</h4><p>Chapter 349 • 305K</p></div></div>
-                        <div class="hot-item"><span class="hot-rank">4</span><div class="hot-info"><h4>Tự Kỷ Luật Ta Đầy Bất Khả...</h4><p>Chapter 200 • 280K</p></div></div>
-                        <div class="hot-item"><span class="hot-rank">5</span><div class="hot-info"><h4>Solo Leveling</h4><p>Chapter 200 • 1.2M</p></div></div>
-                    </div>
-                    <div class="rank-content" id="rankWeek">
-                        <div class="hot-item"><span class="hot-rank">1</span><div class="hot-info"><h4>One Piece</h4><p>Chapter 1090 • 980K</p></div></div>
-                        <div class="hot-item"><span class="hot-rank">2</span><div class="hot-info"><h4>Dớp Dâng</h4><p>Chapter 567 • 854K</p></div></div>
-                        <div class="hot-item"><span class="hot-rank">3</span><div class="hot-info"><h4>Thiên mệnh đế chủ</h4><p>Chapter 420 • 620K</p></div></div>
-                    </div>
-                    <div class="rank-content" id="rankMonth">
-                        <div class="hot-item"><span class="hot-rank">1</span><div class="hot-info"><h4>Solo Leveling</h4><p>Chapter 200 • 1.2M</p></div></div>
-                        <div class="hot-item"><span class="hot-rank">2</span><div class="hot-info"><h4>One Piece</h4><p>Chapter 1090 • 980K</p></div></div>
-                        <div class="hot-item"><span class="hot-rank">3</span><div class="hot-info"><h4>Dớp Dâng</h4><p>Chapter 567 • 854K</p></div></div>
-                    </div>
-                </div>
-
-                <!-- Lịch sử đọc -->
-                <div class="history-card">
-                    <h3>Lịch sử đọc <span class="view-all-link" style="font-size: 13px;">Xem tất cả</span></h3>
-                    <div class="history-item">
-                        <div class="history-cover">Ảnh</div>
-                        <div class="history-info">
-                            <div class="history-title">Vạn Cố Chí Tôn</div>
-                            <div class="history-meta">Đọc tiếp Chapter 502 ></div>
+                <!-- Sidebar (lịch sử đọc, bảng xếp hạng, thể loại) -->
+                <aside class="sidebar">
+                    <!-- Bảng xếp hạng với tabs -->
+                    <div class="sidebar-card">
+                        <div class="sidebar-title"><i class="fas fa-crown" style="color: #fbbf24;"></i> Bảng xếp hạng</div>
+                        <div class="rank-tabs">
+                            <span class="rank-tab active" data-rank="day">Top ngày</span>
+                            <span class="rank-tab" data-rank="week">Top tuần</span>
+                            <span class="rank-tab" data-rank="month">Top tháng</span>
                         </div>
-                        <span class="delete-btn"><i class="fas fa-times"></i></span>
-                    </div>
-                    <div class="history-item">
-                        <div class="history-cover">Ảnh</div>
-                        <div class="history-info">
-                            <div class="history-title">Bỏ Làm Simp Chúa, Ta Có Trong...</div>
-                            <div class="history-meta">Đọc tiếp Chapter 278 ></div>
+                        <div class="rank-content active" id="rankDay">
+                            <div class="hot-item"><span class="hot-rank">1</span><div class="hot-info"><h4>Bách Luyện Thành Thần</h4><p>Chapter 1295 • 193K</p></div></div>
+                            <div class="hot-item"><span class="hot-rank">2</span><div class="hot-info"><h4>Đại Phụng Đa Canh Nhân</h4><p>Chapter 619 • 297K</p></div></div>
+                            <div class="hot-item"><span class="hot-rank">3</span><div class="hot-info"><h4>Tinh Giáp Hôn Tướng</h4><p>Chapter 349 • 305K</p></div></div>
+                            <div class="hot-item"><span class="hot-rank">4</span><div class="hot-info"><h4>Tự Kỷ Luật Ta Đầy Bất Khả...</h4><p>Chapter 200 • 280K</p></div></div>
+                            <div class="hot-item"><span class="hot-rank">5</span><div class="hot-info"><h4>Solo Leveling</h4><p>Chapter 200 • 1.2M</p></div></div>
                         </div>
-                        <span class="delete-btn"><i class="fas fa-times"></i></span>
-                    </div>
-                    <div class="history-item">
-                        <div class="history-cover">Ảnh</div>
-                        <div class="history-info">
-                            <div class="history-title">One Piece</div>
-                            <div class="history-meta">Đọc tiếp Chapter 2 ></div>
+                        <div class="rank-content" id="rankWeek">
+                            <div class="hot-item"><span class="hot-rank">1</span><div class="hot-info"><h4>One Piece</h4><p>Chapter 1090 • 980K</p></div></div>
+                            <div class="hot-item"><span class="hot-rank">2</span><div class="hot-info"><h4>Dớp Dâng</h4><p>Chapter 567 • 854K</p></div></div>
+                            <div class="hot-item"><span class="hot-rank">3</span><div class="hot-info"><h4>Thiên mệnh đế chủ</h4><p>Chapter 420 • 620K</p></div></div>
                         </div>
-                        <span class="delete-btn"><i class="fas fa-times"></i></span>
+                        <div class="rank-content" id="rankMonth">
+                            <div class="hot-item"><span class="hot-rank">1</span><div class="hot-info"><h4>Solo Leveling</h4><p>Chapter 200 • 1.2M</p></div></div>
+                            <div class="hot-item"><span class="hot-rank">2</span><div class="hot-info"><h4>One Piece</h4><p>Chapter 1090 • 980K</p></div></div>
+                            <div class="hot-item"><span class="hot-rank">3</span><div class="hot-info"><h4>Dớp Dâng</h4><p>Chapter 567 • 854K</p></div></div>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Thể loại -->
-                <div class="sidebar-card">
-                    <div class="sidebar-title"><i class="fas fa-tags"></i> Thể loại</div>
-                    <div class="genre-tags">
-                        @foreach (var category in categories)
-                        {
-                            <a class="genre-tag" asp-controller="Categories" asp-action="Index" asp-route-id="@category.Id">@category.Name</a>
-                        }
+                    <!-- Lịch sử đọc -->
+                    <div class="history-card">
+                        <h3>Lịch sử đọc <span class="view-all-link" style="font-size: 13px;">Xem tất cả</span></h3>
+                        <div class="history-item">
+                            <div class="history-cover">Ảnh</div>
+                            <div class="history-info">
+                                <div class="history-title">Vạn Cố Chí Tôn</div>
+                                <div class="history-meta">Đọc tiếp Chapter 502 ></div>
+                            </div>
+                            <span class="delete-btn"><i class="fas fa-times"></i></span>
+                        </div>
+                        <div class="history-item">
+                            <div class="history-cover">Ảnh</div>
+                            <div class="history-info">
+                                <div class="history-title">Bỏ Làm Simp Chúa, Ta Có Trong...</div>
+                                <div class="history-meta">Đọc tiếp Chapter 278 ></div>
+                            </div>
+                            <span class="delete-btn"><i class="fas fa-times"></i></span>
+                        </div>
+                        <div class="history-item">
+                            <div class="history-cover">Ảnh</div>
+                            <div class="history-info">
+                                <div class="history-title">One Piece</div>
+                                <div class="history-meta">Đọc tiếp Chapter 2 ></div>
+                            </div>
+                            <span class="delete-btn"><i class="fas fa-times"></i></span>
+                        </div>
                     </div>
-                </div>
+
+                    <!-- Thể loại -->
+                    <div class="sidebar-card">
+                        <div class="sidebar-title"><i class="fas fa-tags"></i> Thể loại</div>
+                        <div class="genre-tags">
+                            @foreach (var category in categories)
+                            {
+                                <a class="genre-tag" asp-controller="Categories" asp-action="Index" asp-route-id="@category.Id">@category.Name</a>
+                            }
+                        </div>
+                    </div>
                 </aside>
             </div>
 
@@ -714,7 +764,7 @@
             //         }
             //     }
                     // Thêm tham số isRegister để phân biệt form
-        async function submitAuthForm(form, errorEl, isRegister = false) {
+                async function submitAuthForm(form, errorEl, isRegister = false) {
             if (!form) return;
 
             const formData = new FormData(form);
@@ -732,7 +782,6 @@
             if (errorEl) {
                 errorEl.classList.remove('active');
                 errorEl.textContent = '';
-                // Reset lại màu nền/màu chữ về lỗi (phòng trường hợp trước đó báo thành công)
                 errorEl.style.backgroundColor = '';
                 errorEl.style.color = '';
             }
@@ -758,30 +807,25 @@
 
                     // Xử lý riêng cho form Đăng Ký
                     if (isRegister) {
-                        // 1. Tắt popup đăng ký
-                        const registerModal = document.getElementById('registerModal'); // Sửa ID nếu HTML của bạn khác
+                        const registerModal = document.getElementById('registerModal');
                         if (registerModal) registerModal.classList.remove('active');
 
-                        // 2. Bật popup đăng nhập
-                        const authModal = document.getElementById('authModal'); // Sửa ID nếu HTML của bạn khác
+                        const authModal = document.getElementById('authModal');
                         if (authModal) {
                             authModal.classList.add('active');
-
-                            // 3. Hiển thị thông báo màu xanh lá cây vào popup đăng nhập
                             const loginError = document.getElementById('loginError');
                             if (loginError) {
                                 loginError.textContent = payload.message || 'Đăng ký thành công! Vui lòng đăng nhập.';
                                 loginError.classList.add('active');
-                                // Đổi CSS sang màu xanh để báo thành công
                                 loginError.style.backgroundColor = '#d4edda';
                                 loginError.style.color = '#155724';
                                 loginError.style.border = '1px solid #c3e6cb';
                             }
                         }
-                        return; // Dừng lại, không cho reload trang
+                        return;
                     }
 
-                    // Xử lý riêng cho form Đăng Nhập (như cũ)
+                    // Xử lý riêng cho form Đăng Nhập
                     if (payload.redirectUrl) {
                         window.location.href = payload.redirectUrl;
                     } else {
@@ -790,7 +834,7 @@
                     return;
                 }
 
-                // NẾU API BÁO LỖI (Success = false hoặc HTTP 400)
+                // NẾU API BÁO LỖI
                 if (errorEl) {
                     errorEl.textContent = payload?.message || payload?.title || 'Thông tin không hợp lệ.';
                     errorEl.classList.add('active');
@@ -805,44 +849,10 @@
             }
         }
 
-                // 4. Xử lý logic khi thành công (Status 200)
-                if (response.ok) {
-                    if (payload.success) { // Thay đổi nhẹ ở đây để bắt cờ success từ AuthResponse C#
-                        if (payload.redirectUrl) {
-                            window.location.href = payload.redirectUrl;
-                        } else {
-                            window.location.reload();
-                        }
-                        return;
-                    } else {
-                        // Đôi khi server trả về 200 OK nhưng logic bên trong báo lỗi (Success = false)
-                        if (errorEl) {
-                            errorEl.textContent = payload.message || 'Có lỗi xảy ra.';
-                            errorEl.classList.add('active');
-                        }
-                        return;
-                    }
-                }
-
-                // 5. Xử lý khi API trả về lỗi HTTP (400, 401...)
-                if (errorEl) {
-                    errorEl.textContent = payload?.message || payload?.title || 'Tài khoản, mật khẩu không hợp lệ hoặc lỗi máy chủ.';
-                    errorEl.classList.add('active');
-                }
-
-            } catch (error) {
-                console.error("Lỗi khi submit form:", error);
-                if (errorEl) {
-                    errorEl.textContent = 'Mất kết nối tới máy chủ. Vui lòng thử lại!';
-                    errorEl.classList.add('active');
-                }
-            }
-        }
-
-                if (loginForm) {
+        // Bắt sự kiện submit form
+        if (loginForm) {
             loginForm.addEventListener('submit', (e) => {
                 e.preventDefault();
-                // false: vì đây là form login
                 submitAuthForm(loginForm, loginError, false);
             });
         }
@@ -850,10 +860,59 @@
         if (registerForm) {
             registerForm.addEventListener('submit', (e) => {
                 e.preventDefault();
-                // true: vì đây là form register
                 submitAuthForm(registerForm, registerError, true);
             });
         }
+
+        //         4. Xử lý logic khi thành công (Status 200)
+        //         if (response.ok) {
+        //             if (payload.success) { Thay đổi nhẹ ở đây để bắt cờ success từ AuthResponse C#
+        //                 if (payload.redirectUrl) {
+        //                     window.location.href = payload.redirectUrl;
+        //                 } else {
+        //                     window.location.reload();
+        //                 }
+        //                 return;
+        //             } else {
+        //                 Đôi khi server trả về 200 OK nhưng logic bên trong báo lỗi (Success = false)
+        //                 if (errorEl) {
+        //                     errorEl.textContent = payload.message || 'Có lỗi xảy ra.';
+        //                     errorEl.classList.add('active');
+        //                 }
+        //                 return;
+        //             }
+        //         }
+
+        //         5. Xử lý khi API trả về lỗi HTTP (400, 401...)
+        //         if (errorEl) {
+        //             errorEl.textContent = payload?.message || payload?.title || 'Tài khoản, mật khẩu không hợp lệ hoặc lỗi máy chủ.';
+        //             errorEl.classList.add('active');
+        //         }
+
+        //     } catch (error) {
+        //         console.error("Lỗi khi submit form:", error);
+        //         if (errorEl) {
+        //             errorEl.textContent = 'Mất kết nối tới máy chủ. Vui lòng thử lại!';
+        //             errorEl.classList.add('active');
+        //         }
+        //     }
+        // }
+
+        //         if (loginForm) {
+        //     loginForm.addEventListener('submit', (e) => {
+        //         e.preventDefault();
+        //         false: vì đây là form login
+        //         submitAuthForm(loginForm, loginError, false);
+        //     });
+        // }
+
+        // if (registerForm) {
+        //     registerForm.addEventListener('submit', (e) => {
+        //         e.preventDefault();
+        //         true: vì đây là form register
+        //         submitAuthForm(registerForm, registerError, true);
+        //     });
+        // }
 
         const followForms = document.querySelectorAll('.story-follow-form');
         followForms.forEach((form) => {
