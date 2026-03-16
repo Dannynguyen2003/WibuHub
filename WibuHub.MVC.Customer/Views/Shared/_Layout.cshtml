@@ -839,17 +839,19 @@
             }
         }
 
-        if (loginForm) {
+                if (loginForm) {
             loginForm.addEventListener('submit', (e) => {
                 e.preventDefault();
-                submitAuthForm(loginForm, loginError);
+                // false: vì đây là form login
+                submitAuthForm(loginForm, loginError, false);
             });
         }
 
         if (registerForm) {
             registerForm.addEventListener('submit', (e) => {
                 e.preventDefault();
-                submitAuthForm(registerForm, registerError);
+                // true: vì đây là form register
+                submitAuthForm(registerForm, registerError, true);
             });
         }
 
