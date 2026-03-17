@@ -44,6 +44,23 @@ namespace WibuHub.API.Controllers
             var stories = await _storyService.GetNewestStoriesAsync();
             return Ok(stories);
         }
+        // API lấy truyện xem nhiều nhất: GET /api/stories/top-views
+        [HttpGet("top-views")]
+        [AllowAnonymous] // Cho phép khách vãng lai xem ở trang chủ
+        public async Task<IActionResult> GetTopViews()
+        {
+            try
+            {
+                // Gọi sang Service để lấy dữ liệu (Ví dụ lấy top 5)
+                var topStories = await _storyService.GetTopViewsAsync(5);
+                return Ok(topStories);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi tải danh sách Xem Nhiều Nhất");
+                return StatusCode(500, new { message = "Lỗi hệ thống khi lấy dữ liệu" });
+            }
+        }
         // POST: api/stories
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] StoryDto request)

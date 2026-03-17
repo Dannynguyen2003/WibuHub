@@ -20,12 +20,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Truyện Hay - Chi tiết truyện</title>
-    <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/css/layout.css" asp-append-version="true">
-
 </head>
 <body>
     @{
@@ -34,7 +31,6 @@
         var isIdentityArea = string.Equals(ViewContext.RouteData.Values["area"]?.ToString(), "Identity", StringComparison.OrdinalIgnoreCase);
     }
     <div class="app">
-        <!-- HEADER -->
         <header class="header">
             <div class="logo-area">
                 <button class="mobile-menu-btn" id="mobileMenuBtn"><i class="fas fa-bars"></i></button>
@@ -79,10 +75,7 @@
                         <input type="password" name="password" autocomplete="current-password" placeholder="••••••••" required>
                     </div>
                     <div class="login-meta">
-                        <label class="remember-me">
-                            <input type="checkbox" name="rememberMe">
-                            Remember me?
-                        </label>
+                        <label class="remember-me"><input type="checkbox" name="rememberMe"> Remember me?</label>
                         <a asp-area="Identity" asp-page="/Account/ForgotPassword" class="forgot-link">Forgot your password?</a>
                     </div>
                     <button class="btn" type="submit">LOGIN</button>
@@ -129,7 +122,7 @@
                     </div>
                     <button class="btn" type="submit">REGISTER</button>
                     <div class="switch-link">
-                        Have a account? <a href="#" id="showLoginModal">Login</a>
+                        Have an account? <a href="#" id="showLoginModal">Login</a>
                     </div>
                     @if (externalSchemes.Count > 0)
                     {
@@ -151,7 +144,6 @@
 
         @if (isHomePage)
         {
-            <!-- MOBILE MENU OVERLAY & SIDEBAR -->
             <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
             <div class="mobile-menu" id="mobileMenu">
                 <div class="mobile-menu-header">
@@ -161,12 +153,11 @@
                 <a href="#" class="mobile-menu-item active" id="mobileHome"><i class="fas fa-home"></i> Trang chủ</a>
                 <a asp-controller="Categories" asp-action="Index" asp-route-id="" class="mobile-menu-item" id="mobileGenre"><i class="fas fa-tags"></i> Thể loại</a>
                 <a href="#" class="mobile-menu-item" id="mobileRank"><i class="fas fa-crown"></i> BXH</a>
-                <a href="#" class="mobile-menu-item" id="mobileCompleted"><i class="fas fa-check-circle"></i> Hoàn thành</a>
                 <a href="#" class="mobile-menu-item" id="mobileGroups"><i class="fas fa-users"></i> Nhóm dịch</a>
                 <a href="#" class="mobile-menu-item" id="mobileProfilePage"><i class="fas fa-user"></i> Cá nhân</a>
             </div>
         }
-        <!-- Navigation tabs (desktop) -->
+
         <nav class="nav-tabs">
             <a class="nav-item" id="tabHome" asp-controller="Home" asp-action="Index">Trang chủ</a>
             <div class="nav-dropdown">
@@ -181,11 +172,7 @@
                     </div>
                     @for (var columnIndex = 1; columnIndex < categoryColumnCount; columnIndex++)
                     {
-                        var columnCategories = categories
-                        .Skip(columnIndex * categoriesPerColumn)
-                        .Take(categoriesPerColumn)
-                        .ToList();
-
+                        var columnCategories = categories.Skip(columnIndex * categoriesPerColumn).Take(categoriesPerColumn).ToList();
                         <div class="genre-column">
                             @foreach (var category in columnCategories)
                             {
@@ -208,88 +195,16 @@
                     <a class="rank-link" asp-controller="Rankings" asp-action="Index" asp-route-type="random">Truyện Ngẫu Nhiên</a>
                 </div>
             </div>
-            <a class="nav-item" id="tabCompleted" asp-controller="Home" asp-action="Index">Hoàn thành</a>
             <a class="nav-item" id="tabGroups" asp-controller="Home" asp-action="Index">Nhóm dịch</a>
             <a class="nav-item" id="tabProfilePage" asp-controller="Home" asp-action="Index">Cá nhân</a>
         </nav>
 
-
         @if (isHomePage)
         {
-            <!-- Main grid -->
             <div class="main-grid">
-                <!-- Left column -->
                 <div>
-                    <!-- Content sections -->
-                    <!-- TRANG CHỦ (có featured, update list, recommend, top views) -->
                     <div id="homeSection" class="content-section">
-                        @* <div class="new-upload-section">
-                            <div class="section-header">
-                                <h2><i class="fas fa-star" style="color: #f97316;"></i> Truyện Mới Upload</h2>
-                                <span class="view-all-link">Xem tất cả</span>
-                            </div>
-
-                            <div class="swiper newUploadSwiper">
-                                <div class="swiper-wrapper">
-                                    <div class="swiper-slide">
-                                        <a href="/truyen/chi-tiet-truyen" class="slider-comic-card">
-                                            <div class="slider-comic-thumb">
-                                                <div class="decor-top"></div>
-
-                                                <img src="https://images.unsplash.com/photo-1613376023733-7740951b9824?w=300&h=400&fit=crop" alt="Bìa truyện">
-
-                                                <div class="badge-time">4 Giờ trước</div>
-                                                <div class="badge-group-right">
-                                                    <span class="badge-hot">Hot</span>
-                                                    <span class="badge-bookmark"><i class="fas fa-bookmark"></i></span>
-                                                </div>
-                                            </div>
-                                            <div class="slider-comic-info">
-                                                <h3 class="slider-comic-title">Hội Pháp Sư: Nhiệm Vụ...</h3>
-                                                <p class="slider-comic-chapter">Chương 203</p>
-                                            </div>
-                                        </a>
-                                    </div>
-
-                                    <div class="swiper-slide">
-                                        <a href="#" class="slider-comic-card">
-                                            <div class="slider-comic-thumb">
-                                                <div class="decor-top"></div>
-                                                <img src="https://images.unsplash.com/photo-1578632767115-351597cf2477?w=300&h=400&fit=crop" alt="Bìa truyện">
-                                                <div class="badge-time" style="background-color: #0ea5e9;">5 Giờ Trước</div>
-                                                <div class="badge-group-right">
-                                                    <span class="badge-hot">Hot</span>
-                                                    <span class="badge-bookmark"><i class="fas fa-bookmark"></i></span>
-                                                </div>
-                                            </div>
-                                            <div class="slider-comic-info">
-                                                <h3 class="slider-comic-title">Chư Thiên Kỷ</h3>
-                                                <p class="slider-comic-chapter">Chương 381</p>
-                                            </div>
-                                        </a>
-                                    </div>
-                                </div>
-                                <div class="swiper-button-next"></div>
-                                <div class="swiper-button-prev"></div>
-                            </div>
-                        </div> *@
-                        <!-- Featured large -->
-                        @* <div class="featured-large">
-                            <div class="featured-large-content">
-                                <h3>NỔI BẬT</h3>
-                                <h2>Shadow Warrior</h2>
-                                <p>In a world where darkness threatens to consume everything, one warrior stands against the shadows. Follow the journey of Kai as he battles ancient evil forces.</p>
-                                <div class="featured-stats">
-                                    <span><i class="fas fa-star" style="color: #fbbf24;"></i> 4.8</span>
-                                    <span><i class="fas fa-eye"></i> 1250K lượt xem</span>
-                                    <span><i class="fas fa-book-open"></i> 4 chương</span>
-                                </div>
-                                <button class="btn" style="width: auto; padding: 12px 32px;" id="readFeaturedBtn" data-id="shadow-warrior" data-title="Shadow Warrior" data-author="Tác giả D" data-genre="Hành động, Phiêu lưu" data-views="1250K" data-rating="4.8" data-votes="1250">Đọc ngay</button>
-                            </div>
-                            <div class="featured-large-cover">Ảnh bìa</div>
-                        </div> *@
                         <div class="suggest-slider-wrapper" style="min-height: 350px; background-color: #111827; border-radius: 16px; position: relative; margin-bottom: 30px; overflow: hidden; display: flex; align-items: center;">
-
                             <button class="slider-nav-btn slider-prev" style="position: absolute; left: 0; z-index: 10; height: 80px; width: 40px; background-color: rgba(0,0,0,0.6); color: white; border: none; border-radius: 0 8px 8px 0; cursor: pointer; font-size: 1.2rem;">
                                 <i class="fas fa-chevron-left"></i>
                             </button>
@@ -305,55 +220,17 @@
                             </button>
                         </div>
 
-                        <!-- Grid 2 cột: update list và top views -->
                         <div class="home-grid">
-                            <!-- Left column -->
                             <div>
-                                <!-- Truyện mới cập nhật dạng list -->
                                 <div class="update-list">
                                     <div class="section-header">
                                         <h2>Truyện Mới Cập Nhật</h2>
                                         <span class="view-all-link" id="viewAllUpdates">Xem tất cả</span>
                                     </div>
-                                    <div class="update-item" data-id="steel-resolve" data-title="Steel Resolve" data-author="Tác giả A" data-genre="Hành động, Phiêu lưu" data-views="1680K" data-rating="4.6" data-votes="1250">
-                                        <div class="update-cover"></div>
-                                        <div class="update-info">
-                                            <div class="update-title">Steel Resolve</div>
-                                            <div class="update-chapter">Chapter 1 • 01-12</div>
-                                            <div class="update-meta">
-                                                <span><i class="fas fa-star" style="color: #fbbf24;"></i> 4.6</span>
-                                                <span><i class="fas fa-eye"></i> 1680K</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="update-item" data-id="cosmic-legends" data-title="Cosmic Legends" data-author="Tác giả B" data-genre="Khoa huyễn, Viễn tưởng" data-views="2100K" data-rating="4.9" data-votes="2100">
-                                        <div class="update-cover"></div>
-                                        <div class="update-info">
-                                            <div class="update-title">Cosmic Legends</div>
-                                            <div class="update-chapter">Chapter 2 • 08-11</div>
-                                            <div class="update-chapter">Chapter 1 • 01-11</div>
-                                            <div class="update-meta">
-                                                <span><i class="fas fa-star" style="color: #fbbf24;"></i> 4.9</span>
-                                                <span><i class="fas fa-eye"></i> 2100K</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="update-item" data-id="dragon-quest" data-title="Dragon Quest" data-author="Tác giả C" data-genre="Kỳ ảo, Phiêu lưu" data-views="1450K" data-rating="4.7" data-votes="980">
-                                        <div class="update-cover"></div>
-                                        <div class="update-info">
-                                            <div class="update-title">Dragon Quest</div>
-                                            <div class="update-chapter">Chapter 5 • 15-12</div>
-                                            <div class="update-meta">
-                                                <span><i class="fas fa-star" style="color: #fbbf24;"></i> 4.7</span>
-                                                <span><i class="fas fa-eye"></i> 1450K</span>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
 
-                                <!-- Truyện đề cử với tabs -->
                                 <div>
-                                    <div class="section-header">
+                                    <div class="section-header" style="margin-top: 30px;">
                                         <h2>Truyện Đề Cử</h2>
                                         <div class="recommend-tabs">
                                             <span class="recommend-tab active" data-recommend="all">Tất cả</span>
@@ -362,203 +239,87 @@
                                         </div>
                                     </div>
                                     <div class="recommend-grid" id="recommendAll">
-                                        <div class="recommend-card" data-title="Dạng ra 1" data-rating="4.5" data-votes="1300">
+                                        <div class="recommend-card" data-title="Nguyên Tôn" data-rating="4.5" data-votes="1300">
                                             <div class="recommend-cover"></div>
                                             <div class="recommend-info">
-                                                <div class="recommend-title">Dạng ra</div>
-                                                <div class="recommend-stats">
-                                                    <span>4 chương</span>
-                                                    <span>1.3M</span>
-                                                </div>
+                                                <div class="recommend-title">Nguyên Tôn</div>
+                                                <div class="recommend-stats"><span>4 chương</span><span>1.3M</span></div>
                                             </div>
                                         </div>
-                                        <div class="recommend-card" data-title="Dạng ra 2" data-rating="4.2" data-votes="980">
+                                        <div class="recommend-card" data-title="Vạn Cổ Chí Tôn" data-rating="4.2" data-votes="980">
                                             <div class="recommend-cover"></div>
                                             <div class="recommend-info">
-                                                <div class="recommend-title">Dạng ra</div>
-                                                <div class="recommend-stats">
-                                                    <span>2 chương</span>
-                                                    <span>980K</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="recommend-card" data-title="Hoàn thành" data-rating="4.8" data-votes="2100">
-                                            <div class="recommend-cover"></div>
-                                            <div class="recommend-info">
-                                                <div class="recommend-title">Hoàn thành</div>
-                                                <div class="recommend-stats">
-                                                    <span>2 chương</span>
-                                                    <span>2.1M</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="recommend-card" data-title="Hỏi Tài" data-rating="4.4" data-votes="1400">
-                                            <div class="recommend-cover"></div>
-                                            <div class="recommend-info">
-                                                <div class="recommend-title">Hỏi Tài</div>
-                                                <div class="recommend-stats">
-                                                    <span>1 chương</span>
-                                                    <span>1.4M</span>
-                                                </div>
+                                                <div class="recommend-title">Vạn Cổ Chí Tôn</div>
+                                                <div class="recommend-stats"><span>2 chương</span><span>980K</span></div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Right column (trong home-grid) -->
                             <div>
                                 <div class="top-list">
                                     <div class="section-header">
                                         <h2>Xem Nhiều Nhất</h2>
                                     </div>
-                                    <div class="top-item" data-id="cosmic-legends" data-title="Cosmic Legends" data-rating="4.9" data-votes="2100">
-                                        <span class="top-rank">1</span>
-                                        <div class="top-info">
-                                            <div class="top-title">Cosmic Legends</div>
-                                            <div class="top-views">2100K</div>
-                                        </div>
-                                    </div>
-                                    <div class="top-item" data-id="steel-resolve" data-title="Steel Resolve" data-rating="4.6" data-votes="1250">
-                                        <span class="top-rank">2</span>
-                                        <div class="top-info">
-                                            <div class="top-title">Steel Resolve</div>
-                                            <div class="top-views">1680K</div>
-                                        </div>
-                                    </div>
-                                    <div class="top-item" data-id="dragon-quest" data-title="Dragon Quest" data-rating="4.7" data-votes="980">
-                                        <span class="top-rank">3</span>
-                                        <div class="top-info">
-                                            <div class="top-title">Dragon Quest</div>
-                                            <div class="top-views">1450K</div>
-                                        </div>
-                                    </div>
-                                    <div class="top-item" data-id="shadow-warrior" data-title="Shadow Warrior" data-rating="4.8" data-votes="1250">
-                                        <span class="top-rank">4</span>
-                                        <div class="top-info">
-                                            <div class="top-title">Shadow Warrior</div>
-                                            <div class="top-views">1250K</div>
-                                        </div>
-                                    </div>
-                                    <div class="top-item" data-id="mystic-dreams" data-title="Mystic Dreams" data-rating="4.3" data-votes="980">
-                                        <span class="top-rank">5</span>
-                                        <div class="top-info">
-                                            <div class="top-title">Mystic Dreams</div>
-                                            <div class="top-views">980K</div>
-                                        </div>
+                                    <div style="text-align: center; padding: 20px; color: #9ca3af;">
+                                        <i class="fas fa-spinner fa-spin"></i> Đang tải...
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Các section khác (ẩn mặc định) -->
                     <div id="newSection" class="content-section hidden"><h2>Nội dung Mới cập nhật</h2></div>
                     <div id="hotSection" class="content-section hidden"><h2>Nội dung Hot nhất</h2></div>
                     <div id="rankSection" class="content-section hidden"><h2>Nội dung BXH</h2></div>
-                    <div id="completedSection" class="content-section hidden"><h2>Nội dung Hoàn thành</h2></div>
                     <div id="groupsSection" class="content-section hidden"><h2>Nội dung Nhóm dịch</h2></div>
                     <div id="profilePageSection" class="content-section hidden"><h2>Nội dung Cá nhân</h2></div>
 
-                    <!-- TRANG CHI TIẾT TRUYỆN -->
                     <div id="detailSection" class="content-section hidden">
                         <div class="breadcrumb">
-                            <a href="#" id="breadcrumbHome">Trang chủ</a> > <a href="#" id="breadcrumbCategory">Thể loại</a> > <span id="breadcrumbTitle">Đồ Đệ Của Ta Đều Là Đại Phản Phái</span>
+                            <a href="#" id="breadcrumbHome">Trang chủ</a> > <a href="#" id="breadcrumbCategory">Thể loại</a> > <span id="breadcrumbTitle">Tên truyện</span>
                         </div>
                         <div class="detail-container">
                             <div class="detail-header">
                                 <div class="detail-cover" id="detailCover">Ảnh bìa</div>
                                 <div class="detail-info">
-                                    <h1 id="detailTitle">Đồ Đệ Của Ta Đều Là Đại Phản Phái</h1>
+                                    <h1 id="detailTitle">Tên truyện</h1>
                                     <div class="detail-meta">
-                                        <div class="detail-meta-item"><span>Tác giả</span><strong id="detailAuthor">TruyenQQ, Mộng Tiên Giới</strong></div>
+                                        <div class="detail-meta-item"><span>Tác giả</span><strong id="detailAuthor">Đang cập nhật</strong></div>
                                         <div class="detail-meta-item"><span>Tình trạng</span><strong id="detailStatus">Đang tiến hành</strong></div>
-                                        <div class="detail-meta-item"><span>Thể loại</span><strong id="detailGenre">Adventure - Chuyển Sinh - Cổ Đại - Manhua - Truyện Màu - Xuyên Không</strong></div>
-                                        <div class="detail-meta-item"><span>Lượt xem</span><strong id="detailViews">427,480</strong></div>
+                                        <div class="detail-meta-item"><span>Thể loại</span><strong id="detailGenre">Đang cập nhật</strong></div>
+                                        <div class="detail-meta-item"><span>Lượt xem</span><strong id="detailViews">0</strong></div>
                                     </div>
                                     <div class="rating">
                                         <div class="stars-interactive">
-                                            <i class="star fas fa-star" data-value="1"></i>
-                                            <i class="star fas fa-star" data-value="2"></i>
-                                            <i class="star fas fa-star" data-value="3"></i>
-                                            <i class="star fas fa-star" data-value="4"></i>
-                                            <i class="star fas fa-star" data-value="5"></i>
+                                            <i class="star fas fa-star"></i><i class="star fas fa-star"></i><i class="star fas fa-star"></i><i class="star fas fa-star"></i><i class="star fas fa-star"></i>
                                         </div>
-                                        <span class="rating-text">5/5 - 605 Lượt đánh giá</span>
+                                        <span class="rating-text">5/5 - 0 Lượt đánh giá</span>
                                     </div>
                                     <div class="follow-info">
                                         <button class="follow-btn" id="followBtn">Theo dõi</button>
-                                        <span><strong>155.492</strong> Người đã theo dõi</span>
+                                        <span><strong>0</strong> Người đã theo dõi</span>
                                     </div>
                                     <div class="action-buttons">
                                         <button class="action-btn" id="readFirstBtn">Đọc từ đầu</button>
-                                        <button class="action-btn" id="readLatestBtn">Đọc mới nhất</button>
                                         <button class="action-btn secondary" id="readContinueBtn">Đọc tiếp ></button>
                                     </div>
                                 </div>
                             </div>
                             <div class="description" id="detailDescription">
-                                <strong>NỘI DUNG TRUYỆN ĐỒ ĐỆ CỦA TA ĐỀU LÀ ĐẠI PHẢN PHÁI</strong><br>
-                                Chào mừng bạn đến với NetTruyen – không gian đọc truyện tranh online hoàn hảo dành cho tất cả các fan truyện tranh!
+                                <strong>NỘI DUNG TRUYỆN</strong><br>
+                                Đang cập nhật nội dung...
                             </div>
                         </div>
                     </div>
 
-                    @* <!-- TRANG ĐỌC TRUYỆN (READER) -->
-                    <div id="readerSection" class="content-section hidden">
-                        <div class="breadcrumb">
-                            <a href="#" id="readerBreadcrumbHome">Trang chủ</a> > <a href="#" id="readerBreadcrumbCategory">Thể loại</a> > <a href="#" id="readerBreadcrumbDetail">Đỗ Đệ Của Ta Đều Là Đại Phản Phái</a> > <span id="readerBreadcrumbChapter">Chapter 0</span>
-                        </div>
-                        <div class="reader-container">
-                            <div class="reader-header">
-                                <h1 class="reader-title" id="readerTitle">Đỗ Đệ Của Ta Đều Là Đại Phản Phái - Chapter 0</h1>
-                                <div class="reader-update" id="readerUpdate">[Cập nhật lúc: 2024-02-29 00:56:44]</div>
-                                <div class="server-notice">
-                                    <i class="fas fa-exclamation-triangle" style="color: #f97316;"></i> Nếu không xem được truyện vui lòng đổi "SERVER ẢNH" bên dưới
-                                </div>
-                                <div class="server-buttons">
-                                    <button class="server-btn active" id="server1">Server 1</button>
-                                    <button class="server-btn" id="server2">Server 2</button>
-                                    <button class="report-btn" id="reportError"><i class="fas fa-flag"></i> Báo lỗi</button>
-                                </div>
-                            </div>
-
-                            <div class="reader-nav">
-                                <div class="chapter-nav">
-                                    <span class="nav-arrow" id="prevChapter"><i class="fas fa-chevron-left"></i></span>
-                                    <select class="chapter-select" id="chapterSelect">
-                                        <option value="0" selected>Chapter 0</option>
-                                        <option value="1">Chapter 1</option>
-                                        <option value="2">Chapter 2</option>
-                                    </select>
-                                    <span class="nav-arrow" id="nextChapter"><i class="fas fa-chevron-right"></i></span>
-                                </div>
-                                <div class="nav-hint">
-                                    Sử dụng mũi tên trái (←) hoặc phải (→) để chuyển chapter
-                                </div>
-                            </div>
-
-                            <div class="reader-images">
-                                <div class="reader-page">Trang 1 - Nội dung truyện sẽ hiển thị ở đây</div>
-                                <div class="reader-page">Trang 2 - Cuộn dọc để đọc tiếp</div>
-                                <div class="reader-page">Trang 3 - Ảnh truyện sẽ được load từ server</div>
-                            </div>
-
-                            <div class="ad-placeholder">
-                                <i class="fas fa-ad"></i> Quảng cáo (Placeholder)
-                            </div>
-                        </div>
-                    </div> *@
-
-                    <!-- Xem thêm button -->
                     <div style="text-align: center; margin: 30px 0;">
                         <a class="view-more-btn" id="viewMoreBtn">Xem thêm truyện <i class="fas fa-chevron-down"></i></a>
                     </div>
                 </div>
 
-                <!-- Sidebar (lịch sử đọc, bảng xếp hạng, thể loại) -->
                 <aside class="sidebar">
-                    <!-- Bảng xếp hạng với tabs -->
                     <div class="sidebar-card">
                         <div class="sidebar-title"><i class="fas fa-crown" style="color: #fbbf24;"></i> Bảng xếp hạng</div>
                         <div class="rank-tabs">
@@ -569,25 +330,11 @@
                         <div class="rank-content active" id="rankDay">
                             <div class="hot-item"><span class="hot-rank">1</span><div class="hot-info"><h4>Bách Luyện Thành Thần</h4><p>Chapter 1295 • 193K</p></div></div>
                             <div class="hot-item"><span class="hot-rank">2</span><div class="hot-info"><h4>Đại Phụng Đa Canh Nhân</h4><p>Chapter 619 • 297K</p></div></div>
-                            <div class="hot-item"><span class="hot-rank">3</span><div class="hot-info"><h4>Tinh Giáp Hôn Tướng</h4><p>Chapter 349 • 305K</p></div></div>
-                            <div class="hot-item"><span class="hot-rank">4</span><div class="hot-info"><h4>Tự Kỷ Luật Ta Đầy Bất Khả...</h4><p>Chapter 200 • 280K</p></div></div>
-                            <div class="hot-item"><span class="hot-rank">5</span><div class="hot-info"><h4>Solo Leveling</h4><p>Chapter 200 • 1.2M</p></div></div>
-                        </div>
-                        <div class="rank-content" id="rankWeek">
-                            <div class="hot-item"><span class="hot-rank">1</span><div class="hot-info"><h4>One Piece</h4><p>Chapter 1090 • 980K</p></div></div>
-                            <div class="hot-item"><span class="hot-rank">2</span><div class="hot-info"><h4>Dớp Dâng</h4><p>Chapter 567 • 854K</p></div></div>
-                            <div class="hot-item"><span class="hot-rank">3</span><div class="hot-info"><h4>Thiên mệnh đế chủ</h4><p>Chapter 420 • 620K</p></div></div>
-                        </div>
-                        <div class="rank-content" id="rankMonth">
-                            <div class="hot-item"><span class="hot-rank">1</span><div class="hot-info"><h4>Solo Leveling</h4><p>Chapter 200 • 1.2M</p></div></div>
-                            <div class="hot-item"><span class="hot-rank">2</span><div class="hot-info"><h4>One Piece</h4><p>Chapter 1090 • 980K</p></div></div>
-                            <div class="hot-item"><span class="hot-rank">3</span><div class="hot-info"><h4>Dớp Dâng</h4><p>Chapter 567 • 854K</p></div></div>
                         </div>
                     </div>
 
-                    <!-- Lịch sử đọc -->
                     <div class="history-card">
-                        <h3>Lịch sử đọc <span class="view-all-link" style="font-size: 13px;">Xem tất cả</span></h3>
+                        <h3>Lịch sử đọc <span class="view-all-link" style="font-size: 13px;">Xem tất cả</span></h3>
                         <div class="history-item">
                             <div class="history-cover">Ảnh</div>
                             <div class="history-info">
@@ -596,25 +343,8 @@
                             </div>
                             <span class="delete-btn"><i class="fas fa-times"></i></span>
                         </div>
-                        <div class="history-item">
-                            <div class="history-cover">Ảnh</div>
-                            <div class="history-info">
-                                <div class="history-title">Bỏ Làm Simp Chúa, Ta Có Trong...</div>
-                                <div class="history-meta">Đọc tiếp Chapter 278 ></div>
-                            </div>
-                            <span class="delete-btn"><i class="fas fa-times"></i></span>
-                        </div>
-                        <div class="history-item">
-                            <div class="history-cover">Ảnh</div>
-                            <div class="history-info">
-                                <div class="history-title">One Piece</div>
-                                <div class="history-meta">Đọc tiếp Chapter 2 ></div>
-                            </div>
-                            <span class="delete-btn"><i class="fas fa-times"></i></span>
-                        </div>
                     </div>
 
-                    <!-- Thể loại -->
                     <div class="sidebar-card">
                         <div class="sidebar-title"><i class="fas fa-tags"></i> Thể loại</div>
                         <div class="genre-tags">
@@ -627,8 +357,6 @@
                 </aside>
             </div>
 
-
-            <!-- CHATBOX AI (đã sửa) -->
             <div class="chatbox" id="chatbox">
                 <div class="chat-header" id="toggleChat">
                     <h3><i class="fas fa-robot" style="color: #f97316;"></i> Trợ lý AI</h3>
@@ -647,369 +375,289 @@
     </div>
 
     <script>
-        const isHomePage = document.getElementById('homeSection') !== null;
-        const isAuthenticated = @((User?.Identity?.IsAuthenticated ?? false).ToString().ToLower());
-        const loginUrl = '@Url.Page("/Account/Login", new { area = "Identity" })';
+        document.addEventListener('DOMContentLoaded', () => {
+            const isHomePage = document.getElementById('homeSection') !== null;
 
-        // ==========================================
-        // 1. XỬ LÝ ĐĂNG NHẬP / ĐĂNG KÝ
-        // ==========================================
-        const authModal = document.getElementById('authModal');
-        const loginBtn = document.getElementById('loginBtn');
-        const closeModal = document.getElementById('closeModal');
-        const registerModal = document.getElementById('registerModal');
-        const registerBtn = document.getElementById('registerBtn');
-        const closeRegisterModal = document.getElementById('closeRegisterModal');
-        const showRegisterModal = document.getElementById('showRegisterModal');
-        const showLoginModal = document.getElementById('showLoginModal');
+            // ==========================================
+            // 1. XỬ LÝ ĐĂNG NHẬP / ĐĂNG KÝ
+            // ==========================================
+            const modals = {
+                auth: document.getElementById('authModal'),
+                register: document.getElementById('registerModal')
+            };
 
-        if (loginBtn && authModal) loginBtn.addEventListener('click', (e) => { e.preventDefault(); if (registerModal) registerModal.classList.remove('active'); authModal.classList.add('active'); });
-        if (registerBtn && registerModal) registerBtn.addEventListener('click', (e) => { e.preventDefault(); if (authModal) authModal.classList.remove('active'); registerModal.classList.add('active'); });
-        if (closeModal && authModal) closeModal.addEventListener('click', () => authModal.classList.remove('active'));
-        if (closeRegisterModal && registerModal) closeRegisterModal.addEventListener('click', () => registerModal.classList.remove('active'));
-        if (showRegisterModal && registerModal && authModal) showRegisterModal.addEventListener('click', (e) => { e.preventDefault(); authModal.classList.remove('active'); registerModal.classList.add('active'); });
-        if (showLoginModal && registerModal && authModal) showLoginModal.addEventListener('click', (e) => { e.preventDefault(); registerModal.classList.remove('active'); authModal.classList.add('active'); });
-        window.addEventListener('click', (e) => { if (authModal && e.target === authModal) authModal.classList.remove('active'); if (registerModal && e.target === registerModal) registerModal.classList.remove('active'); });
+            function toggleModal(modalToShow, modalToHide) {
+                if (modalToHide) modalToHide.classList.remove('active');
+                if (modalToShow) modalToShow.classList.add('active');
+            }
 
-        const loginForm = document.getElementById('loginModalForm');
-        const registerForm = document.getElementById('registerModalForm');
-        const loginError = document.getElementById('loginError');
-        const registerError = document.getElementById('registerError');
+            document.getElementById('loginBtn')?.addEventListener('click', (e) => { e.preventDefault(); toggleModal(modals.auth, modals.register); });
+            document.getElementById('registerBtn')?.addEventListener('click', (e) => { e.preventDefault(); toggleModal(modals.register, modals.auth); });
+            document.getElementById('showRegisterModal')?.addEventListener('click', (e) => { e.preventDefault(); toggleModal(modals.register, modals.auth); });
+            document.getElementById('showLoginModal')?.addEventListener('click', (e) => { e.preventDefault(); toggleModal(modals.auth, modals.register); });
 
-        async function submitAuthForm(form, errorEl, isRegister = false) {
-            if (!form) return;
-            const formData = new FormData(form);
-            const dataObject = {};
-            let antiForgeryToken = '';
-
-            formData.forEach((value, key) => {
-                if (key === '__RequestVerificationToken') antiForgeryToken = value;
-                else dataObject[key] = value;
+            document.querySelectorAll('.modal-close').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    modals.auth?.classList.remove('active');
+                    modals.register?.classList.remove('active');
+                });
             });
 
-            if (errorEl) { errorEl.classList.remove('active'); errorEl.textContent = ''; }
+            window.addEventListener('click', (e) => {
+                if (e.target === modals.auth) modals.auth.classList.remove('active');
+                if (e.target === modals.register) modals.register.classList.remove('active');
+            });
 
-            try {
-                const response = await fetch(form.action, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': antiForgeryToken },
-                    body: JSON.stringify(dataObject)
-                });
+            async function submitAuthForm(form, errorEl, isRegister = false) {
+                if (!form) return;
+                const formData = new FormData(form);
+                const dataObject = Object.fromEntries(formData.entries());
 
-                let payload = {};
-                try { payload = await response.json(); } catch(e){}
+                if (errorEl) { errorEl.classList.remove('active'); errorEl.textContent = ''; }
 
-                if (response.ok && payload.success) {
-                    if (isRegister) {
-                        if (registerModal) registerModal.classList.remove('active');
-                        if (authModal) {
-                            authModal.classList.add('active');
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': dataObject['__RequestVerificationToken']
+                        },
+                        body: JSON.stringify(dataObject)
+                    });
+
+                    const payload = await response.json().catch(() => ({}));
+
+                    if (response.ok && payload.success) {
+                        if (isRegister) {
+                            toggleModal(modals.auth, modals.register);
+                            const loginError = document.getElementById('loginError');
                             if (loginError) {
                                 loginError.textContent = payload.message || 'Đăng ký thành công! Vui lòng đăng nhập.';
                                 loginError.classList.add('active');
-                                loginError.style.backgroundColor = '#d4edda';
-                                loginError.style.color = '#155724';
+                                loginError.style.cssText = 'background-color: #d4edda; color: #155724;';
                             }
+                            return;
                         }
-                        return;
+                        window.location.href = payload.redirectUrl || window.location.href;
+                    } else {
+                        if (errorEl) { errorEl.textContent = payload.message || 'Thông tin không hợp lệ.'; errorEl.classList.add('active'); }
                     }
-                    if (payload.redirectUrl) window.location.href = payload.redirectUrl;
-                    else window.location.reload();
-                    return;
+                } catch (error) {
+                    if (errorEl) { errorEl.textContent = 'Mất kết nối tới máy chủ.'; errorEl.classList.add('active'); }
                 }
-
-                if (errorEl) { errorEl.textContent = payload?.message || 'Thông tin không hợp lệ.'; errorEl.classList.add('active'); }
-            } catch (error) {
-                if (errorEl) { errorEl.textContent = 'Mất kết nối tới máy chủ.'; errorEl.classList.add('active'); }
-            }
-        }
-
-        if (loginForm) loginForm.addEventListener('submit', (e) => { e.preventDefault(); submitAuthForm(loginForm, loginError, false); });
-        if (registerForm) registerForm.addEventListener('submit', (e) => { e.preventDefault(); submitAuthForm(registerForm, registerError, true); });
-
-        // ==========================================
-        // 2. GIAO DIỆN TRANG CHỦ & FETCH DỮ LIỆU
-        // ==========================================
-        if (isHomePage) {
-            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-            const mobileMenu = document.getElementById('mobileMenu');
-            const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
-            const closeMenu = document.getElementById('closeMenu');
-
-            function openMobileMenu() { mobileMenu.classList.add('open'); mobileMenuOverlay.classList.add('active'); }
-            function closeMobileMenu() { mobileMenu.classList.remove('open'); mobileMenuOverlay.classList.remove('active'); }
-            mobileMenuBtn?.addEventListener('click', openMobileMenu);
-            closeMenu?.addEventListener('click', closeMobileMenu);
-            mobileMenuOverlay?.addEventListener('click', closeMobileMenu);
-
-            const sections = ['homeSection', 'newSection', 'hotSection', 'rankSection', 'completedSection', 'groupsSection', 'profilePageSection', 'detailSection'].map(id => document.getElementById(id));
-            const tabs = ['tabHome', 'tabNew', 'tabHot', 'tabRank', 'tabCompleted', 'tabGroups', 'tabProfilePage'].map(id => document.getElementById(id));
-
-            function showSection(sectionId, tabId) {
-                sections.forEach(s => s?.classList.add('hidden'));
-                tabs.forEach(t => t?.classList.remove('active'));
-                document.getElementById(sectionId)?.classList.remove('hidden');
-                if (tabId) document.getElementById(tabId)?.classList.add('active');
             }
 
-            showSection('homeSection', 'tabHome');
+            document.getElementById('loginModalForm')?.addEventListener('submit', (e) => { e.preventDefault(); submitAuthForm(e.target, document.getElementById('loginError'), false); });
+            document.getElementById('registerModalForm')?.addEventListener('submit', (e) => { e.preventDefault(); submitAuthForm(e.target, document.getElementById('registerError'), true); });
 
-            document.getElementById('tabHome')?.addEventListener('click', (e) => { e.preventDefault(); showSection('homeSection', 'tabHome'); });
-            document.getElementById('tabNew')?.addEventListener('click', (e) => { e.preventDefault(); showSection('newSection', 'tabNew'); });
-            document.getElementById('breadcrumbHome')?.addEventListener('click', (e) => { e.preventDefault(); showSection('homeSection', 'tabHome'); });
-
-            const chatbox = document.getElementById('chatbox');
-            document.getElementById('toggleChat')?.addEventListener('click', () => {
-                chatbox?.classList.toggle('closed');
-                document.getElementById('chatIcon').className = chatbox?.classList.contains('closed') ? 'fas fa-comment' : 'fas fa-minus';
-            });
-
-            function fillDetailAndShow(card) {
-                const title = card.dataset.title || 'Đang cập nhật';
-                document.getElementById('detailTitle').innerText = title;
-                document.getElementById('detailAuthor').innerText = card.dataset.author || 'Đang cập nhật';
-                document.getElementById('detailGenre').innerText = card.dataset.genre || 'Đang cập nhật';
-                document.getElementById('detailViews').innerText = card.dataset.views || '0';
-                document.getElementById('breadcrumbTitle').innerText = title;
-
-                const detailCover = document.getElementById('detailCover');
-                if (card.dataset.cover) {
-                    detailCover.style.backgroundImage = `url('${card.dataset.cover}')`;
-                    detailCover.style.backgroundSize = 'cover';
-                    detailCover.innerText = '';
-                }
-                showSection('detailSection');
-            }
-
-            document.addEventListener('click', (event) => {
-                const card = event.target.closest('.update-item, .top-item, .recommend-card, .btn-read');
-                if (card) {
-                    if(card.tagName === 'BUTTON') event.preventDefault();
-                    fillDetailAndShow(card);
-                }
-            });
-
-            // Đổ dữ liệu an toàn
-            function buildStoryData(story) {
-                return {
-                    id: story.id || story.Id,
-                    title: story.title || story.Title || 'Chưa có tiêu đề',
-                    author: story.authorName || story.AuthorName || 'Đang cập nhật',
-                    genre: story.categoryName || story.CategoryName || 'Đang cập nhật',
-                    views: story.views || story.Views || '0',
-                    rating: story.rating || story.Rating || '5',
-                    cover: story.coverImage || story.CoverImage || '',
-                    description: story.description || story.Description || ''
+            // ==========================================
+            // 2. GIAO DIỆN TRANG CHỦ & FETCH DỮ LIỆU
+            // ==========================================
+            if (isHomePage) {
+                // Mobile Menu
+                const mobileMenu = document.getElementById('mobileMenu');
+                const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+                const toggleMobileMenu = (force) => {
+                    mobileMenu.classList.toggle('open', force);
+                    mobileMenuOverlay.classList.toggle('active', force);
                 };
-            }
 
-            function setStoryDataset(element, data) {
-                element.dataset.id = data.id; element.dataset.title = data.title;
-                element.dataset.author = data.author; element.dataset.genre = data.genre;
-                element.dataset.views = data.views; element.dataset.rating = data.rating;
-                element.dataset.cover = data.cover; element.dataset.description = data.description;
-            }
+                document.getElementById('mobileMenuBtn')?.addEventListener('click', () => toggleMobileMenu(true));
+                document.getElementById('closeMenu')?.addEventListener('click', () => toggleMobileMenu(false));
+                mobileMenuOverlay?.addEventListener('click', () => toggleMobileMenu(false));
 
-            // HÀM CHÍNH: Gọi 1 API duy nhất và đổ ra các nơi
-            // async function loadHomePageData() {
-            //     try {
-            //         const res = await fetch('/api/stories/newest');
-            //         if (!res.ok) return;
-            //         const stories = await res.json();
-            //         if (!Array.isArray(stories) || stories.length === 0) return;
+                // Tabs / Sections
+                const sections = ['homeSection', 'newSection', 'hotSection', 'rankSection', 'completedSection', 'groupsSection', 'profilePageSection', 'detailSection'].map(id => document.getElementById(id));
+                const tabs = ['tabHome', 'tabNew', 'tabHot', 'tabRank', 'tabCompleted', 'tabGroups', 'tabProfilePage'].map(id => document.getElementById(id));
 
-            //         1. Đổ ra Slider Nổi Bật (Lấy 3 truyện đầu)
-            //         const sliderList = document.getElementById('list_suggest');
-            //         if (sliderList) {
-            //             sliderList.innerHTML = '';
-            //             stories.slice(0, 3).forEach(story => {
-            //                 const data = buildStoryData(story);
-            //                 const li = document.createElement('li');
-            //                 li.className = 'suggest-slide';
-            //                 li.innerHTML = `
-            //                     <div class="featured-box">
-            //                         <div class="featured-info">
-            //                             <p class="tag-hot">NỔI BẬT</p>
-            //                             <h2>${data.title}</h2>
-            //                             <p class="desc">${data.description || 'Đang cập nhật nội dung...'}</p>
-            //                             <div class="stats">
-            //                                 <span>⭐ ${data.rating}</span>
-            //                                 <span>👁️ ${data.views} lượt xem</span>
-            //                                 <span>📖 Đang tiến hành</span>
-            //                             </div>
-            //                             <button class="btn-read" data-id="${data.id}" data-title="${data.title}" data-author="${data.author}" data-genre="${data.genre}" data-views="${data.views}" data-rating="${data.rating}" data-cover="${data.cover}">Đọc ngay</button>
-            //                         </div>
-            //                         <div class="featured-cover">
-            //                             <img src="${data.cover || 'https:via.placeholder.com/200x300'}" alt="${data.title}">
-            //                         </div>
-            //                     </div>
-            //                 `;
-            //                 sliderList.appendChild(li);
-            //             });
-            //             initSlider(); Chạy Slider
-            //         }
-
-            //         2. Đổ ra danh sách Mới Cập Nhật
-            //         const updateList = document.querySelector('.update-list');
-            //         if (updateList) {
-            //             updateList.querySelectorAll('.update-item').forEach(i => i.remove());
-            //             stories.forEach(story => {
-            //                 const data = buildStoryData(story);
-            //                 const item = document.createElement('div');
-            //                 item.className = 'update-item';
-            //                 setStoryDataset(item, data);
-            //                 item.innerHTML = `
-            //                     <div class="update-cover" style="${data.cover ? `background-image:url('${data.cover}')` : ''}"></div>
-            //                     <div class="update-info">
-            //                         <div class="update-title">${data.title}</div>
-            //                         <div class="update-chapter">Mới cập nhật</div>
-            //                         <div class="update-meta">
-            //                             <span><i class="fas fa-star" style="color: #fbbf24;"></i> ${data.rating}</span>
-            //                             <span><i class="fas fa-eye"></i> ${data.views}</span>
-            //                         </div>
-            //                     </div>
-            //                 `;
-            //                 updateList.appendChild(item);
-            //             });
-            //         }
-
-            //         3. Đổ ra Xem Nhiều Nhất
-            //         const topList = document.querySelector('.top-list');
-            //         if (topList) {
-            //             topList.querySelectorAll('.top-item').forEach(i => i.remove());
-            //             stories.slice(0, 5).forEach((story, idx) => {
-            //                 const data = buildStoryData(story);
-            //                 const item = document.createElement('div');
-            //                 item.className = 'top-item';
-            //                 setStoryDataset(item, data);
-            //                 item.innerHTML = `<span class="top-rank">${idx + 1}</span><div class="top-info"><div class="top-title">${data.title}</div><div class="top-views">${data.views}</div></div>`;
-            //                 topList.appendChild(item);
-            //             });
-            //         }
-
-            //     } catch (err) { console.error("Lỗi API:", err); }
-            // }
-            async function loadHomePageData() {
-            console.log("🔥 1. Bắt đầu gọi API lấy truyện...");
-            const sliderList = document.getElementById('list_suggest');
-
-            try {
-                // Gọi API
-                // const res = await fetch('/api/stories/newest');
-                const res = await fetch('https://localhost:7267/api/stories/newest');
-                console.log("🔥 2. Trạng thái API:", res.status);
-
-                if (!res.ok) {
-                    throw new Error("Lỗi gọi API: " + res.status);
+                function showSection(sectionId, tabId) {
+                    sections.forEach(s => s?.classList.add('hidden'));
+                    tabs.forEach(t => t?.classList.remove('active'));
+                    document.getElementById(sectionId)?.classList.remove('hidden');
+                    if (tabId) document.getElementById(tabId)?.classList.add('active');
                 }
 
-                const stories = await res.json();
-                console.log("🔥 3. Dữ liệu từ Database:", stories);
+                document.getElementById('tabHome')?.addEventListener('click', (e) => { e.preventDefault(); showSection('homeSection', 'tabHome'); });
+                document.getElementById('breadcrumbHome')?.addEventListener('click', (e) => { e.preventDefault(); showSection('homeSection', 'tabHome'); });
 
-                // Nếu API chạy được nhưng Database trống
-                if (!Array.isArray(stories) || stories.length === 0) {
-                    console.warn("🔥 4. Database không có truyện nào!");
-                    if (sliderList) sliderList.innerHTML = '<li style="width: 100%; text-align: center; color: #fbbf24; padding: 50px; font-size: 1.2rem;">Database hiện chưa có truyện nào để hiển thị Nổi Bật!</li>';
-                    return;
+                // Chatbox
+                const chatbox = document.getElementById('chatbox');
+                document.getElementById('toggleChat')?.addEventListener('click', () => {
+                    chatbox?.classList.toggle('closed');
+                    document.getElementById('chatIcon').className = chatbox?.classList.contains('closed') ? 'fas fa-comment' : 'fas fa-minus';
+                });
+
+                // Detail Show (Cho update list và recommend)
+                function fillDetailAndShow(card) {
+                    document.getElementById('detailTitle').innerText = card.dataset.title || 'Đang cập nhật';
+                    document.getElementById('detailAuthor').innerText = card.dataset.author || 'Đang cập nhật';
+                    document.getElementById('detailGenre').innerText = card.dataset.genre || 'Đang cập nhật';
+                    document.getElementById('detailViews').innerText = card.dataset.views || '0';
+                    document.getElementById('breadcrumbTitle').innerText = card.dataset.title || 'Đang cập nhật';
+
+                    const detailCover = document.getElementById('detailCover');
+                    if (card.dataset.cover) {
+                        detailCover.style.cssText = `background-image: url('${card.dataset.cover}'); background-size: cover;`;
+                        detailCover.innerText = '';
+                    }
+                    showSection('detailSection');
                 }
 
-                // NẾU CÓ DỮ LIỆU -> BẮT ĐẦU VẼ HTML CHO SLIDER
-                console.log("🔥 5. Bắt đầu đổ dữ liệu ra HTML...");
-                if (sliderList) {
-                    sliderList.innerHTML = ''; // Xóa dòng chữ đang tải
+                // Lắng nghe sự kiện click thẻ để mở popup (Trừ .top-item vì nó đã là thẻ a)
+                document.addEventListener('click', (event) => {
+                    if (event.target.closest('.btn-read')) return; // Bỏ qua nút đọc ngay (chuyển hướng)
 
-                    // Lấy tối đa 5 truyện đưa lên nổi bật
-                    stories.slice(0, 5).forEach(story => {
-                        // Cực kỳ chú ý: Map đúng tên biến JSON (đề phòng C# viết hoa chữ cái đầu)
-                        const id = story.id || story.Id;
-                        const title = story.title || story.Title || 'Chưa có tên';
-                        const desc = story.description || story.Description || 'Truyện đang cập nhật nội dung...';
-                        const cover = story.coverImage || story.CoverImage || 'https://via.placeholder.com/200x300';
-                        const rating = story.rating || story.Rating || '5.0';
-                        const views = story.views || story.Views || '0';
+                    // Lưu ý: Đã bỏ .top-item ra khỏi đây
+                    const card = event.target.closest('.update-item, .recommend-card');
+                    if (card) {
+                        fillDetailAndShow(card);
+                    }
+                });
 
-                        const li = document.createElement('li');
-                        li.className = 'suggest-slide';
-                        // Ép cứng CSS để không bị mất hình
-                        li.style.flex = "0 0 100%";
-                        li.style.width = "100%";
-                        li.style.boxSizing = "border-box";
+                // Format views
+                function formatViews(views) {
+                    const v = parseInt(views) || 0;
+                    return v >= 1000 ? Math.floor(v / 1000) + 'K' : v.toString();
+                }
 
-                        li.innerHTML = `
-                            <div class="featured-box" style="display: flex; align-items: center; justify-content: space-between; padding: 40px; gap: 30px; width: 100%;">
-                                <div class="featured-info" style="flex: 1; color: white;">
-                                    <p class="tag-hot" style="color: #fbbf24; font-weight: bold; margin-bottom: 10px;">NỔI BẬT</p>
-                                    <h2 style="font-size: 2.5rem; margin: 0 0 15px 0;">${title}</h2>
-                                    <p class="desc" style="color: #9ca3af; margin-bottom: 20px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">${desc}</p>
-                                    <div class="stats" style="margin-bottom: 25px;">
-                                        <span style="margin-right: 15px;">⭐ ${rating}</span>
-                                        <span>👁️ ${views} lượt xem</span>
+                // Fetch data mới nhất
+                async function loadHomePageData() {
+                    const sliderList = document.getElementById('list_suggest');
+                    try {
+                        const res = await fetch('https://localhost:7267/api/stories/newest');
+                        if (!res.ok) throw new Error("Lỗi gọi API: " + res.status);
+
+                        const stories = await res.json();
+                        if (!Array.isArray(stories) || stories.length === 0) {
+                            if (sliderList) sliderList.innerHTML = '<li style="width:100%;text-align:center;color:#fbbf24;padding:50px;">Chưa có truyện nào!</li>';
+                            return;
+                        }
+
+                        // Vẽ Slider
+                        if (sliderList) {
+                            sliderList.innerHTML = '';
+                            stories.slice(0, 5).forEach(story => {
+                                const id = story.id || story.Id;
+                                const title = story.title || story.Title || 'Chưa có tên';
+                                const desc = story.description || story.Description || 'Đang cập nhật...';
+                                const cover = story.coverImage || story.CoverImage || 'https://via.placeholder.com/200x300';
+                                const rating = story.rating || story.Rating || '5.0';
+                                const views = formatViews(story.viewCount || story.ViewCount || 0);
+
+                                const li = document.createElement('li');
+                                li.className = 'suggest-slide';
+                                li.style.cssText = 'flex: 0 0 100%; width: 100%; box-sizing: border-box;';
+                                li.innerHTML = `
+                                    <div class="featured-box" style="display:flex; align-items:center; justify-content:space-between; padding:40px; gap:30px; width:100%;">
+                                        <div class="featured-info" style="flex:1; color:white;">
+                                            <p class="tag-hot" style="color:#fbbf24; font-weight:bold; margin-bottom:10px;">NỔI BẬT</p>
+                                            <h2 style="font-size:2.5rem; margin:0 0 15px 0;">${title}</h2>
+                                            <p class="desc" style="color:#9ca3af; margin-bottom:20px; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;">${desc}</p>
+                                            <div class="stats" style="margin-bottom:25px;">
+                                                <span style="margin-right:15px;">⭐ ${rating}</span>
+                                                <span>👁️ ${views} lượt xem</span>
+                                            </div>
+                                            <a href="/Stories/Details/${id}" class="btn-read" style="display:inline-block; background-color:#3b82f6; color:white; padding:12px 32px; border-radius:20px; font-weight:bold; text-decoration:none;">Đọc ngay</a>
+                                        </div>
+                                        <div class="featured-cover" style="width:200px; height:300px; border-radius:12px; overflow:hidden; flex-shrink:0; background:#333;">
+                                            <img src="${cover}" alt="${title}" style="width:100%; height:100%; object-fit:cover;">
+                                        </div>
                                     </div>
-                                    <button class="btn-read" data-id="${id}" data-title="${title}" style="background-color: #3b82f6; color: white; border: none; padding: 12px 32px; border-radius: 20px; font-weight: bold; cursor: pointer;">Đọc ngay</button>
-                                </div>
-                                <div class="featured-cover" style="width: 200px; height: 300px; border-radius: 12px; overflow: hidden; flex-shrink: 0; background: #333;">
-                                    <img src="${cover}" alt="${title}" style="width: 100%; height: 100%; object-fit: cover;">
-                                </div>
-                            </div>
-                        `;
-                        sliderList.appendChild(li);
-                    });
-
-                    console.log("🔥 6. Vẽ xong! Khởi động Slider.");
-                    setTimeout(initSlider, 100); // Khởi động hiệu ứng trượt
+                                `;
+                                sliderList.appendChild(li);
+                            });
+                            setTimeout(initSlider, 100);
+                        }
+                    } catch (err) {
+                        console.error("Lỗi tải Slider:", err);
+                    }
                 }
 
-            } catch (err) {
-                console.error("🔥 LỖI CHẾT NGƯỜI:", err);
-                if (sliderList) {
-                    sliderList.innerHTML = `<li style="width: 100%; text-align: center; color: #ef4444; padding: 50px;">Lỗi không thể tải truyện: ${err.message}</li>`;
+                // Fetch data Top Views
+                async function loadTopViewsData() {
+                    const topList = document.querySelector('.top-list');
+                    if (!topList) return;
+
+                    try {
+                        const res = await fetch('https://localhost:7267/api/stories/top-views');
+                        if (!res.ok) throw new Error("Lỗi API top views: " + res.status);
+
+                        const topStories = await res.json();
+
+                        // Xóa chữ Loading
+                        const existingItems = topList.querySelectorAll('.top-item, div[style*="text-align"]');
+                        existingItems.forEach(item => item.remove());
+
+                        if (!Array.isArray(topStories) || topStories.length === 0) return;
+
+                        topStories.slice(0, 5).forEach((story, index) => {
+                            const id = story.id || story.Id;
+                            const title = story.title || story.Title || 'Chưa có tên';
+                            const views = story.viewCount || story.ViewCount || 0;
+
+                            // TOP ITEM là thẻ <a> chuyển link
+                            const item = document.createElement('a');
+                            item.className = 'top-item';
+                            item.href = `/Stories/Details/${id}`;
+                            item.style.textDecoration = 'none';
+                            item.style.color = 'inherit';
+
+                            item.innerHTML = `
+                                <span class="top-rank">${index + 1}</span>
+                                <div class="top-info">
+                                    <div class="top-title">${title}</div>
+                                    <div class="top-views">${formatViews(views)}</div>
+                                </div>
+                            `;
+                            topList.appendChild(item);
+                        });
+                    } catch (err) {
+                        console.error("Lỗi tải Xem Nhiều Nhất:", err);
+                    }
+                }
+
+                // KHỞI CHẠY API CÙNG LÚC
+                async function fetchAllData() {
+                    await Promise.all([
+                        loadHomePageData(),
+                        loadTopViewsData()
+                    ]);
+                }
+                fetchAllData();
+
+                // Logic Slider
+                let autoPlayTimer;
+                function initSlider() {
+                    const track = document.getElementById('list_suggest');
+                    if (!track) return;
+
+                    const slides = track.querySelectorAll('.suggest-slide');
+                    const slideCount = slides.length;
+                    let currentIndex = 0;
+
+                    function goToSlide(index) {
+                        if (index >= slideCount) currentIndex = 0;
+                        else if (index < 0) currentIndex = slideCount - 1;
+                        else currentIndex = index;
+                        track.style.transform = `translateX(-${currentIndex * 100}%)`;
+                    }
+
+                    function startAutoPlay() {
+                        autoPlayTimer = setInterval(() => goToSlide(currentIndex + 1), 4000);
+                    }
+
+                    function resetAutoPlay() {
+                        clearInterval(autoPlayTimer);
+                        startAutoPlay();
+                    }
+
+                    document.querySelector('.slider-prev')?.addEventListener('click', () => { goToSlide(currentIndex - 1); resetAutoPlay(); });
+                    document.querySelector('.slider-next')?.addEventListener('click', () => { goToSlide(currentIndex + 1); resetAutoPlay(); });
+
+                    if(slideCount > 1) startAutoPlay();
                 }
             }
-        }
-
-            // Chạy dữ liệu
-            loadHomePageData();
-        }
-
-        // ==========================================
-        // 3. LOGIC SLIDER
-        // ==========================================
-        let autoPlayTimer;
-        function initSlider() {
-            const track = document.getElementById('list_suggest');
-            if (!track) return;
-
-            const slides = track.querySelectorAll('.suggest-slide');
-            const slideCount = slides.length;
-            let currentIndex = 0;
-            const intervalTime = 4000;
-
-            const prevBtn = document.querySelector('.slider-prev');
-            const nextBtn = document.querySelector('.slider-next');
-
-            if (autoPlayTimer) clearInterval(autoPlayTimer);
-
-            function goToSlide(index) {
-                if (index >= slideCount) currentIndex = 0;
-                else if (index < 0) currentIndex = slideCount - 1;
-                else currentIndex = index;
-                track.style.transform = `translateX(-${currentIndex * 100}%)`;
-            }
-
-            function startAutoPlay() {
-                autoPlayTimer = setInterval(() => { goToSlide(currentIndex + 1); }, intervalTime);
-            }
-
-            function resetAutoPlay() {
-                clearInterval(autoPlayTimer);
-                startAutoPlay();
-            }
-
-            if (prevBtn) prevBtn.onclick = () => { goToSlide(currentIndex - 1); resetAutoPlay(); };
-            if (nextBtn) nextBtn.onclick = () => { goToSlide(currentIndex + 1); resetAutoPlay(); };
-
-            if(slideCount > 1) startAutoPlay();
-        }
+        });
     </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

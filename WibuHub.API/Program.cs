@@ -22,7 +22,6 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 // 1. Đăng ký DbContext (Kết nối CSDL)
-// Bạn cần chắc chắn chuỗi kết nối trong appsettings.json tên là "DefaultConnection" hoặc sửa lại cho khớp
 builder.Services.AddDbContext<StoryDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("StoryConnection")));
 
@@ -30,22 +29,24 @@ builder.Services.AddDbContext<StoryIdentityDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("StoryIdentityConnection")));
 
 // 2. Đăng ký Service (Dependency Injection)
-// AddScoped: Service được tạo mới cho mỗi HTTP Request (phù hợp với DbContext)
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IStoryService, StoryService>();
 builder.Services.AddScoped<IChapterService, ChapterService>();
-//builder.Services.AddScoped<IChapterService, ChapterService>();
+
 // 3. Configure MoMo Settings
 builder.Services.Configure<MomoSettings>(builder.Configuration.GetSection("MomoSettings"));
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddScoped<IEmailSender, MimeKitEmailSender>();
+
 // 4. Register HttpClient for MoMo API calls with timeout
 builder.Services.AddHttpClient<MomoPaymentService>(client =>
 {
     client.Timeout = TimeSpan.FromSeconds(30);
 });
+
 // 5. Register Payment Service
 builder.Services.AddScoped<IPaymentService, MomoPaymentService>();
+
 // 6. Add Controllers
 builder.Services.AddControllers(options =>
 {
@@ -54,6 +55,7 @@ builder.Services.AddControllers(options =>
         .Build();
     options.Filters.Add(new AuthorizeFilter(policy));
 });
+
 // 7. Add Authentication and Authorization
 builder.Services.AddIdentity<StoryUser, StoryRole>(options =>
 {
@@ -93,6 +95,17 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
+// 8. ĐĂNG KÝ CORS (BẮT BUỘC PHẢI NẰM TRƯỚC BUILDER.BUILD)
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policyBuilder =>
+    {
+        policyBuilder.AllowAnyOrigin()
+                     .AllowAnyMethod()
+                     .AllowAnyHeader();
+    });
+});
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -100,26 +113,23 @@ builder.Services.AddSwaggerGen(options =>
     var securityScheme = new OpenApiSecurityScheme
     {
         Name = "Authorization",
-        Type = SecuritySchemeType.Http, // Dùng Http thì Swagger sẽ tự hiểu và gửi chuẩn định dạng
+        Type = SecuritySchemeType.Http,
         Scheme = "bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description = "Nhập Token của bạn vào ô bên dưới (KHÔNG CẦN gõ chữ 'Bearer ' ở trước, Swagger sẽ tự động thêm vào)."
+        Description = "Nhập Token của bạn vào ô bên dưới."
     };
 
-    // Định nghĩa nút bấm Authorize
     options.AddSecurityDefinition("Bearer", securityScheme);
-
-    // Bắt buộc Swagger phải đính kèm Token vào Header của mỗi Request
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
             new OpenApiSecurityScheme
             {
-                Reference = new OpenApiReference 
+                Reference = new OpenApiReference
                 {
                     Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer" // Chữ này phải khớp y hệt với tên ở AddSecurityDefinition
+                    Id = "Bearer"
                 }
             },
             Array.Empty<string>()
@@ -135,17 +145,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-//builder.Services.AddCors(options =>
-//{
-//    options.AddPolicy("AllowAll", builder =>
-//    {
-//        builder.AllowAnyOrigin()
-//               .AllowAnyMethod()
-//               .AllowAnyHeader();
-//    });
-//});
-//app.UseCors("AllowAll");
+
 app.UseHttpsRedirection();
+
+// 9. SỬ DỤNG CORS (BẮT BUỘC PHẢI NẰM TRƯỚC AUTHENTICATION)
+app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();

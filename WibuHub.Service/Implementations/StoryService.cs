@@ -78,6 +78,30 @@ namespace WibuHub.Service.Implementations
             return newestStories;
         }
 
+        public async Task<IEnumerable<StoryDto>> GetTopViewsAsync(int take = 5)
+        {
+            // Tùy vào việc bạn dùng _context hay _repository, hãy thay thế cho phù hợp nhé
+            var topStories = await _context.Stories // Hoặc _storyRepository.GetAll()
+                .OrderByDescending(s => s.ViewCount)    // Sắp xếp lượt xem từ cao xuống thấp
+                .Take(take)                         // Lấy số lượng tương ứng (5 truyện)
+                .Select(s => new StoryDto           // Map sang DTO để trả về
+                {
+                    Id = s.Id,
+                    Title = s.StoryName,
+                    ViewCount = s.ViewCount,
+                    // Map thêm các trường cần thiết để giao diện hiển thị Popup chi tiết
+                    CoverImage = s.CoverImage,
+                    AuthorName = s.AuthorName ?? "Đang cập nhật",
+                    CategoryName = s.Category != null ? s.Category.Name : "Đang cập nhật",
+                    //Rating = s.Rating ?? 5.0,
+                    Description = s.Description
+                    // (Bạn map các trường giống hệt hàm GetNewestStoriesAsync là chuẩn nhất)
+                })
+                .ToListAsync();
+
+            return topStories;
+        }
+
         public async Task<bool> CreateAsync(StoryDto dto)
         {
             try
