@@ -15,6 +15,7 @@ using WibuHub.Service.EmailSender;
 using WibuHub.Service.Implementations;
 using WibuHub.Service.Implementations.EmailSender;
 using WibuHub.Service.Interface;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -55,10 +56,10 @@ builder.Services.AddControllers(options =>
 });
 // 7. Add Authentication and Authorization
 builder.Services.AddIdentity<StoryUser, StoryRole>(options =>
-    {
-        options.User.RequireUniqueEmail = true;
-        options.SignIn.RequireConfirmedEmail = false;
-    })
+{
+    options.User.RequireUniqueEmail = true;
+    options.SignIn.RequireConfirmedEmail = false;
+})
     .AddEntityFrameworkStores<StoryIdentityDbContext>()
     .AddDefaultTokenProviders();
 
@@ -71,10 +72,10 @@ if (jwtSettings is null || string.IsNullOrWhiteSpace(jwtSettings.Key))
 }
 
 builder.Services.AddAuthentication(options =>
-    {
-        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    })
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
     .AddJwtBearer(options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
@@ -99,14 +100,31 @@ builder.Services.AddSwaggerGen(options =>
     var securityScheme = new OpenApiSecurityScheme
     {
         Name = "Authorization",
-        Type = SecuritySchemeType.Http,
+        Type = SecuritySchemeType.Http, // Dùng Http thì Swagger sẽ tự hiểu và gửi chuẩn định dạng
         Scheme = "bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description = "JWT Authorization header using the Bearer scheme."
+        Description = "Nhập Token của bạn vào ô bên dưới (KHÔNG CẦN gõ chữ 'Bearer ' ở trước, Swagger sẽ tự động thêm vào)."
     };
 
+    // Định nghĩa nút bấm Authorize
     options.AddSecurityDefinition("Bearer", securityScheme);
+
+    // Bắt buộc Swagger phải đính kèm Token vào Header của mỗi Request
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference 
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer" // Chữ này phải khớp y hệt với tên ở AddSecurityDefinition
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
 });
 
 var app = builder.Build();
@@ -117,7 +135,16 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowAll", builder =>
+//    {
+//        builder.AllowAnyOrigin()
+//               .AllowAnyMethod()
+//               .AllowAnyHeader();
+//    });
+//});
+//app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 
 app.UseAuthentication();

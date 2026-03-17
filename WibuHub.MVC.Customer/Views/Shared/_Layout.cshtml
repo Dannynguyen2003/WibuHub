@@ -159,8 +159,6 @@
                     <span class="close-menu" id="closeMenu"><i class="fas fa-times"></i></span>
                 </div>
                 <a href="#" class="mobile-menu-item active" id="mobileHome"><i class="fas fa-home"></i> Trang chủ</a>
-                <a href="#" class="mobile-menu-item" id="mobileNew"><i class="fas fa-history"></i> Mới cập nhật</a>
-                <a href="#" class="mobile-menu-item" id="mobileHot"><i class="fas fa-fire"></i> Hot nhất</a>
                 <a asp-controller="Categories" asp-action="Index" asp-route-id="" class="mobile-menu-item" id="mobileGenre"><i class="fas fa-tags"></i> Thể loại</a>
                 <a href="#" class="mobile-menu-item" id="mobileRank"><i class="fas fa-crown"></i> BXH</a>
                 <a href="#" class="mobile-menu-item" id="mobileCompleted"><i class="fas fa-check-circle"></i> Hoàn thành</a>
@@ -171,8 +169,6 @@
         <!-- Navigation tabs (desktop) -->
         <nav class="nav-tabs">
             <a class="nav-item" id="tabHome" asp-controller="Home" asp-action="Index">Trang chủ</a>
-            <a class="nav-item" id="tabNew" asp-controller="Home" asp-action="Index">Mới cập nhật</a>
-            <a class="nav-item" id="tabHot" asp-controller="Home" asp-action="Index">Hot nhất</a>
             <div class="nav-dropdown">
                 <span class="nav-item nav-item-static" id="tabGenre">Thể loại <i class="fas fa-chevron-down"></i></span>
                 <div class="genre-dropdown">
@@ -278,7 +274,7 @@
                             </div>
                         </div> *@
                         <!-- Featured large -->
-                        <div class="featured-large">
+                        @* <div class="featured-large">
                             <div class="featured-large-content">
                                 <h3>NỔI BẬT</h3>
                                 <h2>Shadow Warrior</h2>
@@ -291,6 +287,22 @@
                                 <button class="btn" style="width: auto; padding: 12px 32px;" id="readFeaturedBtn" data-id="shadow-warrior" data-title="Shadow Warrior" data-author="Tác giả D" data-genre="Hành động, Phiêu lưu" data-views="1250K" data-rating="4.8" data-votes="1250">Đọc ngay</button>
                             </div>
                             <div class="featured-large-cover">Ảnh bìa</div>
+                        </div> *@
+                        <div class="suggest-slider-wrapper" style="min-height: 350px; background-color: #111827; border-radius: 16px; position: relative; margin-bottom: 30px; overflow: hidden; display: flex; align-items: center;">
+
+                            <button class="slider-nav-btn slider-prev" style="position: absolute; left: 0; z-index: 10; height: 80px; width: 40px; background-color: rgba(0,0,0,0.6); color: white; border: none; border-radius: 0 8px 8px 0; cursor: pointer; font-size: 1.2rem;">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+
+                            <ul id="list_suggest" style="display: flex; list-style: none; padding: 0; margin: 0; width: 100%; transition: transform 0.5s ease;">
+                                <li style="flex: 0 0 100%; width: 100%; text-align: center; color: #9ca3af; font-size: 1.1rem; padding: 50px 0;">
+                                    <i class="fas fa-spinner fa-spin"></i> Đang tải dữ liệu Nổi Bật...
+                                </li>
+                            </ul>
+
+                            <button class="slider-nav-btn slider-next" style="position: absolute; right: 0; z-index: 10; height: 80px; width: 40px; background-color: rgba(0,0,0,0.6); color: white; border: none; border-radius: 8px 0 0 8px; cursor: pointer; font-size: 1.2rem;">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
                         </div>
 
                         <!-- Grid 2 cột: update list và top views -->
@@ -492,7 +504,7 @@
                         </div>
                     </div>
 
-                    <!-- TRANG ĐỌC TRUYỆN (READER) -->
+                    @* <!-- TRANG ĐỌC TRUYỆN (READER) -->
                     <div id="readerSection" class="content-section hidden">
                         <div class="breadcrumb">
                             <a href="#" id="readerBreadcrumbHome">Trang chủ</a> > <a href="#" id="readerBreadcrumbCategory">Thể loại</a> > <a href="#" id="readerBreadcrumbDetail">Đỗ Đệ Của Ta Đều Là Đại Phản Phái</a> > <span id="readerBreadcrumbChapter">Chapter 0</span>
@@ -536,7 +548,7 @@
                                 <i class="fas fa-ad"></i> Quảng cáo (Placeholder)
                             </div>
                         </div>
-                    </div>
+                    </div> *@
 
                     <!-- Xem thêm button -->
                     <div style="text-align: center; margin: 30px 0;">
@@ -638,6 +650,10 @@
         const isHomePage = document.getElementById('homeSection') !== null;
         const isAuthenticated = @((User?.Identity?.IsAuthenticated ?? false).ToString().ToLower());
         const loginUrl = '@Url.Page("/Account/Login", new { area = "Identity" })';
+
+        // ==========================================
+        // 1. XỬ LÝ ĐĂNG NHẬP / ĐĂNG KÝ
+        // ==========================================
         const authModal = document.getElementById('authModal');
         const loginBtn = document.getElementById('loginBtn');
         const closeModal = document.getElementById('closeModal');
@@ -647,729 +663,352 @@
         const showRegisterModal = document.getElementById('showRegisterModal');
         const showLoginModal = document.getElementById('showLoginModal');
 
-        if (loginBtn && authModal) {
-            loginBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                if (registerModal) {
-                    registerModal.classList.remove('active');
-                }
-                authModal.classList.add('active');
-            });
-        }
-
-        if (registerBtn && registerModal) {
-            registerBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                if (authModal) {
-                    authModal.classList.remove('active');
-                }
-                registerModal.classList.add('active');
-            });
-        }
-
-        if (closeModal && authModal) {
-            closeModal.addEventListener('click', () => authModal.classList.remove('active'));
-        }
-
-        if (closeRegisterModal && registerModal) {
-            closeRegisterModal.addEventListener('click', () => registerModal.classList.remove('active'));
-        }
-
-        if (showRegisterModal && registerModal && authModal) {
-            showRegisterModal.addEventListener('click', (e) => {
-                e.preventDefault();
-                authModal.classList.remove('active');
-                registerModal.classList.add('active');
-            });
-        }
-
-        if (showLoginModal && registerModal && authModal) {
-            showLoginModal.addEventListener('click', (e) => {
-                e.preventDefault();
-                registerModal.classList.remove('active');
-                authModal.classList.add('active');
-            });
-        }
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const openLoginParam = urlParams.get('openLogin');
-        const shouldOpenLoginFromQuery = openLoginParam === '1' || openLoginParam === 'true';
-
-        if (shouldOpenLoginFromQuery && authModal) {
-            if (registerModal) {
-                registerModal.classList.remove('active');
-            }
-            authModal.classList.add('active');
-        }
-
-        document.addEventListener('click', (e) => {
-            const trigger = e.target.closest('[data-open-login="true"]');
-            if (!trigger || !authModal) {
-                return;
-            }
-            e.preventDefault();
-            if (registerModal) {
-                registerModal.classList.remove('active');
-            }
-            authModal.classList.add('active');
-        });
+        if (loginBtn && authModal) loginBtn.addEventListener('click', (e) => { e.preventDefault(); if (registerModal) registerModal.classList.remove('active'); authModal.classList.add('active'); });
+        if (registerBtn && registerModal) registerBtn.addEventListener('click', (e) => { e.preventDefault(); if (authModal) authModal.classList.remove('active'); registerModal.classList.add('active'); });
+        if (closeModal && authModal) closeModal.addEventListener('click', () => authModal.classList.remove('active'));
+        if (closeRegisterModal && registerModal) closeRegisterModal.addEventListener('click', () => registerModal.classList.remove('active'));
+        if (showRegisterModal && registerModal && authModal) showRegisterModal.addEventListener('click', (e) => { e.preventDefault(); authModal.classList.remove('active'); registerModal.classList.add('active'); });
+        if (showLoginModal && registerModal && authModal) showLoginModal.addEventListener('click', (e) => { e.preventDefault(); registerModal.classList.remove('active'); authModal.classList.add('active'); });
+        window.addEventListener('click', (e) => { if (authModal && e.target === authModal) authModal.classList.remove('active'); if (registerModal && e.target === registerModal) registerModal.classList.remove('active'); });
 
         const loginForm = document.getElementById('loginModalForm');
         const registerForm = document.getElementById('registerModalForm');
         const loginError = document.getElementById('loginError');
         const registerError = document.getElementById('registerError');
 
-            //           async function submitAuthForm(form, errorEl) {
-            // if (!form) return;
-
-            // 1. Lấy dữ liệu từ Form
-            // const formData = new FormData(form);
-            // const dataObject = {};
-            // let antiForgeryToken = ''; Tạo biến để hứng token
-
-            // formData.forEach((value, key) => {
-            //     if (key === '__RequestVerificationToken') {
-            //         antiForgeryToken = value; Nhặt token ra giữ lại
-            //     } else {
-            //         dataObject[key] = value; Các trường khác như email, password... thì bỏ vào object
-            //     }
-            // });
-
-            // if (errorEl) {
-            //     errorEl.classList.remove('active');
-            //     errorEl.textContent = '';
-            // }
-
-            // try {
-            //     2. Gửi request dạng JSON kèm Token trong Header
-            //     const response = await fetch(form.action, {
-            //         method: 'POST',
-            //         headers: {
-            //             'Content-Type': 'application/json',
-            //             Truyền token vào header để backend [ValidateAntiForgeryToken] cho phép đi qua
-            //             'RequestVerificationToken': antiForgeryToken
-            //         },
-            //         body: JSON.stringify(dataObject)
-            //     });
-
-            //     3. Đọc dữ liệu thô
-            //     const textResponse = await response.text();
-            //     let payload = {};
-
-            //     if (textResponse) {
-            //         try {
-            //             payload = JSON.parse(textResponse);
-            //         } catch (e) {
-            //             console.error("Lỗi parse JSON:", e);
-            //         }
-            //     }
-                    // Thêm tham số isRegister để phân biệt form
-                async function submitAuthForm(form, errorEl, isRegister = false) {
+        async function submitAuthForm(form, errorEl, isRegister = false) {
             if (!form) return;
-
             const formData = new FormData(form);
             const dataObject = {};
             let antiForgeryToken = '';
 
             formData.forEach((value, key) => {
-                if (key === '__RequestVerificationToken') {
-                    antiForgeryToken = value;
-                } else {
-                    dataObject[key] = value;
-                }
+                if (key === '__RequestVerificationToken') antiForgeryToken = value;
+                else dataObject[key] = value;
             });
 
-            if (errorEl) {
-                errorEl.classList.remove('active');
-                errorEl.textContent = '';
-                errorEl.style.backgroundColor = '';
-                errorEl.style.color = '';
-            }
+            if (errorEl) { errorEl.classList.remove('active'); errorEl.textContent = ''; }
 
             try {
                 const response = await fetch(form.action, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'RequestVerificationToken': antiForgeryToken
-                    },
+                    headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': antiForgeryToken },
                     body: JSON.stringify(dataObject)
                 });
 
-                const textResponse = await response.text();
                 let payload = {};
-                if (textResponse) {
-                    try { payload = JSON.parse(textResponse); } catch (e) {}
-                }
+                try { payload = await response.json(); } catch(e){}
 
-                // NẾU API TRẢ VỀ THÀNH CÔNG
                 if (response.ok && payload.success) {
-
-                    // Xử lý riêng cho form Đăng Ký
                     if (isRegister) {
-                        const registerModal = document.getElementById('registerModal');
                         if (registerModal) registerModal.classList.remove('active');
-
-                        const authModal = document.getElementById('authModal');
                         if (authModal) {
                             authModal.classList.add('active');
-                            const loginError = document.getElementById('loginError');
                             if (loginError) {
                                 loginError.textContent = payload.message || 'Đăng ký thành công! Vui lòng đăng nhập.';
                                 loginError.classList.add('active');
                                 loginError.style.backgroundColor = '#d4edda';
                                 loginError.style.color = '#155724';
-                                loginError.style.border = '1px solid #c3e6cb';
                             }
                         }
                         return;
                     }
-
-                    // Xử lý riêng cho form Đăng Nhập
-                    if (payload.redirectUrl) {
-                        window.location.href = payload.redirectUrl;
-                    } else {
-                        window.location.reload();
-                    }
+                    if (payload.redirectUrl) window.location.href = payload.redirectUrl;
+                    else window.location.reload();
                     return;
                 }
 
-                // NẾU API BÁO LỖI
-                if (errorEl) {
-                    errorEl.textContent = payload?.message || payload?.title || 'Thông tin không hợp lệ.';
-                    errorEl.classList.add('active');
-                }
-
+                if (errorEl) { errorEl.textContent = payload?.message || 'Thông tin không hợp lệ.'; errorEl.classList.add('active'); }
             } catch (error) {
-                console.error("Lỗi:", error);
-                if (errorEl) {
-                    errorEl.textContent = 'Mất kết nối tới máy chủ. Vui lòng thử lại!';
-                    errorEl.classList.add('active');
-                }
+                if (errorEl) { errorEl.textContent = 'Mất kết nối tới máy chủ.'; errorEl.classList.add('active'); }
             }
         }
 
-        // Bắt sự kiện submit form
-        if (loginForm) {
-            loginForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                submitAuthForm(loginForm, loginError, false);
-            });
-        }
+        if (loginForm) loginForm.addEventListener('submit', (e) => { e.preventDefault(); submitAuthForm(loginForm, loginError, false); });
+        if (registerForm) registerForm.addEventListener('submit', (e) => { e.preventDefault(); submitAuthForm(registerForm, registerError, true); });
 
-        if (registerForm) {
-            registerForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                submitAuthForm(registerForm, registerError, true);
-            });
-        }
-
-        //         4. Xử lý logic khi thành công (Status 200)
-        //         if (response.ok) {
-        //             if (payload.success) { Thay đổi nhẹ ở đây để bắt cờ success từ AuthResponse C#
-        //                 if (payload.redirectUrl) {
-        //                     window.location.href = payload.redirectUrl;
-        //                 } else {
-        //                     window.location.reload();
-        //                 }
-        //                 return;
-        //             } else {
-        //                 Đôi khi server trả về 200 OK nhưng logic bên trong báo lỗi (Success = false)
-        //                 if (errorEl) {
-        //                     errorEl.textContent = payload.message || 'Có lỗi xảy ra.';
-        //                     errorEl.classList.add('active');
-        //                 }
-        //                 return;
-        //             }
-        //         }
-
-        //         5. Xử lý khi API trả về lỗi HTTP (400, 401...)
-        //         if (errorEl) {
-        //             errorEl.textContent = payload?.message || payload?.title || 'Tài khoản, mật khẩu không hợp lệ hoặc lỗi máy chủ.';
-        //             errorEl.classList.add('active');
-        //         }
-
-        //     } catch (error) {
-        //         console.error("Lỗi khi submit form:", error);
-        //         if (errorEl) {
-        //             errorEl.textContent = 'Mất kết nối tới máy chủ. Vui lòng thử lại!';
-        //             errorEl.classList.add('active');
-        //         }
-        //     }
-        // }
-
-        //         if (loginForm) {
-        //     loginForm.addEventListener('submit', (e) => {
-        //         e.preventDefault();
-        //         false: vì đây là form login
-        //         submitAuthForm(loginForm, loginError, false);
-        //     });
-        // }
-
-        // if (registerForm) {
-        //     registerForm.addEventListener('submit', (e) => {
-        //         e.preventDefault();
-        //         true: vì đây là form register
-        //         submitAuthForm(registerForm, registerError, true);
-        //     });
-        // }
-
-        const followForms = document.querySelectorAll('.story-follow-form');
-        followForms.forEach((form) => {
-            form.addEventListener('submit', (e) => {
-                if (isAuthenticated) {
-                    return;
-                }
-                e.preventDefault();
-                if (registerModal) {
-                    registerModal.classList.remove('active');
-                }
-                if (authModal) {
-                    authModal.classList.add('active');
-                }
-            });
-        });
-
-        window.addEventListener('click', (e) => {
-            if (authModal && e.target === authModal) {
-                authModal.classList.remove('active');
-            }
-            if (registerModal && e.target === registerModal) {
-                registerModal.classList.remove('active');
-            }
-        });
-
+        // ==========================================
+        // 2. GIAO DIỆN TRANG CHỦ & FETCH DỮ LIỆU
+        // ==========================================
         if (isHomePage) {
-            // ===== MOBILE MENU =====
             const mobileMenuBtn = document.getElementById('mobileMenuBtn');
             const mobileMenu = document.getElementById('mobileMenu');
             const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
             const closeMenu = document.getElementById('closeMenu');
+
             function openMobileMenu() { mobileMenu.classList.add('open'); mobileMenuOverlay.classList.add('active'); }
             function closeMobileMenu() { mobileMenu.classList.remove('open'); mobileMenuOverlay.classList.remove('active'); }
-            mobileMenuBtn.addEventListener('click', openMobileMenu);
-            closeMenu.addEventListener('click', closeMobileMenu);
-            mobileMenuOverlay.addEventListener('click', closeMobileMenu);
+            mobileMenuBtn?.addEventListener('click', openMobileMenu);
+            closeMenu?.addEventListener('click', closeMobileMenu);
+            mobileMenuOverlay?.addEventListener('click', closeMobileMenu);
 
-            // ===== CÁC SECTION =====
-            const homeSection = document.getElementById('homeSection');
-            const newSection = document.getElementById('newSection');
-            const hotSection = document.getElementById('hotSection');
-            const rankSection = document.getElementById('rankSection');
-            const completedSection = document.getElementById('completedSection');
-            const groupsSection = document.getElementById('groupsSection');
-            const profilePageSection = document.getElementById('profilePageSection');
-            const detailSection = document.getElementById('detailSection');
-            const readerSection = document.getElementById('readerSection');
+            const sections = ['homeSection', 'newSection', 'hotSection', 'rankSection', 'completedSection', 'groupsSection', 'profilePageSection', 'detailSection'].map(id => document.getElementById(id));
+            const tabs = ['tabHome', 'tabNew', 'tabHot', 'tabRank', 'tabCompleted', 'tabGroups', 'tabProfilePage'].map(id => document.getElementById(id));
 
-            const sections = [
-                homeSection,
-                newSection,
-                hotSection,
-                rankSection,
-                completedSection,
-                groupsSection,
-                profilePageSection,
-                detailSection,
-                readerSection
-            ];
-
-            const tabHome = document.getElementById('tabHome');
-            const tabNew = document.getElementById('tabNew');
-            const tabHot = document.getElementById('tabHot');
-            const tabGenre = document.getElementById('tabGenre');
-            const tabRank = document.getElementById('tabRank');
-            const tabCompleted = document.getElementById('tabCompleted');
-            const tabGroups = document.getElementById('tabGroups');
-            const tabProfilePage = document.getElementById('tabProfilePage');
-
-            function hideAllSections() {
-                sections.forEach(section => section?.classList.add('hidden'));
+            function showSection(sectionId, tabId) {
+                sections.forEach(s => s?.classList.add('hidden'));
+                tabs.forEach(t => t?.classList.remove('active'));
+                document.getElementById(sectionId)?.classList.remove('hidden');
+                if (tabId) document.getElementById(tabId)?.classList.add('active');
             }
 
-            function removeActiveTabs() {
-                tabHome.classList.remove('active');
-                tabNew.classList.remove('active');
-                tabHot.classList.remove('active');
-                tabGenre.classList.remove('active');
-                tabRank.classList.remove('active');
-                tabCompleted.classList.remove('active');
-                tabGroups.classList.remove('active');
-                tabProfilePage.classList.remove('active');
-            }
+            showSection('homeSection', 'tabHome');
 
-            function showHome() { hideAllSections(); homeSection.classList.remove('hidden'); removeActiveTabs(); tabHome.classList.add('active'); }
-            function showNew() { hideAllSections(); newSection.classList.remove('hidden'); removeActiveTabs(); tabNew.classList.add('active'); }
-            function showHot() { hideAllSections(); hotSection.classList.remove('hidden'); removeActiveTabs(); tabHot.classList.add('active'); }
-            function showRank() { hideAllSections(); rankSection.classList.remove('hidden'); removeActiveTabs(); tabRank.classList.add('active'); }
-            function showCompleted() { hideAllSections(); completedSection.classList.remove('hidden'); removeActiveTabs(); tabCompleted.classList.add('active'); }
-            function showGroups() { hideAllSections(); groupsSection.classList.remove('hidden'); removeActiveTabs(); tabGroups.classList.add('active'); }
-            function showProfilePage() {
-                if (!isAuthenticated) {
-                    window.location.href = loginUrl;
-                    return;
-                }
-                hideAllSections();
-                profilePageSection.classList.remove('hidden');
-                removeActiveTabs();
-                tabProfilePage.classList.add('active');
-            }
-            function showDetail() { hideAllSections(); detailSection.classList.remove('hidden'); removeActiveTabs(); }
-            function showReader() { hideAllSections(); readerSection.classList.remove('hidden'); removeActiveTabs(); }
+            document.getElementById('tabHome')?.addEventListener('click', (e) => { e.preventDefault(); showSection('homeSection', 'tabHome'); });
+            document.getElementById('tabNew')?.addEventListener('click', (e) => { e.preventDefault(); showSection('newSection', 'tabNew'); });
+            document.getElementById('breadcrumbHome')?.addEventListener('click', (e) => { e.preventDefault(); showSection('homeSection', 'tabHome'); });
 
-            // Mặc định hiện trang chủ
-            showHome();
-
-            tabHome.addEventListener('click', (e) => { e.preventDefault(); showHome(); });
-            tabNew.addEventListener('click', (e) => { e.preventDefault(); showNew(); });
-            tabHot.addEventListener('click', (e) => { e.preventDefault(); showHot(); });
-            tabCompleted.addEventListener('click', (e) => { e.preventDefault(); showCompleted(); });
-            tabGroups.addEventListener('click', (e) => { e.preventDefault(); showGroups(); });
-            tabProfilePage.addEventListener('click', (e) => { e.preventDefault(); showProfilePage(); });
-
-            // Mobile menu items
-            document.getElementById('mobileHome').addEventListener('click', (e) => { e.preventDefault(); showHome(); closeMobileMenu(); });
-            document.getElementById('mobileNew').addEventListener('click', (e) => { e.preventDefault(); showNew(); closeMobileMenu(); });
-            document.getElementById('mobileHot').addEventListener('click', (e) => { e.preventDefault(); showHot(); closeMobileMenu(); });
-            document.getElementById('mobileGenre').addEventListener('click', () => { closeMobileMenu(); });
-            document.getElementById('mobileRank').addEventListener('click', (e) => { e.preventDefault(); showRank(); closeMobileMenu(); });
-            document.getElementById('mobileCompleted').addEventListener('click', (e) => { e.preventDefault(); showCompleted(); closeMobileMenu(); });
-            document.getElementById('mobileGroups').addEventListener('click', (e) => { e.preventDefault(); showGroups(); closeMobileMenu(); });
-            document.getElementById('mobileProfilePage').addEventListener('click', (e) => { e.preventDefault(); showProfilePage(); closeMobileMenu(); });
-
-            // ===== SIDEBAR RANK TABS =====
-            const rankTabs = document.querySelectorAll('.rank-tab');
-            const rankContents = document.querySelectorAll('.rank-content');
-            rankTabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    rankTabs.forEach(t => t.classList.remove('active'));
-                    tab.classList.add('active');
-                    rankContents.forEach(content => content.classList.remove('active'));
-                    document.getElementById('rank' + tab.dataset.rank.charAt(0).toUpperCase() + tab.dataset.rank.slice(1)).classList.add('active');
-                });
-            });
-
-            // ===== CHATBOX TOGGLE (thu nhỏ thành bong bóng) =====
             const chatbox = document.getElementById('chatbox');
-            const toggleChat = document.getElementById('toggleChat');
-            const chatIcon = document.getElementById('chatIcon');
-            const chatBody = document.getElementById('chatBody');
-            const chatInput = document.getElementById('chatInput');
-            const sendBtn = document.getElementById('sendChat');
-
-            toggleChat.addEventListener('click', () => {
-                chatbox.classList.toggle('closed');
-                if (chatbox.classList.contains('closed')) {
-                    chatIcon.className = 'fas fa-comment';
-                } else {
-                    chatIcon.className = 'fas fa-minus';
-                }
-            });
-
-            function addMessage(text, sender) {
-                const msgDiv = document.createElement('div');
-                msgDiv.classList.add('message', sender);
-                msgDiv.innerText = text;
-                chatBody.appendChild(msgDiv);
-                chatBody.scrollTop = chatBody.scrollHeight;
-            }
-            function sendMessage() {
-                const text = chatInput.value.trim();
-                if (!text) return;
-                addMessage(text, 'user');
-                chatInput.value = '';
-                setTimeout(() => {
-                    let reply = 'Tôi là AI, tôi có thể gợi ý truyện hot hoặc tìm kiếm. Bạn muốn gì?';
-                    if (text.toLowerCase().includes('truyện hot') || text.toLowerCase().includes('đề xuất')) {
-                        reply = 'Gợi ý cho bạn: "Đại chiến thần", "Solo Leveling", "One Piece" đang rất hot!';
-                    } else if (text.includes('cảm ơn')) {
-                        reply = 'Không có gì! Đọc truyện vui vẻ nhé.';
-                    }
-                    addMessage(reply, 'ai');
-                }, 600);
-            }
-            sendBtn.addEventListener('click', sendMessage);
-            chatInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') sendMessage();
-            });
-
-            // ===== CÁC BUTTON TƯƠNG TÁC =====
-            document.getElementById('searchBtn').addEventListener('click', function() { alert('Bạn đang tìm: "' + document.getElementById('searchInput').value + '" (Mô phỏng tìm kiếm)'); });
-            document.getElementById('logo').addEventListener('click', function(e) { e.preventDefault(); showHome(); });
-            document.getElementById('notificationBtn').addEventListener('click', function(e) { e.preventDefault(); alert('Bạn có 3 thông báo mới (mô phỏng)'); });
-            document.getElementById('readFeaturedBtn').addEventListener('click', function() { fillDetailAndShow(this); });
-            document.getElementById('viewAllUpdates').addEventListener('click', function() { alert('Xem tất cả truyện mới cập nhật'); });
-            document.getElementById('viewMoreBtn').addEventListener('click', function() { alert('Tải thêm truyện (mô phỏng)'); });
-
-            // ===== XỬ LÝ RATING (SAO) =====
-            const stars = document.querySelectorAll('.star');
-            const ratingText = document.querySelector('.rating-text');
-            let currentRating = 5;
-            let totalVotes = 605;
-
-            function updateRatingDisplay(rating) {
-                stars.forEach((star, index) => {
-                    if (index < rating) {
-                        star.classList.add('selected');
-                    } else {
-                        star.classList.remove('selected');
-                    }
-                });
-                ratingText.innerText = `${rating}/5 - ${totalVotes} Lượt đánh giá`;
-            }
-            updateRatingDisplay(currentRating);
-
-            stars.forEach(star => {
-                star.addEventListener('click', function() {
-                    const value = parseInt(this.dataset.value);
-                    currentRating = value;
-                    totalVotes++;
-                    updateRatingDisplay(value);
-                    alert(`Bạn đã đánh giá ${value} sao! Cảm ơn bạn.`);
-                });
+            document.getElementById('toggleChat')?.addEventListener('click', () => {
+                chatbox?.classList.toggle('closed');
+                document.getElementById('chatIcon').className = chatbox?.classList.contains('closed') ? 'fas fa-comment' : 'fas fa-minus';
             });
 
             function fillDetailAndShow(card) {
-                const title = card.dataset.title || 'Đồ Đệ Của Ta Đều Là Đại Phản Phái';
-                const author = card.dataset.author || 'TruyenQQ, Mộng Tiên Giới';
-                const genre = card.dataset.genre || 'Adventure - Chuyển Sinh - Cổ Đại - Manhua - Truyện Màu - Xuyên Không';
-                const views = card.dataset.views || '427,480';
-                const rating = parseFloat(card.dataset.rating) || 5.0;
-                const votes = parseInt(card.dataset.votes) || 605;
-                const description = card.dataset.description || '';
-                const cover = card.dataset.cover || '';
-                const status = card.dataset.status || 'Đang tiến hành';
-
+                const title = card.dataset.title || 'Đang cập nhật';
                 document.getElementById('detailTitle').innerText = title;
-                document.getElementById('detailAuthor').innerText = author;
-                document.getElementById('detailGenre').innerText = genre;
-                document.getElementById('detailViews').innerText = views;
-                document.getElementById('detailStatus').innerText = status;
+                document.getElementById('detailAuthor').innerText = card.dataset.author || 'Đang cập nhật';
+                document.getElementById('detailGenre').innerText = card.dataset.genre || 'Đang cập nhật';
+                document.getElementById('detailViews').innerText = card.dataset.views || '0';
                 document.getElementById('breadcrumbTitle').innerText = title;
 
-                const detailDescription = document.getElementById('detailDescription');
-                detailDescription.innerHTML = description
-                    ? `<strong>NỘI DUNG TRUYỆN ${title.toUpperCase()}</strong><br>${description}`
-                    : '<strong>NỘI DUNG TRUYỆN ĐỒ ĐỆ CỦA TA ĐỀU LÀ ĐẠI PHẢN PHÁI</strong><br>Chào mừng bạn đến với NetTruyen – không gian đọc truyện tranh online hoàn hảo dành cho tất cả các fan truyện tranh!';
-
                 const detailCover = document.getElementById('detailCover');
-                if (cover) {
-                    detailCover.style.backgroundImage = `url('${cover}')`;
+                if (card.dataset.cover) {
+                    detailCover.style.backgroundImage = `url('${card.dataset.cover}')`;
                     detailCover.style.backgroundSize = 'cover';
-                    detailCover.style.backgroundPosition = 'center';
                     detailCover.innerText = '';
-                } else {
-                    detailCover.style.backgroundImage = '';
-                    detailCover.innerText = 'Ảnh bìa';
                 }
-
-                currentRating = Math.round(rating);
-                totalVotes = votes;
-                updateRatingDisplay(currentRating);
-
-                showDetail();
+                showSection('detailSection');
             }
 
             document.addEventListener('click', (event) => {
-                const card = event.target.closest('.update-item, .top-item, .recommend-card');
+                const card = event.target.closest('.update-item, .top-item, .recommend-card, .btn-read');
                 if (card) {
+                    if(card.tagName === 'BUTTON') event.preventDefault();
                     fillDetailAndShow(card);
                 }
             });
 
-            async function loadStories() {
-                try {
-                    const token = localStorage.getItem('token'); // Hoặc nơi bạn lưu token
-                    const headers = {};
-                    if (token) {
-                    headers['Authorization'] = `Bearer ${token}`;
-                    }
-
-                    const response = await fetch('/api/stories', {
-                        method: 'GET',
-                        headers: headers
-                    });
-                    if (!response.ok) {
-                        throw new Error('Không tải được danh sách truyện');
-                    }
-                    const stories = await response.json();
-                    if (!Array.isArray(stories) || stories.length === 0) {
-                        return;
-                    }
-
-                    renderFeaturedStory(stories[0]);
-                    renderUpdateStories(stories);
-                    renderTopStories(stories);
-                    renderRecommendStories(stories);
-                } catch (error) {
-                    console.error(error);
-                }
-            }
-
+            // Đổ dữ liệu an toàn
             function buildStoryData(story) {
-                const title = story.title || story.Title || 'Chưa có tiêu đề';
                 return {
                     id: story.id || story.Id,
-                    title,
-                    description: story.description || story.Description || '',
+                    title: story.title || story.Title || 'Chưa có tiêu đề',
                     author: story.authorName || story.AuthorName || 'Đang cập nhật',
                     genre: story.categoryName || story.CategoryName || 'Đang cập nhật',
-                    status: story.status || story.Status || 'Đang tiến hành',
-                    cover: story.coverImage || story.CoverImage || '',
                     views: story.views || story.Views || '0',
                     rating: story.rating || story.Rating || '5',
-                    votes: story.votes || story.Votes || '0'
+                    cover: story.coverImage || story.CoverImage || '',
+                    description: story.description || story.Description || ''
                 };
             }
 
-            function setStoryDataset(element, storyData) {
-                element.dataset.id = storyData.id || '';
-                element.dataset.title = storyData.title;
-                element.dataset.author = storyData.author;
-                element.dataset.genre = storyData.genre;
-                element.dataset.views = storyData.views;
-                element.dataset.rating = storyData.rating;
-                element.dataset.votes = storyData.votes;
-                element.dataset.description = storyData.description;
-                element.dataset.cover = storyData.cover;
-                element.dataset.status = storyData.status;
+            function setStoryDataset(element, data) {
+                element.dataset.id = data.id; element.dataset.title = data.title;
+                element.dataset.author = data.author; element.dataset.genre = data.genre;
+                element.dataset.views = data.views; element.dataset.rating = data.rating;
+                element.dataset.cover = data.cover; element.dataset.description = data.description;
             }
 
-            function renderFeaturedStory(story) {
-                const storyData = buildStoryData(story);
-                document.querySelector('.featured-large-content h2').innerText = storyData.title;
-                document.querySelector('.featured-large-content p').innerText = storyData.description || 'Đang cập nhật nội dung.';
-                const stats = document.querySelectorAll('.featured-stats span');
-                if (stats.length >= 2) {
-                    stats[1].innerHTML = `<i class="fas fa-eye"></i> ${storyData.views} lượt xem`;
+            // HÀM CHÍNH: Gọi 1 API duy nhất và đổ ra các nơi
+            // async function loadHomePageData() {
+            //     try {
+            //         const res = await fetch('/api/stories/newest');
+            //         if (!res.ok) return;
+            //         const stories = await res.json();
+            //         if (!Array.isArray(stories) || stories.length === 0) return;
+
+            //         1. Đổ ra Slider Nổi Bật (Lấy 3 truyện đầu)
+            //         const sliderList = document.getElementById('list_suggest');
+            //         if (sliderList) {
+            //             sliderList.innerHTML = '';
+            //             stories.slice(0, 3).forEach(story => {
+            //                 const data = buildStoryData(story);
+            //                 const li = document.createElement('li');
+            //                 li.className = 'suggest-slide';
+            //                 li.innerHTML = `
+            //                     <div class="featured-box">
+            //                         <div class="featured-info">
+            //                             <p class="tag-hot">NỔI BẬT</p>
+            //                             <h2>${data.title}</h2>
+            //                             <p class="desc">${data.description || 'Đang cập nhật nội dung...'}</p>
+            //                             <div class="stats">
+            //                                 <span>⭐ ${data.rating}</span>
+            //                                 <span>👁️ ${data.views} lượt xem</span>
+            //                                 <span>📖 Đang tiến hành</span>
+            //                             </div>
+            //                             <button class="btn-read" data-id="${data.id}" data-title="${data.title}" data-author="${data.author}" data-genre="${data.genre}" data-views="${data.views}" data-rating="${data.rating}" data-cover="${data.cover}">Đọc ngay</button>
+            //                         </div>
+            //                         <div class="featured-cover">
+            //                             <img src="${data.cover || 'https:via.placeholder.com/200x300'}" alt="${data.title}">
+            //                         </div>
+            //                     </div>
+            //                 `;
+            //                 sliderList.appendChild(li);
+            //             });
+            //             initSlider(); Chạy Slider
+            //         }
+
+            //         2. Đổ ra danh sách Mới Cập Nhật
+            //         const updateList = document.querySelector('.update-list');
+            //         if (updateList) {
+            //             updateList.querySelectorAll('.update-item').forEach(i => i.remove());
+            //             stories.forEach(story => {
+            //                 const data = buildStoryData(story);
+            //                 const item = document.createElement('div');
+            //                 item.className = 'update-item';
+            //                 setStoryDataset(item, data);
+            //                 item.innerHTML = `
+            //                     <div class="update-cover" style="${data.cover ? `background-image:url('${data.cover}')` : ''}"></div>
+            //                     <div class="update-info">
+            //                         <div class="update-title">${data.title}</div>
+            //                         <div class="update-chapter">Mới cập nhật</div>
+            //                         <div class="update-meta">
+            //                             <span><i class="fas fa-star" style="color: #fbbf24;"></i> ${data.rating}</span>
+            //                             <span><i class="fas fa-eye"></i> ${data.views}</span>
+            //                         </div>
+            //                     </div>
+            //                 `;
+            //                 updateList.appendChild(item);
+            //             });
+            //         }
+
+            //         3. Đổ ra Xem Nhiều Nhất
+            //         const topList = document.querySelector('.top-list');
+            //         if (topList) {
+            //             topList.querySelectorAll('.top-item').forEach(i => i.remove());
+            //             stories.slice(0, 5).forEach((story, idx) => {
+            //                 const data = buildStoryData(story);
+            //                 const item = document.createElement('div');
+            //                 item.className = 'top-item';
+            //                 setStoryDataset(item, data);
+            //                 item.innerHTML = `<span class="top-rank">${idx + 1}</span><div class="top-info"><div class="top-title">${data.title}</div><div class="top-views">${data.views}</div></div>`;
+            //                 topList.appendChild(item);
+            //             });
+            //         }
+
+            //     } catch (err) { console.error("Lỗi API:", err); }
+            // }
+            async function loadHomePageData() {
+            console.log("🔥 1. Bắt đầu gọi API lấy truyện...");
+            const sliderList = document.getElementById('list_suggest');
+
+            try {
+                // Gọi API
+                // const res = await fetch('/api/stories/newest');
+                const res = await fetch('https://localhost:7267/api/stories/newest');
+                console.log("🔥 2. Trạng thái API:", res.status);
+
+                if (!res.ok) {
+                    throw new Error("Lỗi gọi API: " + res.status);
                 }
 
-                const featuredCover = document.querySelector('.featured-large-cover');
-                if (storyData.cover) {
-                    featuredCover.style.backgroundImage = `url('${storyData.cover}')`;
-                    featuredCover.style.backgroundSize = 'cover';
-                    featuredCover.style.backgroundPosition = 'center';
-                    featuredCover.innerText = '';
-                } else {
-                    featuredCover.style.backgroundImage = '';
-                    featuredCover.innerText = 'Ảnh bìa';
+                const stories = await res.json();
+                console.log("🔥 3. Dữ liệu từ Database:", stories);
+
+                // Nếu API chạy được nhưng Database trống
+                if (!Array.isArray(stories) || stories.length === 0) {
+                    console.warn("🔥 4. Database không có truyện nào!");
+                    if (sliderList) sliderList.innerHTML = '<li style="width: 100%; text-align: center; color: #fbbf24; padding: 50px; font-size: 1.2rem;">Database hiện chưa có truyện nào để hiển thị Nổi Bật!</li>';
+                    return;
                 }
 
-                const featuredButton = document.getElementById('readFeaturedBtn');
-                setStoryDataset(featuredButton, storyData);
-            }
+                // NẾU CÓ DỮ LIỆU -> BẮT ĐẦU VẼ HTML CHO SLIDER
+                console.log("🔥 5. Bắt đầu đổ dữ liệu ra HTML...");
+                if (sliderList) {
+                    sliderList.innerHTML = ''; // Xóa dòng chữ đang tải
 
-            function renderUpdateStories(stories) {
-                const list = document.querySelector('.update-list');
-                list.querySelectorAll('.update-item').forEach(item => item.remove());
-                stories.slice(0, 5).forEach(story => {
-                    const storyData = buildStoryData(story);
-                    const item = document.createElement('div');
-                    item.className = 'update-item';
-                    setStoryDataset(item, storyData);
-                    item.innerHTML = `
-                        <div class="update-cover" style="${storyData.cover ? `background-image:url('${storyData.cover}')` : ''}"></div>
-                        <div class="update-info">
-                            <div class="update-title">${storyData.title}</div>
-                            <div class="update-chapter">Cập nhật gần đây</div>
-                            <div class="update-meta">
-                                <span><i class="fas fa-star" style="color: #fbbf24;"></i> ${storyData.rating}</span>
-                                <span><i class="fas fa-eye"></i> ${storyData.views}</span>
+                    // Lấy tối đa 5 truyện đưa lên nổi bật
+                    stories.slice(0, 5).forEach(story => {
+                        // Cực kỳ chú ý: Map đúng tên biến JSON (đề phòng C# viết hoa chữ cái đầu)
+                        const id = story.id || story.Id;
+                        const title = story.title || story.Title || 'Chưa có tên';
+                        const desc = story.description || story.Description || 'Truyện đang cập nhật nội dung...';
+                        const cover = story.coverImage || story.CoverImage || 'https://via.placeholder.com/200x300';
+                        const rating = story.rating || story.Rating || '5.0';
+                        const views = story.views || story.Views || '0';
+
+                        const li = document.createElement('li');
+                        li.className = 'suggest-slide';
+                        // Ép cứng CSS để không bị mất hình
+                        li.style.flex = "0 0 100%";
+                        li.style.width = "100%";
+                        li.style.boxSizing = "border-box";
+
+                        li.innerHTML = `
+                            <div class="featured-box" style="display: flex; align-items: center; justify-content: space-between; padding: 40px; gap: 30px; width: 100%;">
+                                <div class="featured-info" style="flex: 1; color: white;">
+                                    <p class="tag-hot" style="color: #fbbf24; font-weight: bold; margin-bottom: 10px;">NỔI BẬT</p>
+                                    <h2 style="font-size: 2.5rem; margin: 0 0 15px 0;">${title}</h2>
+                                    <p class="desc" style="color: #9ca3af; margin-bottom: 20px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">${desc}</p>
+                                    <div class="stats" style="margin-bottom: 25px;">
+                                        <span style="margin-right: 15px;">⭐ ${rating}</span>
+                                        <span>👁️ ${views} lượt xem</span>
+                                    </div>
+                                    <button class="btn-read" data-id="${id}" data-title="${title}" style="background-color: #3b82f6; color: white; border: none; padding: 12px 32px; border-radius: 20px; font-weight: bold; cursor: pointer;">Đọc ngay</button>
+                                </div>
+                                <div class="featured-cover" style="width: 200px; height: 300px; border-radius: 12px; overflow: hidden; flex-shrink: 0; background: #333;">
+                                    <img src="${cover}" alt="${title}" style="width: 100%; height: 100%; object-fit: cover;">
+                                </div>
                             </div>
-                        </div>
-                    `;
-                    list.appendChild(item);
-                });
-            }
+                        `;
+                        sliderList.appendChild(li);
+                    });
 
-            function renderTopStories(stories) {
-                const list = document.querySelector('.top-list');
-                list.querySelectorAll('.top-item').forEach(item => item.remove());
-                stories.slice(0, 5).forEach((story, index) => {
-                    const storyData = buildStoryData(story);
-                    const item = document.createElement('div');
-                    item.className = 'top-item';
-                    setStoryDataset(item, storyData);
-                    item.innerHTML = `
-                        <span class="top-rank">${index + 1}</span>
-                        <div class="top-info">
-                            <div class="top-title">${storyData.title}</div>
-                            <div class="top-views">${storyData.views}</div>
-                        </div>
-                    `;
-                    list.appendChild(item);
-                });
-            }
-
-            function renderRecommendStories(stories) {
-                const grid = document.getElementById('recommendAll');
-                grid.querySelectorAll('.recommend-card').forEach(card => card.remove());
-                stories.slice(0, 4).forEach(story => {
-                    const storyData = buildStoryData(story);
-                    const card = document.createElement('div');
-                    card.className = 'recommend-card';
-                    setStoryDataset(card, storyData);
-                    card.innerHTML = `
-                        <div class="recommend-cover" style="${storyData.cover ? `background-image:url('${storyData.cover}')` : ''}"></div>
-                        <div class="recommend-info">
-                            <div class="recommend-title">${storyData.title}</div>
-                            <div class="recommend-stats">
-                                <span>${storyData.status}</span>
-                                <span>${storyData.views}</span>
-                            </div>
-                        </div>
-                    `;
-                    grid.appendChild(card);
-                });
-            }
-
-            document.querySelectorAll('.delete-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => { e.stopPropagation(); alert('Đã xóa lịch sử'); });
-            });
-
-            const recommendTabs = document.querySelectorAll('.recommend-tab');
-            recommendTabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    recommendTabs.forEach(t => t.classList.remove('active'));
-                    tab.classList.add('active');
-                    alert('Chuyển tab ' + tab.innerText);
-                });
-            });
-
-            document.getElementById('followBtn').addEventListener('click', () => alert('Đã theo dõi truyện (mô phỏng)'));
-            document.getElementById('readFirstBtn').addEventListener('click', () => { alert('Đọc từ đầu'); showReader(); });
-            document.getElementById('readLatestBtn').addEventListener('click', () => { alert('Đọc mới nhất'); showReader(); });
-            document.getElementById('readContinueBtn').addEventListener('click', () => { alert('Đọc tiếp'); showReader(); });
-            document.getElementById('breadcrumbHome').addEventListener('click', (e) => { e.preventDefault(); showHome(); });
-
-            loadStories();
-
-            document.getElementById('readerBreadcrumbHome').addEventListener('click', (e) => { e.preventDefault(); showHome(); });
-            document.getElementById('readerBreadcrumbDetail').addEventListener('click', (e) => { e.preventDefault(); showDetail(); });
-
-            document.getElementById('server1').addEventListener('click', function() {
-                document.getElementById('server1').classList.add('active');
-                document.getElementById('server2').classList.remove('active');
-                alert('Chuyển sang Server 1');
-            });
-            document.getElementById('server2').addEventListener('click', function() {
-                document.getElementById('server2').classList.add('active');
-                document.getElementById('server1').classList.remove('active');
-                alert('Chuyển sang Server 2');
-            });
-            document.getElementById('reportError').addEventListener('click', () => alert('Báo lỗi thành công (mô phỏng)'));
-
-            document.getElementById('prevChapter').addEventListener('click', () => alert('Chuyển đến chapter trước'));
-            document.getElementById('nextChapter').addEventListener('click', () => alert('Chuyển đến chapter sau'));
-            document.getElementById('chapterSelect').addEventListener('change', (e) => alert('Chuyển đến ' + e.target.value));
-
-            window.addEventListener('keydown', (e) => {
-                if (e.key === 'ArrowLeft') {
-                    alert('← Chuyển chapter trước (mô phỏng)');
-                } else if (e.key === 'ArrowRight') {
-                    alert('→ Chuyển chapter sau (mô phỏng)');
+                    console.log("🔥 6. Vẽ xong! Khởi động Slider.");
+                    setTimeout(initSlider, 100); // Khởi động hiệu ứng trượt
                 }
-            });
+
+            } catch (err) {
+                console.error("🔥 LỖI CHẾT NGƯỜI:", err);
+                if (sliderList) {
+                    sliderList.innerHTML = `<li style="width: 100%; text-align: center; color: #ef4444; padding: 50px;">Lỗi không thể tải truyện: ${err.message}</li>`;
+                }
+            }
+        }
+
+            // Chạy dữ liệu
+            loadHomePageData();
+        }
+
+        // ==========================================
+        // 3. LOGIC SLIDER
+        // ==========================================
+        let autoPlayTimer;
+        function initSlider() {
+            const track = document.getElementById('list_suggest');
+            if (!track) return;
+
+            const slides = track.querySelectorAll('.suggest-slide');
+            const slideCount = slides.length;
+            let currentIndex = 0;
+            const intervalTime = 4000;
+
+            const prevBtn = document.querySelector('.slider-prev');
+            const nextBtn = document.querySelector('.slider-next');
+
+            if (autoPlayTimer) clearInterval(autoPlayTimer);
+
+            function goToSlide(index) {
+                if (index >= slideCount) currentIndex = 0;
+                else if (index < 0) currentIndex = slideCount - 1;
+                else currentIndex = index;
+                track.style.transform = `translateX(-${currentIndex * 100}%)`;
+            }
+
+            function startAutoPlay() {
+                autoPlayTimer = setInterval(() => { goToSlide(currentIndex + 1); }, intervalTime);
+            }
+
+            function resetAutoPlay() {
+                clearInterval(autoPlayTimer);
+                startAutoPlay();
+            }
+
+            if (prevBtn) prevBtn.onclick = () => { goToSlide(currentIndex - 1); resetAutoPlay(); };
+            if (nextBtn) nextBtn.onclick = () => { goToSlide(currentIndex + 1); resetAutoPlay(); };
+
+            if(slideCount > 1) startAutoPlay();
         }
     </script>
     @await RenderSectionAsync("Scripts", required: false)

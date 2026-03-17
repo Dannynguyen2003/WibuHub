@@ -2598,3 +2598,145 @@ body {
     border-color: #334155;
     pointer-events: none;
 }
+/* --- CSS CHO KHUNG SLIDER NỔI BẬT --- */
+
+/* 1. Khung bọc ngoài Slider */
+.suggest-slider-wrapper {
+    width: 100%;
+    overflow: hidden; /* Ẩn các slide bị tràn */
+    position: relative;
+    margin-bottom: 30px;
+}
+
+ul#list_suggest {
+    display: flex; /* Ép các slide nằm ngang */
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    width: 100%;
+    transition: transform 0.5s ease-in-out;
+}
+
+.suggest-slide {
+    flex: 0 0 100%;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* 2. Giao diện hộp đen (Đang bị thiếu gây lỗi của bạn) */
+.featured-box {
+    background-color: #111827; /* Màu nền xanh đen như thiết kế */
+    border-radius: 16px;
+    padding: 40px;
+    display: flex; /* Chia 2 cột: Cột chữ và Cột ảnh */
+    align-items: center;
+    justify-content: space-between;
+    gap: 30px;
+    color: #ffffff;
+}
+
+/* 3. Phần thông tin bên trái */
+.featured-info {
+    flex: 1;
+}
+
+    .featured-info .tag-hot {
+        color: #FBBF24; /* Màu vàng */
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 14px;
+        margin: 0 0 15px 0;
+    }
+
+    .featured-info h2 {
+        font-size: 2.5rem;
+        margin: 0 0 15px 0;
+        font-weight: 700;
+        color: #ffffff;
+    }
+
+    .featured-info .desc {
+        color: #9CA3AF;
+        font-size: 1rem;
+        line-height: 1.5;
+        margin-bottom: 20px;
+    }
+
+    .featured-info .stats {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 30px;
+        font-size: 0.95rem;
+    }
+
+/* 4. Nút Đọc Ngay */
+.btn-read {
+    background-color: #3B82F6; /* Nút màu xanh dương */
+    color: white;
+    border: none;
+    padding: 12px 32px;
+    border-radius: 20px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+    .btn-read:hover {
+        background-color: #2563EB; /* Đổi màu nhẹ khi di chuột */
+    }
+
+/* 5. Phần ảnh bìa bên phải */
+.featured-cover {
+    width: 200px;
+    height: 300px;
+    background-color: #CBD5E1;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748B;
+    flex-shrink: 0; /* Giữ nguyên kích thước ảnh, không bị bóp méo */
+    overflow: hidden;
+}
+
+    .featured-cover img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+/* --- NÚT BẤM CHUYỂN SLIDE (Style ép sát mép) --- */
+.slider-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%); /* Căn giữa hoàn toàn theo chiều dọc */
+    background-color: rgba(0, 0, 0, 0.6); /* Nền đen mờ giống ảnh */
+    color: white;
+    border: none;
+    width: 40px;
+    height: 80px; /* Chuyển thành hình chữ nhật đứng */
+    cursor: pointer;
+    z-index: 10; /* Nổi lên trên cùng đè lên ảnh */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    transition: background-color 0.2s ease;
+}
+
+    .slider-nav-btn:hover {
+        background-color: rgba(0, 0, 0, 0.9); /* Đen đậm hơn khi đưa chuột vào */
+    }
+
+/* Ép sát mép trái, bo nhẹ 2 góc bên phải */
+.slider-prev {
+    left: 0;
+    border-radius: 0 8px 8px 0;
+}
+
+/* Ép sát mép phải, bo nhẹ 2 góc bên trái */
+.slider-next {
+    right: 0;
+    border-radius: 8px 0 0 8px;
+}

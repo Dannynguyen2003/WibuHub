@@ -25,31 +25,31 @@ namespace WibuHub.MVC.Customer.Controllers
             switch (normalized)
             {
                 case "top-week":
-                    title = "Top Tu?n";
+                    title = "Top Week";
                     query = query.OrderByDescending(s => s.ViewCount);
                     break;
                 case "top-month":
-                    title = "Top Tháng";
+                    title = "Top Month";
                     query = query.OrderByDescending(s => s.ViewCount);
                     break;
                 case "favorites":
-                    title = "Yêu Thích";
+                    title = "Favorites";
                     query = query.OrderByDescending(s => s.FollowCount);
                     break;
                 case "latest":
-                    title = "M?i C?p Nh?t";
+                    title = "Latest Story";
                     query = query.OrderByDescending(s => s.UpdateDate);
                     break;
                 case "new":
-                    title = "Truy?n M?i";
+                    title = "New Story";
                     query = query.OrderByDescending(s => s.CreatedAt);
                     break;
                 case "full":
-                    title = "Truy?n Full";
+                    title = "Full Story";
                     query = query.Where(s => s.Status == 1).OrderByDescending(s => s.UpdateDate);
                     break;
                 case "random":
-                    title = "Truy?n Ng?u Nhiên";
+                    title = "Random Story";
                     query = query.OrderBy(s => Guid.NewGuid());
                     break;
             }

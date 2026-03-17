@@ -28,7 +28,8 @@ namespace WibuHub.ApplicationCore.DTOs.Shared
         [Display(Name = "Giảm giá")]
         public decimal Discount { get; set; }
         [Display(Name = "Trạng thái")]
-        public string? Status { get; set; }
+        public int Status { get; set; }
+        public long ViewCount { get; set; } = 0;
         [Display(Name = "Ngày tạo")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

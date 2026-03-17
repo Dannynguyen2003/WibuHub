@@ -56,6 +56,27 @@ namespace WibuHub.Service.Implementations
                 CategoryName = story.Category?.Name
             };
         }
+        public async Task<List<StoryDto>> GetNewestStoriesAsync()
+        {
+            // Giả sử _context là ApplicationDbContext của bạn
+            var newestStories = await _context.Stories
+                .OrderByDescending(s => s.CreatedAt) // Sắp xếp giảm dần theo ngày tạo
+                .Take(5) // CHỈ LẤY TỐI ĐA 5 TRUYỆN TỪ DATABASE
+                .Select(s => new StoryDto
+                {
+                    Id = s.Id,
+                    Title = s.StoryName,
+                    CoverImage = s.CoverImage,
+                    CategoryName = s.Category.Name,
+                    ViewCount = s.ViewCount,
+                    //Rating = s.Rating,
+                    // Format ngày tạo để hiển thị "2 giờ trước", "01-12"...
+                    CreatedAt = s.CreatedAt
+                })
+                .ToListAsync();
+
+            return newestStories;
+        }
 
         public async Task<bool> CreateAsync(StoryDto dto)
         {

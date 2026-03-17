@@ -18,6 +18,7 @@ namespace WibuHub.API.Controllers
         }
         // GET: api/stories
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAll()
         {
             var stories = await _storyService.GetAllAsync();
@@ -33,6 +34,15 @@ namespace WibuHub.API.Controllers
                 return NotFound(new { message = "Không tìm thấy truyện" });
             }
             return Ok(story);
+        }
+
+        // API lấy 5 truyện mới nhất: GET /api/stories/newest
+        [HttpGet("newest")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetNewestStories()
+        {
+            var stories = await _storyService.GetNewestStoriesAsync();
+            return Ok(stories);
         }
         // POST: api/stories
         [HttpPost]
