@@ -2740,3 +2740,122 @@ ul#list_suggest {
     right: 0;
     border-radius: 8px 0 0 8px;
 }
+/* =========================================
+   CSS CHO PHẦN TRUYỆN MỚI CẬP NHẬT (GRID 6 CỘT)
+   ========================================= */
+
+/* Đảm bảo lưới hiển thị 6 cột */
+.recommend-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.recommend-card {
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    text-decoration: none; /* Bỏ gạch chân nếu là thẻ link */
+}
+
+/* Khung chứa ảnh */
+.tq-card-cover {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1.4;
+    border-radius: 4px;
+    overflow: hidden;
+    background-color: #222;
+}
+
+    .tq-card-cover img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+.recommend-card:hover .tq-card-cover img {
+    transform: scale(1.05);
+}
+
+/* Hoa văn cam trên cùng */
+.tq-top-ornament {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 16px;
+    background-color: #f97316;
+    z-index: 10;
+}
+
+/* Nhóm Tag */
+.tq-badges {
+    position: absolute;
+    top: 18px;
+    left: 0;
+    display: flex;
+    gap: 4px;
+    z-index: 10;
+}
+
+.tq-time, .tq-hot {
+    color: #fff;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 0 4px 4px 0;
+    font-weight: 600;
+}
+
+.tq-time {
+    background-color: #06b6d4;
+}
+
+.tq-hot {
+    background-color: #ef4444;
+    border-radius: 4px;
+}
+
+/* Icon Bookmark */
+.tq-bookmark {
+    position: absolute;
+    top: 18px;
+    right: 5px;
+    background-color: rgba(0,0,0,0.6);
+    color: #9ca3af;
+    padding: 3px 6px;
+    border-radius: 4px;
+    z-index: 10;
+    font-size: 12px;
+}
+
+/* Phần thông tin chữ bên dưới */
+.tq-card-info {
+    padding-top: 10px;
+}
+
+.tq-title {
+    color: #111827;
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0 0 5px 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.3;
+    transition: color 0.2s ease;
+}
+
+.recommend-card:hover .tq-title {
+    color: #2563eb; /* Đổi màu chữ xanh khi hover vào truyện */
+}
+
+.tq-chapter {
+    color: #9ca3af;
+    font-size: 12px;
+    margin: 0;
+}

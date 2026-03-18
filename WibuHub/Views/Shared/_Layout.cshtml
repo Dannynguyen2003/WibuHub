@@ -4,7 +4,7 @@
 @inject UserManager<StoryUser> UserManager
 @{
     var isIdentityArea = string.Equals(ViewContext.RouteData.Values["area"]?.ToString(), "Identity", StringComparison.OrdinalIgnoreCase);
-    var avatarUrl = "https://randomuser.me/api/portraits/men/32.jpg";
+    var avatarUrl = "https://ui-avatars.com/api/?name=Anonymous&background=E2E8F0&color=475569";
 
     if (SignInManager.IsSignedIn(User))
     {

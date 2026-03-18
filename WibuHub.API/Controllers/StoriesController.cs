@@ -17,7 +17,7 @@ namespace WibuHub.API.Controllers
             _logger = logger;
         }
         // GET: api/stories
-        [HttpGet]
+        [HttpGet("liststory")]
         [AllowAnonymous]
         public async Task<IActionResult> GetAll()
         {

@@ -19,7 +19,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Truyện Hay - Chi tiết truyện</title>
+    <title>Truyện Hay - WibuHub</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/css/layout.css" asp-append-version="true">
@@ -61,7 +61,7 @@
         <div id="authModal" class="modal">
             <div class="modal-content">
                 <span class="modal-close" id="closeModal">&times;</span>
-                <div class="modal-title">Login</div>
+                <div class="modal-title">Đăng nhập</div>
                 <form id="loginModalForm" action="/api/auth/login" method="post">
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="returnUrl" value="@returnUrl" />
@@ -71,16 +71,16 @@
                         <input type="email" name="email" autocomplete="username" placeholder="your@gmail.com" required>
                     </div>
                     <div class="input-group">
-                        <label>Password</label>
+                        <label>Mật khẩu</label>
                         <input type="password" name="password" autocomplete="current-password" placeholder="••••••••" required>
                     </div>
                     <div class="login-meta">
-                        <label class="remember-me"><input type="checkbox" name="rememberMe"> Remember me?</label>
-                        <a asp-area="Identity" asp-page="/Account/ForgotPassword" class="forgot-link">Forgot your password?</a>
+                        <label class="remember-me"><input type="checkbox" name="rememberMe"> Ghi nhớ?</label>
+                        <a asp-area="Identity" asp-page="/Account/ForgotPassword" class="forgot-link">Quên mật khẩu?</a>
                     </div>
-                    <button class="btn" type="submit">LOGIN</button>
+                    <button class="btn" type="submit">ĐĂNG NHẬP</button>
                     <div class="switch-link">
-                        Chưa có tài khoản? <a href="#" id="showRegisterModal">Register Now</a>
+                        Chưa có tài khoản? <a href="#" id="showRegisterModal">Đăng ký ngay</a>
                     </div>
                     @if (externalSchemes.Count > 0)
                     {
@@ -103,7 +103,7 @@
         <div id="registerModal" class="modal">
             <div class="modal-content">
                 <span class="modal-close" id="closeRegisterModal">&times;</span>
-                <div class="modal-title">Register</div>
+                <div class="modal-title">Đăng ký</div>
                 <form id="registerModalForm" action="/api/auth/register" method="post">
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="returnUrl" value="@returnUrl" />
@@ -113,16 +113,16 @@
                         <input type="email" name="email" autocomplete="username" placeholder="your@email.com" required>
                     </div>
                     <div class="input-group">
-                        <label>Password</label>
+                        <label>Mật khẩu</label>
                         <input type="password" name="password" autocomplete="new-password" placeholder="••••••••" required>
                     </div>
                     <div class="input-group">
-                        <label>Confirmed Password</label>
+                        <label>Xác nhận mật khẩu</label>
                         <input type="password" name="confirmPassword" autocomplete="new-password" placeholder="••••••••" required>
                     </div>
-                    <button class="btn" type="submit">REGISTER</button>
+                    <button class="btn" type="submit">ĐĂNG KÝ</button>
                     <div class="switch-link">
-                        Have an account? <a href="#" id="showLoginModal">Login</a>
+                        Đã có tài khoản? <a href="#" id="showLoginModal">Đăng nhập</a>
                     </div>
                     @if (externalSchemes.Count > 0)
                     {
@@ -222,16 +222,9 @@
 
                         <div class="home-grid">
                             <div>
-                                <div class="update-list">
-                                    <div class="section-header">
-                                        <h2>Truyện Mới Cập Nhật</h2>
-                                        <span class="view-all-link" id="viewAllUpdates">Xem tất cả</span>
-                                    </div>
-                                </div>
-
                                 <div>
                                     <div class="section-header" style="margin-top: 30px;">
-                                        <h2>Truyện Đề Cử</h2>
+                                        <h2>Truyện Mới Cập Nhật</h2>
                                         <div class="recommend-tabs">
                                             <span class="recommend-tab active" data-recommend="all">Tất cả</span>
                                             <span class="recommend-tab" data-recommend="popular">Phổ biến</span>
@@ -239,20 +232,6 @@
                                         </div>
                                     </div>
                                     <div class="recommend-grid" id="recommendAll">
-                                        <div class="recommend-card" data-title="Nguyên Tôn" data-rating="4.5" data-votes="1300">
-                                            <div class="recommend-cover"></div>
-                                            <div class="recommend-info">
-                                                <div class="recommend-title">Nguyên Tôn</div>
-                                                <div class="recommend-stats"><span>4 chương</span><span>1.3M</span></div>
-                                            </div>
-                                        </div>
-                                        <div class="recommend-card" data-title="Vạn Cổ Chí Tôn" data-rating="4.2" data-votes="980">
-                                            <div class="recommend-cover"></div>
-                                            <div class="recommend-info">
-                                                <div class="recommend-title">Vạn Cổ Chí Tôn</div>
-                                                <div class="recommend-stats"><span>2 chương</span><span>980K</span></div>
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -321,31 +300,6 @@
 
                 <aside class="sidebar">
                     <div class="sidebar-card">
-                        <div class="sidebar-title"><i class="fas fa-crown" style="color: #fbbf24;"></i> Bảng xếp hạng</div>
-                        <div class="rank-tabs">
-                            <span class="rank-tab active" data-rank="day">Top ngày</span>
-                            <span class="rank-tab" data-rank="week">Top tuần</span>
-                            <span class="rank-tab" data-rank="month">Top tháng</span>
-                        </div>
-                        <div class="rank-content active" id="rankDay">
-                            <div class="hot-item"><span class="hot-rank">1</span><div class="hot-info"><h4>Bách Luyện Thành Thần</h4><p>Chapter 1295 • 193K</p></div></div>
-                            <div class="hot-item"><span class="hot-rank">2</span><div class="hot-info"><h4>Đại Phụng Đa Canh Nhân</h4><p>Chapter 619 • 297K</p></div></div>
-                        </div>
-                    </div>
-
-                    <div class="history-card">
-                        <h3>Lịch sử đọc <span class="view-all-link" style="font-size: 13px;">Xem tất cả</span></h3>
-                        <div class="history-item">
-                            <div class="history-cover">Ảnh</div>
-                            <div class="history-info">
-                                <div class="history-title">Vạn Cố Chí Tôn</div>
-                                <div class="history-meta">Đọc tiếp Chapter 502 ></div>
-                            </div>
-                            <span class="delete-btn"><i class="fas fa-times"></i></span>
-                        </div>
-                    </div>
-
-                    <div class="sidebar-card">
                         <div class="sidebar-title"><i class="fas fa-tags"></i> Thể loại</div>
                         <div class="genre-tags">
                             @foreach (var category in categories)
@@ -391,10 +345,15 @@
                 if (modalToShow) modalToShow.classList.add('active');
             }
 
-            document.getElementById('loginBtn')?.addEventListener('click', (e) => { e.preventDefault(); toggleModal(modals.auth, modals.register); });
-            document.getElementById('registerBtn')?.addEventListener('click', (e) => { e.preventDefault(); toggleModal(modals.register, modals.auth); });
-            document.getElementById('showRegisterModal')?.addEventListener('click', (e) => { e.preventDefault(); toggleModal(modals.register, modals.auth); });
-            document.getElementById('showLoginModal')?.addEventListener('click', (e) => { e.preventDefault(); toggleModal(modals.auth, modals.register); });
+            const loginBtn = document.getElementById('loginBtn');
+            const registerBtn = document.getElementById('registerBtn');
+            const showRegisterModal = document.getElementById('showRegisterModal');
+            const showLoginModal = document.getElementById('showLoginModal');
+
+            if (loginBtn) loginBtn.addEventListener('click', (e) => { e.preventDefault(); toggleModal(modals.auth, modals.register); });
+            if (registerBtn) registerBtn.addEventListener('click', (e) => { e.preventDefault(); toggleModal(modals.register, modals.auth); });
+            if (showRegisterModal) showRegisterModal.addEventListener('click', (e) => { e.preventDefault(); toggleModal(modals.register, modals.auth); });
+            if (showLoginModal) showLoginModal.addEventListener('click', (e) => { e.preventDefault(); toggleModal(modals.auth, modals.register); });
 
             document.querySelectorAll('.modal-close').forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -467,8 +426,8 @@
                 mobileMenuOverlay?.addEventListener('click', () => toggleMobileMenu(false));
 
                 // Tabs / Sections
-                const sections = ['homeSection', 'newSection', 'hotSection', 'rankSection', 'completedSection', 'groupsSection', 'profilePageSection', 'detailSection'].map(id => document.getElementById(id));
-                const tabs = ['tabHome', 'tabNew', 'tabHot', 'tabRank', 'tabCompleted', 'tabGroups', 'tabProfilePage'].map(id => document.getElementById(id));
+                const sections = ['homeSection', 'newSection', 'hotSection', 'rankSection', 'groupsSection', 'profilePageSection', 'detailSection'].map(id => document.getElementById(id));
+                const tabs = ['tabHome', 'tabGenre', 'tabRank', 'tabGroups', 'tabProfilePage'].map(id => document.getElementById(id));
 
                 function showSection(sectionId, tabId) {
                     sections.forEach(s => s?.classList.add('hidden'));
@@ -487,7 +446,7 @@
                     document.getElementById('chatIcon').className = chatbox?.classList.contains('closed') ? 'fas fa-comment' : 'fas fa-minus';
                 });
 
-                // Detail Show (Cho update list và recommend)
+                // Hiển thị chi tiết truyện mượt mà (SPA feeling)
                 function fillDetailAndShow(card) {
                     document.getElementById('detailTitle').innerText = card.dataset.title || 'Đang cập nhật';
                     document.getElementById('detailAuthor').innerText = card.dataset.author || 'Đang cập nhật';
@@ -501,39 +460,205 @@
                         detailCover.innerText = '';
                     }
                     showSection('detailSection');
+                    window.scrollTo({ top: 0, behavior: 'smooth' }); // Tự động cuộn lên đầu
                 }
 
-                // Lắng nghe sự kiện click thẻ để mở popup (Trừ .top-item vì nó đã là thẻ a)
+                // Lắng nghe sự kiện click vào Card Truyện
                 document.addEventListener('click', (event) => {
-                    if (event.target.closest('.btn-read')) return; // Bỏ qua nút đọc ngay (chuyển hướng)
+                    if (event.target.closest('.btn-read')) return; // Bỏ qua nếu bấm nút "Đọc ngay"
 
-                    // Lưu ý: Đã bỏ .top-item ra khỏi đây
-                    const card = event.target.closest('.update-item, .recommend-card');
+                    // FIX LỖI Ở ĐÂY: Dùng đúng class 'recommend-card' thay vì 'update-item'
+                    const card = event.target.closest('.recommend-card');
                     if (card) {
+                        event.preventDefault(); // Ngăn trình duyệt chuyển sang trang mới
                         fillDetailAndShow(card);
                     }
                 });
 
-                // Format views
+                // Format views (1200 -> 1.2K)
                 function formatViews(views) {
-                    const v = parseInt(views) || 0;
-                    return v >= 1000 ? Math.floor(v / 1000) + 'K' : v.toString();
+                    const v = parseInt(views, 10) || 0;
+                    return v >= 1000 ? (v / 1000).toFixed(1) + 'K' : v.toString();
                 }
 
-                // Fetch data mới nhất
+                // ==========================================
+                // BIẾN TOÀN CỤC CHO PHÂN TRANG VÀ LỌC
+                // ==========================================
+                let originalStories = [];
+                let activeStoriesList = [];
+                let currentRecommendIndex = 0;
+                const ITEMS_PER_PAGE = 30;
+
+                document.getElementById('viewMoreBtn')?.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    renderMoreStories();
+                });
+
+                // XỬ LÝ SỰ KIỆN CLICK TABS LỌC (Tất cả, Phổ biến, Mới nhất)
+                const filterTabs = document.querySelectorAll('.recommend-tab');
+                filterTabs.forEach(tab => {
+                    tab.addEventListener('click', function() {
+                        filterTabs.forEach(t => t.classList.remove('active'));
+                        this.classList.add('active');
+
+                        const filterType = this.dataset.recommend;
+
+                        // Tối ưu Logic Lọc & Sắp xếp với parseInt
+                        if (filterType === 'all') {
+                            activeStoriesList = [...originalStories];
+                        }
+                        else if (filterType === 'popular') {
+                            activeStoriesList = [...originalStories].sort((a, b) => {
+                                const viewsA = parseInt(a.viewCount || a.ViewCount || a.views || a.Views || 0, 10);
+                                const viewsB = parseInt(b.viewCount || b.ViewCount || b.views || b.Views || 0, 10);
+                                return viewsB - viewsA;
+                            });
+                        }
+                        else if (filterType === 'latest') {
+                            activeStoriesList = [...originalStories].sort((a, b) => {
+                                const idA = parseInt(a.id || a.Id || 0, 10);
+                                const idB = parseInt(b.id || b.Id || 0, 10);
+                                return idB - idA;
+                            });
+                        }
+
+                        // Xóa dữ liệu cũ, in dữ liệu mới
+                        const grid = document.getElementById('recommendAll');
+                        if (grid) grid.innerHTML = '';
+                        currentRecommendIndex = 0;
+                        renderMoreStories();
+                    });
+                });
+
+                // Lấy data Danh sách Truyện
+                async function loadRecommendData() {
+                    const grid = document.getElementById('recommendAll');
+                    if (!grid) return;
+
+                    grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #9ca3af; padding: 20px;"><i class="fas fa-spinner fa-spin"></i> Đang tải dữ liệu truyện...</div>';
+
+                    try {
+                        const res = await fetch('https://localhost:7267/api/stories/liststory');
+                        if (!res.ok) throw new Error("Lỗi gọi API Truyện Đề Cử: " + res.status);
+
+                        const data = await res.json();
+                        originalStories = Array.isArray(data) ? data : [];
+                        activeStoriesList = [...originalStories];
+
+                        grid.innerHTML = '';
+                        currentRecommendIndex = 0;
+
+                        if (activeStoriesList.length === 0) {
+                            grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #fbbf24; padding: 20px;">Chưa có truyện nào!</div>';
+                            document.getElementById('viewMoreBtn').style.display = 'none';
+                            return;
+                        }
+
+                        renderMoreStories();
+
+                    } catch (err) {
+                        console.error("Lỗi tải Truyện Mới Cập Nhật:", err);
+                        grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #ef4444; padding: 20px;">Đã xảy ra lỗi khi tải dữ liệu!</div>';
+                    }
+                }
+
+                // Render HTML Truyện
+                function renderMoreStories() {
+                    const grid = document.getElementById('recommendAll');
+                    const viewMoreBtn = document.getElementById('viewMoreBtn');
+                    if (!grid) return;
+
+                    const nextStories = activeStoriesList.slice(currentRecommendIndex, currentRecommendIndex + ITEMS_PER_PAGE);
+
+                    nextStories.forEach(story => {
+                        const id = story.id || story.Id;
+                        const title = story.title || story.Title || 'Đang cập nhật';
+                        const cover = story.coverImage || story.CoverImage || 'https://via.placeholder.com/200x300';
+                        const chapter = story.latestChapter || story.LatestChapter || 'Chapter 1';
+                        const timeTag = story.timeAgo || story.TimeAgo || 'Mới cập nhật';
+                        const views = parseInt(story.viewCount || story.ViewCount || story.views || story.Views || 0, 10);
+                        const isHot = story.isHot || story.IsHot || (views > 1000);
+
+                        const card = document.createElement('a');
+                        card.href = `/Stories/Details/${id}`; // Link chuyển hướng dự phòng
+                        card.style.textDecoration = 'none';
+                        card.className = 'recommend-card';
+                        card.dataset.title = title;
+                        card.dataset.cover = cover;
+                        card.dataset.views = formatViews(views);
+
+                        card.innerHTML = `
+                            <div class="tq-card-cover">
+                                <div class="tq-top-ornament"></div>
+                                <img src="${cover}" alt="${title}" loading="lazy">
+                                <div class="tq-badges">
+                                    <span class="tq-time">${timeTag}</span>
+                                    ${isHot ? '<span class="tq-hot">Hot</span>' : ''}
+                                </div>
+                                <div class="tq-bookmark"><i class="fas fa-bookmark"></i></div>
+                            </div>
+                            <div class="tq-card-info">
+                                <h3 class="tq-title">${title}</h3>
+                                <p class="tq-chapter">${chapter}</p>
+                            </div>
+                        `;
+                        grid.appendChild(card);
+                    });
+
+                    currentRecommendIndex += nextStories.length;
+
+                    if (viewMoreBtn) {
+                        viewMoreBtn.style.display = currentRecommendIndex >= activeStoriesList.length ? 'none' : 'inline-block';
+                    }
+                }
+
+                // Lấy data Bảng xếp hạng View
+                async function loadTopViewsData() {
+                    const topList = document.querySelector('.top-list');
+                    if (!topList) return;
+                    try {
+                        const res = await fetch('https://localhost:7267/api/stories/top-views');
+                        if (!res.ok) throw new Error("Lỗi API");
+                        const topStories = await res.json();
+
+                        topList.querySelectorAll('.top-item, div[style*="text-align"]').forEach(item => item.remove());
+                        if (!Array.isArray(topStories)) return;
+
+                        topStories.slice(0, 10).forEach((story, index) => {
+                            const id = story.id || story.Id;
+                            const title = story.title || story.Title || 'Chưa có tên';
+                            const views = story.viewCount || story.ViewCount || story.views || story.Views || 0;
+
+                            const item = document.createElement('a');
+                            item.className = 'top-item';
+                            item.href = `/Stories/Details/${id}`;
+                            item.style.textDecoration = 'none';
+                            item.style.color = 'inherit';
+                            item.innerHTML = `
+                                <span class="top-rank">${index + 1}</span>
+                                <div class="top-info">
+                                    <div class="top-title">${title}</div>
+                                    <div class="top-views">${formatViews(views)} lượt xem</div>
+                                </div>
+                            `;
+                            topList.appendChild(item);
+                        });
+                    } catch (err) { console.error("Lỗi Top Views:", err); }
+                }
+
+                // Lấy data Slider
                 async function loadHomePageData() {
                     const sliderList = document.getElementById('list_suggest');
                     try {
                         const res = await fetch('https://localhost:7267/api/stories/newest');
-                        if (!res.ok) throw new Error("Lỗi gọi API: " + res.status);
-
+                        if (!res.ok) throw new Error("Lỗi API");
                         const stories = await res.json();
+
                         if (!Array.isArray(stories) || stories.length === 0) {
-                            if (sliderList) sliderList.innerHTML = '<li style="width:100%;text-align:center;color:#fbbf24;padding:50px;">Chưa có truyện nào!</li>';
+                            if(sliderList) sliderList.innerHTML = '<li style="width:100%;text-align:center;padding:50px;">Chưa có truyện nào!</li>';
                             return;
                         }
 
-                        // Vẽ Slider
                         if (sliderList) {
                             sliderList.innerHTML = '';
                             stories.slice(0, 5).forEach(story => {
@@ -542,7 +667,7 @@
                                 const desc = story.description || story.Description || 'Đang cập nhật...';
                                 const cover = story.coverImage || story.CoverImage || 'https://via.placeholder.com/200x300';
                                 const rating = story.rating || story.Rating || '5.0';
-                                const views = formatViews(story.viewCount || story.ViewCount || 0);
+                                const views = story.viewCount || story.ViewCount || story.views || story.Views || 0;
 
                                 const li = document.createElement('li');
                                 li.className = 'suggest-slide';
@@ -551,15 +676,15 @@
                                     <div class="featured-box" style="display:flex; align-items:center; justify-content:space-between; padding:40px; gap:30px; width:100%;">
                                         <div class="featured-info" style="flex:1; color:white;">
                                             <p class="tag-hot" style="color:#fbbf24; font-weight:bold; margin-bottom:10px;">NỔI BẬT</p>
-                                            <h2 style="font-size:2.5rem; margin:0 0 15px 0;">${title}</h2>
+                                            <h2 style="font-size:2.5rem; margin:0 0 15px 0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">${title}</h2>
                                             <p class="desc" style="color:#9ca3af; margin-bottom:20px; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;">${desc}</p>
                                             <div class="stats" style="margin-bottom:25px;">
                                                 <span style="margin-right:15px;">⭐ ${rating}</span>
-                                                <span>👁️ ${views} lượt xem</span>
+                                                <span>👁️ ${formatViews(views)} lượt xem</span>
                                             </div>
                                             <a href="/Stories/Details/${id}" class="btn-read" style="display:inline-block; background-color:#3b82f6; color:white; padding:12px 32px; border-radius:20px; font-weight:bold; text-decoration:none;">Đọc ngay</a>
                                         </div>
-                                        <div class="featured-cover" style="width:200px; height:300px; border-radius:12px; overflow:hidden; flex-shrink:0; background:#333;">
+                                        <div class="featured-cover" style="width:200px; height:300px; border-radius:12px; overflow:hidden; flex-shrink:0; background:#333; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);">
                                             <img src="${cover}" alt="${title}" style="width:100%; height:100%; object-fit:cover;">
                                         </div>
                                     </div>
@@ -568,69 +693,21 @@
                             });
                             setTimeout(initSlider, 100);
                         }
-                    } catch (err) {
-                        console.error("Lỗi tải Slider:", err);
-                    }
+                    } catch (err) { console.error("Lỗi Slider:", err); }
                 }
 
-                // Fetch data Top Views
-                async function loadTopViewsData() {
-                    const topList = document.querySelector('.top-list');
-                    if (!topList) return;
-
-                    try {
-                        const res = await fetch('https://localhost:7267/api/stories/top-views');
-                        if (!res.ok) throw new Error("Lỗi API top views: " + res.status);
-
-                        const topStories = await res.json();
-
-                        // Xóa chữ Loading
-                        const existingItems = topList.querySelectorAll('.top-item, div[style*="text-align"]');
-                        existingItems.forEach(item => item.remove());
-
-                        if (!Array.isArray(topStories) || topStories.length === 0) return;
-
-                        topStories.slice(0, 5).forEach((story, index) => {
-                            const id = story.id || story.Id;
-                            const title = story.title || story.Title || 'Chưa có tên';
-                            const views = story.viewCount || story.ViewCount || 0;
-
-                            // TOP ITEM là thẻ <a> chuyển link
-                            const item = document.createElement('a');
-                            item.className = 'top-item';
-                            item.href = `/Stories/Details/${id}`;
-                            item.style.textDecoration = 'none';
-                            item.style.color = 'inherit';
-
-                            item.innerHTML = `
-                                <span class="top-rank">${index + 1}</span>
-                                <div class="top-info">
-                                    <div class="top-title">${title}</div>
-                                    <div class="top-views">${formatViews(views)}</div>
-                                </div>
-                            `;
-                            topList.appendChild(item);
-                        });
-                    } catch (err) {
-                        console.error("Lỗi tải Xem Nhiều Nhất:", err);
-                    }
-                }
-
-                // KHỞI CHẠY API CÙNG LÚC
-                async function fetchAllData() {
-                    await Promise.all([
-                        loadHomePageData(),
-                        loadTopViewsData()
-                    ]);
-                }
-                fetchAllData();
+                // Gọi API đồng loạt
+                Promise.all([
+                    loadHomePageData(),
+                    loadTopViewsData(),
+                    loadRecommendData()
+                ]);
 
                 // Logic Slider
                 let autoPlayTimer;
                 function initSlider() {
                     const track = document.getElementById('list_suggest');
                     if (!track) return;
-
                     const slides = track.querySelectorAll('.suggest-slide');
                     const slideCount = slides.length;
                     let currentIndex = 0;
@@ -642,14 +719,8 @@
                         track.style.transform = `translateX(-${currentIndex * 100}%)`;
                     }
 
-                    function startAutoPlay() {
-                        autoPlayTimer = setInterval(() => goToSlide(currentIndex + 1), 4000);
-                    }
-
-                    function resetAutoPlay() {
-                        clearInterval(autoPlayTimer);
-                        startAutoPlay();
-                    }
+                    function startAutoPlay() { autoPlayTimer = setInterval(() => goToSlide(currentIndex + 1), 5000); }
+                    function resetAutoPlay() { clearInterval(autoPlayTimer); startAutoPlay(); }
 
                     document.querySelector('.slider-prev')?.addEventListener('click', () => { goToSlide(currentIndex - 1); resetAutoPlay(); });
                     document.querySelector('.slider-next')?.addEventListener('click', () => { goToSlide(currentIndex + 1); resetAutoPlay(); });

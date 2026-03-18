@@ -3,7 +3,7 @@
 @{
     ViewData["Title"] = "Admin Profile";
     var avatarUrl = string.IsNullOrWhiteSpace(Model?.Avatar)
-        ? "https://randomuser.me/api/portraits/men/32.jpg"
+        ? "https://ui-avatars.com/api/?name=Anonymous&background=E2E8F0&color=475569"
         : Model.Avatar;
     var displayName = string.IsNullOrWhiteSpace(Model?.FullName)
         ? Model?.UserName
