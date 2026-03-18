@@ -54,6 +54,14 @@ namespace WibuHub.ApplicationCore.Entities
         [Column(TypeName = "varchar(500)")]
         public string? CoverImage { get; set; }
 
+        // Tổng số lượng chương hiện có của truyện
+        [Description("Tổng số chương")]
+        public int TotalChapters { get; set; } = 0;
+        // Lưu tên chương mới nhất để tiện hiển thị ngoài trang chủ (VD: "Chapter 120", "Chap 50.5")
+        [Description("Tên chương mới nhất")]
+        [MaxLength(50)]
+        public string? LatestChapter { get; set; }
+        //public string? TimeAgo { get; set; }
         // DateCreated & UpdateDate
         [Description("Ngày tạo")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

@@ -43,6 +43,7 @@ namespace WibuHub.MVC.ViewModels
         [Column(TypeName = "tinyint")]
         public int Status { get; set; } = 0;
 
+        public int TotalChapters { get; set; }
         // ViewCount: bigint
         public long ViewCount { get; set; } = 0;
 

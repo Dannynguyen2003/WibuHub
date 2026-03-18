@@ -17,8 +17,7 @@ namespace WibuHub.Service.Implementations
 
         public async Task<List<StoryDto>> GetAllAsync()
         {
-            return await _context.Stories
-                .Include(s => s.Category) // Join bảng Category để lấy tên
+            var stories = await _context.Stories
                 .Select(s => new StoryDto
                 {
                     Id = s.Id,
@@ -26,19 +25,33 @@ namespace WibuHub.Service.Implementations
                     Description = s.Description,
                     AuthorName = s.AuthorName,
                     CoverImage = s.CoverImage,
+
+                    // SỬ DỤNG .COUNT() ĐỂ TỰ ĐỘNG ĐẾM SỐ LƯỢNG CHAPTER THỰC TẾ
+                    TotalChapters = s.Chapters.Count(),
+                    LatestChapter = s.LatestChapter,
+
                     Price = s.Price,
                     Discount = s.Discount,
                     CategoryId = s.CategoryId,
-                    CategoryName = s.Category != null ? s.Category.Name : "N/A"
+                    CategoryName = s.Category != null ? s.Category.Name : "N/A",
+                    ViewCount = s.ViewCount,
+                    CreatedAt = s.CreatedAt
                 })
-                .OrderByDescending(s => s.Title) // Sắp xếp tùy ý
+                .OrderByDescending(s => s.Title)
                 .ToListAsync();
+
+            foreach (var story in stories)
+            {
+                story.TimeAgo = GetTimeAgo(story.CreatedAt);
+            }
+            return stories;
         }
 
         public async Task<StoryDto?> GetByIdAsync(Guid id)
         {
             var story = await _context.Stories
                 .Include(s => s.Category)
+                .Include(s => s.Chapters) // Include để đếm được
                 .FirstOrDefaultAsync(s => s.Id == id);
 
             if (story == null) return null;
@@ -53,54 +66,72 @@ namespace WibuHub.Service.Implementations
                 Price = story.Price,
                 Discount = story.Discount,
                 CategoryId = story.CategoryId,
-                CategoryName = story.Category?.Name
+                CategoryName = story.Category?.Name,
+                ViewCount = story.ViewCount,
+
+                // TỰ ĐỘNG ĐẾM
+                TotalChapters = story.Chapters.Count,
+                LatestChapter = story.LatestChapter,
+                CreatedAt = story.CreatedAt,
+                TimeAgo = GetTimeAgo(story.CreatedAt)
             };
         }
+
         public async Task<List<StoryDto>> GetNewestStoriesAsync()
         {
-            // Giả sử _context là ApplicationDbContext của bạn
             var newestStories = await _context.Stories
-                .OrderByDescending(s => s.CreatedAt) // Sắp xếp giảm dần theo ngày tạo
-                .Take(5) // CHỈ LẤY TỐI ĐA 5 TRUYỆN TỪ DATABASE
+                .OrderByDescending(s => s.CreatedAt)
+                .Take(5)
                 .Select(s => new StoryDto
                 {
                     Id = s.Id,
                     Title = s.StoryName,
                     CoverImage = s.CoverImage,
-                    CategoryName = s.Category.Name,
+                    CategoryName = s.Category != null ? s.Category.Name : "N/A",
                     ViewCount = s.ViewCount,
-                    //Rating = s.Rating,
-                    // Format ngày tạo để hiển thị "2 giờ trước", "01-12"...
-                    CreatedAt = s.CreatedAt
+                    CreatedAt = s.CreatedAt,
+
+                    // TỰ ĐỘNG ĐẾM
+                    TotalChapters = s.Chapters.Count()
                 })
                 .ToListAsync();
 
+            foreach (var story in newestStories)
+            {
+                story.TimeAgo = GetTimeAgo(story.CreatedAt);
+            }
             return newestStories;
         }
 
         public async Task<IEnumerable<StoryDto>> GetTopViewsAsync(int take = 5)
         {
-            // Tùy vào việc bạn dùng _context hay _repository, hãy thay thế cho phù hợp nhé
-            var topStories = await _context.Stories // Hoặc _storyRepository.GetAll()
-                .OrderByDescending(s => s.ViewCount)    // Sắp xếp lượt xem từ cao xuống thấp
-                .Take(take)                         // Lấy số lượng tương ứng (5 truyện)
-                .Select(s => new StoryDto           // Map sang DTO để trả về
+            var topStories = await _context.Stories
+                .OrderByDescending(s => s.ViewCount)
+                .Take(take)
+                .Select(s => new StoryDto
                 {
                     Id = s.Id,
                     Title = s.StoryName,
                     ViewCount = s.ViewCount,
-                    // Map thêm các trường cần thiết để giao diện hiển thị Popup chi tiết
                     CoverImage = s.CoverImage,
                     AuthorName = s.AuthorName ?? "Đang cập nhật",
                     CategoryName = s.Category != null ? s.Category.Name : "Đang cập nhật",
-                    //Rating = s.Rating ?? 5.0,
-                    Description = s.Description
-                    // (Bạn map các trường giống hệt hàm GetNewestStoriesAsync là chuẩn nhất)
+                    Description = s.Description,
+
+                    // TỰ ĐỘNG ĐẾM
+                    TotalChapters = s.Chapters.Count(),
+                    CreatedAt = s.CreatedAt
                 })
                 .ToListAsync();
 
+            foreach (var story in topStories)
+            {
+                story.TimeAgo = GetTimeAgo(story.CreatedAt);
+            }
             return topStories;
         }
+
+        // ... CÁC HÀM CREATE, UPDATE, DELETE GIỮ NGUYÊN ...
 
         public async Task<bool> CreateAsync(StoryDto dto)
         {
@@ -135,7 +166,6 @@ namespace WibuHub.Service.Implementations
             var entity = await _context.Stories.FindAsync(id);
             if (entity == null) return false;
 
-            // Cập nhật dữ liệu
             entity.StoryName = dto.Title;
             entity.Description = dto.Description;
             entity.AuthorName = dto.AuthorName;
@@ -143,7 +173,6 @@ namespace WibuHub.Service.Implementations
             entity.Price = dto.Price;
             entity.Discount = dto.Discount;
 
-            // Nếu có upload ảnh mới thì mới cập nhật ảnh, không thì giữ nguyên
             if (!string.IsNullOrEmpty(dto.CoverImage))
             {
                 entity.CoverImage = dto.CoverImage;
@@ -162,6 +191,17 @@ namespace WibuHub.Service.Implementations
             _context.Stories.Remove(entity);
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        private string GetTimeAgo(DateTime dateTime)
+        {
+            var timeSpan = DateTime.Now - dateTime;
+            if (timeSpan <= TimeSpan.FromSeconds(60)) return "Vừa xong";
+            if (timeSpan <= TimeSpan.FromMinutes(60)) return timeSpan.Minutes > 1 ? $"{timeSpan.Minutes} phút trước" : "1 phút trước";
+            if (timeSpan <= TimeSpan.FromHours(24)) return timeSpan.Hours > 1 ? $"{timeSpan.Hours} giờ trước" : "1 giờ trước";
+            if (timeSpan <= TimeSpan.FromDays(30)) return timeSpan.Days > 1 ? $"{timeSpan.Days} ngày trước" : "1 ngày trước";
+            if (timeSpan <= TimeSpan.FromDays(365)) return timeSpan.Days > 30 ? $"{timeSpan.Days / 30} tháng trước" : "1 tháng trước";
+            return timeSpan.Days > 365 ? $"{timeSpan.Days / 365} năm trước" : "1 năm trước";
         }
     }
 }

@@ -10,8 +10,8 @@
     var categories = await CategoryService.GetAllAsync();
     var categoryColumnCount = categories.Count == 0 ? 1 : 4;
     var categoriesPerColumn = categories.Count > 0
-        ? (int)Math.Ceiling(categories.Count / (double)categoryColumnCount)
-        : 0;
+      ? (int)Math.Ceiling(categories.Count / (double)categoryColumnCount)
+      : 0;
 }
 
 <!DOCTYPE html>
@@ -255,43 +255,7 @@
                     <div id="groupsSection" class="content-section hidden"><h2>Nội dung Nhóm dịch</h2></div>
                     <div id="profilePageSection" class="content-section hidden"><h2>Nội dung Cá nhân</h2></div>
 
-                    <div id="detailSection" class="content-section hidden">
-                        <div class="breadcrumb">
-                            <a href="#" id="breadcrumbHome">Trang chủ</a> > <a href="#" id="breadcrumbCategory">Thể loại</a> > <span id="breadcrumbTitle">Tên truyện</span>
-                        </div>
-                        <div class="detail-container">
-                            <div class="detail-header">
-                                <div class="detail-cover" id="detailCover">Ảnh bìa</div>
-                                <div class="detail-info">
-                                    <h1 id="detailTitle">Tên truyện</h1>
-                                    <div class="detail-meta">
-                                        <div class="detail-meta-item"><span>Tác giả</span><strong id="detailAuthor">Đang cập nhật</strong></div>
-                                        <div class="detail-meta-item"><span>Tình trạng</span><strong id="detailStatus">Đang tiến hành</strong></div>
-                                        <div class="detail-meta-item"><span>Thể loại</span><strong id="detailGenre">Đang cập nhật</strong></div>
-                                        <div class="detail-meta-item"><span>Lượt xem</span><strong id="detailViews">0</strong></div>
-                                    </div>
-                                    <div class="rating">
-                                        <div class="stars-interactive">
-                                            <i class="star fas fa-star"></i><i class="star fas fa-star"></i><i class="star fas fa-star"></i><i class="star fas fa-star"></i><i class="star fas fa-star"></i>
-                                        </div>
-                                        <span class="rating-text">5/5 - 0 Lượt đánh giá</span>
-                                    </div>
-                                    <div class="follow-info">
-                                        <button class="follow-btn" id="followBtn">Theo dõi</button>
-                                        <span><strong>0</strong> Người đã theo dõi</span>
-                                    </div>
-                                    <div class="action-buttons">
-                                        <button class="action-btn" id="readFirstBtn">Đọc từ đầu</button>
-                                        <button class="action-btn secondary" id="readContinueBtn">Đọc tiếp ></button>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="description" id="detailDescription">
-                                <strong>NỘI DUNG TRUYỆN</strong><br>
-                                Đang cập nhật nội dung...
-                            </div>
-                        </div>
-                    </div>
+                    <div id="detailSection" class="content-section hidden"></div>
 
                     <div style="text-align: center; margin: 30px 0;">
                         <a class="view-more-btn" id="viewMoreBtn">Xem thêm truyện <i class="fas fa-chevron-down"></i></a>
@@ -446,35 +410,6 @@
                     document.getElementById('chatIcon').className = chatbox?.classList.contains('closed') ? 'fas fa-comment' : 'fas fa-minus';
                 });
 
-                // Hiển thị chi tiết truyện mượt mà (SPA feeling)
-                function fillDetailAndShow(card) {
-                    document.getElementById('detailTitle').innerText = card.dataset.title || 'Đang cập nhật';
-                    document.getElementById('detailAuthor').innerText = card.dataset.author || 'Đang cập nhật';
-                    document.getElementById('detailGenre').innerText = card.dataset.genre || 'Đang cập nhật';
-                    document.getElementById('detailViews').innerText = card.dataset.views || '0';
-                    document.getElementById('breadcrumbTitle').innerText = card.dataset.title || 'Đang cập nhật';
-
-                    const detailCover = document.getElementById('detailCover');
-                    if (card.dataset.cover) {
-                        detailCover.style.cssText = `background-image: url('${card.dataset.cover}'); background-size: cover;`;
-                        detailCover.innerText = '';
-                    }
-                    showSection('detailSection');
-                    window.scrollTo({ top: 0, behavior: 'smooth' }); // Tự động cuộn lên đầu
-                }
-
-                // Lắng nghe sự kiện click vào Card Truyện
-                document.addEventListener('click', (event) => {
-                    if (event.target.closest('.btn-read')) return; // Bỏ qua nếu bấm nút "Đọc ngay"
-
-                    // FIX LỖI Ở ĐÂY: Dùng đúng class 'recommend-card' thay vì 'update-item'
-                    const card = event.target.closest('.recommend-card');
-                    if (card) {
-                        event.preventDefault(); // Ngăn trình duyệt chuyển sang trang mới
-                        fillDetailAndShow(card);
-                    }
-                });
-
                 // Format views (1200 -> 1.2K)
                 function formatViews(views) {
                     const v = parseInt(views, 10) || 0;
@@ -487,10 +422,20 @@
                 let originalStories = [];
                 let activeStoriesList = [];
                 let currentRecommendIndex = 0;
-                const ITEMS_PER_PAGE = 30;
+
+                const INITIAL_ITEMS = 30;      // Số lượng truyện hiển thị ban đầu
+                const LOAD_MORE_ITEMS = 20;    // Số lượng truyện tải thêm khi bấm nút
+                const MAX_ITEMS_ON_HOME = 50;  // Giới hạn hiển thị trên trang chủ
 
                 document.getElementById('viewMoreBtn')?.addEventListener('click', (e) => {
                     e.preventDefault();
+
+                    // Nếu đã hiển thị đủ 50 truyện, bấm lần nữa sẽ chuyển trang
+                    if (currentRecommendIndex >= MAX_ITEMS_ON_HOME) {
+                        window.location.href = '/Categories'; // Link tới trang hiển thị tất cả
+                        return;
+                    }
+
                     renderMoreStories();
                 });
 
@@ -503,29 +448,30 @@
 
                         const filterType = this.dataset.recommend;
 
-                        // Tối ưu Logic Lọc & Sắp xếp với parseInt
+                        // Tối ưu Logic Lọc & Sắp xếp
                         if (filterType === 'all') {
                             activeStoriesList = [...originalStories];
                         }
                         else if (filterType === 'popular') {
                             activeStoriesList = [...originalStories].sort((a, b) => {
-                                const viewsA = parseInt(a.viewCount || a.ViewCount || a.views || a.Views || 0, 10);
-                                const viewsB = parseInt(b.viewCount || b.ViewCount || b.views || b.Views || 0, 10);
+                                const viewsA = parseInt(a.viewCount || a.ViewCount || 0, 10);
+                                const viewsB = parseInt(b.viewCount || b.ViewCount || 0, 10);
                                 return viewsB - viewsA;
                             });
                         }
                         else if (filterType === 'latest') {
                             activeStoriesList = [...originalStories].sort((a, b) => {
-                                const idA = parseInt(a.id || a.Id || 0, 10);
-                                const idB = parseInt(b.id || b.Id || 0, 10);
-                                return idB - idA;
+                                // Sắp xếp giảm dần theo ngày tạo (Mới nhất lên đầu)
+                                const dateA = new Date(a.createdAt || a.CreatedAt || 0).getTime();
+                                const dateB = new Date(b.createdAt || b.CreatedAt || 0).getTime();
+                                return dateB - dateA;
                             });
                         }
 
                         // Xóa dữ liệu cũ, in dữ liệu mới
                         const grid = document.getElementById('recommendAll');
                         if (grid) grid.innerHTML = '';
-                        currentRecommendIndex = 0;
+                        currentRecommendIndex = 0; // Reset lại bộ đếm khi đổi tab
                         renderMoreStories();
                     });
                 });
@@ -562,53 +508,79 @@
                     }
                 }
 
-                // Render HTML Truyện
+                // Render HTML Truyện (Logic phân trang 30 -> 20 -> Chuyển trang)
                 function renderMoreStories() {
                     const grid = document.getElementById('recommendAll');
                     const viewMoreBtn = document.getElementById('viewMoreBtn');
                     if (!grid) return;
 
-                    const nextStories = activeStoriesList.slice(currentRecommendIndex, currentRecommendIndex + ITEMS_PER_PAGE);
+                    // Xác định số lượng truyện cần cắt ra
+                    let itemsToTake = currentRecommendIndex === 0 ? INITIAL_ITEMS : LOAD_MORE_ITEMS;
+
+                    const nextStories = activeStoriesList.slice(currentRecommendIndex, currentRecommendIndex + itemsToTake);
 
                     nextStories.forEach(story => {
                         const id = story.id || story.Id;
                         const title = story.title || story.Title || 'Đang cập nhật';
                         const cover = story.coverImage || story.CoverImage || 'https://via.placeholder.com/200x300';
-                        const chapter = story.latestChapter || story.LatestChapter || 'Chapter 1';
                         const timeTag = story.timeAgo || story.TimeAgo || 'Mới cập nhật';
-                        const views = parseInt(story.viewCount || story.ViewCount || story.views || story.Views || 0, 10);
+                        const views = parseInt(story.viewCount || story.ViewCount || 0, 10);
                         const isHot = story.isHot || story.IsHot || (views > 1000);
 
-                        const card = document.createElement('a');
-                        card.href = `/Stories/Details/${id}`; // Link chuyển hướng dự phòng
-                        card.style.textDecoration = 'none';
+                        // --- CƠ CHẾ HIỂN THỊ CHAPTER CHUẨN TRUYENQQ ---
+                        let chapterText = 'Đang cập nhật';
+                        const totalChap = story.totalChapters ?? story.TotalChapters ?? 0;
+
+                        if (totalChap > 0) {
+                            chapterText = 'Chapter ' + totalChap;
+                        }
+
+                        // Chuyển card thành <div> để chứa link độc lập
+                        const card = document.createElement('div');
                         card.className = 'recommend-card';
-                        card.dataset.title = title;
-                        card.dataset.cover = cover;
-                        card.dataset.views = formatViews(views);
+                        card.style.cursor = 'default'; // Giữ con trỏ mặc định cho vùng trống
 
                         card.innerHTML = `
-                            <div class="tq-card-cover">
-                                <div class="tq-top-ornament"></div>
-                                <img src="${cover}" alt="${title}" loading="lazy">
+                            <div class="tq-card-cover" style="position: relative; overflow: hidden; border-radius: 12px;">
+                                <a href="/Stories/Details/${id}">
+                                    <img src="${cover}" alt="${title}" loading="lazy" style="width:100%; aspect-ratio:2/3; object-fit:cover; display:block;">
+                                </a>
                                 <div class="tq-badges">
                                     <span class="tq-time">${timeTag}</span>
                                     ${isHot ? '<span class="tq-hot">Hot</span>' : ''}
                                 </div>
                                 <div class="tq-bookmark"><i class="fas fa-bookmark"></i></div>
                             </div>
-                            <div class="tq-card-info">
-                                <h3 class="tq-title">${title}</h3>
-                                <p class="tq-chapter">${chapter}</p>
+                            <div class="tq-card-info" style="text-align: center; padding: 10px 5px;">
+                                <h3 class="tq-title" style="margin: 0; font-size: 1rem; line-height: 1.4; height: 2.8em; overflow: hidden;">
+                                    <a href="/Stories/Details/${id}" style="text-decoration: none; color: #1f2937; font-weight: 600;">
+                                        ${title}
+                                    </a>
+                                </h3>
+                                <div class="last_chapter" style="margin-top: 4px;">
+                                    <a href="/Stories/Details/${id}" title="${chapterText}" style="text-decoration: none; color: #6b7280; font-size: 0.85rem;">
+                                        ${chapterText}
+                                    </a>
+                                </div>
                             </div>
                         `;
                         grid.appendChild(card);
                     });
 
+                    // Cập nhật lại chỉ số (index)
                     currentRecommendIndex += nextStories.length;
 
+                    // Xử lý hiển thị Nút "Xem thêm"
                     if (viewMoreBtn) {
-                        viewMoreBtn.style.display = currentRecommendIndex >= activeStoriesList.length ? 'none' : 'inline-block';
+                        if (currentRecommendIndex >= activeStoriesList.length) {
+                            viewMoreBtn.style.display = 'none';
+                        } else if (currentRecommendIndex >= MAX_ITEMS_ON_HOME) {
+                            viewMoreBtn.style.display = 'inline-block';
+                            viewMoreBtn.innerHTML = 'Xem tất cả truyện <i class="fas fa-arrow-right"></i>';
+                        } else {
+                            viewMoreBtn.style.display = 'inline-block';
+                            viewMoreBtn.innerHTML = 'Xem thêm truyện <i class="fas fa-chevron-down"></i>';
+                        }
                     }
                 }
 
@@ -627,7 +599,7 @@
                         topStories.slice(0, 10).forEach((story, index) => {
                             const id = story.id || story.Id;
                             const title = story.title || story.Title || 'Chưa có tên';
-                            const views = story.viewCount || story.ViewCount || story.views || story.Views || 0;
+                            const views = story.viewCount || story.ViewCount || 0;
 
                             const item = document.createElement('a');
                             item.className = 'top-item';
@@ -667,7 +639,7 @@
                                 const desc = story.description || story.Description || 'Đang cập nhật...';
                                 const cover = story.coverImage || story.CoverImage || 'https://via.placeholder.com/200x300';
                                 const rating = story.rating || story.Rating || '5.0';
-                                const views = story.viewCount || story.ViewCount || story.views || story.Views || 0;
+                                const views = story.viewCount || story.ViewCount || 0;
 
                                 const li = document.createElement('li');
                                 li.className = 'suggest-slide';

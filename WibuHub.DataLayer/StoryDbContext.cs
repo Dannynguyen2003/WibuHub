@@ -125,6 +125,11 @@ namespace WibuHub.DataLayer
                 entity.Property(s => s.Price).HasColumnType("money").HasPrecision(18, 2);
                 entity.Property(s => s.Discount).HasColumnType("money").HasPrecision(18, 2);
 
+                // --- CẤU HÌNH CHO 2 TRƯỜNG CHAPTER MỚI ---
+                entity.Property(s => s.TotalChapters).HasDefaultValue(0); // Tổng số chương mặc định là 0
+                entity.Property(s => s.LatestChapter).HasMaxLength(50);   // Tên chương chỉ dài tối đa 50 ký tự
+                // ------------------------------------------
+
                 // Author relationship
                 entity.HasOne(s => s.Author)
                       .WithMany(a => a.Stories)

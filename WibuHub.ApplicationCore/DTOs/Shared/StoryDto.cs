@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace WibuHub.ApplicationCore.DTOs.Shared
 {
@@ -23,6 +24,14 @@ namespace WibuHub.ApplicationCore.DTOs.Shared
 
         [Display(Name = "Ảnh bìa")]
         public string? CoverImage { get; set; }
+        // Tổng số lượng chương hiện có của truyện
+        [Description("Tổng số chương")]
+        public int TotalChapters { get; set; } = 0;
+        // Lưu tên chương mới nhất để tiện hiển thị ngoài trang chủ (VD: "Chapter 120", "Chap 50.5")
+        [Description("Tên chương mới nhất")]
+        [MaxLength(50)]
+        public string? LatestChapter { get; set; }
+        public string? TimeAgo { get; set; }
         [Display(Name = "Giá bán")]
         public decimal Price { get; set; }
         [Display(Name = "Giảm giá")]
