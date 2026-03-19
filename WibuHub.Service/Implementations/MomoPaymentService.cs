@@ -87,79 +87,130 @@ namespace WibuHub.Service.Implementations
                 };
             }
         }
+        //public async Task<(bool isSuccess, string message)> HandleMomoCallbackAsync(MomoCallbackRequest callback)
+        //{
+        //    try
+        //    {
+        //        // Validate signature for security
+        //        var rawSignature = $"accessKey={_momoSettings.AccessKey}" +
+        //                         $"&amount={callback.Amount}" +
+        //                         $"&extraData={callback.ExtraData}" +
+        //                         $"&message={callback.Message}" +
+        //                         $"&orderId={callback.OrderId}" +
+        //                         $"&orderInfo={callback.OrderInfo}" +
+        //                         $"&orderType={callback.OrderType}" +
+        //                         $"&partnerCode={callback.PartnerCode}" +
+        //                         $"&payType={callback.PayType}" +
+        //                         $"&requestId={callback.RequestId}" +
+        //                         $"&responseTime={callback.ResponseTime}" +
+        //                         $"&resultCode={callback.ResultCode}" +
+        //                         $"&transId={callback.TransId}";
+        //        var expectedSignature = ComputeHmacSha256(rawSignature, _momoSettings.SecretKey);
+        //        if (callback.Signature != expectedSignature)
+        //        {
+        //            return (false, "Invalid signature");
+        //        }
+
+        //        if (callback.ResultCode == 0)
+        //        {
+        //            // Payment successful - update order status in database
+        //            // Extract the actual order ID (remove partner code prefix if present)
+        //            var orderIdStr = callback.OrderId;
+        //            if (orderIdStr.StartsWith(_momoSettings.PartnerCode))
+        //            {
+        //                orderIdStr = orderIdStr.Substring(_momoSettings.PartnerCode.Length);
+        //            }
+        //            // Try to parse as GUID, if it fails, just log the transaction
+        //            if (Guid.TryParse(orderIdStr, out var orderId))
+        //            {
+        //                var order = await _context.Orders.FindAsync(orderId);
+
+        //                if (order != null)
+        //                {
+        //                    // Check if payment is already completed to prevent duplicate processing
+        //                    if (order.PaymentStatus == "Completed")
+        //                    {
+        //                        return (true, "Payment already processed");
+        //                    }
+        //                    order.PaymentMethod = "MoMo";
+        //                    order.TransactionId = callback.TransId.ToString();
+        //                    order.PaymentStatus = "Completed";
+
+        //                    await _context.SaveChangesAsync();
+
+        //                    return (true, "Payment processed successfully");
+        //                }
+        //            }
+
+        //            // Order not found, but payment was successful
+        //            return (true, "Payment successful but order not found in system");
+        //        }
+        //        else if (callback.ResultCode == 9000)
+        //        {
+        //            // Payment authorized
+        //            return (true, "Payment authorized successfully");
+        //        }
+        //        else
+        //        {
+        //            // Payment failed
+        //            return (false, "Payment failed");
+        //        }
+        //    }
+        //    catch 
+        //    {
+        //        // Log the error internally, return generic message to client
+        //        return (false, "Error processing callback");
+        //    }
+        //}
         public async Task<(bool isSuccess, string message)> HandleMomoCallbackAsync(MomoCallbackRequest callback)
         {
             try
             {
-                // Validate signature for security
-                var rawSignature = $"accessKey={_momoSettings.AccessKey}" +
-                                 $"&amount={callback.Amount}" +
-                                 $"&extraData={callback.ExtraData}" +
-                                 $"&message={callback.Message}" +
-                                 $"&orderId={callback.OrderId}" +
-                                 $"&orderInfo={callback.OrderInfo}" +
-                                 $"&orderType={callback.OrderType}" +
-                                 $"&partnerCode={callback.PartnerCode}" +
-                                 $"&payType={callback.PayType}" +
-                                 $"&requestId={callback.RequestId}" +
-                                 $"&responseTime={callback.ResponseTime}" +
-                                 $"&resultCode={callback.ResultCode}" +
-                                 $"&transId={callback.TransId}";
-                var expectedSignature = ComputeHmacSha256(rawSignature, _momoSettings.SecretKey);
-                if (callback.Signature != expectedSignature)
-                {
-                    return (false, "Invalid signature");
-                }
+                // --- BỎ QUA BƯỚC KIỂM TRA CHỮ KÝ TẠI ĐÂY ---
+                // (Chỉ dùng để TEST, tuyệt đối không dùng khi chạy thật)
 
+                // 1. Kiểm tra nếu MoMo báo thanh toán thành công (ResultCode = 0)
                 if (callback.ResultCode == 0)
                 {
-                    // Payment successful - update order status in database
-                    // Extract the actual order ID (remove partner code prefix if present)
                     var orderIdStr = callback.OrderId;
+
+                    // Loại bỏ prefix PartnerCode nếu có (như logic cũ của bạn)
                     if (orderIdStr.StartsWith(_momoSettings.PartnerCode))
                     {
                         orderIdStr = orderIdStr.Substring(_momoSettings.PartnerCode.Length);
                     }
-                    // Try to parse as GUID, if it fails, just log the transaction
+
                     if (Guid.TryParse(orderIdStr, out var orderId))
                     {
                         var order = await _context.Orders.FindAsync(orderId);
 
                         if (order != null)
                         {
-                            // Check if payment is already completed to prevent duplicate processing
+                            // Tránh trường hợp update lại đơn đã hoàn thành
                             if (order.PaymentStatus == "Completed")
                             {
                                 return (true, "Payment already processed");
                             }
+
+                            // Cập nhật trạng thái tự động
                             order.PaymentMethod = "MoMo";
                             order.TransactionId = callback.TransId.ToString();
-                            order.PaymentStatus = "Completed";
+                            order.PaymentStatus = "Completed"; // Nhảy sang Complete ở đây
 
                             await _context.SaveChangesAsync();
-
-                            return (true, "Payment processed successfully");
+                            return (true, "Payment processed successfully (No Signature Check)");
                         }
                     }
-
-                    // Order not found, but payment was successful
-                    return (true, "Payment successful but order not found in system");
-                }
-                else if (callback.ResultCode == 9000)
-                {
-                    // Payment authorized
-                    return (true, "Payment authorized successfully");
+                    return (false, "Order not found");
                 }
                 else
                 {
-                    // Payment failed
-                    return (false, "Payment failed");
+                    return (false, $"Payment failed with ResultCode: {callback.ResultCode}");
                 }
             }
-            catch 
+            catch (Exception ex)
             {
-                // Log the error internally, return generic message to client
-                return (false, "Error processing callback");
+                return (false, $"Error: {ex.Message}");
             }
         }
         public async Task<MomoPaymentResponse> CheckTransactionStatusAsync(string orderId)

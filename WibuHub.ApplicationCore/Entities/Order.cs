@@ -40,6 +40,6 @@ namespace WibuHub.ApplicationCore.Entities
         [Description("Trạng thái thanh toán")]
         public string? PaymentStatus { get; set; }
         public DateTime CreatedAt { get; set; }
-        public virtual ICollection<OrderDetail> OrderDetails { get; set; }
+        public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
     }
 }

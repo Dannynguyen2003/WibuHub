@@ -1,26 +1,26 @@
-@model IEnumerable<WibuHub.ApplicationCore.Entities.Order>
+Ôªø@model IEnumerable<WibuHub.ApplicationCore.Entities.Order>
 
 @{
-    ViewData["Title"] = "Qu?n l? ın h‡ng";
+    ViewData["Title"] = "Qu·∫£n l√Ω ƒë∆°n h√†ng";
     var statuses = ViewBag.StatusOptions as IEnumerable<string> ?? Enumerable.Empty<string>();
     var selectedStatus = ViewBag.SelectedStatus as string;
 }
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center">
-        <h1>Qu?n l? ın h‡ng</h1>
+        <h1>Qu·∫£n l√Ω ƒë∆°n h√†ng</h1>
         <div class="d-flex align-items-center" style="gap: 12px;">
             <a asp-action="History" class="btn-secondary btn-sm">L?ch s? giao d?ch</a>
             <form method="get" class="filter-bar filter-bar-inline">
-                <label for="status" class="form-label">Tr?ng th·i thanh to·n:</label>
+                <label for="status" class="form-label">Tr·∫°ng th√°i thanh to√°n:</label>
                 <select id="status" name="status" class="form-control" style="max-width: 220px;">
-                    <option value="">T?t c?</option>
+                    <option value="">T·∫•t c·∫£</option>
                     @foreach (var status in statuses)
                     {
                         <option value="@status" selected="@(status == selectedStatus)">@status</option>
                     }
                 </select>
-                <button type="submit" class="btn-primary btn-sm">L?c</button>
+                <button type="submit" class="btn-primary btn-sm">L·ªçc</button>
             </form>
         </div>
     </div>
@@ -28,13 +28,13 @@
     <table class="data-table">
         <thead>
             <tr>
-                <th style="width: 28%">M? ın</th>
+                <th style="width: 28%">M? ƒë∆°n</th>
                 <th style="width: 16%">User</th>
                 <th style="width: 14%">Th?i gian</th>
                 <th style="width: 14%">T?ng ti?n</th>
-                <th style="width: 14%">Ph˝ıng th?c</th>
-                <th style="width: 12%">Tr?ng th·i</th>
-                <th style="width: 14%" class="text-center">Thao t·c</th>
+                <th style="width: 14%">Ph∆∞∆°ng th?c</th>
+                <th style="width: 12%">Tr?ng th√°i</th>
+                <th style="width: 14%" class="text-center">Thao t√°c</th>
             </tr>
         </thead>
         <tbody>
@@ -46,11 +46,11 @@
                     <td class="text-break">@item.Id</td>
                     <td>@item.UserId</td>
                     <td>@item.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
-                    <td>@item.TotalAmount.ToString("N0") ˛</td>
+                    <td>@item.TotalAmount.ToString("N0") ‚Ç´</td>
                     <td>@item.PaymentMethod</td>
                     <td><span class="badge-status">@item.PaymentStatus</span></td>
                     <td class="action-cell">
-                        <a asp-action="Details" asp-route-id="@item.Id" class="btn-secondary btn-sm">Chi ti?t</a>
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn-secondary btn-sm">Chi ti·∫øt</a>
                     </td>
                 </tr>
             }
@@ -58,7 +58,7 @@
         else
         {
             <tr>
-                <td colspan="7" class="text-center">Ch˝a cÛ ın h‡ng n‡o.</td>
+                <td colspan="7" class="text-center">Ch∆∞a c√≥ ƒë∆°n h√†ng n√†o.</td>
             </tr>
         }
         </tbody>
