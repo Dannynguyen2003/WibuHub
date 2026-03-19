@@ -1,12 +1,13 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
-using System.IO;
 using Microsoft.Extensions.FileProviders;
+using System.IO;
 using WibuHub.ApplicationCore.Configuration;
 using WibuHub.ApplicationCore.Entities.Identity;
 using WibuHub.DataLayer;
 using WibuHub.Service.EmailSender;
+using WibuHub.Service.Implementation;
 using WibuHub.Service.Implementations;
 using WibuHub.Service.Interface;
 
@@ -87,6 +88,7 @@ builder.Services.AddRazorPages();
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IRewardService, RewardService>();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpContextAccessor();

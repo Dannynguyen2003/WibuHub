@@ -8,7 +8,7 @@
         ? "https://ui-avatars.com/api/?name=Anonymous&background=E2E8F0&color=475569"
         : (Model.CoverImage.StartsWith("http", StringComparison.OrdinalIgnoreCase)
             ? Model.CoverImage
-            : Url.Content($"~/{Model.CoverImage.TrimStart('/') }"));
+            : Url.Content($"~/{Model.CoverImage.TrimStart('/')}"));
     var storySlug = string.IsNullOrWhiteSpace(Model.Slug)
         ? Model.StoryName
         : Model.Slug;
@@ -65,6 +65,26 @@
     var ratingValue = Math.Clamp((int)Math.Round(Model.RatingScore), 0, 5);
     var isFollowed = (ViewData["IsFollowed"] as bool?) ?? false;
 }
+
+<div style="padding: 15px 20px 20px 20px; max-width: 1200px; margin: 0 auto;">
+    <ul style="display: flex; flex-wrap: wrap; list-style: none; padding: 0; margin: 0; font-size: 0.95rem; color: #6b7280; align-items: center; gap: 8px;">
+        <li>
+            <a href="/" style="color: #3b82f6; text-decoration: none; display: flex; align-items: center; gap: 4px;">
+                <i class="fas fa-home"></i> Trang chủ
+            </a>
+        </li>
+        <li><span style="margin: 0 2px;">/</span></li>
+        <li>
+            <a href="/Categories?id=@Model.CategoryId" style="color: #3b82f6; text-decoration: none;">
+                @(categories.FirstOrDefault() ?? "Thể loại")
+            </a>
+        </li>
+        <li><span style="margin: 0 2px;">/</span></li>
+        <li>
+            <span style="color: #1f2937; font-weight: 500;">@Model.StoryName</span>
+        </li>
+    </ul>
+</div>
 
 <div class="story-detail-shell">
     <div class="story-detail-header">

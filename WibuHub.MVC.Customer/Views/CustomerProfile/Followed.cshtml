@@ -1,0 +1,66 @@
+﻿@model List<WibuHub.MVC.Customer.ViewModels.FollowItemVM>
+
+@{
+    ViewData["Title"] = "Truyện Đang Theo Dõi";
+}
+
+<link rel="stylesheet" href="~/css/CustomerProfile.css" asp-append-version="true">
+
+<div class="profile-page-wrapper">
+    <div class="profile-container">
+
+        @* <div class="profile-sidebar">
+            <a href="/CustomerProfile" class="profile-menu-item">
+                <i class="far fa-user-circle"></i> Quản lý tài khoản
+            </a>
+            <a href="/CustomerProfile/Followed" class="profile-menu-item active">
+                <i class="fas fa-bookmark"></i> Truyện Theo Dõi
+            </a>
+            <a href="/CustomerProfile/History" class="profile-menu-item">
+                <i class="fas fa-history"></i> Lịch Sử Đọc
+            </a>
+            <a href="/CustomerProfile/ChangePassword" class="profile-menu-item">
+                <i class="fas fa-lock"></i> Đổi mật khẩu
+            </a>
+        </div> *@
+
+        <div class="profile-content">
+            <div class="pane-header">
+                <i class="fas fa-flag"></i> Truyện Đang Theo Dõi
+            </div>
+
+            @if (Model != null && Model.Any())
+            {
+                <div class="truyen-grid">
+                    @foreach (var item in Model)
+                    {
+                        <div class="truyen-card">
+                            <div class="truyen-cover">
+                                <form asp-action="Unfollow" method="post" style="margin:0;">
+                                    <input type="hidden" name="storyId" value="@item.StoryId" />
+                                    <button type="submit" class="btn-remove-card" title="Bỏ theo dõi" onclick="return confirm('Bạn muốn bỏ theo dõi truyện này?')">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </form>
+
+                                <div class="tag-time">@item.ViewCount Lượt xem</div>
+                                <a href="/Stories/Details/@item.StoryId">
+                                    <img src="@item.CoverImage" alt="@item.StoryTitle">
+                                </a>
+                            </div>
+                            <a href="/Stories/Details/@item.StoryId" class="truyen-title">@item.StoryTitle</a>
+                            <span class="truyen-chapter">Đã có @item.TotalChapters Chapter</span>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div style="text-align:center; padding: 40px; color:#94a3b8;">
+                    <i class="far fa-folder-open" style="font-size: 40px; margin-bottom: 10px;"></i>
+                    <p>Bạn chưa theo dõi truyện nào.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>

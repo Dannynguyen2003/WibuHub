@@ -2,6 +2,7 @@
 @using WibuHub.ApplicationCore.Entities.Identity
 @using WibuHub.Service.Interface
 @inject SignInManager<StoryUser> SignInManager
+@inject UserManager<StoryUser> UserManager
 @inject ICategoryService CategoryService
 
 @{
@@ -40,20 +41,42 @@
                 <input type="text" placeholder="Tìm truyện, tác giả..." id="searchInput">
                 <button id="searchBtn"><i class="fas fa-search"></i></button>
             </div>
+
             <div class="user-actions">
-                <a href="#" id="notificationBtn"><i class="far fa-bell"></i> <span>Thông báo</span></a>
-                <a href="/ShoppingCart/Cart" id="cartBtn"><i class="fas fa-shopping-cart"></i> <span>Giỏ hàng</span></a>
+                <a href="#" id="notificationBtn"><i class="far fa-bell"></i> <span class="d-none d-md-inline">Thông báo</span></a>
+                <a href="/ShoppingCart/Cart" id="cartBtn"><i class="fas fa-shopping-cart"></i> <span class="d-none d-md-inline">Giỏ hàng</span></a>
+
                 @if (User?.Identity?.IsAuthenticated ?? false)
                 {
-                    <span class="user-name"><i class="far fa-user"></i> <span>@User.Identity?.Name</span></span>
-                    <form class="logout-form" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-                        <button type="submit" class="logout-btn"><i class="fas fa-sign-out-alt"></i> <span>Đăng xuất</span></button>
-                    </form>
+                    var currentUser = await UserManager.GetUserAsync(User);
+                    var avatarUrl = currentUser?.Avatar;
+                    if (string.IsNullOrEmpty(avatarUrl))
+                    {
+                        avatarUrl = "https://ui-avatars.com/api/?name=" + (currentUser?.UserName ?? "User") + "&background=E2E8F0&color=475569";
+                    }
+
+                    <div class="user-account">
+                        <div class="avatar-wrapper">
+                            <img src="@avatarUrl" alt="Avatar" class="avatar-icon">
+                        </div>
+
+                        <ul class="dropdown-menu">
+                            <li><a asp-controller="CustomerProfile" asp-action="Followed"><i class="fas fa-bookmark"></i> Danh sách theo dõi</a></li>
+                            <li><a asp-controller ="CustomerProfile" asp-action="History"><i class="fas fa-history"></i> Lịch sử đọc truyện</a></li>
+                            <li><a asp-controller="CustomerProfile" asp-action="Index"><i class="fas fa-cog"></i> Cài đặt thông tin</a></li>
+                            <li class="divider"></li>
+                            <li>
+                                <form class="logout-form" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" style="margin: 0;">
+                                    <button type="submit" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
                 }
                 else
                 {
-                    <a href="#" id="loginBtn"><i class="far fa-user"></i> <span>Đăng nhập</span></a>
-                    <a href="#" id="registerBtn"><i class="fas fa-user-plus"></i> <span>Đăng ký</span></a>
+                    <a href="#" id="loginBtn"><i class="far fa-user"></i> <span class="d-none d-md-inline">Đăng nhập</span></a>
+                    <a href="#" id="registerBtn"><i class="fas fa-user-plus"></i> <span class="d-none d-md-inline">Đăng ký</span></a>
                 }
             </div>
         </header>
@@ -150,16 +173,15 @@
                     <span class="mobile-menu-logo">TRUYỆN<span>HAY</span></span>
                     <span class="close-menu" id="closeMenu"><i class="fas fa-times"></i></span>
                 </div>
-                <a href="#" class="mobile-menu-item active" id="mobileHome"><i class="fas fa-home"></i> Trang chủ</a>
+                <a asp-controller="Home" asp-action="Index" asp-area="" class="mobile-menu-item active" id="mobileHome"><i class="fas fa-home"></i> Trang chủ</a>
                 <a asp-controller="Categories" asp-action="Index" asp-route-id="" class="mobile-menu-item" id="mobileGenre"><i class="fas fa-tags"></i> Thể loại</a>
                 <a href="#" class="mobile-menu-item" id="mobileRank"><i class="fas fa-crown"></i> BXH</a>
                 <a href="#" class="mobile-menu-item" id="mobileGroups"><i class="fas fa-users"></i> Nhóm dịch</a>
-                <a href="#" class="mobile-menu-item" id="mobileProfilePage"><i class="fas fa-user"></i> Cá nhân</a>
             </div>
         }
 
         <nav class="nav-tabs">
-            <a class="nav-item" id="tabHome" asp-controller="Home" asp-action="Index">Trang chủ</a>
+            <a class="nav-item active" id="tabHome" asp-controller="Home" asp-action="Index" asp-area="">Trang chủ</a>
             <div class="nav-dropdown">
                 <span class="nav-item nav-item-static" id="tabGenre">Thể loại <i class="fas fa-chevron-down"></i></span>
                 <div class="genre-dropdown">
@@ -195,8 +217,7 @@
                     <a class="rank-link" asp-controller="Rankings" asp-action="Index" asp-route-type="random">Truyện Ngẫu Nhiên</a>
                 </div>
             </div>
-            <a class="nav-item" id="tabGroups" asp-controller="Home" asp-action="Index">Nhóm dịch</a>
-            <a class="nav-item" id="tabProfilePage" asp-controller="Home" asp-action="Index">Cá nhân</a>
+            <a class="nav-item" id="tabGroups" href="#">Nhóm dịch</a>
         </nav>
 
         @if (isHomePage)
@@ -204,20 +225,16 @@
             <div class="main-grid">
                 <div>
                     <div id="homeSection" class="content-section">
-                        <div class="suggest-slider-wrapper" style="min-height: 350px; background-color: #111827; border-radius: 16px; position: relative; margin-bottom: 30px; overflow: hidden; display: flex; align-items: center;">
-                            <button class="slider-nav-btn slider-prev" style="position: absolute; left: 0; z-index: 10; height: 80px; width: 40px; background-color: rgba(0,0,0,0.6); color: white; border: none; border-radius: 0 8px 8px 0; cursor: pointer; font-size: 1.2rem;">
-                                <i class="fas fa-chevron-left"></i>
-                            </button>
+                        <div class="suggest-slider-wrapper">
+                            <button class="slider-nav-btn slider-prev"><i class="fas fa-chevron-left"></i></button>
 
-                            <ul id="list_suggest" style="display: flex; list-style: none; padding: 0; margin: 0; width: 100%; transition: transform 0.5s ease;">
+                            <ul id="list_suggest">
                                 <li style="flex: 0 0 100%; width: 100%; text-align: center; color: #9ca3af; font-size: 1.1rem; padding: 50px 0;">
                                     <i class="fas fa-spinner fa-spin"></i> Đang tải dữ liệu Nổi Bật...
                                 </li>
                             </ul>
 
-                            <button class="slider-nav-btn slider-next" style="position: absolute; right: 0; z-index: 10; height: 80px; width: 40px; background-color: rgba(0,0,0,0.6); color: white; border: none; border-radius: 8px 0 0 8px; cursor: pointer; font-size: 1.2rem;">
-                                <i class="fas fa-chevron-right"></i>
-                            </button>
+                            <button class="slider-nav-btn slider-next"><i class="fas fa-chevron-right"></i></button>
                         </div>
 
                         <div class="home-grid">
@@ -231,7 +248,10 @@
                                             <span class="recommend-tab" data-recommend="latest">Mới nhất</span>
                                         </div>
                                     </div>
-                                    <div class="recommend-grid" id="recommendAll">
+                                    <div class="recommend-grid" id="recommendAll"></div>
+
+                                    <div style="text-align: center; margin: 30px 0;">
+                                        <a class="view-more-btn" id="viewMoreBtn" style="cursor: pointer;">Xem thêm truyện <i class="fas fa-chevron-down"></i></a>
                                     </div>
                                 </div>
                             </div>
@@ -241,7 +261,7 @@
                                     <div class="section-header">
                                         <h2>Xem Nhiều Nhất</h2>
                                     </div>
-                                    <div style="text-align: center; padding: 20px; color: #9ca3af;">
+                                    <div class="top-list-loading" style="text-align: center; padding: 20px; color: #9ca3af;">
                                         <i class="fas fa-spinner fa-spin"></i> Đang tải...
                                     </div>
                                 </div>
@@ -253,13 +273,7 @@
                     <div id="hotSection" class="content-section hidden"><h2>Nội dung Hot nhất</h2></div>
                     <div id="rankSection" class="content-section hidden"><h2>Nội dung BXH</h2></div>
                     <div id="groupsSection" class="content-section hidden"><h2>Nội dung Nhóm dịch</h2></div>
-                    <div id="profilePageSection" class="content-section hidden"><h2>Nội dung Cá nhân</h2></div>
-
                     <div id="detailSection" class="content-section hidden"></div>
-
-                    <div style="text-align: center; margin: 30px 0;">
-                        <a class="view-more-btn" id="viewMoreBtn">Xem thêm truyện <i class="fas fa-chevron-down"></i></a>
-                    </div>
                 </div>
 
                 <aside class="sidebar">
@@ -293,50 +307,107 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const isHomePage = document.getElementById('homeSection') !== null;
+        // ----------------------------------------------------
+        // UTILITIES: Hàm tiện ích dùng chung
+        // ----------------------------------------------------
+        const Utils = {
+            formatViews: (views) => {
+                const v = parseInt(views, 10) || 0;
+                return v >= 1000 ? (v / 1000).toFixed(1) + 'K' : v.toString();
+            },
 
-            // ==========================================
-            // 1. XỬ LÝ ĐĂNG NHẬP / ĐĂNG KÝ
-            // ==========================================
-            const modals = {
+            buildStoryCardHTML: (story) => {
+                const id = story.id || story.Id;
+                const title = story.title || story.Title || 'Đang cập nhật';
+                const cover = story.coverImage || story.CoverImage || 'https://via.placeholder.com/200x300';
+                const timeTag = story.timeAgo || story.TimeAgo || 'Mới cập nhật';
+                const views = parseInt(story.viewCount || story.ViewCount || 0, 10);
+                const isHot = story.isHot || story.IsHot || (views > 1000);
+
+                let chapterText = 'Đang cập nhật';
+                const totalChap = story.totalChapters ?? story.TotalChapters ?? 0;
+                if (totalChap > 0) chapterText = 'Chapter ' + totalChap;
+
+                return `
+                    <div class="recommend-card" style="cursor: default;" data-title="${title}" data-cover="${cover}" data-views="${Utils.formatViews(views)}">
+                        <div class="tq-card-cover" style="position: relative; overflow: hidden; border-radius: 12px;">
+                            <a href="/Stories/Details/${id}">
+                                <img src="${cover}" alt="${title}" loading="lazy" style="width: 100%; aspect-ratio: 2/3; object-fit: cover; display: block;">
+                            </a>
+                            <div class="tq-badges">
+                                <span class="tq-time">${timeTag}</span>
+                                ${isHot ? '<span class="tq-hot">Hot</span>' : ''}
+                            </div>
+                            <div class="tq-bookmark"><i class="fas fa-bookmark"></i></div>
+                        </div>
+                        <div class="tq-card-info" style="text-align: center; padding: 10px 5px;">
+                            <h3 class="tq-title" style="margin: 0; font-size: 1rem; line-height: 1.4; height: 2.8em; overflow: hidden;">
+                                <a href="/Stories/Details/${id}" style="text-decoration: none; color: #1f2937; font-weight: 600;">${title}</a>
+                            </h3>
+                            <div class="last_chapter" style="margin-top: 4px;">
+                                <a href="/Stories/Details/${id}" title="${chapterText}" style="text-decoration: none; color: #6b7280; font-size: 0.85rem;">
+                                    ${chapterText}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            },
+
+            fetchAPI: async (url) => {
+                const res = await fetch(url);
+                if (!res.ok) throw new Error(`Lỗi gọi API: ${res.status}`);
+                return await res.json();
+            }
+        };
+
+        // ----------------------------------------------------
+        // AUTH CONTROLLER: Xử lý Đăng nhập / Đăng ký
+        // ----------------------------------------------------
+        const AuthController = {
+            modals: {
                 auth: document.getElementById('authModal'),
                 register: document.getElementById('registerModal')
-            };
+            },
+            init: function() {
+                const toggles = [
+                    { btn: 'loginBtn', show: this.modals.auth, hide: this.modals.register },
+                    { btn: 'registerBtn', show: this.modals.register, hide: this.modals.auth },
+                    { btn: 'showRegisterModal', show: this.modals.register, hide: this.modals.auth },
+                    { btn: 'showLoginModal', show: this.modals.auth, hide: this.modals.register }
+                ];
 
-            function toggleModal(modalToShow, modalToHide) {
-                if (modalToHide) modalToHide.classList.remove('active');
-                if (modalToShow) modalToShow.classList.add('active');
-            }
-
-            const loginBtn = document.getElementById('loginBtn');
-            const registerBtn = document.getElementById('registerBtn');
-            const showRegisterModal = document.getElementById('showRegisterModal');
-            const showLoginModal = document.getElementById('showLoginModal');
-
-            if (loginBtn) loginBtn.addEventListener('click', (e) => { e.preventDefault(); toggleModal(modals.auth, modals.register); });
-            if (registerBtn) registerBtn.addEventListener('click', (e) => { e.preventDefault(); toggleModal(modals.register, modals.auth); });
-            if (showRegisterModal) showRegisterModal.addEventListener('click', (e) => { e.preventDefault(); toggleModal(modals.register, modals.auth); });
-            if (showLoginModal) showLoginModal.addEventListener('click', (e) => { e.preventDefault(); toggleModal(modals.auth, modals.register); });
-
-            document.querySelectorAll('.modal-close').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    modals.auth?.classList.remove('active');
-                    modals.register?.classList.remove('active');
+                toggles.forEach(t => {
+                    const el = document.getElementById(t.btn);
+                    if (el) el.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        if (t.hide) t.hide.classList.remove('active');
+                        if (t.show) t.show.classList.add('active');
+                    });
                 });
-            });
 
-            window.addEventListener('click', (e) => {
-                if (e.target === modals.auth) modals.auth.classList.remove('active');
-                if (e.target === modals.register) modals.register.classList.remove('active');
-            });
+                document.querySelectorAll('.modal-close').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        this.modals.auth?.classList.remove('active');
+                        this.modals.register?.classList.remove('active');
+                    });
+                });
 
-            async function submitAuthForm(form, errorEl, isRegister = false) {
-                if (!form) return;
-                const formData = new FormData(form);
-                const dataObject = Object.fromEntries(formData.entries());
+                window.addEventListener('click', (e) => {
+                    if (e.target === this.modals.auth) this.modals.auth.classList.remove('active');
+                    if (e.target === this.modals.register) this.modals.register.classList.remove('active');
+                });
 
+                document.getElementById('loginModalForm')?.addEventListener('submit', (e) => this.submitForm(e, false));
+                document.getElementById('registerModalForm')?.addEventListener('submit', (e) => this.submitForm(e, true));
+            },
+            submitForm: async function(e, isRegister) {
+                e.preventDefault();
+                const form = e.target;
+                const errorEl = document.getElementById(isRegister ? 'registerError' : 'loginError');
                 if (errorEl) { errorEl.classList.remove('active'); errorEl.textContent = ''; }
+
+                const dataObject = Object.fromEntries(new FormData(form).entries());
 
                 try {
                     const response = await fetch(form.action, {
@@ -347,21 +418,21 @@
                         },
                         body: JSON.stringify(dataObject)
                     });
-
                     const payload = await response.json().catch(() => ({}));
 
                     if (response.ok && payload.success) {
                         if (isRegister) {
-                            toggleModal(modals.auth, modals.register);
-                            const loginError = document.getElementById('loginError');
-                            if (loginError) {
-                                loginError.textContent = payload.message || 'Đăng ký thành công! Vui lòng đăng nhập.';
-                                loginError.classList.add('active');
-                                loginError.style.cssText = 'background-color: #d4edda; color: #155724;';
+                            this.modals.register.classList.remove('active');
+                            this.modals.auth.classList.add('active');
+                            const loginErr = document.getElementById('loginError');
+                            if (loginErr) {
+                                loginErr.textContent = payload.message || 'Đăng ký thành công! Vui lòng đăng nhập.';
+                                loginErr.classList.add('active');
+                                loginErr.style.cssText = 'background-color: #d4edda; color: #155724;';
                             }
-                            return;
+                        } else {
+                            window.location.href = payload.redirectUrl || window.location.href;
                         }
-                        window.location.href = payload.redirectUrl || window.location.href;
                     } else {
                         if (errorEl) { errorEl.textContent = payload.message || 'Thông tin không hợp lệ.'; errorEl.classList.add('active'); }
                     }
@@ -369,39 +440,31 @@
                     if (errorEl) { errorEl.textContent = 'Mất kết nối tới máy chủ.'; errorEl.classList.add('active'); }
                 }
             }
+        };
 
-            document.getElementById('loginModalForm')?.addEventListener('submit', (e) => { e.preventDefault(); submitAuthForm(e.target, document.getElementById('loginError'), false); });
-            document.getElementById('registerModalForm')?.addEventListener('submit', (e) => { e.preventDefault(); submitAuthForm(e.target, document.getElementById('registerError'), true); });
+        // ----------------------------------------------------
+        // UI CONTROLLER: Điều hướng & Giao diện (Tabs, Menu)
+        // ----------------------------------------------------
+        const UIController = {
+            sections: ['homeSection', 'newSection', 'hotSection', 'rankSection', 'groupsSection', 'profilePageSection', 'detailSection'],
+            tabs: ['tabHome', 'tabGenre', 'tabRank', 'tabGroups', 'tabProfilePage'],
 
-            // ==========================================
-            // 2. GIAO DIỆN TRANG CHỦ & FETCH DỮ LIỆU
-            // ==========================================
-            if (isHomePage) {
+            init: function() {
                 // Mobile Menu
-                const mobileMenu = document.getElementById('mobileMenu');
-                const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
-                const toggleMobileMenu = (force) => {
-                    mobileMenu.classList.toggle('open', force);
-                    mobileMenuOverlay.classList.toggle('active', force);
+                const menu = document.getElementById('mobileMenu');
+                const overlay = document.getElementById('mobileMenuOverlay');
+                const toggleMenu = (force) => {
+                    menu?.classList.toggle('open', force);
+                    overlay?.classList.toggle('active', force);
                 };
+                document.getElementById('mobileMenuBtn')?.addEventListener('click', () => toggleMenu(true));
+                document.getElementById('closeMenu')?.addEventListener('click', () => toggleMenu(false));
+                overlay?.addEventListener('click', () => toggleMenu(false));
 
-                document.getElementById('mobileMenuBtn')?.addEventListener('click', () => toggleMobileMenu(true));
-                document.getElementById('closeMenu')?.addEventListener('click', () => toggleMobileMenu(false));
-                mobileMenuOverlay?.addEventListener('click', () => toggleMobileMenu(false));
-
-                // Tabs / Sections
-                const sections = ['homeSection', 'newSection', 'hotSection', 'rankSection', 'groupsSection', 'profilePageSection', 'detailSection'].map(id => document.getElementById(id));
-                const tabs = ['tabHome', 'tabGenre', 'tabRank', 'tabGroups', 'tabProfilePage'].map(id => document.getElementById(id));
-
-                function showSection(sectionId, tabId) {
-                    sections.forEach(s => s?.classList.add('hidden'));
-                    tabs.forEach(t => t?.classList.remove('active'));
-                    document.getElementById(sectionId)?.classList.remove('hidden');
-                    if (tabId) document.getElementById(tabId)?.classList.add('active');
-                }
-
-                document.getElementById('tabHome')?.addEventListener('click', (e) => { e.preventDefault(); showSection('homeSection', 'tabHome'); });
-                document.getElementById('breadcrumbHome')?.addEventListener('click', (e) => { e.preventDefault(); showSection('homeSection', 'tabHome'); });
+                // Nav Tabs
+                document.getElementById('tabHome')?.addEventListener('click', (e) => { e.preventDefault(); this.showSection('homeSection', 'tabHome'); });
+                document.getElementById('tabGroups')?.addEventListener('click', (e) => { e.preventDefault(); this.showSection('groupsSection', 'tabGroups'); });
+                document.getElementById('tabProfilePage')?.addEventListener('click', (e) => { e.preventDefault(); this.showSection('profilePageSection', 'tabProfilePage'); });
 
                 // Chatbox
                 const chatbox = document.getElementById('chatbox');
@@ -409,296 +472,236 @@
                     chatbox?.classList.toggle('closed');
                     document.getElementById('chatIcon').className = chatbox?.classList.contains('closed') ? 'fas fa-comment' : 'fas fa-minus';
                 });
+            },
 
-                // Format views (1200 -> 1.2K)
-                function formatViews(views) {
-                    const v = parseInt(views, 10) || 0;
-                    return v >= 1000 ? (v / 1000).toFixed(1) + 'K' : v.toString();
-                }
+            showSection: function(sectionId, tabId) {
+                this.sections.forEach(id => document.getElementById(id)?.classList.add('hidden'));
+                this.tabs.forEach(id => document.getElementById(id)?.classList.remove('active'));
 
-                // ==========================================
-                // BIẾN TOÀN CỤC CHO PHÂN TRANG VÀ LỌC
-                // ==========================================
-                let originalStories = [];
-                let activeStoriesList = [];
-                let currentRecommendIndex = 0;
+                document.getElementById(sectionId)?.classList.remove('hidden');
+                if (tabId) document.getElementById(tabId)?.classList.add('active');
+            }
+        };
 
-                const INITIAL_ITEMS = 30;      // Số lượng truyện hiển thị ban đầu
-                const LOAD_MORE_ITEMS = 20;    // Số lượng truyện tải thêm khi bấm nút
-                const MAX_ITEMS_ON_HOME = 50;  // Giới hạn hiển thị trên trang chủ
+        // ----------------------------------------------------
+        // DATA CONTROLLER: Quản lý API & Render List
+        // ----------------------------------------------------
+        const DataController = {
+            state: {
+                originalStories: [],
+                activeStoriesList: [],
+                currentIndex: 0,
+                INITIAL_ITEMS: 30,
+                LOAD_MORE_ITEMS: 20,
+                MAX_ITEMS: 50
+            },
 
+            init: function() {
+                this.bindFilters();
+                this.bindLoadMore();
+
+                Promise.all([
+                    this.loadSlider(),
+                    this.loadTopViews(),
+                    this.loadGrid()
+                ]);
+            },
+
+            bindFilters: function() {
+                const tabs = document.querySelectorAll('.recommend-tab');
+                tabs.forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        tabs.forEach(t => t.classList.remove('active'));
+                        tab.classList.add('active');
+
+                        const filterType = tab.dataset.recommend;
+
+                        if (filterType === 'all') {
+                            this.state.activeStoriesList = [...this.state.originalStories];
+                        } else if (filterType === 'popular') {
+                            this.state.activeStoriesList = [...this.state.originalStories].sort((a, b) => (b.viewCount ?? b.ViewCount ?? 0) - (a.viewCount ?? a.ViewCount ?? 0));
+                        } else if (filterType === 'latest') {
+                            this.state.activeStoriesList = [...this.state.originalStories].sort((a, b) => new Date(b.createdAt ?? b.CreatedAt ?? 0) - new Date(a.createdAt ?? a.CreatedAt ?? 0));
+                        }
+
+                        document.getElementById('recommendAll').innerHTML = '';
+                        this.state.currentIndex = 0;
+                        this.renderGrid();
+                    });
+                });
+            },
+
+            bindLoadMore: function() {
                 document.getElementById('viewMoreBtn')?.addEventListener('click', (e) => {
                     e.preventDefault();
-
-                    // Nếu đã hiển thị đủ 50 truyện, bấm lần nữa sẽ chuyển trang
-                    if (currentRecommendIndex >= MAX_ITEMS_ON_HOME) {
-                        window.location.href = '/Categories'; // Link tới trang hiển thị tất cả
+                    if (this.state.currentIndex >= this.state.MAX_ITEMS) {
+                        window.location.href = '/Categories';
                         return;
                     }
+                    this.renderGrid();
+                });
+            },
 
-                    renderMoreStories();
+            loadGrid: async function() {
+                const grid = document.getElementById('recommendAll');
+                if (!grid) return;
+
+                try {
+                    const data = await Utils.fetchAPI('https://localhost:7267/api/stories/liststory');
+                    this.state.originalStories = Array.isArray(data) ? data : [];
+                    this.state.activeStoriesList = [...this.state.originalStories];
+                    grid.innerHTML = '';
+
+                    if (this.state.activeStoriesList.length === 0) {
+                        grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #fbbf24; padding: 20px;">Chưa có truyện nào!</div>';
+                        document.getElementById('viewMoreBtn').style.display = 'none';
+                        return;
+                    }
+                    this.renderGrid();
+                } catch (error) {
+                    grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #ef4444; padding: 20px;">Đã xảy ra lỗi khi tải dữ liệu!</div>';
+                }
+            },
+
+            renderGrid: function() {
+                const grid = document.getElementById('recommendAll');
+                const btn = document.getElementById('viewMoreBtn');
+                if (!grid) return;
+
+                let itemsToTake = this.state.currentIndex === 0 ? this.state.INITIAL_ITEMS : this.state.LOAD_MORE_ITEMS;
+                const slice = this.state.activeStoriesList.slice(this.state.currentIndex, this.state.currentIndex + itemsToTake);
+
+                slice.forEach(story => {
+                    grid.innerHTML += Utils.buildStoryCardHTML(story);
                 });
 
-                // XỬ LÝ SỰ KIỆN CLICK TABS LỌC (Tất cả, Phổ biến, Mới nhất)
-                const filterTabs = document.querySelectorAll('.recommend-tab');
-                filterTabs.forEach(tab => {
-                    tab.addEventListener('click', function() {
-                        filterTabs.forEach(t => t.classList.remove('active'));
-                        this.classList.add('active');
+                this.state.currentIndex += slice.length;
 
-                        const filterType = this.dataset.recommend;
-
-                        // Tối ưu Logic Lọc & Sắp xếp
-                        if (filterType === 'all') {
-                            activeStoriesList = [...originalStories];
-                        }
-                        else if (filterType === 'popular') {
-                            activeStoriesList = [...originalStories].sort((a, b) => {
-                                const viewsA = parseInt(a.viewCount || a.ViewCount || 0, 10);
-                                const viewsB = parseInt(b.viewCount || b.ViewCount || 0, 10);
-                                return viewsB - viewsA;
-                            });
-                        }
-                        else if (filterType === 'latest') {
-                            activeStoriesList = [...originalStories].sort((a, b) => {
-                                // Sắp xếp giảm dần theo ngày tạo (Mới nhất lên đầu)
-                                const dateA = new Date(a.createdAt || a.CreatedAt || 0).getTime();
-                                const dateB = new Date(b.createdAt || b.CreatedAt || 0).getTime();
-                                return dateB - dateA;
-                            });
-                        }
-
-                        // Xóa dữ liệu cũ, in dữ liệu mới
-                        const grid = document.getElementById('recommendAll');
-                        if (grid) grid.innerHTML = '';
-                        currentRecommendIndex = 0; // Reset lại bộ đếm khi đổi tab
-                        renderMoreStories();
-                    });
-                });
-
-                // Lấy data Danh sách Truyện
-                async function loadRecommendData() {
-                    const grid = document.getElementById('recommendAll');
-                    if (!grid) return;
-
-                    grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #9ca3af; padding: 20px;"><i class="fas fa-spinner fa-spin"></i> Đang tải dữ liệu truyện...</div>';
-
-                    try {
-                        const res = await fetch('https://localhost:7267/api/stories/liststory');
-                        if (!res.ok) throw new Error("Lỗi gọi API Truyện Đề Cử: " + res.status);
-
-                        const data = await res.json();
-                        originalStories = Array.isArray(data) ? data : [];
-                        activeStoriesList = [...originalStories];
-
-                        grid.innerHTML = '';
-                        currentRecommendIndex = 0;
-
-                        if (activeStoriesList.length === 0) {
-                            grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #fbbf24; padding: 20px;">Chưa có truyện nào!</div>';
-                            document.getElementById('viewMoreBtn').style.display = 'none';
-                            return;
-                        }
-
-                        renderMoreStories();
-
-                    } catch (err) {
-                        console.error("Lỗi tải Truyện Mới Cập Nhật:", err);
-                        grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #ef4444; padding: 20px;">Đã xảy ra lỗi khi tải dữ liệu!</div>';
+                // Update Button
+                if (btn) {
+                    if (this.state.currentIndex >= this.state.activeStoriesList.length) {
+                        btn.style.display = 'none';
+                    } else if (this.state.currentIndex >= this.state.MAX_ITEMS) {
+                        btn.style.display = 'inline-block';
+                        btn.innerHTML = 'Xem tất cả truyện <i class="fas fa-arrow-right"></i>';
+                    } else {
+                        btn.style.display = 'inline-block';
+                        btn.innerHTML = 'Xem thêm truyện <i class="fas fa-chevron-down"></i>';
                     }
                 }
+            },
 
-                // Render HTML Truyện (Logic phân trang 30 -> 20 -> Chuyển trang)
-                function renderMoreStories() {
-                    const grid = document.getElementById('recommendAll');
-                    const viewMoreBtn = document.getElementById('viewMoreBtn');
-                    if (!grid) return;
+            loadTopViews: async function() {
+                const container = document.querySelector('.top-list-loading');
+                const topList = document.querySelector('.top-list');
+                if (!topList) return;
 
-                    // Xác định số lượng truyện cần cắt ra
-                    let itemsToTake = currentRecommendIndex === 0 ? INITIAL_ITEMS : LOAD_MORE_ITEMS;
+                try {
+                    const data = await Utils.fetchAPI('https://localhost:7267/api/stories/top-views');
+                    if (container) container.remove();
 
-                    const nextStories = activeStoriesList.slice(currentRecommendIndex, currentRecommendIndex + itemsToTake);
-
-                    nextStories.forEach(story => {
-                        const id = story.id || story.Id;
-                        const title = story.title || story.Title || 'Đang cập nhật';
-                        const cover = story.coverImage || story.CoverImage || 'https://via.placeholder.com/200x300';
-                        const timeTag = story.timeAgo || story.TimeAgo || 'Mới cập nhật';
-                        const views = parseInt(story.viewCount || story.ViewCount || 0, 10);
-                        const isHot = story.isHot || story.IsHot || (views > 1000);
-
-                        // --- CƠ CHẾ HIỂN THỊ CHAPTER CHUẨN TRUYENQQ ---
-                        let chapterText = 'Đang cập nhật';
-                        const totalChap = story.totalChapters ?? story.TotalChapters ?? 0;
-
-                        if (totalChap > 0) {
-                            chapterText = 'Chapter ' + totalChap;
-                        }
-
-                        // Chuyển card thành <div> để chứa link độc lập
-                        const card = document.createElement('div');
-                        card.className = 'recommend-card';
-                        card.style.cursor = 'default'; // Giữ con trỏ mặc định cho vùng trống
-
-                        card.innerHTML = `
-                            <div class="tq-card-cover" style="position: relative; overflow: hidden; border-radius: 12px;">
-                                <a href="/Stories/Details/${id}">
-                                    <img src="${cover}" alt="${title}" loading="lazy" style="width:100%; aspect-ratio:2/3; object-fit:cover; display:block;">
-                                </a>
-                                <div class="tq-badges">
-                                    <span class="tq-time">${timeTag}</span>
-                                    ${isHot ? '<span class="tq-hot">Hot</span>' : ''}
-                                </div>
-                                <div class="tq-bookmark"><i class="fas fa-bookmark"></i></div>
-                            </div>
-                            <div class="tq-card-info" style="text-align: center; padding: 10px 5px;">
-                                <h3 class="tq-title" style="margin: 0; font-size: 1rem; line-height: 1.4; height: 2.8em; overflow: hidden;">
-                                    <a href="/Stories/Details/${id}" style="text-decoration: none; color: #1f2937; font-weight: 600;">
-                                        ${title}
-                                    </a>
-                                </h3>
-                                <div class="last_chapter" style="margin-top: 4px;">
-                                    <a href="/Stories/Details/${id}" title="${chapterText}" style="text-decoration: none; color: #6b7280; font-size: 0.85rem;">
-                                        ${chapterText}
-                                    </a>
-                                </div>
-                            </div>
-                        `;
-                        grid.appendChild(card);
-                    });
-
-                    // Cập nhật lại chỉ số (index)
-                    currentRecommendIndex += nextStories.length;
-
-                    // Xử lý hiển thị Nút "Xem thêm"
-                    if (viewMoreBtn) {
-                        if (currentRecommendIndex >= activeStoriesList.length) {
-                            viewMoreBtn.style.display = 'none';
-                        } else if (currentRecommendIndex >= MAX_ITEMS_ON_HOME) {
-                            viewMoreBtn.style.display = 'inline-block';
-                            viewMoreBtn.innerHTML = 'Xem tất cả truyện <i class="fas fa-arrow-right"></i>';
-                        } else {
-                            viewMoreBtn.style.display = 'inline-block';
-                            viewMoreBtn.innerHTML = 'Xem thêm truyện <i class="fas fa-chevron-down"></i>';
-                        }
-                    }
-                }
-
-                // Lấy data Bảng xếp hạng View
-                async function loadTopViewsData() {
-                    const topList = document.querySelector('.top-list');
-                    if (!topList) return;
-                    try {
-                        const res = await fetch('https://localhost:7267/api/stories/top-views');
-                        if (!res.ok) throw new Error("Lỗi API");
-                        const topStories = await res.json();
-
-                        topList.querySelectorAll('.top-item, div[style*="text-align"]').forEach(item => item.remove());
-                        if (!Array.isArray(topStories)) return;
-
-                        topStories.slice(0, 10).forEach((story, index) => {
+                    if (Array.isArray(data)) {
+                        data.slice(0, 10).forEach((story, index) => {
                             const id = story.id || story.Id;
                             const title = story.title || story.Title || 'Chưa có tên';
                             const views = story.viewCount || story.ViewCount || 0;
 
-                            const item = document.createElement('a');
-                            item.className = 'top-item';
-                            item.href = `/Stories/Details/${id}`;
-                            item.style.textDecoration = 'none';
-                            item.style.color = 'inherit';
-                            item.innerHTML = `
-                                <span class="top-rank">${index + 1}</span>
-                                <div class="top-info">
-                                    <div class="top-title">${title}</div>
-                                    <div class="top-views">${formatViews(views)} lượt xem</div>
-                                </div>
-                            `;
-                            topList.appendChild(item);
-                        });
-                    } catch (err) { console.error("Lỗi Top Views:", err); }
-                }
-
-                // Lấy data Slider
-                async function loadHomePageData() {
-                    const sliderList = document.getElementById('list_suggest');
-                    try {
-                        const res = await fetch('https://localhost:7267/api/stories/newest');
-                        if (!res.ok) throw new Error("Lỗi API");
-                        const stories = await res.json();
-
-                        if (!Array.isArray(stories) || stories.length === 0) {
-                            if(sliderList) sliderList.innerHTML = '<li style="width:100%;text-align:center;padding:50px;">Chưa có truyện nào!</li>';
-                            return;
-                        }
-
-                        if (sliderList) {
-                            sliderList.innerHTML = '';
-                            stories.slice(0, 5).forEach(story => {
-                                const id = story.id || story.Id;
-                                const title = story.title || story.Title || 'Chưa có tên';
-                                const desc = story.description || story.Description || 'Đang cập nhật...';
-                                const cover = story.coverImage || story.CoverImage || 'https://via.placeholder.com/200x300';
-                                const rating = story.rating || story.Rating || '5.0';
-                                const views = story.viewCount || story.ViewCount || 0;
-
-                                const li = document.createElement('li');
-                                li.className = 'suggest-slide';
-                                li.style.cssText = 'flex: 0 0 100%; width: 100%; box-sizing: border-box;';
-                                li.innerHTML = `
-                                    <div class="featured-box" style="display:flex; align-items:center; justify-content:space-between; padding:40px; gap:30px; width:100%;">
-                                        <div class="featured-info" style="flex:1; color:white;">
-                                            <p class="tag-hot" style="color:#fbbf24; font-weight:bold; margin-bottom:10px;">NỔI BẬT</p>
-                                            <h2 style="font-size:2.5rem; margin:0 0 15px 0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">${title}</h2>
-                                            <p class="desc" style="color:#9ca3af; margin-bottom:20px; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;">${desc}</p>
-                                            <div class="stats" style="margin-bottom:25px;">
-                                                <span style="margin-right:15px;">⭐ ${rating}</span>
-                                                <span>👁️ ${formatViews(views)} lượt xem</span>
-                                            </div>
-                                            <a href="/Stories/Details/${id}" class="btn-read" style="display:inline-block; background-color:#3b82f6; color:white; padding:12px 32px; border-radius:20px; font-weight:bold; text-decoration:none;">Đọc ngay</a>
-                                        </div>
-                                        <div class="featured-cover" style="width:200px; height:300px; border-radius:12px; overflow:hidden; flex-shrink:0; background:#333; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);">
-                                            <img src="${cover}" alt="${title}" style="width:100%; height:100%; object-fit:cover;">
-                                        </div>
+                            topList.insertAdjacentHTML('beforeend', `
+                                <a class="top-item" href="/Stories/Details/${id}" style="text-decoration: none; color: inherit; display: flex; align-items: center; padding: 10px 0; border-bottom: 1px dashed #e5e7eb;">
+                                    <span class="top-rank" style="font-size: 1.5rem; font-weight: bold; width: 30px; color: ${index < 3 ? '#ef4444' : '#9ca3af'};">${index + 1}</span>
+                                    <div class="top-info" style="flex: 1; padding-left: 10px;">
+                                        <div class="top-title" style="font-weight: 500;">${title}</div>
+                                        <div class="top-views" style="font-size: 0.85rem; color: #6b7280;">${Utils.formatViews(views)} lượt xem</div>
                                     </div>
-                                `;
-                                sliderList.appendChild(li);
-                            });
-                            setTimeout(initSlider, 100);
-                        }
-                    } catch (err) { console.error("Lỗi Slider:", err); }
+                                </a>
+                            `);
+                        });
+                    }
+                } catch (err) {
+                    if (container) container.innerHTML = '<span style="color: #ef4444;">Lỗi tải dữ liệu</span>';
                 }
+            },
 
-                // Gọi API đồng loạt
-                Promise.all([
-                    loadHomePageData(),
-                    loadTopViewsData(),
-                    loadRecommendData()
-                ]);
-
-                // Logic Slider
-                let autoPlayTimer;
-                function initSlider() {
-                    const track = document.getElementById('list_suggest');
-                    if (!track) return;
-                    const slides = track.querySelectorAll('.suggest-slide');
-                    const slideCount = slides.length;
-                    let currentIndex = 0;
-
-                    function goToSlide(index) {
-                        if (index >= slideCount) currentIndex = 0;
-                        else if (index < 0) currentIndex = slideCount - 1;
-                        else currentIndex = index;
-                        track.style.transform = `translateX(-${currentIndex * 100}%)`;
+            loadSlider: async function() {
+                const list = document.getElementById('list_suggest');
+                if (!list) return;
+                try {
+                    const data = await Utils.fetchAPI('https://localhost:7267/api/stories/newest');
+                    if (!Array.isArray(data) || data.length === 0) {
+                        list.innerHTML = '<li style="width:100%;text-align:center;padding:50px;">Chưa có truyện nào!</li>';
+                        return;
                     }
 
-                    function startAutoPlay() { autoPlayTimer = setInterval(() => goToSlide(currentIndex + 1), 5000); }
-                    function resetAutoPlay() { clearInterval(autoPlayTimer); startAutoPlay(); }
+                    list.innerHTML = '';
+                    data.slice(0, 5).forEach(story => {
+                        const id = story.id || story.Id;
+                        const title = story.title || story.Title || 'Chưa có tên';
+                        const desc = story.description || story.Description || 'Đang cập nhật...';
+                        const cover = story.coverImage || story.CoverImage || 'https://via.placeholder.com/200x300';
+                        const rating = story.rating || story.Rating || '5.0';
+                        const views = Utils.formatViews(story.viewCount || story.ViewCount || 0);
 
-                    document.querySelector('.slider-prev')?.addEventListener('click', () => { goToSlide(currentIndex - 1); resetAutoPlay(); });
-                    document.querySelector('.slider-next')?.addEventListener('click', () => { goToSlide(currentIndex + 1); resetAutoPlay(); });
+                        list.insertAdjacentHTML('beforeend', `
+                            <li class="suggest-slide" style="flex: 0 0 100%; width: 100%; box-sizing: border-box;">
+                                <div class="featured-box" style="display:flex; align-items:center; justify-content:space-between; padding:40px; gap:30px; width:100%;">
+                                    <div class="featured-info" style="flex:1; color:white;">
+                                        <p class="tag-hot" style="color:#fbbf24; font-weight:bold; margin-bottom:10px;">NỔI BẬT</p>
+                                        <h2 style="font-size:2.5rem; margin:0 0 15px 0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">${title}</h2>
+                                        <p class="desc" style="color:#9ca3af; margin-bottom:20px; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;">${desc}</p>
+                                        <div class="stats" style="margin-bottom:25px;">
+                                            <span style="margin-right:15px; color:#fbbf24;"><i class="fas fa-star"></i> ${rating}</span>
+                                            <span style="color:#9ca3af;"><i class="fas fa-eye"></i> ${views} lượt xem</span>
+                                        </div>
+                                        <a href="/Stories/Details/${id}" class="btn-read" style="display:inline-block; background-color:#3b82f6; color:white; padding:12px 32px; border-radius:20px; font-weight:bold; text-decoration:none;">Đọc ngay</a>
+                                    </div>
+                                    <div class="featured-cover" style="width:200px; height:300px; border-radius:12px; overflow:hidden; flex-shrink:0; background:#333; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);">
+                                        <img src="${cover}" alt="${title}" style="width:100%; height:100%; object-fit:cover;">
+                                    </div>
+                                </div>
+                            </li>
+                        `);
+                    });
 
-                    if(slideCount > 1) startAutoPlay();
+                    this.initSliderLogic();
+                } catch (err) {
+                    list.innerHTML = '<li style="width:100%;text-align:center;padding:50px;color:#ef4444;">Lỗi tải dữ liệu</li>';
                 }
+            },
+
+            initSliderLogic: function() {
+                const track = document.getElementById('list_suggest');
+                if (!track) return;
+                const slides = track.querySelectorAll('.suggest-slide');
+                const slideCount = slides.length;
+                let currentIndex = 0;
+                let autoPlayTimer;
+
+                const goToSlide = (index) => {
+                    if (index >= slideCount) currentIndex = 0;
+                    else if (index < 0) currentIndex = slideCount - 1;
+                    else currentIndex = index;
+                    track.style.transform = `translateX(-${currentIndex * 100}%)`;
+                };
+
+                const startAutoPlay = () => { autoPlayTimer = setInterval(() => goToSlide(currentIndex + 1), 5000); };
+                const resetAutoPlay = () => { clearInterval(autoPlayTimer); startAutoPlay(); };
+
+                document.querySelector('.slider-prev')?.addEventListener('click', () => { goToSlide(currentIndex - 1); resetAutoPlay(); });
+                document.querySelector('.slider-next')?.addEventListener('click', () => { goToSlide(currentIndex + 1); resetAutoPlay(); });
+
+                if(slideCount > 1) startAutoPlay();
+            }
+        };
+
+        // ----------------------------------------------------
+        // BOOTSTRAP APP
+        // ----------------------------------------------------
+        document.addEventListener('DOMContentLoaded', () => {
+            AuthController.init();
+
+            if (document.getElementById('homeSection') !== null) {
+                UIController.init();
+                DataController.init();
             }
         });
     </script>
