@@ -1,95 +1,60 @@
 ﻿@model WibuHub.ApplicationCore.Entities.Story
 
-@{
-    ViewData["Title"] = "Edit";
-}
+<div class="p-3">
+    <div class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle"></i>
+        <strong>Xác nhận:</strong> Bạn có chắc chắn muốn xóa truyện này không?
+    </div>
 
-<h1>Edit</h1>
+    <div>
+        <dl class="row">
+            <dt class="col-sm-4">
+                @Html.DisplayNameFor(model => model.StoryName)
+            </dt>
+            <dd class="col-sm-8 fw-bold">
+                @Html.DisplayFor(model => model.StoryName)
+            </dd>
 
-<h4>Story</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="StoryName" class="control-label"></label>
-                <input asp-for="StoryName" class="form-control" />
-                <span asp-validation-for="StoryName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="AlternativeName" class="control-label"></label>
-                <input asp-for="AlternativeName" class="form-control" />
-                <span asp-validation-for="AlternativeName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Discount" class="control-label"></label>
-                <input asp-for="Discount" class="form-control" />
-                <span asp-validation-for="Discount" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Price" class="control-label"></label>
-                <input asp-for="Price" class="form-control" />
-                <span asp-validation-for="Price" class="text-danger"></span>
-            </div>
-            
-            <div class="form-group">
-                <label asp-for="Status" class="control-label"></label>
-                <input asp-for="Status" class="form-control" />
-                <span asp-validation-for="Status" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ViewCount" class="control-label"></label>
-                <input asp-for="ViewCount" class="form-control" />
-                <span asp-validation-for="ViewCount" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="FollowCount" class="control-label"></label>
-                <input asp-for="FollowCount" class="form-control" />
-                <span asp-validation-for="FollowCount" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="RatingScore" class="control-label"></label>
-                <input asp-for="RatingScore" class="form-control" />
-                <span asp-validation-for="RatingScore" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CreatedAt" class="control-label"></label>
-                <input asp-for="CreatedAt" class="form-control" />
-                <span asp-validation-for="CreatedAt" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UpdateDate" class="control-label"></label>
-                <input asp-for="UpdateDate" class="form-control" />
-                <span asp-validation-for="UpdateDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="AuthorId" class="control-label"></label>
-                <select asp-for="AuthorId" class="form-control" asp-items="ViewBag.AuthorId"></select>
-                <span asp-validation-for="AuthorId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CategoryId" class="control-label"></label>
-                <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.CategoryId"></select>
-                <span asp-validation-for="CategoryId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+            <dt class="col-sm-4">
+                @Html.DisplayNameFor(model => model.AlternativeName)
+            </dt>
+            <dd class="col-sm-8">
+                @Html.DisplayFor(model => model.AlternativeName)
+            </dd>
+
+            <dt class="col-sm-4">
+                @Html.DisplayNameFor(model => model.Status)
+            </dt>
+            <dd class="col-sm-8">
+                @Html.DisplayFor(model => model.Status)
+            </dd>
+
+            <dt class="col-sm-4">
+                @Html.DisplayNameFor(model => model.Author)
+            </dt>
+            <dd class="col-sm-8">
+                @(Model.Author?.Name ?? "-")
+            </dd>
+
+            <dt class="col-sm-4">
+                Danh mục
+            </dt>
+            <dd class="col-sm-8">
+                @(Model.StoryCategories != null && Model.StoryCategories.Any(sc => sc.Category != null)
+                                ? string.Join(", ", Model.StoryCategories.Where(sc => sc.Category != null).Select(sc => sc.Category!.Name))
+                                : "-")
+            </dd>
+        </dl>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeModal()">Hủy bỏ</button>
+            <form id="deleteForm">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+                <button type="button" onclick="deleteStory('@Model.Id')" class="btn btn-danger">
+                    Xác nhận xóa
+                </button>
+            </form>
+        </div>
     </div>
 </div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}

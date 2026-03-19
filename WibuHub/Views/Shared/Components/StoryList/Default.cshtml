@@ -35,7 +35,7 @@
                     </td>
                     <td><strong>@item.Title</strong></td>
                     <td>@(item.Author?.Name ?? "N/A")</td>
-                    <td>@(string.IsNullOrWhiteSpace(item.CategoryDisplay) ? (item.CategoryName ?? "N/A") : item.CategoryDisplay)</td>
+                    <td>@(string.IsNullOrWhiteSpace(item.CategoryDisplay) ? "N/A" : item.CategoryDisplay)</td>
                     <td>
                         @switch (item.Status)
                         {
@@ -83,6 +83,7 @@
         }
     </tbody>
 </table>
+
 @if (Model != null && Model.TotalPages > 1)
 {
     <nav class="mt-3">

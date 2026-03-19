@@ -135,12 +135,6 @@ namespace WibuHub.DataLayer
                       .WithMany(a => a.Stories)
                       .HasForeignKey(s => s.AuthorId)
                       .OnDelete(DeleteBehavior.SetNull);
-
-                // (Optional) Quan hệ 1-N cũ với Category nếu bạn vẫn muốn giữ để làm "Category Chính"
-                entity.HasOne(s => s.Category)
-                      .WithMany(c => c.Stories)
-                      .HasForeignKey(s => s.CategoryId)
-                      .OnDelete(DeleteBehavior.Restrict);
             });
 
             // 5. Chapter & ChapterImage - UPDATE QUAN TRỌNG

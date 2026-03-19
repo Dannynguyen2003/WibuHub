@@ -407,7 +407,12 @@
                 const errorEl = document.getElementById(isRegister ? 'registerError' : 'loginError');
                 if (errorEl) { errorEl.classList.remove('active'); errorEl.textContent = ''; }
 
-                const dataObject = Object.fromEntries(new FormData(form).entries());
+                const formData = new FormData(form);
+                const dataObject = Object.fromEntries(formData.entries());
+                    // Xử lý riêng cho checkbox RememberMe để gửi đúng kiểu boolean true/false
+                if (!isRegister) {
+                    dataObject.rememberMe = form.querySelector('input[name="rememberMe"]').checked;
+                }
 
                 try {
                     const response = await fetch(form.action, {

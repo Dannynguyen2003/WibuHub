@@ -2,21 +2,23 @@
 using Microsoft.AspNetCore.Mvc;
 using WibuHub.ApplicationCore.DTOs.Shared;
 using WibuHub.Service.Interface;
+
 namespace WibuHub.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")] // URL: api/stories
-    [Authorize] // Bảo vệ API nếu cần
+    [Route("api/[controller]")]
+    [Authorize]
     public class StoriesController : ControllerBase
     {
         private readonly IStoryService _storyService;
         private readonly ILogger<StoriesController> _logger;
+
         public StoriesController(IStoryService storyService, ILogger<StoriesController> logger)
         {
             _storyService = storyService;
             _logger = logger;
         }
-        // GET: api/stories
+
         [HttpGet("liststory")]
         [AllowAnonymous]
         public async Task<IActionResult> GetAll()
@@ -24,7 +26,7 @@ namespace WibuHub.API.Controllers
             var stories = await _storyService.GetAllAsync();
             return Ok(stories);
         }
-        // GET: api/stories/{id}
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
@@ -36,7 +38,6 @@ namespace WibuHub.API.Controllers
             return Ok(story);
         }
 
-        // API lấy 5 truyện mới nhất: GET /api/stories/newest
         [HttpGet("newest")]
         [AllowAnonymous]
         public async Task<IActionResult> GetNewestStories()
@@ -44,14 +45,13 @@ namespace WibuHub.API.Controllers
             var stories = await _storyService.GetNewestStoriesAsync();
             return Ok(stories);
         }
-        // API lấy truyện xem nhiều nhất: GET /api/stories/top-views
+
         [HttpGet("top-views")]
-        [AllowAnonymous] // Cho phép khách vãng lai xem ở trang chủ
+        [AllowAnonymous]
         public async Task<IActionResult> GetTopViews()
         {
             try
             {
-                // Gọi sang Service để lấy dữ liệu (Ví dụ lấy top 5)
                 var topStories = await _storyService.GetTopViewsAsync(5);
                 return Ok(topStories);
             }
@@ -61,42 +61,43 @@ namespace WibuHub.API.Controllers
                 return StatusCode(500, new { message = "Lỗi hệ thống khi lấy dữ liệu" });
             }
         }
-        // POST: api/stories
+
+        // ĐÃ THÊM: API Lọc truyện theo thể loại
+        [HttpGet("genre/{genreId}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetByGenre(Guid genreId)
+        {
+            var stories = await _storyService.GetStoriesByGenreAsync(genreId);
+            return Ok(stories);
+        }
+
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] StoryDto request)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
             var isSuccess = await _storyService.CreateAsync(request);
-            if (isSuccess)
-            {
-                return Ok(new { success = true, message = "Tạo truyện mới thành công" });
-            }
-            return BadRequest(new { success = false, message = "Lỗi khi tạo truyện (Có thể CategoryId không tồn tại)" });
+            if (isSuccess) return Ok(new { success = true, message = "Tạo truyện mới thành công" });
+
+            return BadRequest(new { success = false, message = "Lỗi khi tạo truyện" });
         }
-        // PUT: api/stories/{id}
+
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(Guid id, [FromBody] StoryDto request)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
             var isSuccess = await _storyService.UpdateAsync(id, request);
-            if (isSuccess)
-            {
-                return Ok(new { success = true, message = "Cập nhật thành công" });
-            }
+            if (isSuccess) return Ok(new { success = true, message = "Cập nhật thành công" });
+
             return NotFound(new { success = false, message = "Không tìm thấy truyện để cập nhật" });
         }
-        // DELETE: api/stories/{id}
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
             var isSuccess = await _storyService.DeleteAsync(id);
-            if (isSuccess)
-            {
-                return Ok(new { success = true, message = "Đã xóa truyện" });
-            }
+            if (isSuccess) return Ok(new { success = true, message = "Đã xóa truyện" });
+
             return NotFound(new { success = false, message = "Không tìm thấy truyện để xóa" });
         }
     }

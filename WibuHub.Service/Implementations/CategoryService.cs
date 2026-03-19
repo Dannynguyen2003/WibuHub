@@ -92,13 +92,17 @@ namespace WibuHub.Service.Implementations
             if (entity == null)
                 return (false, "Không tìm thấy danh mục");
 
-            // Kiểm tra xem có truyện nào đang dùng danh mục này không?
-            // (Nếu xóa danh mục đang có truyện sẽ gây lỗi khóa ngoại hoặc mất dữ liệu truyện)
-            bool hasStories = await _context.Stories.AnyAsync(s => s.CategoryId == id);
+            // Kiểm tra xem có truyện nào đang dùng danh mục này không thông qua bảng trung gian StoryCategories
+            bool hasStories = await _context.StoryCategories.AnyAsync(sc => sc.CategoryId == id);
+
             if (hasStories)
             {
                 return (false, "Không thể xóa danh mục này vì đang có truyện sử dụng.");
             }
+
+            // Nếu thực sự muốn xóa mà không sợ lỗi, bạn có thể uncomment dòng dưới đây để xóa dữ liệu trong bảng trung gian trước:
+            // var relatedStoryCategories = _context.StoryCategories.Where(sc => sc.CategoryId == id);
+            // _context.StoryCategories.RemoveRange(relatedStoryCategories);
 
             _context.Categories.Remove(entity);
             await _context.SaveChangesAsync();

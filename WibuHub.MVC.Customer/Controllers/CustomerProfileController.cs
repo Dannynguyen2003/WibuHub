@@ -184,14 +184,13 @@ namespace WibuHub.MVC.Customer.Controllers
         }
 
         // ==========================================
-        // 3. TRANG DANH SÁCH THEO DÕI
+        // 3. TRANG DANH SÁCH THEO DÕI (CẬP NHẬT LẤY CHAPTER MỚI NHẤT)
         // ==========================================
         [HttpGet]
         public async Task<IActionResult> Followed()
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return Challenge();
-
             Guid userIdGuid = Guid.Parse(user.Id);
 
             var follows = await _context.Follows
@@ -202,7 +201,12 @@ namespace WibuHub.MVC.Customer.Controllers
                     StoryId = f.StoryId,
                     StoryTitle = f.Story.StoryName,
                     CoverImage = f.Story.CoverImage,
-                    TotalChapters = f.Story.TotalChapters,
+
+                    // LOGIC MỚI: Quét trong bảng Chapter, lấy ra số Chapter lớn nhất (mới nhất)
+                    TotalChapters = _context.Chapters
+                                        .Where(c => c.StoryId == f.StoryId)
+                                        .Max(c => (int?)c.ChapterNumber) ?? 0,
+
                     ViewCount = f.Story.ViewCount
                 }).ToListAsync();
 
@@ -238,14 +242,20 @@ namespace WibuHub.MVC.Customer.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return Challenge();
-
             Guid userIdGuid = Guid.Parse(user.Id);
 
-            var histories = await _context.Histories
-                .Include(h => h.Story)
-                .Include(h => h.Chapter)
+            // Lấy lịch sử đọc
+            var rawHistories = await _context.Histories
+                .Include(h => h.Story).Include(h => h.Chapter)
                 .Where(h => h.UserId == userIdGuid)
                 .OrderByDescending(h => h.ReadTime)
+                .ToListAsync();
+
+            // LOGIC FIX: Gộp nhóm theo truyện (GroupBy StoryId) để một truyện chỉ xuất hiện 1 lần duy nhất
+            var histories = rawHistories
+                .GroupBy(h => h.StoryId)
+                .Select(g => g.First()) // Lấy dòng mới đọc nhất
+                .Take(20)
                 .Select(h => new HistoryItemVM
                 {
                     StoryId = h.StoryId,
@@ -253,11 +263,30 @@ namespace WibuHub.MVC.Customer.Controllers
                     CoverImage = h.Story.CoverImage,
                     ChapterNumber = h.Chapter.ChapterNumber,
                     ReadTime = h.ReadTime
-                })
-                .Take(20)
-                .ToListAsync();
+                }).ToList();
 
             return View(histories);
+        }
+
+        // ==========================================
+        // HÀM XÓA LỊCH SỬ ĐỌC (MỚI THÊM)
+        // ==========================================
+        [HttpPost]
+        public async Task<IActionResult> RemoveHistory(Guid storyId)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Json(new { success = false });
+
+            Guid userIdGuid = Guid.Parse(user.Id);
+
+            var history = await _context.Histories.FirstOrDefaultAsync(h => h.UserId == userIdGuid && h.StoryId == storyId);
+            if (history != null)
+            {
+                _context.Histories.Remove(history);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("History");
         }
     }
 }

@@ -17,15 +17,13 @@
     var createdDate = Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy");
     var updateDate = Model.UpdateDate.ToLocalTime().ToString("dd/MM/yyyy");
     var chapterCount = Model.Chapters?.Count ?? 0;
-    var categories = Model.StoryCategories
+
+    // Đã sửa: Chỉ lấy danh sách thể loại từ bảng trung gian, bỏ logic fallback cũ
+    var categories = Model.StoryCategories?
         .Select(sc => sc.Category?.Name)
         .Where(name => !string.IsNullOrWhiteSpace(name))
         .Distinct()
-        .ToList();
-    if (!categories.Any() && !string.IsNullOrWhiteSpace(Model.Category?.Name))
-    {
-        categories.Add(Model.Category.Name);
-    }
+        .ToList() ?? new List<string>();
 }
 
 <div class="story-detail-page">

@@ -42,12 +42,17 @@ namespace WibuHub.ApplicationCore.DTOs.Shared
         [Display(Name = "Ngày tạo")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        // Dropdown chọn Danh mục (Category)
-        [Required(ErrorMessage = "Vui lòng chọn danh mục")]
-        [Display(Name = "Danh mục")]
-        public Guid CategoryId { get; set; }
+        [Display(Name = "Danh sách thể loại")]
+        [Required(ErrorMessage = "Vui lòng chọn ít nhất một thể loại")]
+        public List<Guid> CategoryIds { get; set; } = new List<Guid>(); // Dùng để nhận dữ liệu từ View/Frontend
 
-        // Để hiển thị tên danh mục trong bảng (chỉ đọc)
-        public string? CategoryName { get; set; }
+        public List<CategoryInfoDto> Categories { get; set; } = new List<CategoryInfoDto>(); // Dùng để hiển thị ra màn hình
+    }
+
+    // Helper class để trả về cả Id và Tên thể loại cho Frontend dễ hiển thị tag
+    public class CategoryInfoDto
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
     }
 }

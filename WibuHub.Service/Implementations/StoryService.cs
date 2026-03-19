@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Humanizer;
+using Microsoft.EntityFrameworkCore;
 using WibuHub.ApplicationCore.DTOs.Shared;
 using WibuHub.ApplicationCore.Entities;
 using WibuHub.DataLayer;
@@ -25,15 +26,15 @@ namespace WibuHub.Service.Implementations
                     Description = s.Description,
                     AuthorName = s.AuthorName,
                     CoverImage = s.CoverImage,
-
-                    // SỬ DỤNG .COUNT() ĐỂ TỰ ĐỘNG ĐẾM SỐ LƯỢNG CHAPTER THỰC TẾ
                     TotalChapters = s.Chapters.Count(),
                     LatestChapter = s.LatestChapter,
-
                     Price = s.Price,
                     Discount = s.Discount,
-                    CategoryId = s.CategoryId,
-                    CategoryName = s.Category != null ? s.Category.Name : "N/A",
+                    Categories = s.StoryCategories.Select(sc => new CategoryInfoDto
+                    {
+                        Id = sc.CategoryId,
+                        Name = sc.Category.Name ?? "N/A"
+                    }).ToList(),
                     ViewCount = s.ViewCount,
                     CreatedAt = s.CreatedAt
                 })
@@ -50,8 +51,8 @@ namespace WibuHub.Service.Implementations
         public async Task<StoryDto?> GetByIdAsync(Guid id)
         {
             var story = await _context.Stories
-                .Include(s => s.Category)
-                .Include(s => s.Chapters) // Include để đếm được
+                .Include(s => s.StoryCategories).ThenInclude(sc => sc.Category)
+                .Include(s => s.Chapters)
                 .FirstOrDefaultAsync(s => s.Id == id);
 
             if (story == null) return null;
@@ -65,11 +66,13 @@ namespace WibuHub.Service.Implementations
                 CoverImage = story.CoverImage,
                 Price = story.Price,
                 Discount = story.Discount,
-                CategoryId = story.CategoryId,
-                CategoryName = story.Category?.Name,
+                Categories = story.StoryCategories.Select(sc => new CategoryInfoDto
+                {
+                    Id = sc.CategoryId,
+                    Name = sc.Category?.Name ?? "N/A"
+                }).ToList(),
                 ViewCount = story.ViewCount,
-
-                // TỰ ĐỘNG ĐẾM
+                CategoryIds = story.StoryCategories.Select(sc => sc.CategoryId).ToList(),
                 TotalChapters = story.Chapters.Count,
                 LatestChapter = story.LatestChapter,
                 CreatedAt = story.CreatedAt,
@@ -87,11 +90,13 @@ namespace WibuHub.Service.Implementations
                     Id = s.Id,
                     Title = s.StoryName,
                     CoverImage = s.CoverImage,
-                    CategoryName = s.Category != null ? s.Category.Name : "N/A",
+                    Categories = s.StoryCategories.Select(sc => new CategoryInfoDto
+                    {
+                        Id = sc.CategoryId,
+                        Name = sc.Category.Name ?? "N/A"
+                    }).ToList(),
                     ViewCount = s.ViewCount,
                     CreatedAt = s.CreatedAt,
-
-                    // TỰ ĐỘNG ĐẾM
                     TotalChapters = s.Chapters.Count()
                 })
                 .ToListAsync();
@@ -115,10 +120,12 @@ namespace WibuHub.Service.Implementations
                     ViewCount = s.ViewCount,
                     CoverImage = s.CoverImage,
                     AuthorName = s.AuthorName ?? "Đang cập nhật",
-                    CategoryName = s.Category != null ? s.Category.Name : "Đang cập nhật",
+                    Categories = s.StoryCategories.Select(sc => new CategoryInfoDto
+                    {
+                        Id = sc.CategoryId,
+                        Name = sc.Category.Name ?? "N/A"
+                    }).ToList(),
                     Description = s.Description,
-
-                    // TỰ ĐỘNG ĐẾM
                     TotalChapters = s.Chapters.Count(),
                     CreatedAt = s.CreatedAt
                 })
@@ -130,8 +137,6 @@ namespace WibuHub.Service.Implementations
             }
             return topStories;
         }
-
-        // ... CÁC HÀM CREATE, UPDATE, DELETE GIỮ NGUYÊN ...
 
         public async Task<bool> CreateAsync(StoryDto dto)
         {
@@ -147,7 +152,10 @@ namespace WibuHub.Service.Implementations
                     Price = dto.Price,
                     Discount = dto.Discount,
                     Status = (int)StoryStatus.Ongoing,
-                    CategoryId = dto.CategoryId,
+                    StoryCategories = dto.CategoryIds.Select(catId => new StoryCategory
+                    {
+                        CategoryId = catId
+                    }).ToList(),
                     CreatedAt = DateTime.Now
                 };
 
@@ -163,13 +171,24 @@ namespace WibuHub.Service.Implementations
 
         public async Task<bool> UpdateAsync(Guid id, StoryDto dto)
         {
-            var entity = await _context.Stories.FindAsync(id);
+            // ĐÃ SỬA: Include danh sách thể loại để Clear() không bị lỗi
+            var entity = await _context.Stories
+                .Include(s => s.StoryCategories)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
             if (entity == null) return false;
 
             entity.StoryName = dto.Title;
             entity.Description = dto.Description;
             entity.AuthorName = dto.AuthorName;
-            entity.CategoryId = dto.CategoryId;
+
+            // Xóa danh sách cũ và cập nhật danh sách mới
+            entity.StoryCategories.Clear();
+            foreach (var catId in dto.CategoryIds)
+            {
+                entity.StoryCategories.Add(new StoryCategory { CategoryId = catId });
+            }
+
             entity.Price = dto.Price;
             entity.Discount = dto.Discount;
 
@@ -202,6 +221,30 @@ namespace WibuHub.Service.Implementations
             if (timeSpan <= TimeSpan.FromDays(30)) return timeSpan.Days > 1 ? $"{timeSpan.Days} ngày trước" : "1 ngày trước";
             if (timeSpan <= TimeSpan.FromDays(365)) return timeSpan.Days > 30 ? $"{timeSpan.Days / 30} tháng trước" : "1 tháng trước";
             return timeSpan.Days > 365 ? $"{timeSpan.Days / 365} năm trước" : "1 năm trước";
+        }
+
+        public async Task<List<StoryDto>> GetStoriesByGenreAsync(Guid genreId)
+        {
+            return await _context.Stories
+                .Where(s => s.StoryCategories.Any(sc => sc.CategoryId == genreId))
+                .Select(s => new StoryDto
+                {
+                    Id = s.Id, // ĐÃ SỬA: Lấy đúng ID thật của truyện thay vì Guid.NewGuid()
+                    Title = s.StoryName,
+                    Description = s.Description,
+                    AuthorName = s.AuthorName,
+                    CoverImage = s.CoverImage,
+                    Price = s.Price,
+                    Discount = s.Discount,
+                    Status = (int)StoryStatus.Ongoing,
+                    CreatedAt = s.CreatedAt,
+                    Categories = s.StoryCategories.Select(sc => new CategoryInfoDto
+                    {
+                        Id = sc.CategoryId,
+                        Name = sc.Category.Name ?? "N/A"
+                    }).ToList()
+                })
+                .ToListAsync();
         }
     }
 }

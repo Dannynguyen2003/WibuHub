@@ -48,6 +48,10 @@ builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Identity/Account/Login";
     options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true; // Cực kỳ quan trọng để bypass chính sách chặn cookie
+    options.ExpireTimeSpan = TimeSpan.FromDays(30); // Thời gian ghi nhớ (vd: 30 ngày)
+    options.SlidingExpiration = true; // Tự động gia hạn khi user còn hoạt động
 });
 
 // 1. Memory Cache (bắt buộc cho Session)

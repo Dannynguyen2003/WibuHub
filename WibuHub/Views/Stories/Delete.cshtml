@@ -1,58 +1,114 @@
-﻿@model WibuHub.ApplicationCore.Entities.Story
+﻿@model WibuHub.MVC.ViewModels.StoryVM
 
-<div class="p-3">
-    <div class="alert alert-warning">
-        <i class="fas fa-exclamation-triangle"></i>
-        <strong>Xác nhận:</strong> Bạn có chắc chắn muốn xóa truyện này không?
-    </div>
+@{
+    ViewData["Title"] = "Edit";
+}
 
-    <div>
-        <dl class="row">
-            <dt class="col-sm-4">
-                @Html.DisplayNameFor(model => model.StoryName)
-            </dt>
-            <dd class="col-sm-8 fw-bold">
-                @Html.DisplayFor(model => model.StoryName)
-            </dd>
+<h1>Edit</h1>
 
-            <dt class="col-sm-4">
-                @Html.DisplayNameFor(model => model.AlternativeName)
-            </dt>
-            <dd class="col-sm-8">
-                @Html.DisplayFor(model => model.AlternativeName)
-            </dd>
+<h4>Story</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
 
-            <dt class="col-sm-4">
-                @Html.DisplayNameFor(model => model.Status)
-            </dt>
-            <dd class="col-sm-8">
-                @Html.DisplayFor(model => model.Status)
-            </dd>
+            <div class="form-group">
+                <label asp-for="Title" class="control-label">Tiêu đề</label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
 
-            <dt class="col-sm-4">
-                @Html.DisplayNameFor(model => model.Author)
-            </dt>
-            <dd class="col-sm-8">
-                @(Model.Author?.Name ?? "-")
-            </dd>
+            <div class="form-group">
+                <label asp-for="AlternativeName" class="control-label">Tên khác</label>
+                <input asp-for="AlternativeName" class="form-control" />
+                <span asp-validation-for="AlternativeName" class="text-danger"></span>
+            </div>
 
-            <dt class="col-sm-4">
-                @Html.DisplayNameFor(model => model.Category)
-            </dt>
-            <dd class="col-sm-8">
-                @(Model.Category?.Name ?? "-")
-            </dd>
-        </dl>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label">Mô tả</label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
 
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" onclick="closeModal()">Hủy bỏ</button>
-            <form id="deleteForm">
-                @Html.AntiForgeryToken()
-                <input type="hidden" asp-for="Id" />
-                <button type="button" onclick="deleteStory('@Model.Id')" class="btn btn-danger">
-                    Xác nhận xóa
-                </button>
-            </form>
-        </div>
+            <div class="form-group">
+                <label asp-for="Discount" class="control-label"></label>
+                <input asp-for="Discount" class="form-control" />
+                <span asp-validation-for="Discount" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Price" class="control-label"></label>
+                <input asp-for="Price" class="form-control" />
+                <span asp-validation-for="Price" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Status" class="control-label">Trạng thái (0: Đang tiến hành, 1: Hoàn thành, 2: Tạm ngưng)</label>
+                <input asp-for="Status" class="form-control" />
+                <span asp-validation-for="Status" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ViewCount" class="control-label">Lượt xem</label>
+                <input asp-for="ViewCount" class="form-control" />
+                <span asp-validation-for="ViewCount" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="FollowCount" class="control-label">Lượt theo dõi</label>
+                <input asp-for="FollowCount" class="form-control" />
+                <span asp-validation-for="FollowCount" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="RatingScore" class="control-label">Đánh giá</label>
+                <input asp-for="RatingScore" class="form-control" />
+                <span asp-validation-for="RatingScore" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="CreatedAt" class="control-label"></label>
+                <input asp-for="CreatedAt" class="form-control" />
+                <span asp-validation-for="CreatedAt" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="UpdateDate" class="control-label"></label>
+                <input asp-for="UpdateDate" class="form-control" />
+                <span asp-validation-for="UpdateDate" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="AuthorId" class="control-label">Tác giả</label>
+                <select asp-for="AuthorId" class="form-control" asp-items="ViewBag.AuthorId">
+                    <option value="">-- Chọn tác giả --</option>
+                </select>
+                <span asp-validation-for="AuthorId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="CategoryIds" class="control-label">Thể loại</label>
+                <select asp-for="CategoryIds" class="form-control" asp-items="ViewBag.CategoryId" multiple="multiple" style="height: 150px;">
+                </select>
+                <span asp-validation-for="CategoryIds" class="text-danger"></span>
+                <small class="form-text text-muted">Giữ phím Ctrl (hoặc Cmd trên Mac) để chọn nhiều thể loại.</small>
+            </div>
+
+            <div class="form-group mt-3">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
     </div>
 </div>
+
+<div class="mt-2">
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

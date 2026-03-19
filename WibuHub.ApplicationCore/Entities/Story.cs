@@ -76,10 +76,10 @@ namespace WibuHub.ApplicationCore.Entities
         public string? AuthorName { get; set; }
         public virtual Author? Author { get; set; }
 
-        // Khóa ngoại đến Category (Giữ lại từ code cũ vì cấu trúc truyện thường cần danh mục)
-        [Required]
-        public Guid CategoryId { get; set; }
-        public virtual Category? Category { get; set; }
+        //// Khóa ngoại đến Category (Giữ lại từ code cũ vì cấu trúc truyện thường cần danh mục)
+        //[Required]
+        //public Guid CategoryId { get; set; }
+        //public virtual Category? Category { get; set; }
 
         public bool IsDeleted { get; set; } = false;
         public DateTime? DeletedAt { get; set; }

@@ -7,7 +7,7 @@ using WibuHub.ApplicationCore.Entities;
 
 namespace WibuHub.MVC.ViewModels
 {
-[Bind("Id,Title,AlternativeName,Description,Slug,Price,Discount,Status,ViewCount,FollowCount,RatingScore,CreatedAt,UpdateDate,AuthorId,CategoryId,CategoryIds,CoverImage,CoverImageFile")]
+    [Bind("Id,Title,AlternativeName,Description,Slug,Price,Discount,Status,ViewCount,FollowCount,RatingScore,CreatedAt,UpdateDate,AuthorId,CategoryIds,CoverImage,CoverImageFile")]
     public class StoryVM
     {
         [Key]
@@ -70,14 +70,12 @@ namespace WibuHub.MVC.ViewModels
         public Guid? AuthorId { get; set; }
         public virtual Author? Author { get; set; }
 
-        // Khóa ngoại đến Category (Giữ lại từ code cũ vì cấu trúc truyện thường cần danh mục)
-        [Required]
-        public Guid CategoryId { get; set; }
-        public string? CategoryName { get; set; }
+        // ĐÂY MỚI LÀ CÁI QUAN TRỌNG NHẤT
+        [Display(Name = "Danh sách thể loại")]
+        [MinLength(1, ErrorMessage = "Vui lòng chọn ít nhất một danh mục.")]
+        public List<Guid> CategoryIds { get; set; } = new();
 
+        // Dùng để hiển thị tên các thể loại cách nhau bằng dấu phẩy ở trang Index
         public string? CategoryDisplay { get; set; }
-
-    [MinLength(1, ErrorMessage = "Vui lòng chọn ít nhất một danh mục.")]
-    public List<Guid> CategoryIds { get; set; } = new();
     }
 }

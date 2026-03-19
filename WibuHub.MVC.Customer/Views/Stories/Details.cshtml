@@ -9,28 +9,36 @@
         : (Model.CoverImage.StartsWith("http", StringComparison.OrdinalIgnoreCase)
             ? Model.CoverImage
             : Url.Content($"~/{Model.CoverImage.TrimStart('/')}"));
+
     var storySlug = string.IsNullOrWhiteSpace(Model.Slug)
         ? Model.StoryName
         : Model.Slug;
+
     var statusText = Model.Status switch
     {
         1 => "Hoàn thành",
         2 => "Tạm ngưng",
         _ => "Đang tiến hành"
     };
+
     var authorName = !string.IsNullOrWhiteSpace(Model.AuthorName)
         ? Model.AuthorName
         : Model.Author?.Name ?? "Đang cập nhật";
+
     var createdDate = Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy");
+
     var orderedChapters = (Model.Chapters ?? Array.Empty<Chapter>())
         .OrderBy(c => c.ChapterNumber)
         .ToList();
+
     var chapterCount = orderedChapters.Count;
     var firstChapter = orderedChapters.FirstOrDefault();
     var latestChapter = orderedChapters.LastOrDefault();
+
     var continueChapterNumber = ViewData["ContinueChapterNumber"] is double number
         ? number
         : (double?)null;
+
     var firstChapterUrl = firstChapter == null
         ? "#"
         : Url.RouteUrl("ChapterReadSeo", new
@@ -38,6 +46,7 @@
             storySlug,
             chapterNumber = firstChapter.ChapterNumber.ToString(CultureInfo.InvariantCulture)
         }) ?? "#";
+
     var latestChapterUrl = latestChapter == null
         ? "#"
         : Url.RouteUrl("ChapterReadSeo", new
@@ -45,6 +54,7 @@
             storySlug,
             chapterNumber = latestChapter.ChapterNumber.ToString(CultureInfo.InvariantCulture)
         }) ?? "#";
+
     var continueChapterUrl = continueChapterNumber.HasValue
         ? Url.RouteUrl("ChapterReadSeo", new
         {
@@ -52,16 +62,17 @@
             chapterNumber = continueChapterNumber.Value.ToString(CultureInfo.InvariantCulture)
         }) ?? "#"
         : "#";
-    var categories = Model.StoryCategories
-        .Select(sc => sc.Category?.Name)
-        .Where(name => !string.IsNullOrWhiteSpace(name))
-        .Distinct()
-        .ToList();
-    if (!categories.Any() && !string.IsNullOrWhiteSpace(Model.Category?.Name))
-    {
-        categories.Add(Model.Category.Name);
-    }
-    var categoryDisplay = categories.Any() ? string.Join(", ", categories) : "Đang cập nhật";
+
+    // Đã sửa: Xóa logic check fallback Model.Category cũ và dùng thẳng StoryCategories an toàn
+    var storyCategories = Model.StoryCategories?
+        .Where(sc => sc.Category != null)
+        .Select(sc => sc.Category!)
+        .ToList() ?? new List<Category>();
+
+    var categoryDisplay = storyCategories.Any()
+        ? string.Join(", ", storyCategories.Select(c => c.Name))
+        : "Đang cập nhật";
+
     var ratingValue = Math.Clamp((int)Math.Round(Model.RatingScore), 0, 5);
     var isFollowed = (ViewData["IsFollowed"] as bool?) ?? false;
 }
@@ -69,15 +80,23 @@
 <div style="padding: 15px 20px 20px 20px; max-width: 1200px; margin: 0 auto;">
     <ul style="display: flex; flex-wrap: wrap; list-style: none; padding: 0; margin: 0; font-size: 0.95rem; color: #6b7280; align-items: center; gap: 8px;">
         <li>
-            <a href="/" style="color: #3b82f6; text-decoration: none; display: flex; align-items: center; gap: 4px;">
-                <i class="fas fa-home"></i> Trang chủ
+            <a href="/Categories?id=@(storyCategories.FirstOrDefault()?.Id)" style="color: #3b82f6; text-decoration: none;">
+                @(storyCategories.FirstOrDefault()?.Name ?? "Thể loại")
             </a>
         </li>
         <li><span style="margin: 0 2px;">/</span></li>
         <li>
-            <a href="/Categories?id=@Model.CategoryId" style="color: #3b82f6; text-decoration: none;">
-                @(categories.FirstOrDefault() ?? "Thể loại")
-            </a>
+            @if (storyCategories.Any())
+            {
+                var firstCat = storyCategories.First();
+                <a href="/Categories?id=@firstCat.Id" style="color: #3b82f6; text-decoration: none;">
+                    @firstCat.Name
+                </a>
+            }
+            else
+            {
+                <span>Thể loại</span>
+            }
         </li>
         <li><span style="margin: 0 2px;">/</span></li>
         <li>
@@ -104,7 +123,23 @@
                 </div>
                 <div class="story-detail-stat">
                     <span class="stat-label">Thể loại</span>
-                    <span class="stat-value">@categoryDisplay</span>
+                    <span class="stat-value">
+                        @if (storyCategories.Any())
+                        {
+                            @for (int i = 0; i < storyCategories.Count; i++)
+                            {
+                                <a href="/Categories?id=@storyCategories[i].Id"
+                                   style="color: #3b82f6; text-decoration: none; font-weight: 500;">
+                                    @storyCategories[i].Name
+                                </a>
+                                @(i < storyCategories.Count - 1 ? ", " : "")
+                            }
+                        }
+                        else
+                        {
+                            @("Đang cập nhật")
+                        }
+                    </span>
                 </div>
                 <div class="story-detail-stat">
                     <span class="stat-label">Lượt xem</span>

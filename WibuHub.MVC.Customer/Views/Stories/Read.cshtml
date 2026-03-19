@@ -1,0 +1,179 @@
+﻿@using System.Globalization
+@model WibuHub.MVC.Customer.ViewModels.ChapterReadViewModel
+
+@{
+    var chapter = Model.Chapter;
+    var storyName = chapter.Story?.StoryName ?? chapter.StoryName;
+    var storySlug = string.IsNullOrWhiteSpace(chapter.Story?.Slug)
+                    ? chapter.StoryName
+                    : chapter.Story!.Slug;
+
+    var chapterTitle = $"{storyName} - Chapter {chapter.ChapterNumber}";
+    var updatedAt = chapter.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss");
+
+    // Sắp xếp danh sách chương cho dropdown (mới nhất lên đầu)
+    var orderedChapters = Model.Chapters.OrderByDescending(c => c.ChapterNumber).ToList();
+
+    // Hàm tạo URL SEO cho chương
+    string BuildChapterUrl(WibuHub.ApplicationCore.Entities.Chapter item)
+    {
+        return Url.RouteUrl("ChapterReadSeo", new
+        {
+            storySlug = storySlug,
+            chapterNumber = item.ChapterNumber.ToString(CultureInfo.InvariantCulture)
+        }) ?? "#";
+    }
+
+    // Lấy thông tin chương trước/sau từ danh sách Model.Chapters
+    var previousChapter = Model.PreviousChapterId.HasValue
+        ? Model.Chapters.FirstOrDefault(c => c.Id == Model.PreviousChapterId.Value)
+        : null;
+    var nextChapter = Model.NextChapterId.HasValue
+        ? Model.Chapters.FirstOrDefault(c => c.Id == Model.NextChapterId.Value)
+        : null;
+}
+
+@* Link đến file CSS đã gửi ở bước trước *@
+<link rel="stylesheet" href="~/css/ChapterRead.css" asp-append-version="true">
+
+@* 1. Breadcrumb (Đường dẫn) *@
+<div style="padding: 15px 20px 20px 20px; max-width: 1200px; margin: 0 auto;">
+    <ul style="display: flex; flex-wrap: wrap; list-style: none; padding: 0; margin: 0; font-size: 0.95rem; color: #6b7280; align-items: center; gap: 8px;">
+        <li>
+            <a href="/" style="color: #3b82f6; text-decoration: none; display: flex; align-items: center; gap: 4px;">
+                <i class="fas fa-home"></i> Trang chủ
+            </a>
+        </li>
+        <li><span style="margin: 0 2px;">/</span></li>
+        <li>
+            <a href="/Stories/Details/@chapter.StoryId" style="color: #3b82f6; text-decoration: none;">
+                @storyName
+            </a>
+        </li>
+        <li><span style="margin: 0 2px;">/</span></li>
+        <li>
+            <span style="color: #1f2937; font-weight: 500;">Chapter @chapter.ChapterNumber</span>
+        </li>
+    </ul>
+</div>
+
+<div class="chapter-read-page">
+    @* 2. Header *@
+    <div class="chapter-read-header">
+        <h2>@chapterTitle</h2>
+        <div class="chapter-updated">[Cập nhật lúc: @updatedAt]</div>
+    </div>
+
+    @* 3. Alert Cảnh báo *@
+    <div class="chapter-warning">
+        <i class="fas fa-exclamation-triangle"></i>
+        Nếu không xem được truyện vui lòng đổi "SERVER ẢNH" bên dưới
+    </div>
+
+    @* 4. Server Toolbar *@
+    <div class="chapter-toolbar">
+        <div class="chapter-servers">
+            <button class="chapter-server active" type="button">Server 1</button>
+            <button class="chapter-server" type="button">Server 2</button>
+        </div>
+        <button class="chapter-report" type="button"><i class="fas fa-flag"></i> Báo lỗi</button>
+    </div>
+
+    @* 5. Navigation trên *@
+    <div class="chapter-nav">
+        <a class="chapter-nav-btn @(previousChapter == null ? "disabled" : "")"
+           href="@(previousChapter == null ? "#" : BuildChapterUrl(previousChapter))">
+            <i class="fas fa-chevron-left"></i>
+        </a>
+
+        <select class="chapter-select" onchange="if (this.value) window.location.href = this.value;">
+            @foreach (var item in orderedChapters)
+            {
+                var url = BuildChapterUrl(item);
+                <option value="@url" selected="@(item.Id == chapter.Id)">Chapter @item.ChapterNumber</option>
+            }
+        </select>
+
+        <a class="chapter-nav-btn @(nextChapter == null ? "disabled" : "")"
+           href="@(nextChapter == null ? "#" : BuildChapterUrl(nextChapter))">
+            <i class="fas fa-chevron-right"></i>
+        </a>
+        <div class="chapter-nav-hint">Sử dụng mũi tên trái (←) hoặc phải (→) để chuyển chapter</div>
+    </div>
+
+    @* 6. Nội dung ảnh truyện *@
+    <div class="chapter-content">
+        @if (chapter.Images != null && chapter.Images.Any())
+        {
+            foreach (var image in chapter.Images.OrderBy(i => i.OrderIndex))
+            {
+                var imageUrl = image.ImageUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase)
+                ? image.ImageUrl
+                : Url.Content($"~/{image.ImageUrl.TrimStart('/')}");
+                <img src="@imageUrl" alt="@chapterTitle" loading="lazy" />
+            }
+        }
+        else if (!string.IsNullOrWhiteSpace(chapter.Content))
+        {
+            <div class="chapter-text">@Html.Raw(chapter.Content)</div>
+        }
+        else
+        {
+            <div class="chapter-placeholder">
+                <i class="fas fa-ghost"></i>
+                <p>Nội dung đang được cập nhật...</p>
+            </div>
+        }
+    </div>
+
+    @* 7. Navigation dưới (giống cái trên) *@
+    <div class="chapter-nav" style="margin-top: 30px;">
+        @* Tương tự phần navigation trên nếu bạn muốn hiện cả 2 đầu *@
+    </div>
+</div>
+
+@* 8. Thanh Bottom Bar (Dính ở đáy màn hình) *@
+<div class="chapter-bottom-bar">
+    <div class="chapter-bottom-bar-inner">
+        <a class="chapter-bar-btn" asp-controller="Home" asp-action="Index" title="Trang chủ"><i class="fas fa-home"></i></a>
+        <a class="chapter-bar-btn" asp-controller="Stories" asp-action="Details" asp-route-id="@chapter.StoryId" title="Quay lại"><i class="fas fa-undo"></i></a>
+
+        <a class="chapter-bar-btn @(previousChapter == null ? "disabled" : "")"
+           href="@(previousChapter == null ? "#" : BuildChapterUrl(previousChapter))">
+            <i class="fas fa-chevron-left"></i>
+        </a>
+
+        <select class="chapter-bar-select" onchange="if (this.value) window.location.href = this.value;">
+            @foreach (var item in orderedChapters)
+            {
+                var url = BuildChapterUrl(item);
+                <option value="@url" selected="@(item.Id == chapter.Id)">Chương @item.ChapterNumber</option>
+            }
+        </select>
+
+        <a class="chapter-bar-btn @(nextChapter == null ? "disabled" : "")"
+           href="@(nextChapter == null ? "#" : BuildChapterUrl(nextChapter))">
+            <i class="fas fa-chevron-right"></i>
+        </a>
+
+        @if (User?.Identity?.IsAuthenticated ?? false)
+        {
+            <form class="chapter-bar-follow-form" asp-controller="Follows" asp-action="Toggle" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="storyId" value="@chapter.StoryId" />
+                <input type="hidden" name="returnUrl" value="@Context.Request.Path" />
+                <button class="chapter-bar-follow" type="submit">
+                    <i class="@(Model.IsFollowed ? "fas fa-heart" : "far fa-heart")"></i>
+                    <span>@(Model.IsFollowed ? "Đã theo dõi" : "Theo dõi")</span>
+                </button>
+            </form>
+        }
+        else
+        {
+            <button class="chapter-bar-follow" type="button" onclick="alert('Vui lòng đăng nhập!')">
+                <i class="far fa-heart"></i>
+                <span>Theo dõi</span>
+            </button>
+        }
+    </div>
+</div>

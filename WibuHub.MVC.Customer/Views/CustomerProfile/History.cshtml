@@ -25,7 +25,7 @@
         </div> *@
 
         <div class="profile-content">
-            <div class="pane-header" style="color: #6366f1;">
+            <div class="pane-header">
                 <i class="fas fa-history" style="color: #6366f1;"></i> Lịch Sử Đọc Truyện
             </div>
 
@@ -34,15 +34,48 @@
                 <div class="truyen-grid">
                     @foreach (var item in Model)
                     {
+                        // LOGIC TÍNH TOÁN "THỜI GIAN TRƯỚC" (Đã thêm "Vừa xong")
+                        var timeSpan = DateTime.UtcNow - item.ReadTime;
+                        string timeAgo = "";
+
+                        if (timeSpan.TotalMinutes < 1) timeAgo = "Vừa xong";
+                        else if (timeSpan.TotalMinutes < 60) timeAgo = $"{(int)timeSpan.TotalMinutes} Phút Trước";
+                        else if (timeSpan.TotalHours < 24) timeAgo = $"{(int)timeSpan.TotalHours} Giờ Trước";
+                        else if (timeSpan.TotalDays < 30) timeAgo = $"{(int)timeSpan.TotalDays} Ngày Trước";
+                        else if (timeSpan.TotalDays < 365) timeAgo = $"{(int)(timeSpan.TotalDays / 30)} Tháng Trước";
+                        else timeAgo = $"{(int)(timeSpan.TotalDays / 365)} Năm Trước";
+
                         <div class="truyen-card">
                             <div class="truyen-cover">
-                                <div class="tag-time" style="background-color: #f59e0b;">@item.ReadTime.ToString("dd/MM")</div>
-                                <a href="/Stories/Read?storyId=@item.StoryId&chapter=@item.ChapterNumber">
+
+                                <form asp-action="RemoveHistory" method="post" style="margin:0;">
+                                    <input type="hidden" name="storyId" value="@item.StoryId" />
+                                    <button type="submit" class="btn-remove-card" title="Xóa khỏi lịch sử">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </form>
+
+                                <div class="tag-time">@timeAgo</div>
+
+                                <a href="/Stories/Details/@item.StoryId">
                                     <img src="@item.CoverImage" alt="@item.StoryTitle">
                                 </a>
                             </div>
+
                             <a href="/Stories/Details/@item.StoryId" class="truyen-title">@item.StoryTitle</a>
-                            <span class="truyen-chapter" style="color:#ef4444;">Đọc Tiếp Chapter @item.ChapterNumber</span>
+
+                            @if (item.ChapterNumber > 0)
+                            {
+                                <a href="/Stories/Read?storyId=@item.StoryId&chapter=@item.ChapterNumber" class="truyen-chapter">
+                                    Đọc Tiếp Chapter @item.ChapterNumber
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="truyen-chapter" style="color: #ef4444; cursor: not-allowed;">
+                                    Lỗi Chapter
+                                </span>
+                            }
                         </div>
                     }
                 </div>

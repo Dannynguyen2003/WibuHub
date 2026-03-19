@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WibuHub.DataLayer;
 using WibuHub.MVC.Customer.ViewModels;
@@ -16,9 +16,13 @@ namespace WibuHub.MVC.Customer.Controllers
 
         public async Task<IActionResult> Index(Guid? id)
         {
+            // Mình thêm Include StoryCategories và Category vào đây để phòng trường hợp 
+            // View của bạn cần hiển thị danh sách thể loại của từng truyện ra màn hình.
             var storiesQuery = _context.Stories
                 .AsNoTracking()
                 .Include(s => s.Chapters)
+                .Include(s => s.StoryCategories)
+                .ThenInclude(sc => sc.Category)
                 .OrderByDescending(s => s.UpdateDate);
 
             if (id.HasValue)
@@ -32,8 +36,9 @@ namespace WibuHub.MVC.Customer.Controllers
                     return NotFound();
                 }
 
+                // Đã sửa: Tìm qua bảng trung gian bằng .Any()
                 var stories = await storiesQuery
-                    .Where(s => s.CategoryId == id.Value)
+                    .Where(s => s.StoryCategories.Any(sc => sc.CategoryId == id.Value))
                     .ToListAsync();
 
                 return View(new CategoryStoriesViewModel
@@ -48,7 +53,7 @@ namespace WibuHub.MVC.Customer.Controllers
 
             return View(new CategoryStoriesViewModel
             {
-                CategoryName = "T?t c?",
+                CategoryName = "Tất cả", // Đã sửa lỗi font chữ
                 Stories = allStories
             });
         }

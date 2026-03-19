@@ -18,5 +18,6 @@ namespace WibuHub.Service.Interface
         Task<List<StoryDto>> GetNewestStoriesAsync();
         // Thêm dòng này vào Interface
         Task<IEnumerable<StoryDto>> GetTopViewsAsync(int take = 5); // Có thể thay IEnumerable bằng kiểu dữ liệu bạn đang dùng (như List<StoryDto>)
+        Task<List<StoryDto>> GetStoriesByGenreAsync(Guid genreId);
     }
 }
