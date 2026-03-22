@@ -373,27 +373,33 @@ namespace WibuHub.DataLayer.Migrations
 
             modelBuilder.Entity("WibuHub.ApplicationCore.Entities.OrderDetail", b =>
                 {
-                    b.Property<Guid>("OrderId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("StoryId")
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("Amount")
                         .HasPrecision(18, 2)
                         .HasColumnType("money");
 
-                    b.Property<double>("Discount")
-                        .HasColumnType("float");
+                    b.Property<decimal>("Discount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
+
+                    b.Property<Guid?>("StoryId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("UnitPrice")
                         .HasPrecision(18, 2)
                         .HasColumnType("money");
 
-                    b.HasKey("OrderId", "StoryId");
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
 
                     b.HasIndex("StoryId");
 
@@ -663,8 +669,7 @@ namespace WibuHub.DataLayer.Migrations
                     b.HasOne("WibuHub.ApplicationCore.Entities.Story", "Story")
                         .WithMany()
                         .HasForeignKey("StoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Order");
 

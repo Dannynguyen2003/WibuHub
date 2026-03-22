@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MimeKit;
-using WibuHub.Service.EmailSender;
 
 namespace WibuHub.Service.EmailSender
 {

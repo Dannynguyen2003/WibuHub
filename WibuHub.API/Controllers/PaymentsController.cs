@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json; // Thêm thư viện này để Serialize Json
 using WibuHub.ApplicationCore.DTOs.Shared;
 using WibuHub.Service.Interface;
 using static WibuHub.ApplicationCore.DTOs.Shared.Momopayment;
@@ -8,7 +9,7 @@ namespace WibuHub.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize] // Bảo vệ API nếu cần
+    [Authorize] // BẬT BẢO VỆ API: Yêu cầu Token cho các API trong Controller này
     public class PaymentsController : ControllerBase
     {
         private readonly IPaymentService _paymentService;
@@ -27,6 +28,9 @@ namespace WibuHub.API.Controllers
         [HttpPost("momo")]
         public async Task<IActionResult> CreateMomoPayment([FromBody] MomoPaymentRequest request)
         {
+            // Dùng Logger và JsonSerializer để log data đẹp và rõ ràng, dễ debug hơn
+            _logger.LogInformation("Received MoMo payment request: {RequestData}", JsonSerializer.Serialize(request));
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -71,6 +75,7 @@ namespace WibuHub.API.Controllers
         /// POST api/payments/momo/callback
         /// </summary>
         [HttpPost("momo/callback")]
+        [AllowAnonymous] // QUAN TRỌNG: Cho phép MoMo gọi API này KHÔNG CẦN Token
         public async Task<IActionResult> MomoCallback([FromBody] MomoCallbackRequest callback)
         {
             try

@@ -1,27 +1,23 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 
-namespace WibuHub.ApplicationCore.Entities
-{
-    public class OrderDetail
+    namespace WibuHub.ApplicationCore.Entities
     {
-        public Guid OrderId { get; set; }
-        public virtual Order Order { get; set; }
+        public class OrderDetail
+        {
+            // Khóa chính độc lập
+            public Guid Id { get; set; } = Guid.NewGuid();
 
-        public Guid? StoryId { get; set; }
-        public virtual Story Story { get; set; }
+            public Guid OrderId { get; set; }
 
-        public int Quantity { get; set; }
-        public decimal UnitPrice { get; set; }
+            // Bắt buộc phải có dấu ? để cho phép Null khi mua VIP
+            public Guid? StoryId { get; set; }
 
-        [Description("Tỷ lệ chiết khấu 10% = 0.1")]
-        public double Discount { get; set; }
+            public int Quantity { get; set; }
+            public decimal UnitPrice { get; set; }
+            public decimal Amount { get; set; }
+            public decimal Discount { get; set; }
 
-        public decimal Amount { get; set; }
+            public virtual Order Order { get; set; }
+            public virtual Story Story { get; set; }
+        }
     }
-}

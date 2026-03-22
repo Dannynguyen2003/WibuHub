@@ -9,6 +9,7 @@ using WibuHub.DataLayer;
 using WibuHub.Service.EmailSender;
 using WibuHub.Service.Implementation;
 using WibuHub.Service.Implementations;
+using WibuHub.Service.Implementations.PayMent;
 using WibuHub.Service.Interface;
 
 var builder = WebApplication.CreateBuilder(args);

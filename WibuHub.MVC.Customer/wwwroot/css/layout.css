@@ -3005,3 +3005,36 @@ ul#list_suggest {
     font-size: 13px;
     text-decoration: none;
 }
+.chat-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+    overflow-y: auto;
+    background-color: #ffffff;
+}
+
+.message {
+    padding: 10px 14px;
+    border-radius: 12px;
+    max-width: 85%;
+    word-wrap: break-word;
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+    /* Tin nhắn của Bot AI */
+    .message.ai {
+        background-color: #f1f5f9;
+        color: #333;
+        align-self: flex-start;
+        border-bottom-left-radius: 2px;
+    }
+
+    /* Tin nhắn của Khách (User) */
+    .message.user {
+        background-color: #f97316; /* Màu cam chủ đạo WibuHub */
+        color: white;
+        align-self: flex-end;
+        border-bottom-right-radius: 2px;
+    }

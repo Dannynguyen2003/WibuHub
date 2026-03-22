@@ -7,19 +7,22 @@ using WibuHub.ApplicationCore.DTOs.Shared;
 using WibuHub.DataLayer;
 using WibuHub.Service.Interface;
 using static WibuHub.ApplicationCore.DTOs.Shared.Momopayment;
-namespace WibuHub.Service.Implementations
+
+namespace WibuHub.Service.Implementations.PayMent
 {
     public class MomoPaymentService : IPaymentService
     {
         private readonly MomoSettings _momoSettings;
         private readonly StoryDbContext _context;
         private readonly HttpClient _httpClient;
+
         public MomoPaymentService(IOptions<MomoSettings> momoSettings, StoryDbContext context, HttpClient httpClient)
         {
             _momoSettings = momoSettings.Value;
             _context = context;
             _httpClient = httpClient;
         }
+
         public async Task<MomoPaymentResponse> CreateMomoPaymentAsync(MomoPaymentRequest request)
         {
             // Generate orderId if not provided
@@ -27,19 +30,22 @@ namespace WibuHub.Service.Implementations
             var requestId = orderId;
             var amount = ((long)request.Amount).ToString();
             var extraData = string.Empty;
+
             // Create raw signature string
             var rawSignature = $"accessKey={_momoSettings.AccessKey}" +
-                             $"&amount={amount}" +
-                             $"&extraData={extraData}" +
-                             $"&ipnUrl={_momoSettings.IpnUrl}" +
-                             $"&orderId={orderId}" +
-                             $"&orderInfo={request.OrderInfo}" +
-                             $"&partnerCode={_momoSettings.PartnerCode}" +
-                             $"&redirectUrl={_momoSettings.RedirectUrl}" +
-                             $"&requestId={requestId}" +
-                             $"&requestType={_momoSettings.RequestType}";
+                               $"&amount={amount}" +
+                               $"&extraData={extraData}" +
+                               $"&ipnUrl={_momoSettings.IpnUrl}" +
+                               $"&orderId={orderId}" +
+                               $"&orderInfo={request.OrderInfo}" +
+                               $"&partnerCode={_momoSettings.PartnerCode}" +
+                               $"&redirectUrl={_momoSettings.RedirectUrl}" +
+                               $"&requestId={requestId}" +
+                               $"&requestType={_momoSettings.RequestType}";
+
             // Generate signature using HMAC SHA256
             var signature = ComputeHmacSha256(rawSignature, _momoSettings.SecretKey);
+
             // Create request body
             var requestBody = new
             {
@@ -59,6 +65,7 @@ namespace WibuHub.Service.Implementations
                 orderGroupId = string.Empty,
                 signature = signature
             };
+
             // Send request to MoMo
             try
             {
@@ -67,17 +74,19 @@ namespace WibuHub.Service.Implementations
 
                 var response = await _httpClient.PostAsync(_momoSettings.ApiEndpoint, content);
                 var responseContent = await response.Content.ReadAsStringAsync();
+
                 var momoResponse = JsonSerializer.Deserialize<MomoPaymentResponse>(responseContent, new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 });
+
                 return momoResponse ?? new MomoPaymentResponse
                 {
                     ErrorCode = -1,
                     Message = "Failed to process payment request"
                 };
             }
-            catch 
+            catch
             {
                 // Log the error internally, return generic message to client
                 return new MomoPaymentResponse
@@ -87,94 +96,44 @@ namespace WibuHub.Service.Implementations
                 };
             }
         }
-        //public async Task<(bool isSuccess, string message)> HandleMomoCallbackAsync(MomoCallbackRequest callback)
-        //{
-        //    try
-        //    {
-        //        // Validate signature for security
-        //        var rawSignature = $"accessKey={_momoSettings.AccessKey}" +
-        //                         $"&amount={callback.Amount}" +
-        //                         $"&extraData={callback.ExtraData}" +
-        //                         $"&message={callback.Message}" +
-        //                         $"&orderId={callback.OrderId}" +
-        //                         $"&orderInfo={callback.OrderInfo}" +
-        //                         $"&orderType={callback.OrderType}" +
-        //                         $"&partnerCode={callback.PartnerCode}" +
-        //                         $"&payType={callback.PayType}" +
-        //                         $"&requestId={callback.RequestId}" +
-        //                         $"&responseTime={callback.ResponseTime}" +
-        //                         $"&resultCode={callback.ResultCode}" +
-        //                         $"&transId={callback.TransId}";
-        //        var expectedSignature = ComputeHmacSha256(rawSignature, _momoSettings.SecretKey);
-        //        if (callback.Signature != expectedSignature)
-        //        {
-        //            return (false, "Invalid signature");
-        //        }
 
-        //        if (callback.ResultCode == 0)
-        //        {
-        //            // Payment successful - update order status in database
-        //            // Extract the actual order ID (remove partner code prefix if present)
-        //            var orderIdStr = callback.OrderId;
-        //            if (orderIdStr.StartsWith(_momoSettings.PartnerCode))
-        //            {
-        //                orderIdStr = orderIdStr.Substring(_momoSettings.PartnerCode.Length);
-        //            }
-        //            // Try to parse as GUID, if it fails, just log the transaction
-        //            if (Guid.TryParse(orderIdStr, out var orderId))
-        //            {
-        //                var order = await _context.Orders.FindAsync(orderId);
-
-        //                if (order != null)
-        //                {
-        //                    // Check if payment is already completed to prevent duplicate processing
-        //                    if (order.PaymentStatus == "Completed")
-        //                    {
-        //                        return (true, "Payment already processed");
-        //                    }
-        //                    order.PaymentMethod = "MoMo";
-        //                    order.TransactionId = callback.TransId.ToString();
-        //                    order.PaymentStatus = "Completed";
-
-        //                    await _context.SaveChangesAsync();
-
-        //                    return (true, "Payment processed successfully");
-        //                }
-        //            }
-
-        //            // Order not found, but payment was successful
-        //            return (true, "Payment successful but order not found in system");
-        //        }
-        //        else if (callback.ResultCode == 9000)
-        //        {
-        //            // Payment authorized
-        //            return (true, "Payment authorized successfully");
-        //        }
-        //        else
-        //        {
-        //            // Payment failed
-        //            return (false, "Payment failed");
-        //        }
-        //    }
-        //    catch 
-        //    {
-        //        // Log the error internally, return generic message to client
-        //        return (false, "Error processing callback");
-        //    }
-        //}
         public async Task<(bool isSuccess, string message)> HandleMomoCallbackAsync(MomoCallbackRequest callback)
         {
+            Console.WriteLine("Received MoMo callback:", callback);
             try
             {
-                // --- BỎ QUA BƯỚC KIỂM TRA CHỮ KÝ TẠI ĐÂY ---
-                // (Chỉ dùng để TEST, tuyệt đối không dùng khi chạy thật)
+                // 1. Tạo chuỗi raw signature từ dữ liệu MoMo trả về (Quan trọng: Phải đúng thứ tự abc)
+                // Lưu ý: Đảm bảo class MomoCallbackRequest có đủ các thuộc tính này và kiểu dữ liệu tương ứng.
+                string rawSignature = $"accessKey={_momoSettings.AccessKey}" +
+                                      $"&amount={callback.Amount}" +
+                                      $"&extraData={callback.ExtraData ?? ""}" + // Handle null ExtraData
+                                      $"&message={callback.Message}" +
+                                      $"&orderId={callback.OrderId}" +
+                                      $"&orderInfo={callback.OrderInfo}" +
+                                      $"&orderType={callback.OrderType}" +
+                                      $"&partnerCode={callback.PartnerCode}" +
+                                      $"&payType={callback.PayType}" +
+                                      $"&requestId={callback.RequestId}" +
+                                      $"&responseTime={callback.ResponseTime}" +
+                                      $"&resultCode={callback.ResultCode}" +
+                                      $"&transId={callback.TransId}";
 
-                // 1. Kiểm tra nếu MoMo báo thanh toán thành công (ResultCode = 0)
+                // 2. Tính toán chữ ký băm
+                string expectedSignature = ComputeHmacSha256(rawSignature, _momoSettings.SecretKey);
+
+                // 3. So sánh chữ ký
+                if (callback.Signature != expectedSignature)
+                {
+                    // Chữ ký không khớp, từ chối xử lý để đảm bảo bảo mật
+                    return (false, "Invalid signature");
+                }
+
+                // 4. Xử lý logic nghiệp vụ nếu chữ ký hợp lệ
                 if (callback.ResultCode == 0)
                 {
                     var orderIdStr = callback.OrderId;
 
-                    // Loại bỏ prefix PartnerCode nếu có (như logic cũ của bạn)
+                    // Loại bỏ prefix PartnerCode nếu có
                     if (orderIdStr.StartsWith(_momoSettings.PartnerCode))
                     {
                         orderIdStr = orderIdStr.Substring(_momoSettings.PartnerCode.Length);
@@ -195,10 +154,10 @@ namespace WibuHub.Service.Implementations
                             // Cập nhật trạng thái tự động
                             order.PaymentMethod = "MoMo";
                             order.TransactionId = callback.TransId.ToString();
-                            order.PaymentStatus = "Completed"; // Nhảy sang Complete ở đây
+                            order.PaymentStatus = "Completed";
 
                             await _context.SaveChangesAsync();
-                            return (true, "Payment processed successfully (No Signature Check)");
+                            return (true, "Payment processed successfully");
                         }
                     }
                     return (false, "Order not found");
@@ -210,19 +169,22 @@ namespace WibuHub.Service.Implementations
             }
             catch (Exception ex)
             {
-                return (false, $"Error: {ex.Message}");
+                return (false, $"Error processing callback: {ex.Message}");
             }
         }
+
         public async Task<MomoPaymentResponse> CheckTransactionStatusAsync(string orderId)
         {
             var requestId = orderId;
 
             // Create raw signature for status check
             var rawSignature = $"accessKey={_momoSettings.AccessKey}" +
-                             $"&orderId={orderId}" +
-                             $"&partnerCode={_momoSettings.PartnerCode}" +
-                             $"&requestId={requestId}";
+                               $"&orderId={orderId}" +
+                               $"&partnerCode={_momoSettings.PartnerCode}" +
+                               $"&requestId={requestId}";
+
             var signature = ComputeHmacSha256(rawSignature, _momoSettings.SecretKey);
+
             // Create request body
             var requestBody = new
             {
@@ -232,6 +194,7 @@ namespace WibuHub.Service.Implementations
                 signature = signature,
                 lang = _momoSettings.Lang
             };
+
             try
             {
                 var jsonContent = JsonSerializer.Serialize(requestBody);
@@ -239,17 +202,19 @@ namespace WibuHub.Service.Implementations
 
                 var response = await _httpClient.PostAsync(_momoSettings.QueryEndpoint, content);
                 var responseContent = await response.Content.ReadAsStringAsync();
+
                 var momoResponse = JsonSerializer.Deserialize<MomoPaymentResponse>(responseContent, new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 });
+
                 return momoResponse ?? new MomoPaymentResponse
                 {
                     ErrorCode = -1,
                     Message = "Failed to process status request"
                 };
             }
-            catch 
+            catch
             {
                 // Log the error internally, return generic message to client
                 return new MomoPaymentResponse
@@ -259,10 +224,12 @@ namespace WibuHub.Service.Implementations
                 };
             }
         }
+
         private string ComputeHmacSha256(string message, string secretKey)
         {
             var keyBytes = Encoding.UTF8.GetBytes(secretKey);
             var messageBytes = Encoding.UTF8.GetBytes(message);
+
             using (var hmac = new HMACSHA256(keyBytes))
             {
                 var hashBytes = hmac.ComputeHash(messageBytes);

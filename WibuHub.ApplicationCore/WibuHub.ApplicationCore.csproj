@@ -28,8 +28,4 @@
     <ProjectReference Include="..\WibuHub.Common\WibuHub.Common.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="DTOs\Admin\" />
-  </ItemGroup>
-
 </Project>

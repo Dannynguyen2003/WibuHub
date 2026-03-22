@@ -265,7 +265,10 @@ namespace WibuHub.DataLayer
             modelBuilder.Entity<OrderDetail>(entity =>
             {
                 entity.ToTable("OrderDetails");
-                entity.HasKey(od => new { od.OrderId, od.StoryId });
+
+                // SỬA 1: Đổi sang dùng Id làm khóa chính
+                entity.HasKey(od => od.Id);
+
                 entity.Property(od => od.UnitPrice).HasColumnType("money").HasPrecision(18, 2);
                 entity.Property(od => od.Amount).HasColumnType("money").HasPrecision(18, 2);
 
@@ -277,6 +280,7 @@ namespace WibuHub.DataLayer
                 entity.HasOne(od => od.Story)
                       .WithMany()
                       .HasForeignKey(od => od.StoryId)
+                      .IsRequired(false) // SỬA 2: Thêm dòng này để Database cho phép lưu VIP
                       .OnDelete(DeleteBehavior.Restrict);
             });
         }

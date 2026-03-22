@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi;
+using Microsoft.OpenApi.Models;
 using System.Text;
 using WibuHub.API.Models;
 using WibuHub.ApplicationCore.Configuration;
@@ -13,9 +13,10 @@ using WibuHub.ApplicationCore.Entities.Identity;
 using WibuHub.DataLayer;
 using WibuHub.Service.EmailSender;
 using WibuHub.Service.Implementations;
+using WibuHub.Service.Implementations.ChatBot;
 using WibuHub.Service.Implementations.EmailSender;
+using WibuHub.Service.Implementations.PayMent;
 using WibuHub.Service.Interface;
-using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,6 +47,9 @@ builder.Services.AddHttpClient<MomoPaymentService>(client =>
 
 // 5. Register Payment Service
 builder.Services.AddScoped<IPaymentService, MomoPaymentService>();
+
+builder.Services.AddHttpClient<IChatbotService, ChatbotService>();
+builder.Services.AddScoped<IChatbotService, ChatbotService>();
 
 // 6. Add Controllers
 builder.Services.AddControllers(options =>

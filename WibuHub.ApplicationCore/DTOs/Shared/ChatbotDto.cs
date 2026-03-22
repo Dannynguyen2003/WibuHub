@@ -6,7 +6,13 @@ using System.Threading.Tasks;
 
 namespace WibuHub.ApplicationCore.DTOs.Shared
 {
-    public class ServiceResult
+    public class ChatbotRequest
     {
+        public string Message { get; set; }
+    }
+
+    public class ChatbotResponse
+    {
+        public string Reply { get; set; }
     }
 }

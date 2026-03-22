@@ -62,7 +62,7 @@
 
                         <ul class="dropdown-menu">
                             <li><a asp-controller="CustomerProfile" asp-action="Followed"><i class="fas fa-bookmark"></i> Danh sách theo dõi</a></li>
-                            <li><a asp-controller ="CustomerProfile" asp-action="History"><i class="fas fa-history"></i> Lịch sử đọc truyện</a></li>
+                            <li><a asp-controller="CustomerProfile" asp-action="History"><i class="fas fa-history"></i> Lịch sử đọc truyện</a></li>
                             <li><a asp-controller="CustomerProfile" asp-action="Index"><i class="fas fa-cog"></i> Cài đặt thông tin</a></li>
                             <li class="divider"></li>
                             <li>
@@ -295,7 +295,7 @@
                     <i class="fas fa-minus" id="chatIcon"></i>
                 </div>
                 <div class="chat-body" id="chatBody">
-                    <div class="message ai">Xin chào! Tôi là trợ lý đọc truyện. Bạn cần tìm gì?</div>
+                    <div class="message ai">Xin chào! Tôi là trợ lý AI của WibuHub. Bạn muốn tìm truyện gì hôm nay?</div>
                 </div>
                 <div class="chat-footer">
                     <input type="text" id="chatInput" placeholder="Nhập tin nhắn...">
@@ -409,7 +409,6 @@
 
                 const formData = new FormData(form);
                 const dataObject = Object.fromEntries(formData.entries());
-                    // Xử lý riêng cho checkbox RememberMe để gửi đúng kiểu boolean true/false
                 if (!isRegister) {
                     dataObject.rememberMe = form.querySelector('input[name="rememberMe"]').checked;
                 }
@@ -471,7 +470,7 @@
                 document.getElementById('tabGroups')?.addEventListener('click', (e) => { e.preventDefault(); this.showSection('groupsSection', 'tabGroups'); });
                 document.getElementById('tabProfilePage')?.addEventListener('click', (e) => { e.preventDefault(); this.showSection('profilePageSection', 'tabProfilePage'); });
 
-                // Chatbox
+                // Chatbox UI Toggle
                 const chatbox = document.getElementById('chatbox');
                 document.getElementById('toggleChat')?.addEventListener('click', () => {
                     chatbox?.classList.toggle('closed');
@@ -552,7 +551,7 @@
                 if (!grid) return;
 
                 try {
-                    const data = await Utils.fetchAPI('https://localhost:7267/api/stories/liststory');
+                    const data = await Utils.fetchAPI('http://localhost:5126/api/stories/liststory');
                     this.state.originalStories = Array.isArray(data) ? data : [];
                     this.state.activeStoriesList = [...this.state.originalStories];
                     grid.innerHTML = '';
@@ -582,7 +581,6 @@
 
                 this.state.currentIndex += slice.length;
 
-                // Update Button
                 if (btn) {
                     if (this.state.currentIndex >= this.state.activeStoriesList.length) {
                         btn.style.display = 'none';
@@ -602,7 +600,7 @@
                 if (!topList) return;
 
                 try {
-                    const data = await Utils.fetchAPI('https://localhost:7267/api/stories/top-views');
+                    const data = await Utils.fetchAPI('http://localhost:5126/api/stories/top-views');
                     if (container) container.remove();
 
                     if (Array.isArray(data)) {
@@ -631,7 +629,7 @@
                 const list = document.getElementById('list_suggest');
                 if (!list) return;
                 try {
-                    const data = await Utils.fetchAPI('https://localhost:7267/api/stories/newest');
+                    const data = await Utils.fetchAPI('http://localhost:5126/api/stories/newest');
                     if (!Array.isArray(data) || data.length === 0) {
                         list.innerHTML = '<li style="width:100%;text-align:center;padding:50px;">Chưa có truyện nào!</li>';
                         return;
@@ -699,10 +697,79 @@
         };
 
         // ----------------------------------------------------
+        // CHAT CONTROLLER: Xử lý giao tiếp AI
+        // ----------------------------------------------------
+        const ChatController = {
+            elements: {
+                body: document.getElementById('chatBody'),
+                input: document.getElementById('chatInput'),
+                btnSend: document.getElementById('sendChat')
+            },
+
+            init: function() {
+                if (!this.elements.input || !this.elements.btnSend) return;
+
+                this.elements.btnSend.addEventListener('click', () => this.sendMessage());
+
+                this.elements.input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        this.sendMessage();
+                    }
+                });
+            },
+
+            sendMessage: async function() {
+                const text = this.elements.input.value.trim();
+                if (!text) return;
+
+                this.appendMessage(text, 'user');
+                this.elements.input.value = '';
+
+                const typingId = 'typing-' + Date.now();
+                this.appendMessage('<i class="fas fa-ellipsis-h fa-fade"></i> Đang suy nghĩ...', 'ai', typingId);
+
+                try {
+                    const response = await fetch('http://localhost:5126/api/chatbot/ask', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ message: text })
+                    });
+
+                    const data = await response.json();
+                    document.getElementById(typingId)?.remove();
+
+                    if (response.ok) {
+                        this.appendMessage(data.reply.replace(/\n/g, '<br>'), 'ai');
+                    } else {
+                        this.appendMessage('Lỗi: ' + (data.message || 'Không thể kết nối API.'), 'ai');
+                    }
+                } catch (error) {
+                    console.error("Chat Error:", error);
+                    document.getElementById(typingId)?.remove();
+                    this.appendMessage('Xin lỗi, hệ thống AI đang bận. Bạn thử lại sau nhé!', 'ai');
+                }
+            },
+
+            appendMessage: function(text, senderClass, id = '') {
+                if (!this.elements.body) return;
+
+                const msgDiv = document.createElement('div');
+                msgDiv.className = `message ${senderClass}`;
+                if (id) msgDiv.id = id;
+                msgDiv.innerHTML = text;
+
+                this.elements.body.appendChild(msgDiv);
+                this.elements.body.scrollTop = this.elements.body.scrollHeight;
+            }
+        };
+
+        // ----------------------------------------------------
         // BOOTSTRAP APP
         // ----------------------------------------------------
         document.addEventListener('DOMContentLoaded', () => {
             AuthController.init();
+            ChatController.init(); // KHỞI CHẠY CHATBOX
 
             if (document.getElementById('homeSection') !== null) {
                 UIController.init();
