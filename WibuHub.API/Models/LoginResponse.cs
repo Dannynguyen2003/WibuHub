@@ -8,5 +8,7 @@ namespace WibuHub.API.Models
         public string? Email { get; set; }
         public string? UserName { get; set; }
         public string[] Roles { get; set; } = [];
+        public bool IsVip { get; set; }
+        public DateTime? VipExpireDate { get; set; }
     }
 }

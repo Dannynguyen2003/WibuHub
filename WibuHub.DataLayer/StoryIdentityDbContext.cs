@@ -34,6 +34,11 @@ namespace WibuHub.DataLayer
                 user.Property(s => s.Level).HasDefaultValue(0);
                 user.Property(s => s.Experience).HasDefaultValue(0);
                 user.Property(s => s.Points).HasDefaultValue(0);
+
+                // =========================================================
+                // CẤU HÌNH CHO TÍNH NĂNG VIP
+                // =========================================================
+                user.Property(s => s.VipExpireDate).IsRequired(false); // Cho phép null vì user thường không có
             });
 
             modelBuilder.Entity<StoryRole>(role =>

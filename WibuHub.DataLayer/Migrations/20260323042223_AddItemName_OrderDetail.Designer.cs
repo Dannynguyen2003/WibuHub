@@ -12,33 +12,18 @@ using WibuHub.DataLayer;
 namespace WibuHub.DataLayer.Migrations
 {
     [DbContext(typeof(StoryDbContext))]
-    [Migration("20260130065412_AddDeletedAtToStoryAuthorChapter")]
-    partial class AddDeletedAtToStoryAuthorChapter
+    [Migration("20260323042223_AddItemName_OrderDetail")]
+    partial class AddItemName_OrderDetail
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.9")
+                .HasAnnotation("ProductVersion", "8.0.23")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("StoryStoryCategory", b =>
-                {
-                    b.Property<Guid>("GenresId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("StoriesId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("GenresId", "StoriesId");
-
-                    b.HasIndex("StoriesId");
-
-                    b.ToTable("StoryGenres", (string)null);
-                });
 
             modelBuilder.Entity("WibuHub.ApplicationCore.Entities.Author", b =>
                 {
@@ -57,6 +42,11 @@ namespace WibuHub.DataLayer.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("varchar(150)");
+
                     b.HasKey("Id");
 
                     b.ToTable("Authors", (string)null);
@@ -67,6 +57,9 @@ namespace WibuHub.DataLayer.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
@@ -86,7 +79,16 @@ namespace WibuHub.DataLayer.Migrations
                     b.Property<int>("Position")
                         .HasColumnType("int");
 
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(75)
+                        .HasColumnType("nvarchar(75)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("Slug")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Category_Slug");
 
                     b.ToTable("Categories", (string)null);
                 });
@@ -97,20 +99,22 @@ namespace WibuHub.DataLayer.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<double>("ChapterNumber")
+                        .HasColumnType("float");
+
                     b.Property<string>("Content")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("CreateDate")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<decimal>("Discount")
-                        .HasPrecision(5, 2)
-                        .HasColumnType("decimal(5,2)");
-
                     b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPremium")
                         .HasColumnType("bit");
 
                     b.Property<string>("Name")
@@ -118,12 +122,8 @@ namespace WibuHub.DataLayer.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
-                    b.Property<double>("Number")
-                        .HasColumnType("float");
-
-                    b.Property<decimal>("Price")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("money");
+                    b.Property<int>("Price")
+                        .HasColumnType("int");
 
                     b.Property<int>("ServerId")
                         .HasColumnType("int");
@@ -136,6 +136,13 @@ namespace WibuHub.DataLayer.Migrations
                     b.Property<Guid>("StoryId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("StoryName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UnlockDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("ViewCount")
                         .HasColumnType("int");
 
@@ -144,9 +151,39 @@ namespace WibuHub.DataLayer.Migrations
                     b.HasIndex("Slug")
                         .IsUnique();
 
-                    b.HasIndex("StoryId", "Number");
+                    b.HasIndex("StoryId", "ChapterNumber");
 
                     b.ToTable("Chapters", (string)null);
+                });
+
+            modelBuilder.Entity("WibuHub.ApplicationCore.Entities.ChapterImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ChapterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<int>("OrderIndex")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StorageType")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChapterId", "OrderIndex")
+                        .IsUnique();
+
+                    b.ToTable("ChapterImages", (string)null);
                 });
 
             modelBuilder.Entity("WibuHub.ApplicationCore.Entities.Comment", b =>
@@ -296,6 +333,11 @@ namespace WibuHub.DataLayer.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("money");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
                     b.Property<string>("Email")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
@@ -315,10 +357,6 @@ namespace WibuHub.DataLayer.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
-
-                    //b.Property<string>("ShippingAddress")
-                    //    .IsRequired()
-                    //    .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Tax")
                         .HasPrecision(18, 2)
@@ -343,29 +381,39 @@ namespace WibuHub.DataLayer.Migrations
 
             modelBuilder.Entity("WibuHub.ApplicationCore.Entities.OrderDetail", b =>
                 {
-                    b.Property<Guid>("OrderId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ChapterId")
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("Amount")
                         .HasPrecision(18, 2)
                         .HasColumnType("money");
 
-                    b.Property<double>("Discount")
-                        .HasColumnType("float");
+                    b.Property<decimal>("Discount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("ItemName")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
+
+                    b.Property<Guid?>("StoryId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("UnitPrice")
                         .HasPrecision(18, 2)
                         .HasColumnType("money");
 
-                    b.HasKey("OrderId", "ChapterId");
+                    b.HasKey("Id");
 
-                    b.HasIndex("ChapterId");
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("StoryId");
 
                     b.ToTable("OrderDetails", (string)null);
                 });
@@ -451,10 +499,17 @@ namespace WibuHub.DataLayer.Migrations
                     b.Property<Guid?>("AuthorId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CategoryId")
+                    b.Property<string>("AuthorName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("CategoryId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("DateCreated")
+                    b.Property<string>("CoverImage")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("DeletedAt")
@@ -463,26 +518,44 @@ namespace WibuHub.DataLayer.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<decimal>("Discount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("money");
+
                     b.Property<int>("FollowCount")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<string>("LatestChapter")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("money");
+
                     b.Property<double>("RatingScore")
                         .HasColumnType("float");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("varchar(150)");
 
                     b.Property<byte>("Status")
                         .HasColumnType("tinyint");
 
-                    b.Property<string>("Thumbnail")
-                        .HasMaxLength(500)
-                        .HasColumnType("varchar(500)");
-
-                    b.Property<string>("Title")
+                    b.Property<string>("StoryName")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
+
+                    b.Property<int>("TotalChapters")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.Property<DateTime>("UpdateDate")
                         .HasColumnType("datetime2");
@@ -496,38 +569,25 @@ namespace WibuHub.DataLayer.Migrations
 
                     b.HasIndex("CategoryId");
 
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
                     b.ToTable("Stories", (string)null);
                 });
 
             modelBuilder.Entity("WibuHub.ApplicationCore.Entities.StoryCategory", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<Guid>("StoryId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("Id");
+                    b.HasKey("StoryId", "CategoryId");
 
-                    b.ToTable("Genres", (string)null);
-                });
+                    b.HasIndex("CategoryId");
 
-            modelBuilder.Entity("StoryStoryCategory", b =>
-                {
-                    b.HasOne("WibuHub.ApplicationCore.Entities.StoryCategory", null)
-                        .WithMany()
-                        .HasForeignKey("GenresId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("WibuHub.ApplicationCore.Entities.Story", null)
-                        .WithMany()
-                        .HasForeignKey("StoriesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.ToTable("StoryCategories", (string)null);
                 });
 
             modelBuilder.Entity("WibuHub.ApplicationCore.Entities.Chapter", b =>
@@ -539,6 +599,17 @@ namespace WibuHub.DataLayer.Migrations
                         .IsRequired();
 
                     b.Navigation("Story");
+                });
+
+            modelBuilder.Entity("WibuHub.ApplicationCore.Entities.ChapterImage", b =>
+                {
+                    b.HasOne("WibuHub.ApplicationCore.Entities.Chapter", "Chapter")
+                        .WithMany("Images")
+                        .HasForeignKey("ChapterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Chapter");
                 });
 
             modelBuilder.Entity("WibuHub.ApplicationCore.Entities.Comment", b =>
@@ -601,21 +672,20 @@ namespace WibuHub.DataLayer.Migrations
 
             modelBuilder.Entity("WibuHub.ApplicationCore.Entities.OrderDetail", b =>
                 {
-                    b.HasOne("WibuHub.ApplicationCore.Entities.Chapter", "Chapter")
-                        .WithMany()
-                        .HasForeignKey("ChapterId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("WibuHub.ApplicationCore.Entities.Order", "Order")
                         .WithMany("OrderDetails")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Chapter");
+                    b.HasOne("WibuHub.ApplicationCore.Entities.Story", "Story")
+                        .WithMany()
+                        .HasForeignKey("StoryId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Order");
+
+                    b.Navigation("Story");
                 });
 
             modelBuilder.Entity("WibuHub.ApplicationCore.Entities.Rating", b =>
@@ -653,15 +723,30 @@ namespace WibuHub.DataLayer.Migrations
                         .HasForeignKey("AuthorId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("WibuHub.ApplicationCore.Entities.Category", "Category")
+                    b.HasOne("WibuHub.ApplicationCore.Entities.Category", null)
                         .WithMany("Stories")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .HasForeignKey("CategoryId");
 
                     b.Navigation("Author");
+                });
+
+            modelBuilder.Entity("WibuHub.ApplicationCore.Entities.StoryCategory", b =>
+                {
+                    b.HasOne("WibuHub.ApplicationCore.Entities.Category", "Category")
+                        .WithMany("StoryCategories")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WibuHub.ApplicationCore.Entities.Story", "Story")
+                        .WithMany("StoryCategories")
+                        .HasForeignKey("StoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Category");
+
+                    b.Navigation("Story");
                 });
 
             modelBuilder.Entity("WibuHub.ApplicationCore.Entities.Author", b =>
@@ -674,6 +759,13 @@ namespace WibuHub.DataLayer.Migrations
                     b.Navigation("Comments");
 
                     b.Navigation("Stories");
+
+                    b.Navigation("StoryCategories");
+                });
+
+            modelBuilder.Entity("WibuHub.ApplicationCore.Entities.Chapter", b =>
+                {
+                    b.Navigation("Images");
                 });
 
             modelBuilder.Entity("WibuHub.ApplicationCore.Entities.Comment", b =>
@@ -691,6 +783,8 @@ namespace WibuHub.DataLayer.Migrations
                     b.Navigation("Chapters");
 
                     b.Navigation("Comments");
+
+                    b.Navigation("StoryCategories");
                 });
 #pragma warning restore 612, 618
         }

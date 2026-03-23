@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authorization;
-using WibuHub.ApplicationCore.DTOs.Shared;
+using Microsoft.Extensions.Options;
 using WibuHub.ApplicationCore.Configuration;
+using WibuHub.ApplicationCore.DTOs.Shared;
 using WibuHub.ApplicationCore.Entities;
+using WibuHub.ApplicationCore.Entities.Identity;
 using WibuHub.DataLayer;
 using WibuHub.MVC.Customer.ExtensionsMethod;
 using WibuHub.MVC.Customer.ViewModels.ShoppingCart;
@@ -192,7 +194,7 @@ namespace WibuHub.MVC.Customer.Controllers
                 PaymentStatus = "Pending",
                 Note = BuildVipNote(cart),
                 CreatedAt = DateTime.UtcNow,
-                OrderDetails = new List<OrderDetail>() // Khởi tạo list chi tiết
+                OrderDetails = new List<OrderDetail>()
             };
 
             var amount = cart.Items.Sum(i => i.Total);
@@ -200,14 +202,13 @@ namespace WibuHub.MVC.Customer.Controllers
             order.Tax = amount * 0.1m;
             order.TotalAmount = order.Amount + order.Tax;
 
-            // BƯỚC 2: THÊM CHI TIẾT (XỬ LÝ LỖI STORYID KHÔNG TỒN TẠI)
+            // BƯỚC 2: THÊM CHI TIẾT VÀO ĐƠN HÀNG
             foreach (var item in cart.Items)
             {
                 order.OrderDetails.Add(new OrderDetail
                 {
-                    // QUAN TRỌNG: Nếu là VIP (Guid.Empty), phải để StoryId là NULL
-                    // Bạn phải đảm bảo StoryId trong class OrderDetail là kiểu Guid? (nullable)
                     StoryId = item.StoryId == Guid.Empty ? null : item.StoryId,
+                    ItemName = item.StoryTitle,
                     Quantity = item.Quantity,
                     UnitPrice = item.Price,
                     Amount = item.Total,
@@ -215,7 +216,6 @@ namespace WibuHub.MVC.Customer.Controllers
                 });
             }
 
-            // Lưu Order chính, nó sẽ tự kéo theo OrderDetails
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
 
@@ -240,20 +240,73 @@ namespace WibuHub.MVC.Customer.Controllers
         }
 
         [HttpGet]
-        public IActionResult PaymentResult(int resultCode, string orderId)
+        public async Task<IActionResult> PaymentResult([FromQuery] int resultCode, [FromQuery] string orderId)
         {
             if (resultCode == 0)
             {
-                ViewBag.Message = "Thanh toán thành công!";
+                ViewBag.Message = "Hệ thống đã xác nhận thanh toán và đang nâng cấp VIP cho bạn...";
                 HttpContext.Session.Remove(CartSessionKey);
+
+                if (!string.IsNullOrEmpty(orderId) && Guid.TryParse(orderId, out Guid orderGuid))
+                {
+                    var order = await _context.Orders.Include(o => o.OrderDetails).FirstOrDefaultAsync(o => o.Id == orderGuid);
+
+                    if (order != null)
+                    {
+                        order.PaymentStatus = "Completed";
+
+                        var userManager = HttpContext.RequestServices.GetService<UserManager<StoryUser>>();
+                        var signInManager = HttpContext.RequestServices.GetService<SignInManager<StoryUser>>();
+                        var currentUser = await userManager.GetUserAsync(User);
+
+                        if (currentUser != null)
+                        {
+                            var availableVipPackages = BuildVipPackages();
+                            int totalVipDaysBought = 0;
+
+                            foreach (var detail in order.OrderDetails)
+                            {
+                                if (detail.StoryId == null || detail.StoryId == Guid.Empty)
+                                {
+                                    var pkg = availableVipPackages.FirstOrDefault(p => p.Price == detail.UnitPrice);
+                                    if (pkg != null)
+                                    {
+                                        totalVipDaysBought += (pkg.DurationDays * detail.Quantity);
+                                    }
+                                }
+                            }
+
+                            if (totalVipDaysBought > 0)
+                            {
+                                var currentVipEnd = currentUser.VipExpireDate.HasValue && currentUser.VipExpireDate.Value > DateTime.UtcNow
+                                                    ? currentUser.VipExpireDate.Value
+                                                    : DateTime.UtcNow;
+
+                                currentUser.VipExpireDate = currentVipEnd.AddDays(totalVipDaysBought);
+
+                                // Đã xóa dòng gán IsVip = true vì property này là ReadOnly tự tính toán
+                                await userManager.UpdateAsync(currentUser);
+
+                                // Làm mới Cookie trình duyệt
+                                if (signInManager != null)
+                                {
+                                    await signInManager.RefreshSignInAsync(currentUser);
+                                }
+                            }
+                        }
+                        await _context.SaveChangesAsync();
+                    }
+                }
             }
             else
             {
-                ViewBag.Message = "Giao dịch không thành công.";
+                ViewBag.Message = "Giao dịch không thành công hoặc đã bị hủy.";
             }
+
             return View();
         }
 
+        // HÀM XỬ LÝ CALLBACK TỪ MOMO
         [HttpPost]
         [AllowAnonymous]
         public async Task<IActionResult> MomoCallback([FromBody] Momopayment.MomoCallbackRequest callback)
@@ -262,17 +315,66 @@ namespace WibuHub.MVC.Customer.Controllers
 
             try
             {
-                if (callback.ResultCode == 0)
+                if (callback.ResultCode == 0) // Giao dịch MoMo thành công
                 {
                     if (Guid.TryParse(callback.OrderId, out Guid orderGuid))
                     {
-                        // Cần dùng Include nếu sau này muốn xử lý logic liên quan đến Details
-                        var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == orderGuid);
+                        var order = await _context.Orders
+                                                  .Include(o => o.OrderDetails)
+                                                  .FirstOrDefaultAsync(o => o.Id == orderGuid);
 
                         if (order != null && order.PaymentStatus != "Completed")
                         {
+                            // 1. Cập nhật trạng thái đơn hàng
                             order.PaymentStatus = "Completed";
                             order.TransactionId = callback.TransId.ToString();
+
+                            // 2. LOGIC CẤP QUYỀN VIP
+                            var availableVipPackages = BuildVipPackages();
+                            int totalVipDaysBought = 0;
+
+                            foreach (var detail in order.OrderDetails)
+                            {
+                                if (detail.StoryId == null || detail.StoryId == Guid.Empty)
+                                {
+                                    var pkg = availableVipPackages.FirstOrDefault(p => p.Name == detail.ItemName);
+
+                                    if (pkg == null)
+                                    {
+                                        pkg = availableVipPackages.FirstOrDefault(p => p.Price == detail.UnitPrice);
+                                    }
+
+                                    if (pkg != null)
+                                    {
+                                        totalVipDaysBought += (pkg.DurationDays * detail.Quantity);
+                                    }
+                                }
+                                else
+                                {
+                                    // Xử lý lưu Truyện vào lịch sử mua nếu có
+                                }
+                            }
+
+                            // 3. Nếu có mua VIP, cộng ngày cho User
+                            if (totalVipDaysBought > 0 && !string.IsNullOrEmpty(order.UserId))
+                            {
+                                var userManager = HttpContext.RequestServices.GetService<UserManager<StoryUser>>();
+
+                                if (userManager != null)
+                                {
+                                    var user = await userManager.FindByNameAsync(order.UserId);
+                                    if (user != null)
+                                    {
+                                        var currentVipEnd = user.VipExpireDate.HasValue && user.VipExpireDate.Value > DateTime.UtcNow
+                                                            ? user.VipExpireDate.Value
+                                                            : DateTime.UtcNow;
+
+                                        user.VipExpireDate = currentVipEnd.AddDays(totalVipDaysBought);
+                                        await userManager.UpdateAsync(user);
+                                    }
+                                }
+                            }
+
                             await _context.SaveChangesAsync();
                         }
                     }
@@ -314,31 +416,19 @@ namespace WibuHub.MVC.Customer.Controllers
             return new List<VipPackageItem>
             {
                 new VipPackageItem { Code = "VIP_MONTH",
-
                                      Name = "VIP 1 Tháng",
-
                                      Description = "Đọc không giới hạn trong 30 ngày",
-
                                      Price = 99000,
-
                                      DurationDays = 30 },
                 new VipPackageItem { Code = "VIP_QUARTER",
-
                                      Name = "VIP 3 Tháng",
-
                                      Description = "Tiết kiệm hơn khi đăng ký 90 ngày",
-
                                      Price = 249000,
-
                                      DurationDays = 90 },
                 new VipPackageItem { Code = "VIP_YEAR",
-
                                      Name = "VIP 12 Tháng",
-
                                      Description = "Gói tiết kiệm nhất cho fan truyện",
-
                                      Price = 799000,
-
                                      DurationDays = 365 }
             };
         }

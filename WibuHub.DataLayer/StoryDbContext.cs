@@ -6,7 +6,7 @@ using WibuHub.ApplicationCore.Interface;
 
 namespace WibuHub.DataLayer
 {
-    // 1. SỬA KẾ THỪA: Dùng IdentityDbContext để hỗ trợ bảng User/Role
+    // GIỮ NGUYÊN KẾ THỪA: Kế thừa DbContext vì đây là Bounded Context nghiệp vụ
     public class StoryDbContext : DbContext
     {
         public StoryDbContext(DbContextOptions<StoryDbContext> options) : base(options)
@@ -19,7 +19,6 @@ namespace WibuHub.DataLayer
         public DbSet<Category> Categories { get; set; }
         public DbSet<Author> Authors { get; set; }
 
-        // 2. CẬP NHẬT: Thêm bảng ảnh và bảng trung gian
         public DbSet<ChapterImage> ChapterImages { get; set; }
         public DbSet<StoryCategory> StoryCategories { get; set; } // Bảng nối Story - Category
 
@@ -52,8 +51,8 @@ namespace WibuHub.DataLayer
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // QUAN TRỌNG: Phải gọi base để Identity cấu hình các bảng User, Role...
-            base.OnModelCreating(modelBuilder);
+            
+            // base.OnModelCreating(modelBuilder);
 
             // =============================================================
             // CẤU HÌNH GLOBAL QUERY FILTER (TỰ ĐỘNG LỌC ISDELETED)
@@ -99,7 +98,7 @@ namespace WibuHub.DataLayer
                       .IsRequired();
             });
 
-            // 3. StoryCategory (MANY-TO-MANY Configuration) - UPDATE QUAN TRỌNG
+            // 3. StoryCategory (MANY-TO-MANY Configuration)
             modelBuilder.Entity<StoryCategory>(entity =>
             {
                 entity.ToTable("StoryCategories");
@@ -125,10 +124,8 @@ namespace WibuHub.DataLayer
                 entity.Property(s => s.Price).HasColumnType("money").HasPrecision(18, 2);
                 entity.Property(s => s.Discount).HasColumnType("money").HasPrecision(18, 2);
 
-                // --- CẤU HÌNH CHO 2 TRƯỜNG CHAPTER MỚI ---
-                entity.Property(s => s.TotalChapters).HasDefaultValue(0); // Tổng số chương mặc định là 0
-                entity.Property(s => s.LatestChapter).HasMaxLength(50);   // Tên chương chỉ dài tối đa 50 ký tự
-                // ------------------------------------------
+                entity.Property(s => s.TotalChapters).HasDefaultValue(0);
+                entity.Property(s => s.LatestChapter).HasMaxLength(50);
 
                 // Author relationship
                 entity.HasOne(s => s.Author)
@@ -137,7 +134,7 @@ namespace WibuHub.DataLayer
                       .OnDelete(DeleteBehavior.SetNull);
             });
 
-            // 5. Chapter & ChapterImage - UPDATE QUAN TRỌNG
+            // 5. Chapter & ChapterImage
             modelBuilder.Entity<Chapter>(entity =>
             {
                 entity.ToTable("Chapters");
@@ -265,9 +262,10 @@ namespace WibuHub.DataLayer
             modelBuilder.Entity<OrderDetail>(entity =>
             {
                 entity.ToTable("OrderDetails");
-
-                // SỬA 1: Đổi sang dùng Id làm khóa chính
                 entity.HasKey(od => od.Id);
+
+                // --- THÊM DÒNG NÀY ---
+                entity.Property(od => od.ItemName).HasMaxLength(255);
 
                 entity.Property(od => od.UnitPrice).HasColumnType("money").HasPrecision(18, 2);
                 entity.Property(od => od.Amount).HasColumnType("money").HasPrecision(18, 2);
@@ -280,7 +278,7 @@ namespace WibuHub.DataLayer
                 entity.HasOne(od => od.Story)
                       .WithMany()
                       .HasForeignKey(od => od.StoryId)
-                      .IsRequired(false) // SỬA 2: Thêm dòng này để Database cho phép lưu VIP
+                      .IsRequired(false)
                       .OnDelete(DeleteBehavior.Restrict);
             });
         }

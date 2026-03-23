@@ -50,19 +50,28 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LoginPath = "/Identity/Account/Login";
     options.AccessDeniedPath = "/Identity/Account/AccessDenied";
     options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true; // Cực kỳ quan trọng để bypass chính sách chặn cookie
-    options.ExpireTimeSpan = TimeSpan.FromDays(30); // Thời gian ghi nhớ (vd: 30 ngày)
-    options.SlidingExpiration = true; // Tự động gia hạn khi user còn hoạt động
+    options.Cookie.IsEssential = true;
+    options.ExpireTimeSpan = TimeSpan.FromDays(30);
+    options.SlidingExpiration = true;
+
+    // BỔ SUNG FIX LỖI VĂNG TÀI KHOẢN SAU KHI THANH TOÁN
+    options.Cookie.SameSite = SameSiteMode.None;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 });
 
 // 1. Memory Cache (bắt buộc cho Session)
 builder.Services.AddDistributedMemoryCache();
+
 // 2. Add Session
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(60);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
+
+    // BỔ SUNG ĐỂ GIỮ CẢ SESSION (NẾU CÓ DÙNG GIỎ HÀNG TRONG SESSION)
+    options.Cookie.SameSite = SameSiteMode.None;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 });
 
 builder.Services.AddAuthentication();
@@ -129,11 +138,11 @@ app.UseStaticFiles(new StaticFileOptions
 
 app.UseRouting();
 
+// CỰC KỲ QUAN TRỌNG: Thứ tự middleware phải chuẩn thế này
 app.UseAuthentication();
 app.UseAuthorization();
 
 // Enable routing for areas (e.g., /Admin/Stories)
-
 
 app.MapControllerRoute(
     name: "ChapterReadSeo",

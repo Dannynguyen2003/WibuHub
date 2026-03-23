@@ -24,6 +24,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/css/layout.css" asp-append-version="true">
+
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
     @{
@@ -55,12 +57,36 @@
                         avatarUrl = "https://ui-avatars.com/api/?name=" + (currentUser?.UserName ?? "User") + "&background=E2E8F0&color=475569";
                     }
 
+                    // Thêm logic check VIP
+                    bool isVip = currentUser?.IsVip ?? false;
+
                     <div class="user-account">
-                        <div class="avatar-wrapper">
-                            <img src="@avatarUrl" alt="Avatar" class="avatar-icon">
+                        <div class="avatar-wrapper @(isVip ? "is-vip" : "")" style="position: relative;">
+                            <img src="@avatarUrl" alt="Avatar" class="avatar-icon" style="@(isVip ? "border-radius: 50%; width: 40px; height: 40px; object-fit: cover;" : "")">
+                            @if (isVip)
+                            {
+                                <span class="vip-crown-badge" title="Tài khoản VIP"><i class="fas fa-crown"></i></span>
+                            }
                         </div>
 
                         <ul class="dropdown-menu">
+                            <li class="user-info-header" style="padding: 10px 15px; border-bottom: 1px solid #eee; margin-bottom: 5px;">
+                                <strong>@currentUser?.UserName</strong>
+                                <div style="font-size: 0.85rem; color: #666;">Xu: <span style="color: #f59e0b; font-weight: bold;">@currentUser?.Points <i class="fas fa-coins"></i></span></div>
+                            </li>
+                            <li>
+                                <a href="/vip/upgrade" class="btn-upgrade-vip @(isVip ? "vip-active" : "")">
+                                    <i class="fas fa-gem"></i> @(isVip ? "Gia hạn VIP" : "Nâng cấp VIP")
+                                </a>
+                            </li>
+                            @if (isVip && currentUser?.VipExpireDate.HasValue == true)
+                            {
+                                <li style="padding: 0 15px 10px; font-size: 0.8rem; color: #10b981; text-align: center;">
+                                    Hạn VIP: @currentUser.VipExpireDate.Value.ToLocalTime().ToString("dd/MM/yyyy")
+                                </li>
+                            }
+                            <li class="divider"></li>
+
                             <li><a asp-controller="CustomerProfile" asp-action="Followed"><i class="fas fa-bookmark"></i> Danh sách theo dõi</a></li>
                             <li><a asp-controller="CustomerProfile" asp-action="History"><i class="fas fa-history"></i> Lịch sử đọc truyện</a></li>
                             <li><a asp-controller="CustomerProfile" asp-action="Index"><i class="fas fa-cog"></i> Cài đặt thông tin</a></li>

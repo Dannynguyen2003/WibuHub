@@ -29,6 +29,72 @@ namespace WibuHub.API.Controllers
             _jwtSettings = jwtOptions.Value;
         }
 
+        //[AllowAnonymous]
+        //[HttpPost("login")]
+        //public async Task<ActionResult<LoginResponse>> Login([FromBody] LoginRequest request)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
+
+        //    var user = await _userManager.FindByNameAsync(request.UserNameOrEmail);
+        //    if (user == null)
+        //    {
+        //        user = await _userManager.FindByEmailAsync(request.UserNameOrEmail);
+        //    }
+
+        //    if (user == null)
+        //    {
+        //        return Unauthorized(new { message = "Thông tin đăng nhập không hợp lệ." });
+        //    }
+
+        //    var passwordValid = await _userManager.CheckPasswordAsync(user, request.Password);
+        //    if (!passwordValid)
+        //    {
+        //        return Unauthorized(new { message = "Thông tin đăng nhập không hợp lệ." });
+        //    }
+
+        //    if (_userManager.Options.SignIn.RequireConfirmedEmail && !user.EmailConfirmed)
+        //    {
+        //        return Unauthorized(new { message = "Email chưa được xác nhận." });
+        //    }
+
+        //    var roles = await _userManager.GetRolesAsync(user);
+        //    var claims = new List<Claim>
+        //    {
+        //        new(JwtRegisteredClaimNames.Sub, user.Id),
+        //        new(JwtRegisteredClaimNames.UniqueName, user.UserName ?? string.Empty),
+        //        new(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
+        //        new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+        //    };
+
+        //    foreach (var role in roles)
+        //    {
+        //        claims.Add(new Claim(ClaimTypes.Role, role));
+        //    }
+
+        //    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
+        //    var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        //    var expiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiresMinutes);
+
+        //    var token = new JwtSecurityToken(
+        //        issuer: _jwtSettings.Issuer,
+        //        audience: _jwtSettings.Audience,
+        //        claims: claims,
+        //        expires: expiresAt,
+        //        signingCredentials: credentials);
+
+        //    return Ok(new LoginResponse
+        //    {
+        //        AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
+        //        ExpiresAt = expiresAt,
+        //        UserId = user.Id,
+        //        Email = user.Email,
+        //        UserName = user.UserName,
+        //        Roles = roles.ToArray()
+        //    });
+        //}
         [AllowAnonymous]
         [HttpPost("login")]
         public async Task<ActionResult<LoginResponse>> Login([FromBody] LoginRequest request)
@@ -62,17 +128,27 @@ namespace WibuHub.API.Controllers
 
             var roles = await _userManager.GetRolesAsync(user);
             var claims = new List<Claim>
-            {
-                new(JwtRegisteredClaimNames.Sub, user.Id),
-                new(JwtRegisteredClaimNames.UniqueName, user.UserName ?? string.Empty),
-                new(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
-                new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-            };
+    {
+        new(JwtRegisteredClaimNames.Sub, user.Id),
+        new(JwtRegisteredClaimNames.UniqueName, user.UserName ?? string.Empty),
+        new(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
+        new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+    };
 
             foreach (var role in roles)
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));
             }
+
+            // ==========================================
+            // [THÊM MỚI] KIỂM TRA VÀ THÊM CLAIM VIP
+            // ==========================================
+            bool isUserVip = user.VipExpireDate.HasValue && user.VipExpireDate.Value > DateTime.UtcNow;
+            if (isUserVip)
+            {
+                claims.Add(new Claim("IsVip", "true"));
+            }
+            // ==========================================
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -92,7 +168,12 @@ namespace WibuHub.API.Controllers
                 UserId = user.Id,
                 Email = user.Email,
                 UserName = user.UserName,
-                Roles = roles.ToArray()
+                Roles = roles.ToArray(),
+
+                // [THÊM MỚI TÙY CHỌN]: Trả về trạng thái VIP cho Frontend dễ xử lý UI
+                // Nếu class LoginResponse của bạn chưa có 2 trường này thì bạn hãy thêm vào nhé!
+                IsVip = isUserVip,
+                VipExpireDate = user.VipExpireDate
             });
         }
 

@@ -14,53 +14,56 @@ namespace WibuHub.ApplicationCore.Entities
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
 
-        // ComicId: Guid (Khóa ngoại trỏ về Story)
         [Required]
         public Guid StoryId { get; set; }
         public string StoryName { get; set; } = string.Empty;
 
-        // Navigation property: Liên kết ngược lại với Story
         [ForeignKey("StoryId")]
         public virtual Story? Story { get; set; }
 
-        // Name: nvarchar(150)
         [Required]
         [MaxLength(150)]
         public string Name { get; set; } = string.Empty;
 
-        // Number: float (Số thứ tự chap: 1, 1.5, 2...)
-        // Dùng double trong C# để map tốt với float/real trong SQL
         public double ChapterNumber { get; set; }
 
-        // Slug: varchar(150) - URL thân thiện
         [Required]
         [MaxLength(150)]
         [Column(TypeName = "varchar(150)")]
         public string Slug { get; set; } = string.Empty;
 
-        // ViewCount: int (Lượt xem riêng chap này)
         public int ViewCount { get; set; } = 0;
 
-        // Content: nvarchar(MAX)
-        // Lưu ý: Trong EF Core, string mặc định là nvarchar(MAX) nên không cần MaxLength
         public string? Content { get; set; }
 
         [NotMapped]
         public List<string> ImageUrls { get; set; } = new();
 
-        // ServerId: int (Lưu server ảnh: 1=Google, 2=Imgur...)
         public int ServerId { get; set; } = 1;
 
-
-        // CreateDate: DateTime
         [Description("Ngày tạo")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public bool IsDeleted { get; set; } = false;
         public DateTime? DeletedAt { get; set; }
 
-        //public Guid? ImageId { get; set; }
-        //public virtual Image? Image { get; set; }
         public virtual ICollection<ChapterImage> Images { get; set; } = new List<ChapterImage>();
+
+        // ==========================================
+        // --- THÊM CẤU HÌNH VIP & KIẾM TIỀN Ở ĐÂY ---
+        // ==========================================
+
+        [Description("Đánh dấu chương này khóa vĩnh viễn, chỉ dành cho VIP")]
+        public bool IsPremium { get; set; } = false;
+
+        [Description("Ngày mở khóa cho tài khoản thường (Early Access)")]
+        public DateTime? UnlockDate { get; set; }
+
+        [Description("Giá xu (Points) để mở khóa riêng chương này nếu user không mua VIP")]
+        public int Price { get; set; } = 0;
+
+        // Hàm helper không lưu vào DB, giúp code API gọn hơn rất nhiều
+        [NotMapped]
+        public bool IsFreeToRead => !IsPremium && (!UnlockDate.HasValue || UnlockDate.Value <= DateTime.UtcNow);
     }
 }

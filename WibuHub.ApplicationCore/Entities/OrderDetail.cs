@@ -11,6 +11,7 @@
 
             // Bắt buộc phải có dấu ? để cho phép Null khi mua VIP
             public Guid? StoryId { get; set; }
+            public string? ItemName { get; set; }
 
             public int Quantity { get; set; }
             public decimal UnitPrice { get; set; }
