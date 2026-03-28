@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using WibuHub.ApplicationCore.DTOs.Shared;
 using WibuHub.Service.Interface;
 
@@ -69,6 +70,19 @@ namespace WibuHub.API.Controllers
         {
             var stories = await _storyService.GetStoriesByGenreAsync(genreId);
             return Ok(stories);
+        }
+
+        [HttpGet("search-suggest")]
+        [AllowAnonymous]
+        public async Task<IActionResult> SearchSuggest(string q) // Sửa tham số thành 'q' cho khớp với Javascript
+        {
+            if (string.IsNullOrWhiteSpace(q))
+                return Ok(new List<object>());
+
+            // Gọi qua Service thay vì gọi _context ở đây
+            var suggestions = await _storyService.SearchSuggestAsync(q);
+
+            return Ok(suggestions);
         }
 
         [HttpPost]

@@ -13,6 +13,7 @@ namespace WibuHub.Service.Interface
         Task<bool> UpdateAsync(Guid id, StoryDto request);
 
         Task<bool> DeleteAsync(Guid id);
+        Task<IEnumerable<object>> SearchSuggestAsync(string keyword);
 
         // SỬA LẠI DÒNG NÀY: Trả về danh sách (List) các StoryDto
         Task<List<StoryDto>> GetNewestStoriesAsync();

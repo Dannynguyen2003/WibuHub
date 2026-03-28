@@ -39,9 +39,16 @@
                 <button class="mobile-menu-btn" id="mobileMenuBtn"><i class="fas fa-bars"></i></button>
                 <a asp-controller="Home" asp-action="Index" asp-area="" class="logo" id="logo">WIBU<span>HUB</span></a>
             </div>
-            <div class="search-bar">
-                <input type="text" placeholder="Tìm truyện, tác giả..." id="searchInput">
-                <button id="searchBtn"><i class="fas fa-search"></i></button>
+
+            <div class="search-wrapper" style="position: relative; z-index: 9999;">
+
+                <div class="search-bar">
+                    <input type="text" placeholder="Tìm truyện, tác giả..." id="searchInput" autocomplete="off">
+                    <button id="searchBtn"><i class="fas fa-search"></i></button>
+                </div>
+
+                <div id="searchSuggestions" style="display: none;"></div>
+
             </div>
 
             <div class="user-actions">
@@ -384,6 +391,117 @@
                 const res = await fetch(url);
                 if (!res.ok) throw new Error(`Lỗi gọi API: ${res.status}`);
                 return await res.json();
+            }
+        };
+
+        // ----------------------------------------------------
+        // SEARCH CONTROLLER: Xử lý tìm kiếm & Live Search
+        // ----------------------------------------------------
+        const SearchController = {
+            init: function() {
+                const searchInput = document.getElementById('searchInput');
+                const searchBtn = document.getElementById('searchBtn');
+                const suggestBox = document.getElementById('searchSuggestions');
+                let debounceTimer = null;
+
+                if (!searchInput || !searchBtn || !suggestBox) return;
+
+                // Xử lý sự kiện gõ phím
+                searchInput.addEventListener('input', (e) => {
+                    clearTimeout(debounceTimer);
+                    const keyword = e.target.value.trim();
+
+                    if (keyword.length === 0) {
+                        suggestBox.style.display = 'none';
+                        return;
+                    }
+
+                    // Tạm thời set background thành nền đen và hiện chữ Đang tìm kiếm
+                    suggestBox.className = 'search_result';
+                    suggestBox.innerHTML = '<div style="padding: 15px; text-align: center; color: #9ca3af;"><i class="fas fa-spinner fa-spin"></i> Đang tìm kiếm...</div>';
+                    suggestBox.style.display = 'block';
+
+                    debounceTimer = setTimeout(async () => {
+                        try {
+                            const response = await fetch(`http://localhost:5126/api/stories/search-suggest?q=${encodeURIComponent(keyword)}`);
+                            const data = await response.json();
+
+                            this.renderSuggestions(data, keyword);
+                        } catch (error) {
+                            console.error("Lỗi khi tải gợi ý:", error);
+                            suggestBox.innerHTML = '<div style="padding: 15px; text-align: center; color: #ef4444;">Lỗi kết nối</div>';
+                        }
+                    }, 300);
+                });
+
+                // Ẩn hộp gợi ý khi click ra chỗ khác
+                document.addEventListener('click', (e) => {
+                    if (!searchInput.contains(e.target) && !suggestBox.contains(e.target)) {
+                        suggestBox.style.display = 'none';
+                    }
+                });
+
+                // Hiện lại hộp gợi ý khi focus lại
+                searchInput.addEventListener('focus', () => {
+                    if (searchInput.value.trim().length > 0 && suggestBox.innerHTML !== '') {
+                        suggestBox.style.display = 'block';
+                    }
+                });
+
+                // CHẶN CHUYỂN TRANG
+                searchBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    searchInput.focus();
+                });
+                searchInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                    }
+                });
+            },
+
+            // Hàm render HTML xuất ra cấu trúc UL > LI > A
+            renderSuggestions: function(data, keyword) {
+                const suggestBox = document.getElementById('searchSuggestions');
+                suggestBox.className = 'search_result';
+                suggestBox.innerHTML = '';
+
+                if (!data || data.length === 0) {
+                    suggestBox.innerHTML = '<div style="padding: 15px; text-align: center; color: #9ca3af;">Không tìm thấy truyện nào</div>';
+                    return;
+                }
+
+                const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const regex = new RegExp(`(${escapeRegExp(keyword)})`, 'gi');
+
+                let html = '<ul>';
+
+                data.forEach(item => {
+                    const cover = item.coverImage || 'https://via.placeholder.com/50x70';
+                    const highlightedTitle = item.title.replace(regex, '<strong style="color: #f97316;">$1</strong>');
+
+                    const authorText = item.author || 'Đang cập nhật';
+                    const chapterText = item.chapter > 0 ? `Chương ${item.chapter}` : 'Đang cập nhật';
+
+                    html += `
+                        <li>
+                            <a href="/Stories/Details/${item.id}">
+                                <div class="search_avatar">
+                                    <img src="${cover}" alt="${item.title}">
+                                </div>
+                                <div class="search_info">
+                                    <p class="name">${highlightedTitle}</p>
+                                    <p class="name_other">${authorText}</p>
+                                    <p>${chapterText}</p>
+                                </div>
+                                <div style="clear: both;"></div>
+                            </a>
+                        </li>
+                    `;
+                });
+
+                html += '</ul>';
+                suggestBox.innerHTML = html;
             }
         };
 
@@ -795,7 +913,8 @@
         // ----------------------------------------------------
         document.addEventListener('DOMContentLoaded', () => {
             AuthController.init();
-            ChatController.init(); // KHỞI CHẠY CHATBOX
+            ChatController.init();
+            SearchController.init();
 
             if (document.getElementById('homeSection') !== null) {
                 UIController.init();

@@ -3086,3 +3086,112 @@ ul#list_suggest {
         background: #ecfdf5;
         color: #059669 !important;
     }
+
+/* Sửa class này: Thêm width để kéo rộng toàn bộ cụm tìm kiếm */
+.search-wrapper {
+    position: relative;
+    z-index: 1000;
+    width: 500px; /* Bạn có thể tăng lên 600px hoặc 700px tùy sở thích */
+    max-width: 100%; /* Giúp giao diện không bị lỗi trên điện thoại */
+}
+
+/* Đảm bảo thanh search bên trong giãn hết cỡ theo wrapper */
+.search-bar {
+    display: flex;
+    width: 100%;
+}
+
+    /* Ép ô input tự động chiếm hết phần không gian còn dư */
+    .search-bar input {
+        flex: 1;
+        /* Các thuộc tính cũ như padding, border... của bạn cứ giữ nguyên nhé */
+    }
+
+.search_result {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #252a34; /* Nền tối giống ảnh TruyenQQ */
+    border-radius: 4px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+    z-index: 9999; /* Đảm bảo luôn nổi lên trên cùng */
+    max-height: 450px;
+    overflow-y: auto;
+    margin-top: 5px;
+}
+
+    .search_result ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .search_result li {
+        border-bottom: 1px solid #323846; /* Đường viền xám đen */
+    }
+
+        .search_result li:last-child {
+            border-bottom: none;
+        }
+
+        .search_result li a {
+            display: flex;
+            padding: 10px;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+            .search_result li a:hover {
+                background: #323846; /* Sáng lên chút khi trỏ chuột */
+            }
+
+.search_avatar {
+    width: 50px;
+    height: 70px;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+    .search_avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+
+.search_info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+    width: 100%;
+}
+
+    .search_info p {
+        margin: 0;
+        padding: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: 1.5;
+    }
+
+    .search_info .name {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #ffffff; /* Tên truyện màu trắng */
+    }
+
+    .search_info .name_other {
+        font-size: 0.8rem;
+        color: #9ca3af; /* Tên khác/tác giả màu xám */
+        margin-top: 2px;
+    }
+
+    .search_info p:last-child {
+        font-size: 0.8rem;
+        color: #eab308; /* Số chương màu vàng cam */
+        margin-top: 2px;
+    }
+

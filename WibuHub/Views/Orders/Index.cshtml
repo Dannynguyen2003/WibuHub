@@ -10,7 +10,7 @@
     <div class="d-flex justify-content-between align-items-center">
         <h1>Quản lý đơn hàng</h1>
         <div class="d-flex align-items-center" style="gap: 12px;">
-            <a asp-action="History" class="btn-secondary btn-sm">L?ch s? giao d?ch</a>
+            <a asp-action="History" class="btn-secondary btn-sm">Lịch sử giao dịch</a>
             <form method="get" class="filter-bar filter-bar-inline">
                 <label for="status" class="form-label">Trạng thái thanh toán:</label>
                 <select id="status" name="status" class="form-control" style="max-width: 220px;">
@@ -28,12 +28,12 @@
     <table class="data-table">
         <thead>
             <tr>
-                <th style="width: 28%">M? đơn</th>
+                <th style="width: 28%">Mã đơn</th>
                 <th style="width: 16%">User</th>
-                <th style="width: 14%">Th?i gian</th>
-                <th style="width: 14%">T?ng ti?n</th>
-                <th style="width: 14%">Phương th?c</th>
-                <th style="width: 12%">Tr?ng thái</th>
+                <th style="width: 14%">Thời gian</th>
+                <th style="width: 14%">Tổng tiền</th>
+                <th style="width: 14%">Phương thức</th>
+                <th style="width: 12%">Trạng thái</th>
                 <th style="width: 14%" class="text-center">Thao tác</th>
             </tr>
         </thead>

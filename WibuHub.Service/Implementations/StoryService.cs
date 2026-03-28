@@ -137,7 +137,28 @@ namespace WibuHub.Service.Implementations
             }
             return topStories;
         }
+        public async Task<IEnumerable<object>> SearchSuggestAsync(string keyword)
+        {
+            if (string.IsNullOrWhiteSpace(keyword))
+                return new List<object>();
 
+            keyword = keyword.ToLower();
+
+            var suggestions = await _context.Stories
+                .Where(x => x.StoryName.ToLower().Contains(keyword)) // Đã fix lỗi dư dấu chấm ở đây
+                .Select(x => new
+                {
+                    id = x.Id,
+                    title = x.StoryName,
+                    coverImage = x.CoverImage,
+                    author = x.AuthorName != null ? x.AuthorName : "Đang cập nhật",
+                    chapter = x.TotalChapters
+                })
+                .Take(5)
+                .ToListAsync();
+
+            return suggestions;
+        }
         public async Task<bool> CreateAsync(StoryDto dto)
         {
             try

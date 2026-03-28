@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
@@ -59,7 +59,7 @@ namespace WibuHub.MVC.Controllers
                 .Select(c => new DashboardActivityItem
                 {
                     IconClass = "fas fa-comment",
-                    Title = $"B?nh lu?n m?i: {(c.Content.Length > 60 ? c.Content.Substring(0, 60) + "..." : c.Content)}",
+                    Title = $"Bình luận mới: {(c.Content.Length > 60 ? c.Content.Substring(0, 60) + "..." : c.Content)}",
                     OccurredAt = c.CreateDate
                 })
                 .Take(3)
@@ -70,7 +70,7 @@ namespace WibuHub.MVC.Controllers
                 .Select(c => new DashboardActivityItem
                 {
                     IconClass = "fas fa-tags",
-                    Title = $"Danh m?c m?i: {c.Name}",
+                    Title = $"Danh mục mơi: {c.Name}",
                     OccurredAt = c.CreatedAt
                 })
                 .Take(3)
@@ -81,20 +81,34 @@ namespace WibuHub.MVC.Controllers
                 .Select(o => new DashboardActivityItem
                 {
                     IconClass = "fas fa-receipt",
-                    Title = $"��n h�ng m?i #{o.Id.ToString().Substring(0, 8)}",
+                    Title = $"Đơn hàng mới #{o.Id.ToString().Substring(0, 8)}",
                     OccurredAt = o.CreatedAt
                 })
                 .Take(3)
+                .ToListAsync();
+
+            var recentStoryActivities = await _dbContext.Stories
+                .OrderByDescending(s => s.CreatedAt)
+                .Select(s => new DashboardActivityItem
+                {
+                    IconClass = "fas fa-tags",
+                    Title = $"Truyện mới cập nhật: {s.StoryName}",
+                    OccurredAt = s.CreatedAt
+                })
+                .Take(5)
                 .ToListAsync();
 
             var recentActivities = recentChapters
                 .Concat(recentComments)
                 .Concat(recentCategories)
                 .Concat(recentOrders)
+                // 2. UPDATE THE CONCAT CALL to use the new variable name
+                .Concat(recentStoryActivities)
                 .OrderByDescending(a => a.OccurredAt)
                 .Take(5)
                 .ToList();
 
+            // 3. LEAVE THIS ONE as recentStories
             var recentStories = await _dbContext.Stories
                 .OrderByDescending(s => s.UpdateDate)
                 .Select(s => new DashboardStoryItem
@@ -124,7 +138,7 @@ namespace WibuHub.MVC.Controllers
                 ViewLabels = labels,
                 ViewCounts = counts,
                 RecentActivities = recentActivities,
-                RecentStories = recentStories
+                RecentStories = recentStories // This will now correctly map to the IReadOnlyList<DashboardStoryItem>
             };
 
             return View(model);
