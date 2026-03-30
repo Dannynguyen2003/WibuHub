@@ -25,6 +25,48 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/css/layout.css" asp-append-version="true">
 
+    <style>
+        /* CSS cho dropdown thông báo */
+        .noti-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f3f4f6;
+            display: block;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+            .noti-item:hover {
+                background: #f9fafb;
+            }
+
+            .noti-item.unread {
+                background: #eff6ff;
+            }
+
+        .noti-title {
+            color: #111827;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin: 0 0 4px 0;
+        }
+
+        .noti-msg {
+            color: #4b5563;
+            font-size: 0.85rem;
+            margin: 0 0 4px 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .noti-time {
+            color: #9ca3af;
+            font-size: 0.75rem;
+            margin: 0;
+        }
+    </style>
+
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
@@ -52,7 +94,25 @@
             </div>
 
             <div class="user-actions">
-                <a href="#" id="notificationBtn"><i class="far fa-bell"></i> <span class="d-none d-md-inline">Thông báo</span></a>
+
+                <div class="notification-wrapper" style="position: relative; display: inline-block;">
+                    <a href="#" id="notificationBtn">
+                        <i class="far fa-bell"></i>
+                        <span class="d-none d-md-inline">Thông báo</span>
+                        <span id="notiBadge" style="position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.7rem; font-weight: bold; display: none;">0</span>
+                    </a>
+
+                    <div id="notificationDropdown" class="dropdown-menu notification-dropdown" style="display: none; position: absolute; top: 100%; right: 0; width: 320px; max-height: 400px; overflow-y: auto; background: white; border: 1px solid #e5e7eb; border-radius: 8px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); z-index: 1000; padding: 0;">
+                        <div style="padding: 10px 15px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
+                            <strong style="color: #1f2937;">Thông báo mới</strong>
+                            <button id="markAllReadBtn" style="background: none; border: none; color: #3b82f6; font-size: 0.85rem; cursor: pointer;">Đánh dấu đã đọc tất cả</button>
+                        </div>
+                        <ul id="notificationList" style="list-style: none; padding: 0; margin: 0;">
+                            <li style="padding: 20px; text-align: center; color: #9ca3af;">Đang tải...</li>
+                        </ul>
+                    </div>
+                </div>
+
                 <a href="/ShoppingCart/Cart" id="cartBtn"><i class="fas fa-shopping-cart"></i> <span class="d-none d-md-inline">Giỏ hàng</span></a>
 
                 @if (User?.Identity?.IsAuthenticated ?? false)
@@ -209,7 +269,7 @@
                 <a asp-controller="Home" asp-action="Index" asp-area="" class="mobile-menu-item active" id="mobileHome"><i class="fas fa-home"></i> Trang chủ</a>
                 <a asp-controller="Categories" asp-action="Index" asp-route-id="" class="mobile-menu-item" id="mobileGenre"><i class="fas fa-tags"></i> Thể loại</a>
                 <a href="#" class="mobile-menu-item" id="mobileRank"><i class="fas fa-crown"></i> BXH</a>
-                <a href="#" class="mobile-menu-item" id="mobileGroups"><i class="fas fa-users"></i> Nhóm dịch</a>
+                <a href="#" class="mobile-menu-item" id="mobileGroups"><i class="fas fa-users"></i> Yêu cầu dịch</a>
             </div>
         }
 
@@ -250,7 +310,7 @@
                     <a class="rank-link" asp-controller="Rankings" asp-action="Index" asp-route-type="random">Truyện Ngẫu Nhiên</a>
                 </div>
             </div>
-            <a class="nav-item" id="tabGroups" href="#">Nhóm dịch</a>
+            <a class="nav-item" id="tabGroups" href="#">Yêu cầu dịch</a>
         </nav>
 
         @if (isHomePage)
@@ -909,12 +969,145 @@
         };
 
         // ----------------------------------------------------
+        // NOTIFICATION CONTROLLER: Quản lý Thông báo
+        // ----------------------------------------------------
+        const NotificationController = {
+            isLoggedIn: @((User?.Identity?.IsAuthenticated ?? false).ToString().ToLower()),
+            dropdownVisible: false,
+
+            init: function() {
+                if (!this.isLoggedIn) return; // Nếu chưa đăng nhập thì không làm gì cả
+
+                const btn = document.getElementById('notificationBtn');
+                const dropdown = document.getElementById('notificationDropdown');
+                const markAllBtn = document.getElementById('markAllReadBtn');
+
+                if (!btn || !dropdown) return;
+
+                // 1. Tải số lượng badge ngay khi vào trang
+                this.loadNotifications(true);
+
+                // 2. Xử lý click nút Chuông
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.dropdownVisible = !this.dropdownVisible;
+                    dropdown.style.display = this.dropdownVisible ? 'block' : 'none';
+
+                    if (this.dropdownVisible) {
+                        this.loadNotifications(false); // Render chi tiết khi mở
+                    }
+                });
+
+                // 3. Ẩn dropdown khi click ra ngoài
+                document.addEventListener('click', (e) => {
+                    if (!btn.contains(e.target) && !dropdown.contains(e.target)) {
+                        this.dropdownVisible = false;
+                        dropdown.style.display = 'none';
+                    }
+                });
+
+                // 4. Đánh dấu tất cả đã đọc
+                markAllBtn?.addEventListener('click', () => this.markAllAsRead());
+            },
+
+            loadNotifications: async function(isBadgeOnly) {
+                try {
+                    // Sửa đường dẫn API thành cổng 5126
+                    // Thêm credentials: 'include' để trình duyệt gửi kèm Cookie/Token đăng nhập sang cổng khác
+                    const response = await fetch('http://localhost:5126/api/notification', {
+                        credentials: 'include'
+                    });
+
+                    if (!response.ok) {
+                        document.getElementById('notificationList').innerHTML = '<li style="padding: 20px; text-align: center; color: #ef4444;">Lỗi tải dữ liệu</li>';
+                        return;
+                    }
+
+                    const notifications = await response.json();
+
+                    // Đếm số lượng chưa đọc
+                    const unreadCount = notifications.filter(n => !n.isRead).length;
+                    const badge = document.getElementById('notiBadge');
+                    if (badge) {
+                        badge.textContent = unreadCount;
+                        badge.style.display = unreadCount > 0 ? 'inline-block' : 'none';
+                    }
+
+                    if (isBadgeOnly) return;
+
+                    // Render danh sách
+                    this.renderList(notifications);
+
+                } catch (error) {
+                    console.error("Lỗi tải thông báo:", error);
+                }
+            },
+
+            renderList: function(notifications) {
+                const listEl = document.getElementById('notificationList');
+                if (!listEl) return;
+
+                if (!notifications || notifications.length === 0) {
+                    listEl.innerHTML = '<li style="padding: 20px; text-align: center; color: #9ca3af;">Chưa có thông báo nào</li>';
+                    return;
+                }
+
+                let html = '';
+                notifications.forEach(noti => {
+                    const bgClass = noti.isRead ? '' : 'unread';
+                    html += `
+                        <li>
+                            <a href="${noti.targetUrl || '#'}" class="noti-item ${bgClass}" onclick="NotificationController.markAsRead('${noti.id}', this)">
+                                <h4 class="noti-title">${noti.title}</h4>
+                                <p class="noti-msg">${noti.message}</p>
+                                <p class="noti-time"><i class="far fa-clock"></i> ${noti.timeAgo || new Date(noti.createDate).toLocaleDateString()}</p>
+                            </a>
+                        </li>
+                    `;
+                });
+                listEl.innerHTML = html;
+            },
+
+            markAsRead: async function(id, element) {
+                if (!element.classList.contains('unread')) return;
+                element.classList.remove('unread');
+                try {
+                    // Sửa đường dẫn API
+                    await fetch(`http://localhost:5126/api/notification/${id}/read`, {
+                        method: 'PUT',
+                        credentials: 'include'
+                    });
+                    // Cập nhật lại số badge
+                    const badge = document.getElementById('notiBadge');
+                    if (badge) {
+                        let count = parseInt(badge.textContent) - 1;
+                        if (count < 0) count = 0;
+                        badge.textContent = count;
+                        badge.style.display = count > 0 ? 'inline-block' : 'none';
+                    }
+                } catch (e) { console.error(e); }
+            },
+
+            markAllAsRead: async function() {
+                try {
+                    // Sửa đường dẫn API
+                    await fetch('http://localhost:5126/api/notification/read-all', {
+                        method: 'PUT',
+                        credentials: 'include'
+                    });
+                    this.loadNotifications(false);
+                } catch (e) { console.error(e); }
+            }
+        };
+
+        // ----------------------------------------------------
         // BOOTSTRAP APP
         // ----------------------------------------------------
         document.addEventListener('DOMContentLoaded', () => {
             AuthController.init();
             ChatController.init();
             SearchController.init();
+            NotificationController.init(); // Đã thêm phần khởi tạo thông báo
 
             if (document.getElementById('homeSection') !== null) {
                 UIController.init();

@@ -1,4 +1,5 @@
 ﻿using WibuHub.ApplicationCore.DTOs.Shared;
+using WibuHub.ApplicationCore.Entities;
 
 namespace WibuHub.Service.Interface
 {

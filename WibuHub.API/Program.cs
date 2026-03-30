@@ -47,7 +47,7 @@ builder.Services.AddHttpClient<MomoPaymentService>(client =>
 
 // 5. Register Payment Service
 builder.Services.AddScoped<IPaymentService, MomoPaymentService>();
-
+builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddHttpClient<IChatbotService, ChatbotService>();
 builder.Services.AddScoped<IChatbotService, ChatbotService>();
 
@@ -102,11 +102,13 @@ builder.Services.AddAuthorization();
 // 8. ĐĂNG KÝ CORS (BẮT BUỘC PHẢI NẰM TRƯỚC BUILDER.BUILD)
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policyBuilder =>
+    options.AddPolicy("AllowWibuHubUI", policyBuilder =>
     {
-        policyBuilder.AllowAnyOrigin()
+        // Chỉnh sửa tại đây: Cho phép đúng port của giao diện và nhận Credentials (Cookie/Token)
+        policyBuilder.WithOrigins("http://localhost:7113", "https://localhost:7113")
                      .AllowAnyMethod()
-                     .AllowAnyHeader();
+                     .AllowAnyHeader()
+                     .AllowCredentials();
     });
 });
 
@@ -153,7 +155,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 // 9. SỬ DỤNG CORS (BẮT BUỘC PHẢI NẰM TRƯỚC AUTHENTICATION)
-app.UseCors("AllowAll");
+// Đổi tên Policy cho khớp với phần đăng ký ở trên
+app.UseCors("AllowWibuHubUI");
 
 app.UseAuthentication();
 app.UseAuthorization();

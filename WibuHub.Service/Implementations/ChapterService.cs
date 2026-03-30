@@ -72,83 +72,126 @@ namespace WibuHub.Service.Implementations
 
         public async Task<bool> CreateAsync(ChapterDto dto)
         {
-            // 1. Tạo Entity Chapter
-            var chapter = new Chapter
+            // Bắt đầu một Transaction để đảm bảo tính toàn vẹn dữ liệu
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
             {
-                Id = Guid.NewGuid(),
-                Name = dto.Name,
-                ChapterNumber = dto.ChapterNumber,
-                StoryId = dto.StoryId,
-                CreatedAt = DateTime.Now,
-                Images = new List<ChapterImage>()
-            };
-
-            // 2. Xử lý danh sách URL ảnh (nếu có) theo đúng thứ tự client gửi lên
-            var imageOrderIndex = 1;
-            if (dto.ImageUrls != null && dto.ImageUrls.Count > 0)
-            {
-                foreach (var imageUrl in dto.ImageUrls.Where(u => !string.IsNullOrWhiteSpace(u)))
+                // 1. Tạo Entity Chapter
+                var chapter = new Chapter
                 {
-                    chapter.Images.Add(new ChapterImage
-                    {
-                        Id = Guid.NewGuid(),
-                        ImageUrl = imageUrl.Trim(),
-                        OrderIndex = imageOrderIndex++,
-                        ChapterId = chapter.Id
-                    });
-                }
-            }
-            // 3. Xử lý Upload Ảnh (Nếu có)
-            if (dto.UploadImages != null && dto.UploadImages.Count > 0)
-            {
-                // Tạo thư mục: wwwroot/uploads/stories/{StoryId}/{ChapterId}/
-                string folderPath = Path.Combine(_env.WebRootPath, "uploads", "stories", dto.StoryId.ToString(), chapter.Id.ToString());
-                if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
+                    Id = Guid.NewGuid(),
+                    Name = dto.Name,
+                    ChapterNumber = dto.ChapterNumber,
+                    StoryId = dto.StoryId,
+                    CreatedAt = DateTime.Now,
+                    Images = new List<ChapterImage>()
+                };
 
-                
-                foreach (var file in dto.UploadImages)
+                // 2. Xử lý danh sách URL ảnh (nếu có) theo đúng thứ tự client gửi lên
+                var imageOrderIndex = 1;
+                if (dto.ImageUrls != null && dto.ImageUrls.Count > 0)
                 {
-                    if (file.Length > 0)
+                    foreach (var imageUrl in dto.ImageUrls.Where(u => !string.IsNullOrWhiteSpace(u)))
                     {
-                        // Đặt tên file: 001.jpg, 002.png...
-                        string fileName = $"{imageOrderIndex:D3}{Path.GetExtension(file.FileName)}";
-                        string fullPath = Path.Combine(folderPath, fileName);
-
-                        // Lưu file vật lý
-                        using (var stream = new FileStream(fullPath, FileMode.Create))
-                        {
-                            await file.CopyToAsync(stream);
-                        }
-
-                        // Thêm vào list ảnh của Entity
-                        // Đường dẫn lưu DB: /uploads/stories/...
-                        string dbPath = $"/uploads/stories/{dto.StoryId}/{chapter.Id}/{fileName}";
-
                         chapter.Images.Add(new ChapterImage
                         {
                             Id = Guid.NewGuid(),
-                            ImageUrl = dbPath,
-                            OrderIndex = imageOrderIndex,
+                            ImageUrl = imageUrl.Trim(),
+                            OrderIndex = imageOrderIndex++,
                             ChapterId = chapter.Id
                         });
-
-                        imageOrderIndex++;
                     }
                 }
-            }
 
-            try
-            {
+                // 3. Xử lý Upload Ảnh vật lý (Nếu có)
+                if (dto.UploadImages != null && dto.UploadImages.Count > 0)
+                {
+                    // Tạo thư mục: wwwroot/uploads/stories/{StoryId}/{ChapterId}/
+                    string folderPath = Path.Combine(_env.WebRootPath, "uploads", "stories", dto.StoryId.ToString(), chapter.Id.ToString());
+                    if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
+
+                    foreach (var file in dto.UploadImages)
+                    {
+                        if (file.Length > 0)
+                        {
+                            // Đặt tên file: 001.jpg, 002.png...
+                            string fileName = $"{imageOrderIndex:D3}{Path.GetExtension(file.FileName)}";
+                            string fullPath = Path.Combine(folderPath, fileName);
+
+                            // Lưu file vật lý
+                            using (var stream = new FileStream(fullPath, FileMode.Create))
+                            {
+                                await file.CopyToAsync(stream);
+                            }
+
+                            // Thêm vào list ảnh của Entity
+                            string dbPath = $"/uploads/stories/{dto.StoryId}/{chapter.Id}/{fileName}";
+
+                            chapter.Images.Add(new ChapterImage
+                            {
+                                Id = Guid.NewGuid(),
+                                ImageUrl = dbPath,
+                                OrderIndex = imageOrderIndex,
+                                ChapterId = chapter.Id
+                            });
+
+                            imageOrderIndex++;
+                        }
+                    }
+                }
+
+                // 4. Lưu Chapter vào DB
                 _context.Chapters.Add(chapter);
+
+                // --- BẮT ĐẦU LOGIC TẠO THÔNG BÁO ---
+
+                // 5. Lấy danh sách UserId của những người đang Follow truyện này
+                var followerIds = await _context.Follows
+                                                .Where(f => f.StoryId == dto.StoryId)
+                                                .Select(f => f.UserId)
+                                                .ToListAsync();
+
+                // 6. Tạo list thông báo cho các followers
+                var notifications = new List<Notification>();
+
+                foreach (var userId in followerIds)
+                {
+                    notifications.Add(new Notification
+                    {
+                        UserId = userId,
+                        Title = "Chapter mới ra lò!",
+                        // Sử dụng chapter.ChapterNumber để lấy đúng thông tin vừa tạo
+                        Message = $"Truyện bạn theo dõi vừa cập nhật Chapter {chapter.ChapterNumber}.",
+                        TargetUrl = $"/stories/{dto.StoryId}/chapters/{chapter.Id}",
+                        CreateDate = DateTime.UtcNow
+                    });
+                }
+
+                // 7. Lưu loạt thông báo vào DB
+                if (notifications.Any())
+                {
+                    _context.Notifications.AddRange(notifications);
+                }
+
+                // --- KẾT THÚC LOGIC TẠO THÔNG BÁO ---
+
+                // 8. Commit tất cả thay đổi (Chapter + Images + Notifications)
                 await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                // Nếu có lỗi (ví dụ lỗi lưu DB hoặc lưu file), rollback lại toàn bộ
+                await transaction.RollbackAsync();
+
+                // Bạn có thể log lỗi ex.Message ở đây để dễ debug
+                // _logger.LogError(ex, "Lỗi khi tạo chapter mới");
+
                 return false;
             }
         }
-
         public async Task<bool> UpdateAsync(Guid id, ChapterDto dto)
         {
             var chapter = await _context.Chapters

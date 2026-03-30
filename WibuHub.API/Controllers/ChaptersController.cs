@@ -77,15 +77,45 @@ namespace WibuHub.API.Controllers
         // Các hàm Create, Update, Delete giữ nguyên nhưng THÊM [Authorize] vào
         [HttpPost]
         [Authorize] // Chỉ Admin/Uploader mới được tạo
-        public async Task<IActionResult> Create([FromBody] ChapterDto request) { /* code cũ */ return Ok(); }
+        // LƯU Ý: Dùng [FromForm] thay vì [FromBody] để hỗ trợ upload file ảnh (multipart/form-data)
+        public async Task<IActionResult> Create([FromForm] ChapterDto request)
+        {
+            if (request == null) return BadRequest("Dữ liệu không hợp lệ.");
+
+            // Gọi hàm CreateAsync đã được tích hợp sẵn logic tạo Thông báo ở Service
+            var isSuccess = await _chapterService.CreateAsync(request);
+
+            if (isSuccess)
+            {
+                return Ok(new { success = true, message = "Thêm chapter mới thành công và đã gửi thông báo đến Followers!" });
+            }
+
+            return StatusCode(500, new { success = false, message = "Đã có lỗi xảy ra khi lưu chapter hoặc file ảnh." });
+        }
 
         [HttpPut("{id}")]
         [Authorize]
-        public async Task<IActionResult> Update(Guid id, [FromBody] ChapterDto request) { /* code cũ */ return Ok(); }
+        public async Task<IActionResult> Update(Guid id, [FromForm] ChapterDto request)
+        {
+            if (request == null) return BadRequest("Dữ liệu không hợp lệ.");
+
+            var isSuccess = await _chapterService.UpdateAsync(id, request);
+
+            if (isSuccess) return Ok(new { success = true, message = "Cập nhật chapter thành công." });
+
+            return BadRequest(new { success = false, message = "Không tìm thấy chapter hoặc cập nhật thất bại." });
+        }
 
         [HttpDelete("{id}")]
         [Authorize]
-        public async Task<IActionResult> Delete(Guid id) { /* code cũ */ return Ok(); }
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var isSuccess = await _chapterService.DeleteAsync(id);
+
+            if (isSuccess) return Ok(new { success = true, message = "Xóa chapter thành công." });
+
+            return NotFound(new { success = false, message = "Không tìm thấy chapter để xóa." });
+        }
 
 
         // --- HÀM HELPER BẢO MẬT ---
