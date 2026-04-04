@@ -19,6 +19,7 @@ namespace WibuHub.MVC.Customer.Controllers
     public class ShoppingCartController : Controller
     {
         private const string CartSessionKey = "CartSession";
+        private const string PendingMomoOrderSessionKey = "PendingMomoOrderId";
         private readonly StoryDbContext _context;
         private readonly IPaymentService _paymentService;
         private readonly IRewardService _rewardService;
@@ -181,6 +182,16 @@ namespace WibuHub.MVC.Customer.Controllers
             var cart = GetCart();
             if (cart.Items.Count == 0) return RedirectToAction(nameof(Index));
 
+            if (Guid.TryParse(HttpContext.Session.GetString(PendingMomoOrderSessionKey), out var pendingOrderId))
+            {
+                var pendingOrder = await _context.Orders.FirstOrDefaultAsync(o => o.Id == pendingOrderId);
+                if (pendingOrder != null && pendingOrder.PaymentStatus == "Pending")
+                {
+                    pendingOrder.PaymentStatus = "Cancelled";
+                    await _context.SaveChangesAsync();
+                }
+            }
+
             if (string.IsNullOrWhiteSpace(_momoSettings.AccessKey) ||
                 string.IsNullOrWhiteSpace(_momoSettings.SecretKey) ||
                 string.IsNullOrWhiteSpace(_momoSettings.PartnerCode))
@@ -222,6 +233,7 @@ namespace WibuHub.MVC.Customer.Controllers
 
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
+            HttpContext.Session.SetString(PendingMomoOrderSessionKey, order.Id.ToString());
 
             // BƯỚC 3: GỬI REQUEST THANH TOÁN
             var request = new Momopayment.MomoPaymentRequest
@@ -239,6 +251,9 @@ namespace WibuHub.MVC.Customer.Controllers
                 return Redirect(response.PayUrl);
             }
 
+            order.PaymentStatus = "Failed";
+            await _context.SaveChangesAsync();
+            HttpContext.Session.Remove(PendingMomoOrderSessionKey);
             TempData["PaymentError"] = response.Message;
             return RedirectToAction(nameof(Checkout));
         }
@@ -250,6 +265,7 @@ namespace WibuHub.MVC.Customer.Controllers
             {
                 ViewBag.Message = "Hệ thống đã xác nhận thanh toán và đang nâng cấp VIP cho bạn...";
                 HttpContext.Session.Remove(CartSessionKey);
+                HttpContext.Session.Remove(PendingMomoOrderSessionKey);
 
                 if (!string.IsNullOrEmpty(orderId) && Guid.TryParse(orderId, out Guid orderGuid))
                 {
@@ -307,6 +323,17 @@ namespace WibuHub.MVC.Customer.Controllers
             }
             else
             {
+                if (!string.IsNullOrEmpty(orderId) && Guid.TryParse(orderId, out Guid failedOrderId))
+                {
+                    var failedOrder = await _context.Orders.FirstOrDefaultAsync(o => o.Id == failedOrderId);
+                    if (failedOrder != null && failedOrder.PaymentStatus == "Pending")
+                    {
+                        failedOrder.PaymentStatus = "Cancelled";
+                        await _context.SaveChangesAsync();
+                    }
+                }
+
+                HttpContext.Session.Remove(PendingMomoOrderSessionKey);
                 ViewBag.Message = "Giao dịch không thành công hoặc đã bị hủy.";
             }
 
