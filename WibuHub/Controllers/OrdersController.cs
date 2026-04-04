@@ -78,7 +78,9 @@ namespace WibuHub.Controllers
 
             var customer = await _identityContext.StoryUsers
                 .AsNoTracking()
-                .FirstOrDefaultAsync(u => u.Id == order.UserId);
+                .FirstOrDefaultAsync(u => u.Id == order.UserId
+                    || u.UserName == order.UserId
+                    || u.Email == order.UserId);
 
             ViewBag.Customer = customer;
 

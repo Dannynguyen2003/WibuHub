@@ -152,8 +152,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
 // 9. SỬ DỤNG CORS (BẮT BUỘC PHẢI NẰM TRƯỚC AUTHENTICATION)
 // Đổi tên Policy cho khớp với phần đăng ký ở trên
 app.UseCors("AllowWibuHubUI");

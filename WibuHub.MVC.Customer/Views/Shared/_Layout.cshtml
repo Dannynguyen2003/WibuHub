@@ -483,7 +483,7 @@
 
                     debounceTimer = setTimeout(async () => {
                         try {
-                            const response = await fetch(`http://localhost:5126/api/stories/search-suggest?q=${encodeURIComponent(keyword)}`);
+                            const response = await fetch(`http://localhost:5136/api/stories/search-suggest?q=${encodeURIComponent(keyword)}`);
                             const data = await response.json();
 
                             this.renderSuggestions(data, keyword);
@@ -755,7 +755,7 @@
                 if (!grid) return;
 
                 try {
-                    const data = await Utils.fetchAPI('http://localhost:5126/api/stories/liststory');
+                    const data = await Utils.fetchAPI('http://localhost:5136/api/stories/liststory');
                     this.state.originalStories = Array.isArray(data) ? data : [];
                     this.state.activeStoriesList = [...this.state.originalStories];
                     grid.innerHTML = '';
@@ -804,7 +804,7 @@
                 if (!topList) return;
 
                 try {
-                    const data = await Utils.fetchAPI('http://localhost:5126/api/stories/top-views');
+                    const data = await Utils.fetchAPI('http://localhost:5136/api/stories/top-views');
                     if (container) container.remove();
 
                     if (Array.isArray(data)) {
@@ -833,7 +833,7 @@
                 const list = document.getElementById('list_suggest');
                 if (!list) return;
                 try {
-                    const data = await Utils.fetchAPI('http://localhost:5126/api/stories/newest');
+                    const data = await Utils.fetchAPI('http://localhost:5136/api/stories/newest');
                     if (!Array.isArray(data) || data.length === 0) {
                         list.innerHTML = '<li style="width:100%;text-align:center;padding:50px;">Chưa có truyện nào!</li>';
                         return;
@@ -934,7 +934,7 @@
                 this.appendMessage('<i class="fas fa-ellipsis-h fa-fade"></i> Đang suy nghĩ...', 'ai', typingId);
 
                 try {
-                    const response = await fetch('http://localhost:5126/api/chatbot/ask', {
+                    const response = await fetch('http://localhost:5136/api/chatbot/ask', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ message: text })
@@ -1014,7 +1014,7 @@
                 try {
                     // Sửa đường dẫn API thành cổng 5126
                     // Thêm credentials: 'include' để trình duyệt gửi kèm Cookie/Token đăng nhập sang cổng khác
-                    const response = await fetch('http://localhost:5126/api/notification', {
+                    const response = await fetch('http://localhost:5136/api/notification', {
                         credentials: 'include'
                     });
 
@@ -1073,7 +1073,7 @@
                 element.classList.remove('unread');
                 try {
                     // Sửa đường dẫn API
-                    await fetch(`http://localhost:5126/api/notification/${id}/read`, {
+                    await fetch(`http://localhost:5136/api/notification/${id}/read`, {
                         method: 'PUT',
                         credentials: 'include'
                     });
@@ -1091,7 +1091,7 @@
             markAllAsRead: async function() {
                 try {
                     // Sửa đường dẫn API
-                    await fetch('http://localhost:5126/api/notification/read-all', {
+                    await fetch('http://localhost:5136/api/notification/read-all', {
                         method: 'PUT',
                         credentials: 'include'
                     });

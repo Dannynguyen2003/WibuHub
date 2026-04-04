@@ -16,6 +16,7 @@ namespace WibuHub.Areas.Admin.Controllers
     public class StoriesController : Controller
     {
         private readonly StoryDbContext _context;
+        private readonly StoryIdentityDbContext _identityContext;
         private readonly IWebHostEnvironment _env;
         private static readonly HashSet<string> AllowedImageExtensions = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -23,9 +24,10 @@ namespace WibuHub.Areas.Admin.Controllers
         };
         private const long MaxImageSizeBytes = 10 * 1024 * 1024;
 
-        public StoriesController(StoryDbContext context, IWebHostEnvironment env)
+        public StoriesController(StoryDbContext context, StoryIdentityDbContext identityContext, IWebHostEnvironment env)
         {
             _context = context;
+            _identityContext = identityContext;
             _env = env;
         }
 
@@ -104,6 +106,29 @@ namespace WibuHub.Areas.Admin.Controllers
                     .ToList();
 
                 _context.Add(story);
+
+                var userIds = await _identityContext.StoryUsers
+                    .AsNoTracking()
+                    .Select(u => u.Id)
+                    .ToListAsync();
+
+                var notifications = userIds
+                    .Where(id => Guid.TryParse(id, out _))
+                    .Select(id => new Notification
+                    {
+                        UserId = Guid.Parse(id),
+                        Title = "Truyện mới vừa cập nhật!",
+                        Message = $"{story.StoryName} vừa được đăng tải.",
+                        TargetUrl = $"/Stories/Details/{story.Id}",
+                        CreateDate = DateTime.UtcNow
+                    })
+                    .ToList();
+
+                if (notifications.Any())
+                {
+                    _context.Notifications.AddRange(notifications);
+                }
+
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Create));
             }

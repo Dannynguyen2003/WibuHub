@@ -11,6 +11,7 @@ using WibuHub.DataLayer;
 using WibuHub.MVC.Customer.ExtensionsMethod;
 using WibuHub.MVC.Customer.ViewModels.ShoppingCart;
 using WibuHub.MVC.ViewModels.ShoppingCart;
+using WibuHub.Service.Implementation;
 using WibuHub.Service.Interface;
 
 namespace WibuHub.MVC.Customer.Controllers
@@ -20,17 +21,20 @@ namespace WibuHub.MVC.Customer.Controllers
         private const string CartSessionKey = "CartSession";
         private readonly StoryDbContext _context;
         private readonly IPaymentService _paymentService;
+        private readonly IRewardService _rewardService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly MomoSettings _momoSettings;
 
         public ShoppingCartController(
             StoryDbContext context,
             IPaymentService paymentService,
+            IRewardService rewardService,
             IHttpContextAccessor httpContextAccessor,
             IOptions<MomoSettings> momoSettings)
         {
             _context = context;
             _paymentService = paymentService;
+            _rewardService = rewardService;
             _httpContextAccessor = httpContextAccessor;
             _momoSettings = momoSettings.Value;
         }
@@ -251,7 +255,7 @@ namespace WibuHub.MVC.Customer.Controllers
                 {
                     var order = await _context.Orders.Include(o => o.OrderDetails).FirstOrDefaultAsync(o => o.Id == orderGuid);
 
-                    if (order != null)
+                    if (order != null && order.PaymentStatus != "Completed")
                     {
                         order.PaymentStatus = "Completed";
 
@@ -293,7 +297,10 @@ namespace WibuHub.MVC.Customer.Controllers
                                     await signInManager.RefreshSignInAsync(currentUser);
                                 }
                             }
+
+                            await GrantOrderRewardsAsync(currentUser.Id, order.TotalAmount);
                         }
+
                         await _context.SaveChangesAsync();
                     }
                 }
@@ -371,6 +378,20 @@ namespace WibuHub.MVC.Customer.Controllers
 
                                         user.VipExpireDate = currentVipEnd.AddDays(totalVipDaysBought);
                                         await userManager.UpdateAsync(user);
+
+                                        await GrantOrderRewardsAsync(user.Id, order.TotalAmount);
+                                    }
+                                }
+                            }
+                            else if (!string.IsNullOrEmpty(order.UserId))
+                            {
+                                var userManager = HttpContext.RequestServices.GetService<UserManager<StoryUser>>();
+                                if (userManager != null)
+                                {
+                                    var user = await userManager.FindByNameAsync(order.UserId);
+                                    if (user != null)
+                                    {
+                                        await GrantOrderRewardsAsync(user.Id, order.TotalAmount);
                                     }
                                 }
                             }
@@ -437,6 +458,19 @@ namespace WibuHub.MVC.Customer.Controllers
         {
             var vipItems = cart.Items.Where(i => i.StoryId == Guid.Empty).ToList();
             return vipItems.Count == 0 ? "Thanh toán truyện" : "Đăng ký VIP: " + string.Join(", ", vipItems.Select(i => i.StoryTitle));
+        }
+
+        private async Task GrantOrderRewardsAsync(string userId, decimal totalAmount)
+        {
+            if (string.IsNullOrWhiteSpace(userId) || totalAmount <= 0)
+            {
+                return;
+            }
+
+            var expAdded = Math.Max(1, (int)Math.Floor(totalAmount / 10000m));
+            var pointsAdded = Math.Max(1, (int)Math.Floor(totalAmount / 50000m));
+
+            await _rewardService.AddExpAndPointsAsync(userId, expAdded, pointsAdded);
         }
         #endregion
     }

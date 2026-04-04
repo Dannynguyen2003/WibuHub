@@ -162,7 +162,7 @@ namespace WibuHub.Service.Implementations
                         Title = "Chapter mới ra lò!",
                         // Sử dụng chapter.ChapterNumber để lấy đúng thông tin vừa tạo
                         Message = $"Truyện bạn theo dõi vừa cập nhật Chapter {chapter.ChapterNumber}.",
-                        TargetUrl = $"/stories/{dto.StoryId}/chapters/{chapter.Id}",
+                        TargetUrl = $"/Chapters/Read/{chapter.Id}",
                         CreateDate = DateTime.UtcNow
                     });
                 }

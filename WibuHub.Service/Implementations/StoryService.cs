@@ -10,10 +10,12 @@ namespace WibuHub.Service.Implementations
     public class StoryService : IStoryService
     {
         private readonly StoryDbContext _context;
+        private readonly StoryIdentityDbContext _identityContext;
 
-        public StoryService(StoryDbContext context)
+        public StoryService(StoryDbContext context, StoryIdentityDbContext identityContext)
         {
             _context = context;
+            _identityContext = identityContext;
         }
 
         public async Task<List<StoryDto>> GetAllAsync()
@@ -181,6 +183,29 @@ namespace WibuHub.Service.Implementations
                 };
 
                 _context.Stories.Add(entity);
+
+                var userIds = await _identityContext.StoryUsers
+                    .AsNoTracking()
+                    .Select(u => u.Id)
+                    .ToListAsync();
+
+                var notifications = userIds
+                    .Where(id => Guid.TryParse(id, out _))
+                    .Select(id => new Notification
+                    {
+                        UserId = Guid.Parse(id),
+                        Title = "Truyện mới vừa cập nhật!",
+                        Message = $"{entity.StoryName} vừa được đăng tải.",
+                        TargetUrl = $"/Stories/Details/{entity.Id}",
+                        CreateDate = DateTime.UtcNow
+                    })
+                    .ToList();
+
+                if (notifications.Any())
+                {
+                    _context.Notifications.AddRange(notifications);
+                }
+
                 await _context.SaveChangesAsync();
                 return true;
             }

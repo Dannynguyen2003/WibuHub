@@ -9,5 +9,9 @@ namespace WibuHub.MVC.Customer.ViewModels
         public Guid? PreviousChapterId { get; set; }
         public Guid? NextChapterId { get; set; }
         public bool IsFollowed { get; set; }
+    public bool IsVipUser { get; set; }
+    public string ActiveServer { get; set; } = "normal";
+    public string? NormalServerBaseUrl { get; set; }
+    public string? VipServerBaseUrl { get; set; }
     }
 }

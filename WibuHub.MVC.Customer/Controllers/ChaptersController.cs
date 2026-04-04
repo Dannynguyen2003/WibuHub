@@ -13,11 +13,13 @@ namespace WibuHub.MVC.Customer.Controllers
     {
         private readonly StoryDbContext _context;
         private readonly UserManager<StoryUser> _userManager;
+        private readonly IConfiguration _configuration;
 
-        public ChaptersController(StoryDbContext context, UserManager<StoryUser> userManager)
+        public ChaptersController(StoryDbContext context, UserManager<StoryUser> userManager, IConfiguration configuration)
         {
             _context = context;
             _userManager = userManager;
+            _configuration = configuration;
         }
 
         public async Task<IActionResult> Read(Guid id)
@@ -65,9 +67,21 @@ namespace WibuHub.MVC.Customer.Controllers
                 return NotFound();
             }
 
+            var isVipUser = false;
+            if (User?.Identity?.IsAuthenticated == true)
+            {
+                var currentUser = await _userManager.GetUserAsync(User);
+                isVipUser = currentUser?.IsVip ?? false;
+            }
+
+            var requestedServer = HttpContext.Request.Query["sv"].ToString();
+            var activeServer = string.Equals(requestedServer, "vip", StringComparison.OrdinalIgnoreCase) && isVipUser
+                ? "vip"
+                : "normal";
+
             await RecordViewAsync(chapter);
 
-            return View("Read", await BuildReadViewModelAsync(chapter));
+            return View("Read", await BuildReadViewModelAsync(chapter, isVipUser, activeServer));
         }
 
         private async Task RecordViewAsync(Chapter chapter)
@@ -96,7 +110,7 @@ namespace WibuHub.MVC.Customer.Controllers
             await _context.SaveChangesAsync();
         }
 
-        private async Task<ChapterReadViewModel> BuildReadViewModelAsync(Chapter chapter)
+        private async Task<ChapterReadViewModel> BuildReadViewModelAsync(Chapter chapter, bool isVipUser, string activeServer)
         {
             var chapterList = await _context.Chapters
                 .AsNoTracking()
@@ -128,7 +142,11 @@ namespace WibuHub.MVC.Customer.Controllers
                 Chapters = chapterList,
                 PreviousChapterId = previousId,
                 NextChapterId = nextId,
-                IsFollowed = isFollowed
+                IsFollowed = isFollowed,
+                IsVipUser = isVipUser,
+                ActiveServer = activeServer,
+                NormalServerBaseUrl = _configuration["ReadingServers:NormalBaseUrl"],
+                VipServerBaseUrl = _configuration["ReadingServers:VipBaseUrl"]
             };
         }
     }

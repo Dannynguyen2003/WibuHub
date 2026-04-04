@@ -126,6 +126,28 @@ namespace WibuHub.Controllers
                 //chapter.Id = Guid.NewGuid();
                 //_context.Add(chapter);
                 await _context.Chapters.AddAsync(chapter);
+
+                var followerIds = await _context.Follows
+                    .Where(f => f.StoryId == chapter.StoryId)
+                    .Select(f => f.UserId)
+                    .ToListAsync();
+
+                var notifications = followerIds
+                    .Select(userId => new Notification
+                    {
+                        UserId = userId,
+                        Title = "Chapter mới ra lò!",
+                        Message = $"{chapter.Name} vừa được cập nhật.",
+                        TargetUrl = $"/Chapters/Read/{chapter.Id}",
+                        CreateDate = DateTime.UtcNow
+                    })
+                    .ToList();
+
+                if (notifications.Any())
+                {
+                    _context.Notifications.AddRange(notifications);
+                }
+
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Create));
             }

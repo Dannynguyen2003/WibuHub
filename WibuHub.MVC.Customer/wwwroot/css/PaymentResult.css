@@ -1,62 +1,111 @@
 ﻿.result-wrapper {
-    padding: 60px 20px;
+    padding: 80px 20px;
     min-height: 60vh;
-    background-color: #f9fafb; /* Màu nền xám nhẹ cho tách biệt với menu */
+    background-color: #f8fafc; /* Nền xám hơi xanh nhẹ nhàng hơn */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .result-container {
-    max-width: 550px;
+    position: relative; /* Quan trọng: để neo cái icon nổi */
+    width: 100%;
+    max-width: 500px; /* Thu gọn lại một chút cho giống hình */
     margin: 0 auto;
-    padding: 50px 40px;
+    padding: 70px 40px 40px; /* Tăng padding top để nhường chỗ cho icon */
     background: #ffffff;
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    border-radius: 24px; /* Bo góc to hơn */
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06); /* Bóng đổ mềm và sâu hơn */
     text-align: center;
-    border: 1px solid #f3f4f6;
+    /* Nếu bạn có ảnh nền pháo hoa (confetti), thêm vào đây: */
+    /* background-image: url('/path-to-your-confetti-bg.png'); */
+    /* background-size: cover; */
 }
 
-.result-icon {
-    font-size: 80px;
+/* --- XỬ LÝ ICON NỔI --- */
+.icon-wrapper {
+    position: absolute;
+    top: -40px; /* Đẩy icon lên trên khỏi viền card */
+    left: 50%;
+    transform: translateX(-50%); /* Căn giữa tuyệt đối */
+}
+
+/* CSS tạo icon 3D giả lập (Nếu bạn chưa có ảnh icon 3D) */
+.fake-3d-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 40px;
+    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.4), inset 0 5px 10px rgba(255,255,255,0.3); /* Hiệu ứng nổi 3D */
+    border: 4px solid #ffffff;
+}
+
+/* --- TYPOGRAPHY & BADGE --- */
+.result-title.text-primary-blue {
+    font-size: 28px;
+    font-weight: 800;
+    color: #2563eb; /* Màu xanh dương như hình */
     margin-bottom: 20px;
 }
 
-    .result-icon.success {
-        color: #10b981;
-    }
-
-    .result-icon.error {
-        color: #ef4444;
-    }
-
-.result-title {
-    font-size: 28px;
+.vip-badge {
+    display: inline-block;
+    background: #fef08a; /* Nền vàng nhạt */
+    color: #854d0e; /* Chữ vàng đậm/nâu */
+    font-size: 13px;
     font-weight: 700;
-    color: #1f2937;
-    margin-bottom: 15px;
+    padding: 8px 20px;
+    border-radius: 50px;
+    margin-bottom: 25px;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 10px rgba(254, 240, 138, 0.5);
 }
 
 .result-message {
-    font-size: 16px;
-    color: #6b7280;
-    margin-bottom: 40px;
-    line-height: 1.6;
+    font-size: 15px;
+    color: #4b5563;
+    margin-bottom: 35px;
+    line-height: 1.7;
 }
 
+    .result-message p {
+        margin-bottom: 4px; /* Khoảng cách giữa các dòng chữ nhỏ lại */
+    }
+
+.transaction-id {
+    margin-top: 15px !important;
+    font-size: 13px;
+    color: #9ca3af;
+}
+
+/* --- NÚT BẤM --- */
 .btn-action {
     display: inline-block;
     background: #3b82f6;
     color: #ffffff;
     font-weight: 600;
     font-size: 16px;
-    padding: 14px 40px;
-    border-radius: 30px;
+    padding: 14px 20px;
+    border-radius: 50px; /* Bo góc tròn trịa */
     text-decoration: none;
     transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
 }
+
+    .btn-action.btn-block {
+        display: block; /* Ép nút trải dài hết chiều ngang của container */
+        width: 100%;
+    }
 
     .btn-action:hover {
         background: #2563eb;
         transform: translateY(-2px);
-        box-shadow: 0 8px 15px rgba(59, 130, 246, 0.3);
+        box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
         color: #ffffff;
     }

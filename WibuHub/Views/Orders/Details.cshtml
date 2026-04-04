@@ -37,35 +37,6 @@
         ? "https://ui-avatars.com/api/?name=Anonymous&background=E2E8F0&color=475569"
         : customer.Avatar;
 
-    var vipPackagePrices = new Dictionary<string, decimal>(StringComparer.OrdinalIgnoreCase)
-    {
-        ["VIP 1 Tháng"] = 99000m,
-        ["VIP 3 Tháng"] = 249000m,
-        ["VIP 12 Tháng"] = 799000m
-    };
-
-    var vipItems = new List<(string Name, int Quantity, decimal? Price)>();
-    if (!string.IsNullOrWhiteSpace(Model.Note) && Model.Note.StartsWith("Đăng ký VIP:", StringComparison.OrdinalIgnoreCase))
-    {
-        var rawItems = Model.Note.Substring("Đăng ký VIP:".Length).Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-        foreach (var rawItem in rawItems)
-        {
-            var parts = rawItem.Split('x', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-            var name = parts.Length > 0 ? parts[0] : rawItem;
-            var quantity = 1;
-
-            int parsedQuantity = 0;
-            if (parts.Length > 1 && int.TryParse(parts[1], out parsedQuantity))
-            {
-                quantity = parsedQuantity;
-            }
-
-            decimal price = 0m;
-            vipPackagePrices.TryGetValue(name, out price);
-
-            vipItems.Add((name, quantity, price == 0 ? null : price));
-        }
-    }
 }
 <link href="~/css/Order.css" rel="stylesheet" />
 <div class="order-container">
@@ -106,22 +77,12 @@
                         foreach (var detail in Model.OrderDetails)
                         {
                             <tr>
-                                <td>@(detail.Story?.StoryName ?? "Chưa cập nhật")</td>
+                                <td>@(detail.ItemName ?? detail.Story?.StoryName ?? "Chưa cập nhật")</td>
                                 <td>@detail.UnitPrice.ToString("N0")đ</td>
                                 <td>@detail.Quantity</td>
                                 <td>@detail.Amount.ToString("N0")đ</td>
                             </tr>
                         }
-                    }
-                    @foreach (var vipItem in vipItems)
-                    {
-                        var vipTotal = vipItem.Price.HasValue ? vipItem.Price.Value * vipItem.Quantity : (decimal?)null;
-                        <tr>
-                            <td>@vipItem.Name</td>
-                            <td>@(vipItem.Price.HasValue? vipItem.Price.Value.ToString("N0") + "đ" : "-")</td>
-                            <td>@vipItem.Quantity</td>
-                            <td>@(vipTotal.HasValue? vipTotal.Value.ToString("N0") + "đ" : "-")</td>
-                        </tr>
                     }
                 </tbody>
             </table>
