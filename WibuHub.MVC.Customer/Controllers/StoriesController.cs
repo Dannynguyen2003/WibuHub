@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using WibuHub.ApplicationCore.Entities;
 using WibuHub.ApplicationCore.Entities.Identity;
 using WibuHub.DataLayer;
+using WibuHub.MVC.Customer.ViewModels;
 
 namespace WibuHub.MVC.Customer.Controllers
 {
@@ -33,6 +34,7 @@ namespace WibuHub.MVC.Customer.Controllers
             }
 
             var isFollowed = false;
+            int myRating = 0;
             if (User?.Identity?.IsAuthenticated == true)
             {
                 var userId = _userManager.GetUserId(User);
@@ -50,11 +52,164 @@ namespace WibuHub.MVC.Customer.Controllers
                         .FirstOrDefaultAsync();
 
                     ViewData["ContinueChapterNumber"] = continueChapterNumber;
+
+                    myRating = await _context.Ratings
+                        .AsNoTracking()
+                        .Where(r => r.UserId == userGuid && r.StoryId == story.Id)
+                        .Select(r => r.Score)
+                        .FirstOrDefaultAsync();
                 }
             }
 
+            var ratingCount = await _context.Ratings
+                .AsNoTracking()
+                .CountAsync(r => r.StoryId == story.Id);
+
+            var storyComments = await _context.Comments
+                .AsNoTracking()
+                .Where(c => c.StoryId == story.Id && c.ParentId == null)
+                .OrderByDescending(c => c.CreateDate)
+                .Take(30)
+                .ToListAsync();
+
+            var commenterIds = storyComments
+                .Select(c => c.UserId.ToString())
+                .Distinct()
+                .ToList();
+
+            var commenters = await _userManager.Users
+                .AsNoTracking()
+                .Where(u => commenterIds.Contains(u.Id))
+                .Select(u => new { u.Id, u.UserName, u.Avatar })
+                .ToDictionaryAsync(u => u.Id, u => new { u.UserName, u.Avatar });
+
+            var commentItems = storyComments
+                .Select(comment =>
+                {
+                    commenters.TryGetValue(comment.UserId.ToString(), out var commenter);
+                    return new StoryCommentItemViewModel
+                    {
+                        Id = comment.Id,
+                        UserName = string.IsNullOrWhiteSpace(commenter?.UserName) ? "Người dùng" : commenter.UserName,
+                        Avatar = commenter?.Avatar,
+                        Content = comment.Content,
+                        CreateDate = comment.CreateDate
+                    };
+                })
+                .ToList();
+
             ViewData["IsFollowed"] = isFollowed;
+            ViewData["MyRating"] = myRating;
+            ViewData["RatingCount"] = ratingCount;
+            ViewData["StoryComments"] = commentItems;
             return View(story);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddComment(Guid storyId, string content, string? returnUrl = null)
+        {
+            if (User?.Identity?.IsAuthenticated != true)
+            {
+                TempData["CommentMessage"] = "Bạn phải đăng nhập để bình luận truyện.";
+                return RedirectToAction(nameof(Details), new { id = storyId });
+            }
+
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                TempData["CommentMessage"] = "Nội dung bình luận không được để trống.";
+                return RedirectToAction(nameof(Details), new { id = storyId });
+            }
+
+            var userId = _userManager.GetUserId(User);
+            if (string.IsNullOrWhiteSpace(userId) || !Guid.TryParse(userId, out var userGuid))
+            {
+                TempData["CommentMessage"] = "Không xác định được người dùng.";
+                return RedirectToAction(nameof(Details), new { id = storyId });
+            }
+
+            _context.Comments.Add(new Comment
+            {
+                Id = Guid.NewGuid(),
+                StoryId = storyId,
+                UserId = userGuid,
+                Content = content.Trim(),
+                CreateDate = DateTime.UtcNow
+            });
+
+            await _context.SaveChangesAsync();
+            TempData["CommentMessage"] = "Bình luận của bạn đã được đăng.";
+
+            if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+
+            return RedirectToAction(nameof(Details), new { id = storyId });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Rate(Guid storyId, int score, string? returnUrl = null)
+        {
+            if (User?.Identity?.IsAuthenticated != true)
+            {
+                TempData["RatingMessage"] = "Bạn phải đăng nhập để đánh giá truyện.";
+                return RedirectToAction(nameof(Details), new { id = storyId });
+            }
+
+            if (score < 1 || score > 5)
+            {
+                TempData["RatingMessage"] = "Điểm đánh giá không hợp lệ.";
+                return RedirectToAction(nameof(Details), new { id = storyId });
+            }
+
+            var userId = _userManager.GetUserId(User);
+            if (string.IsNullOrWhiteSpace(userId) || !Guid.TryParse(userId, out var userGuid))
+            {
+                TempData["RatingMessage"] = "Không xác định được người dùng.";
+                return RedirectToAction(nameof(Details), new { id = storyId });
+            }
+
+            var existedRating = await _context.Ratings
+                .FirstOrDefaultAsync(r => r.StoryId == storyId && r.UserId == userGuid);
+
+            if (existedRating == null)
+            {
+                _context.Ratings.Add(new Rating
+                {
+                    Id = Guid.NewGuid(),
+                    StoryId = storyId,
+                    UserId = userGuid,
+                    Score = score,
+                    CreateDate = DateTime.UtcNow
+                });
+            }
+            else
+            {
+                existedRating.Score = score;
+                existedRating.CreateDate = DateTime.UtcNow;
+            }
+
+            await _context.SaveChangesAsync();
+
+            var avgScore = await _context.Ratings
+                .Where(r => r.StoryId == storyId)
+                .AverageAsync(r => (double?)r.Score) ?? 0;
+
+            await _context.Stories
+                .Where(s => s.Id == storyId)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(s => s.RatingScore, avgScore));
+
+            TempData["RatingMessage"] = "Đánh giá của bạn đã được ghi nhận.";
+
+            if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+
+            return RedirectToAction(nameof(Details), new { id = storyId });
         }
         [HttpGet]
         public async Task<IActionResult> Read(Guid storyId, double chapter)
