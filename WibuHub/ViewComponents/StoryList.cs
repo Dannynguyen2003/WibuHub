@@ -34,6 +34,13 @@ namespace WibuHub.MVC.ViewComponents
                 .Take(pageSize)
                 .ToListAsync();
 
+            var storyIds = stories.Select(s => s.Id).ToList();
+            var chapterCounts = await _context.Chapters
+                .Where(c => !c.IsDeleted && storyIds.Contains(c.StoryId))
+                .GroupBy(c => c.StoryId)
+                .Select(g => new { StoryId = g.Key, Count = g.Count() })
+                .ToDictionaryAsync(x => x.StoryId, x => x.Count);
+
             // Map to ViewModel
             var storyVMs = stories.Select(s =>
             {
@@ -54,6 +61,7 @@ namespace WibuHub.MVC.ViewComponents
                     Price = s.Price,
                     Discount = s.Discount,
                     Status = s.Status,
+                    TotalChapters = chapterCounts.TryGetValue(s.Id, out var count) ? count : 0,
                     ViewCount = s.ViewCount,
                     FollowCount = s.FollowCount,
                     RatingScore = s.RatingScore,
