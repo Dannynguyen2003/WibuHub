@@ -1012,9 +1012,7 @@
 
             loadNotifications: async function(isBadgeOnly) {
                 try {
-                    // Sửa đường dẫn API thành cổng 5126
-                    // Thêm credentials: 'include' để trình duyệt gửi kèm Cookie/Token đăng nhập sang cổng khác
-                    const response = await fetch('http://localhost:5136/api/notification', {
+                    const response = await fetch('/api/notification', {
                         credentials: 'include'
                     });
 
@@ -1072,8 +1070,7 @@
                 if (!element.classList.contains('unread')) return;
                 element.classList.remove('unread');
                 try {
-                    // Sửa đường dẫn API
-                    await fetch(`http://localhost:5136/api/notification/${id}/read`, {
+                    await fetch(`/api/notification/${id}/read`, {
                         method: 'PUT',
                         credentials: 'include'
                     });
@@ -1090,8 +1087,7 @@
 
             markAllAsRead: async function() {
                 try {
-                    // Sửa đường dẫn API
-                    await fetch('http://localhost:5136/api/notification/read-all', {
+                    await fetch('/api/notification/read-all', {
                         method: 'PUT',
                         credentials: 'include'
                     });

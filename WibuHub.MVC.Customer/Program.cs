@@ -103,6 +103,7 @@ builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Emai
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IRewardService, RewardService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpContextAccessor();

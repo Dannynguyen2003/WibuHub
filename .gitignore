@@ -3,6 +3,20 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# --- WibuHub custom ---
+tmp/
+**/appsettings.Development.json
+**/appsettings.Local.json
+**/appsettings.*.local.json
+secrets.json
+.env
+.env.*
+
+# Sensitive appsettings (contains real keys/passwords)
+WibuHub.API/appsettings.json
+WibuHub.MVC.Customer/appsettings.json
+WibuHub/appsettings.json
+
 # User-specific files
 *.rsuser
 *.suo

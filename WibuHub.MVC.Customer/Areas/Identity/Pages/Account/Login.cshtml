@@ -17,7 +17,8 @@
             </div>
             <div class="input-group">
                 <label asp-for="Input.Password">Mật khẩu</label>
-                <input asp-for="Input.Password" type="password" autocomplete="current-password" aria-required="true" placeholder="••••••••" />
+                <input asp-for="Input.Password" type="password" autocomplete="current-password" aria-required="true" placeholder="••••••••" data-password-field="login-password" />
+                <button type="button" class="btn" data-password-toggle="login-password">Hiện mật khẩu</button>
                 <span asp-validation-for="Input.Password" class="text-danger"></span>
             </div>
             <div class="input-group" style="display: flex; align-items: center; gap: 10px;">
@@ -55,4 +56,20 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.querySelectorAll('[data-password-toggle]').forEach(function (button) {
+            button.addEventListener('click', function () {
+                const fieldName = button.getAttribute('data-password-toggle');
+                const passwordInput = document.querySelector('[data-password-field="' + fieldName + '"]');
+
+                if (!passwordInput) {
+                    return;
+                }
+
+                const isPassword = passwordInput.type === 'password';
+                passwordInput.type = isPassword ? 'text' : 'password';
+                button.textContent = isPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu';
+            });
+        });
+    </script>
 }

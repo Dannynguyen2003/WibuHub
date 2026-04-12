@@ -25,7 +25,7 @@ namespace WibuHub.MVC.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var endDate = DateTime.UtcNow.Date;
+            var endDate = DateTime.Today;
             var startDate = endDate.AddDays(-6);
 
             var dailyViews = await _dbContext.Histories
@@ -34,13 +34,17 @@ namespace WibuHub.MVC.Controllers
                 .Select(g => new { Date = g.Key, Count = g.Count() })
                 .ToListAsync();
 
+            var dailyViewLookup = dailyViews.ToDictionary(
+                x => DateOnly.FromDateTime(x.Date),
+                x => x.Count);
+
             var labels = new List<string>(7);
             var counts = new List<int>(7);
 
             for (var date = startDate; date <= endDate; date = date.AddDays(1))
             {
                 labels.Add(GetVietnameseDayLabel(date.DayOfWeek));
-                counts.Add(dailyViews.FirstOrDefault(x => x.Date == date)?.Count ?? 0);
+                counts.Add(dailyViewLookup.GetValueOrDefault(DateOnly.FromDateTime(date), 0));
             }
 
             var recentChapters = await _dbContext.Chapters
@@ -70,7 +74,7 @@ namespace WibuHub.MVC.Controllers
                 .Select(c => new DashboardActivityItem
                 {
                     IconClass = "fas fa-tags",
-                    Title = $"Danh mục mơi: {c.Name}",
+                    Title = $"Danh mục mới: {c.Name}",
                     OccurredAt = c.CreatedAt
                 })
                 .Take(3)
@@ -108,20 +112,46 @@ namespace WibuHub.MVC.Controllers
                 .Take(5)
                 .ToList();
 
-            // 3. LEAVE THIS ONE as recentStories
-            var recentStories = await _dbContext.Stories
+            var recentStorySeed = await _dbContext.Stories
                 .OrderByDescending(s => s.UpdateDate)
                 .Select(s => new DashboardStoryItem
                 {
                     Id = s.Id,
                     StoryName = s.StoryName,
                     AuthorName = s.Author != null ? s.Author.Name : s.AuthorName,
-                    ChapterCount = s.Chapters.Count,
+                    ChapterCount = s.TotalChapters,
                     ViewCount = s.ViewCount,
                     Status = s.Status
                 })
                 .Take(5)
                 .ToListAsync();
+
+            var recentStoryIds = recentStorySeed.Select(s => s.Id).ToList();
+
+            var chapterCountLookup = await _dbContext.Chapters
+                .Where(c => recentStoryIds.Contains(c.StoryId) && !c.IsDeleted)
+                .GroupBy(c => c.StoryId)
+                .Select(g => new { StoryId = g.Key, Count = g.Count() })
+                .ToDictionaryAsync(x => x.StoryId, x => x.Count);
+
+            var historyViewLookup = await _dbContext.Histories
+                .Where(h => recentStoryIds.Contains(h.StoryId))
+                .GroupBy(h => h.StoryId)
+                .Select(g => new { StoryId = g.Key, Count = g.Count() })
+                .ToDictionaryAsync(x => x.StoryId, x => (long)x.Count);
+
+            var recentStories = recentStorySeed
+                .Select(story =>
+                {
+                    story.ChapterCount = chapterCountLookup.GetValueOrDefault(story.Id, story.ChapterCount);
+                    if (story.ViewCount <= 0)
+                    {
+                        story.ViewCount = historyViewLookup.GetValueOrDefault(story.Id, 0);
+                    }
+
+                    return story;
+                })
+                .ToList();
 
             var paidStatuses = new[] { "paid", "success", "completed", "successful" };
 
@@ -138,7 +168,7 @@ namespace WibuHub.MVC.Controllers
                 ViewLabels = labels,
                 ViewCounts = counts,
                 RecentActivities = recentActivities,
-                RecentStories = recentStories // This will now correctly map to the IReadOnlyList<DashboardStoryItem>
+                RecentStories = recentStories
             };
 
             return View(model);
