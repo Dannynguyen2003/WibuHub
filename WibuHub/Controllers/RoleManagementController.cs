@@ -32,9 +32,12 @@ namespace WibuHub.MVC.Controllers
             var model = new List<UserRoleListVM>();
             foreach (var user in users)
             {
-                var roles = (await _userManager.GetRolesAsync(user))
-                    .Where(role => !string.Equals(role, AppConstants.Roles.Customer, StringComparison.OrdinalIgnoreCase))
-                    .ToList();
+                var roles = (await _userManager.GetRolesAsync(user)).ToList();
+                if (roles.Count == 0)
+                {
+                    roles.Add(AppConstants.Roles.Customer);
+                }
+
                 model.Add(new UserRoleListVM
                 {
                     UserId = user.Id,
@@ -60,7 +63,6 @@ namespace WibuHub.MVC.Controllers
             }
 
             var roles = await _roleManager.Roles
-                .Where(r => r.Name != AppConstants.Roles.Customer)
                 .OrderBy(r => r.Name)
                 .Select(r => r.Name!)
                 .ToListAsync();
@@ -128,7 +130,6 @@ namespace WibuHub.MVC.Controllers
             if (!ModelState.IsValid)
             {
                 model.AllRoles = await _roleManager.Roles
-                    .Where(r => r.Name != AppConstants.Roles.Customer)
                     .OrderBy(r => r.Name)
                     .Select(r => r.Name!)
                     .ToListAsync();

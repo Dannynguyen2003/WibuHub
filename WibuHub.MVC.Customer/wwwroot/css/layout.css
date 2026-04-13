@@ -3090,7 +3090,7 @@ ul#list_suggest {
 /* Sửa class này: Thêm width để kéo rộng toàn bộ cụm tìm kiếm */
 .search-wrapper {
     position: relative;
-    z-index: 1000;
+    z-index: 20;
     width: 500px; /* Bạn có thể tăng lên 600px hoặc 700px tùy sở thích */
     max-width: 100%; /* Giúp giao diện không bị lỗi trên điện thoại */
 }
@@ -3115,7 +3115,7 @@ ul#list_suggest {
     background: #252a34; /* Nền tối giống ảnh TruyenQQ */
     border-radius: 4px;
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-    z-index: 9999; /* Đảm bảo luôn nổi lên trên cùng */
+    z-index: 900;
     max-height: 450px;
     overflow-y: auto;
     margin-top: 5px;

@@ -82,7 +82,7 @@
                 <a asp-controller="Home" asp-action="Index" asp-area="" class="logo" id="logo">WIBU<span>HUB</span></a>
             </div>
 
-            <div class="search-wrapper" style="position: relative; z-index: 9999;">
+            <div class="search-wrapper">
 
                 <div class="search-bar">
                     <input type="text" placeholder="Tìm truyện, tác giả..." id="searchInput" autocomplete="off">
@@ -95,23 +95,26 @@
 
             <div class="user-actions">
 
-                <div class="notification-wrapper" style="position: relative; display: inline-block;">
-                    <a href="#" id="notificationBtn">
-                        <i class="far fa-bell"></i>
-                        <span class="d-none d-md-inline">Thông báo</span>
-                        <span id="notiBadge" style="position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.7rem; font-weight: bold; display: none;">0</span>
-                    </a>
+                @if (User?.Identity?.IsAuthenticated ?? false)
+                {
+                    <div class="notification-wrapper" style="position: relative; display: inline-block;">
+                        <a href="#" id="notificationBtn">
+                            <i class="far fa-bell"></i>
+                            <span class="d-none d-md-inline">Thông báo</span>
+                            <span id="notiBadge" style="position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.7rem; font-weight: bold; display: none;">0</span>
+                        </a>
 
-                    <div id="notificationDropdown" class="dropdown-menu notification-dropdown" style="display: none; position: absolute; top: 100%; right: 0; width: 320px; max-height: 400px; overflow-y: auto; background: white; border: 1px solid #e5e7eb; border-radius: 8px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); z-index: 1000; padding: 0;">
-                        <div style="padding: 10px 15px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
-                            <strong style="color: #1f2937;">Thông báo mới</strong>
-                            <button id="markAllReadBtn" style="background: none; border: none; color: #3b82f6; font-size: 0.85rem; cursor: pointer;">Đánh dấu đã đọc tất cả</button>
+                        <div id="notificationDropdown" class="dropdown-menu notification-dropdown" style="display: none; position: absolute; top: 100%; right: 0; width: 320px; max-height: 400px; overflow-y: auto; background: white; border: 1px solid #e5e7eb; border-radius: 8px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); z-index: 1000; padding: 0;">
+                            <div style="padding: 10px 15px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
+                                <strong style="color: #1f2937;">Thông báo mới</strong>
+                                <button id="markAllReadBtn" style="background: none; border: none; color: #3b82f6; font-size: 0.85rem; cursor: pointer;">Đánh dấu đã đọc tất cả</button>
+                            </div>
+                            <ul id="notificationList" style="list-style: none; padding: 0; margin: 0;">
+                                <li style="padding: 20px; text-align: center; color: #9ca3af;">Đang tải...</li>
+                            </ul>
                         </div>
-                        <ul id="notificationList" style="list-style: none; padding: 0; margin: 0;">
-                            <li style="padding: 20px; text-align: center; color: #9ca3af;">Đang tải...</li>
-                        </ul>
                     </div>
-                </div>
+                }
 
                 <a href="/ShoppingCart/Cart" id="cartBtn"><i class="fas fa-shopping-cart"></i> <span class="d-none d-md-inline">Giỏ hàng</span></a>
 
@@ -508,14 +511,37 @@
                     }
                 });
 
-                // CHẶN CHUYỂN TRANG
+                const submitSearch = async () => {
+                    const keyword = searchInput.value.trim();
+                    if (!keyword) {
+                        searchInput.focus();
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch(`http://localhost:5136/api/stories/search-suggest?q=${encodeURIComponent(keyword)}`);
+                        const data = await response.json();
+
+                        this.renderSuggestions(data, keyword);
+
+                        suggestBox.style.display = 'block';
+                    } catch (error) {
+                        console.error("Lỗi khi tìm kiếm:", error);
+                        suggestBox.className = 'search_result';
+                        suggestBox.innerHTML = '<div style="padding: 15px; text-align: center; color: #ef4444;">Lỗi kết nối</div>';
+                        suggestBox.style.display = 'block';
+                    }
+                };
+
                 searchBtn.addEventListener('click', (e) => {
                     e.preventDefault();
-                    searchInput.focus();
+                    submitSearch();
                 });
+
                 searchInput.addEventListener('keypress', (e) => {
                     if (e.key === 'Enter') {
                         e.preventDefault();
+                        submitSearch();
                     }
                 });
             },
@@ -540,8 +566,16 @@
                     const cover = item.coverImage || 'https://via.placeholder.com/50x70';
                     const highlightedTitle = item.title.replace(regex, '<strong style="color: #f97316;">$1</strong>');
 
-                    const authorText = item.author || 'Đang cập nhật';
-                    const chapterText = item.chapter > 0 ? `Chương ${item.chapter}` : 'Đang cập nhật';
+                    const categoryText = Array.isArray(item.categories) && item.categories.length > 0
+                        ? item.categories.join(', ')
+                        : 'Chưa có thể loại';
+
+                    let chapterText = 'Chưa có chapter';
+                    if (item.latestChapterLabel && item.latestChapterLabel.trim() !== '') {
+                        chapterText = item.latestChapterLabel;
+                    } else if (item.latestChapter !== null && item.latestChapter !== undefined) {
+                        chapterText = `Chapter ${item.latestChapter}`;
+                    }
 
                     html += `
                         <li>
@@ -551,7 +585,7 @@
                                 </div>
                                 <div class="search_info">
                                     <p class="name">${highlightedTitle}</p>
-                                    <p class="name_other">${authorText}</p>
+                                    <p class="name_other">${categoryText}</p>
                                     <p>${chapterText}</p>
                                 </div>
                                 <div style="clear: both;"></div>
@@ -974,6 +1008,9 @@
         const NotificationController = {
             isLoggedIn: @((User?.Identity?.IsAuthenticated ?? false).ToString().ToLower()),
             dropdownVisible: false,
+            lastUnreadCount: 0,
+            isInitialized: false,
+            pollTimer: null,
 
             init: function() {
                 if (!this.isLoggedIn) return; // Nếu chưa đăng nhập thì không làm gì cả
@@ -986,6 +1023,7 @@
 
                 // 1. Tải số lượng badge ngay khi vào trang
                 this.loadNotifications(true);
+                this.pollTimer = setInterval(() => this.loadNotifications(true), 20000);
 
                 // 2. Xử lý click nút Chuông
                 btn.addEventListener('click', (e) => {
@@ -1030,6 +1068,12 @@
                         badge.textContent = unreadCount;
                         badge.style.display = unreadCount > 0 ? 'inline-block' : 'none';
                     }
+
+                    if (this.isInitialized && unreadCount > this.lastUnreadCount) {
+                        this.playNotificationSound();
+                    }
+                    this.lastUnreadCount = unreadCount;
+                    this.isInitialized = true;
 
                     if (isBadgeOnly) return;
 
@@ -1093,6 +1137,28 @@
                     });
                     this.loadNotifications(false);
                 } catch (e) { console.error(e); }
+            },
+
+            playNotificationSound: function() {
+                try {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(880, audioContext.currentTime);
+                    gainNode.gain.setValueAtTime(0.0001, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.12, audioContext.currentTime + 0.01);
+                    gainNode.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.18);
+
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+
+                    oscillator.start();
+                    oscillator.stop(audioContext.currentTime + 0.2);
+                } catch (e) {
+                    console.error('Không phát được âm thanh thông báo:', e);
+                }
             }
         };
 

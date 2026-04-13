@@ -91,16 +91,31 @@ namespace WibuHub.MVC.Controllers
                 .Take(3)
                 .ToListAsync();
 
-            var recentStoryActivities = await _dbContext.Stories
+            var recentStoryRaw = await _dbContext.Stories
                 .OrderByDescending(s => s.CreatedAt)
-                .Select(s => new DashboardActivityItem
+                .Select(s => new
                 {
-                    IconClass = "fas fa-tags",
-                    Title = $"Truyện mới cập nhật: {s.StoryName}",
-                    OccurredAt = s.CreatedAt
+                    s.StoryName,
+                    AuthorName = s.Author != null ? s.Author.Name : s.AuthorName,
+                    s.LatestChapter,
+                    Categories = s.StoryCategories
+                        .Select(sc => sc.Category.Name)
+                        .Where(name => !string.IsNullOrWhiteSpace(name))
+                        .Take(3)
+                        .ToList(),
+                    s.CreatedAt
                 })
                 .Take(5)
                 .ToListAsync();
+
+            var recentStoryActivities = recentStoryRaw
+                .Select(s => new DashboardActivityItem
+                {
+                    IconClass = "fas fa-tags",
+                    Title = $"Truyện: {s.StoryName} | Tác giả: {(string.IsNullOrWhiteSpace(s.AuthorName) ? "Đang cập nhật" : s.AuthorName)} | Thể loại: {(s.Categories.Count > 0 ? string.Join(", ", s.Categories) : "N/A")} | Chapter: {(string.IsNullOrWhiteSpace(s.LatestChapter) ? "Đang cập nhật" : s.LatestChapter)}",
+                    OccurredAt = s.CreatedAt
+                })
+                .ToList();
 
             var recentActivities = recentChapters
                 .Concat(recentComments)

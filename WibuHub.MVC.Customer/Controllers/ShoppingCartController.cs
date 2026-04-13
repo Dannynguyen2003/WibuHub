@@ -315,6 +315,7 @@ namespace WibuHub.MVC.Customer.Controllers
                             }
 
                             await GrantOrderRewardsAsync(currentUser.Id, order.TotalAmount);
+                            await CreateOrderNotificationIfNeededAsync(currentUser, order);
                         }
 
                         await _context.SaveChangesAsync();
@@ -407,6 +408,7 @@ namespace WibuHub.MVC.Customer.Controllers
                                         await userManager.UpdateAsync(user);
 
                                         await GrantOrderRewardsAsync(user.Id, order.TotalAmount);
+                                        await CreateOrderNotificationIfNeededAsync(user, order);
                                     }
                                 }
                             }
@@ -419,6 +421,7 @@ namespace WibuHub.MVC.Customer.Controllers
                                     if (user != null)
                                     {
                                         await GrantOrderRewardsAsync(user.Id, order.TotalAmount);
+                                        await CreateOrderNotificationIfNeededAsync(user, order);
                                     }
                                 }
                             }
@@ -498,6 +501,38 @@ namespace WibuHub.MVC.Customer.Controllers
             var pointsAdded = Math.Max(1, (int)Math.Floor(totalAmount / 50000m));
 
             await _rewardService.AddExpAndPointsAsync(userId, expAdded, pointsAdded);
+        }
+
+        private async Task CreateOrderNotificationIfNeededAsync(StoryUser user, Order order)
+        {
+            if (!Guid.TryParse(user.Id, out var userId))
+            {
+                return;
+            }
+
+            var orderCode = order.Id.ToString()[..8].ToUpperInvariant();
+            var targetUrl = $"/ShoppingCart/PaymentResult?resultCode=0&orderId={order.Id}";
+            var title = $"Đơn hàng #{orderCode} đã thanh toán";
+
+            var existed = await _context.Notifications.AnyAsync(n =>
+                n.UserId == userId
+                && n.Title == title
+                && n.TargetUrl == targetUrl);
+
+            if (existed)
+            {
+                return;
+            }
+
+            _context.Notifications.Add(new Notification
+            {
+                UserId = userId,
+                Title = title,
+                Message = $"Thanh toán thành công đơn hàng {orderCode}. Tổng tiền: {order.TotalAmount:N0}đ",
+                TargetUrl = targetUrl,
+                IsRead = false,
+                CreateDate = DateTime.UtcNow
+            });
         }
         #endregion
     }

@@ -147,16 +147,28 @@ namespace WibuHub.Service.Implementations
             keyword = keyword.ToLower();
 
             var suggestions = await _context.Stories
-                .Where(x => x.StoryName.ToLower().Contains(keyword)) // Đã fix lỗi dư dấu chấm ở đây
+                .Where(x =>
+                    x.StoryName.ToLower().Contains(keyword)
+                    || x.StoryCategories.Any(sc => sc.Category.Name != null && sc.Category.Name.ToLower().Contains(keyword)))
+                .OrderByDescending(x => x.StoryName.ToLower().Contains(keyword))
+                .ThenByDescending(x => x.UpdateDate)
                 .Select(x => new
                 {
                     id = x.Id,
                     title = x.StoryName,
                     coverImage = x.CoverImage,
-                    author = x.AuthorName != null ? x.AuthorName : "Đang cập nhật",
-                    chapter = x.TotalChapters
+                    categories = x.StoryCategories
+                        .Select(sc => sc.Category.Name)
+                        .Where(name => !string.IsNullOrWhiteSpace(name))
+                        .Take(3)
+                        .ToList(),
+                    latestChapterLabel = x.LatestChapter,
+                    latestChapter = x.Chapters
+                        .OrderByDescending(c => c.ChapterNumber)
+                        .Select(c => (double?)c.ChapterNumber)
+                        .FirstOrDefault()
                 })
-                .Take(5)
+                .Take(20)
                 .ToListAsync();
 
             return suggestions;
