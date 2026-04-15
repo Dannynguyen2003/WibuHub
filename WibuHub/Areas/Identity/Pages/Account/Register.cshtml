@@ -35,13 +35,15 @@
 
         <div class="form-group">
             <label asp-for="Input.Password">Mật khẩu</label>
-            <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="••••••••" />
+            <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="••••••••" id="adminRegisterPassword" />
+            <button type="button" class="btn-auth" style="margin-top: 8px; width: auto; padding: 8px 14px;" data-password-target="#adminRegisterPassword">Hiện mật khẩu</button>
             <span asp-validation-for="Input.Password" style="color: #dc2626; font-size: 0.85rem; margin-top: 5px; display: block;"></span>
         </div>
 
         <div class="form-group">
             <label asp-for="Input.ConfirmPassword">Xác nhận mật khẩu</label>
-            <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="••••••••" />
+            <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="••••••••" id="adminRegisterConfirmPassword" />
+            <button type="button" class="btn-auth" style="margin-top: 8px; width: auto; padding: 8px 14px;" data-password-target="#adminRegisterConfirmPassword">Hiện mật khẩu</button>
             <span asp-validation-for="Input.ConfirmPassword" style="color: #dc2626; font-size: 0.85rem; margin-top: 5px; display: block;"></span>
         </div>
 
@@ -57,4 +59,19 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.querySelectorAll('[data-password-target]').forEach(function (button) {
+            button.addEventListener('click', function () {
+                const selector = button.getAttribute('data-password-target');
+                const input = selector ? document.querySelector(selector) : null;
+                if (!input) {
+                    return;
+                }
+
+                const isPassword = input.type === 'password';
+                input.type = isPassword ? 'text' : 'password';
+                button.textContent = isPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu';
+            });
+        });
+    </script>
 }

@@ -112,8 +112,14 @@ namespace WibuHub.Controllers
         private async Task CleanupExpiredOrdersAsync()
         {
             var now = DateTime.UtcNow;
+            var pendingFailThreshold = now.AddDays(-2);
             var unpaidThreshold = now.AddDays(-30);
             var historyThreshold = now.AddMonths(-3);
+
+            await _context.Orders
+                .Where(o => o.PaymentStatus == "Pending" && o.CreatedAt < pendingFailThreshold)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(o => o.PaymentStatus, "Failed"));
 
             await _context.Orders
                 .Where(o => (o.PaymentStatus == null || o.PaymentStatus != "Completed") && o.CreatedAt < unpaidThreshold)

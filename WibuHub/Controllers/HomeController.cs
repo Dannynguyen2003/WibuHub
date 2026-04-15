@@ -92,7 +92,7 @@ namespace WibuHub.MVC.Controllers
                 .ToListAsync();
 
             var recentStoryRaw = await _dbContext.Stories
-                .OrderByDescending(s => s.CreatedAt)
+                .OrderByDescending(s => s.UpdateDate)
                 .Select(s => new
                 {
                     s.StoryName,
@@ -103,7 +103,7 @@ namespace WibuHub.MVC.Controllers
                         .Where(name => !string.IsNullOrWhiteSpace(name))
                         .Take(3)
                         .ToList(),
-                    s.CreatedAt
+                    s.UpdateDate
                 })
                 .Take(5)
                 .ToListAsync();
@@ -113,7 +113,7 @@ namespace WibuHub.MVC.Controllers
                 {
                     IconClass = "fas fa-tags",
                     Title = $"Truyện: {s.StoryName} | Tác giả: {(string.IsNullOrWhiteSpace(s.AuthorName) ? "Đang cập nhật" : s.AuthorName)} | Thể loại: {(s.Categories.Count > 0 ? string.Join(", ", s.Categories) : "N/A")} | Chapter: {(string.IsNullOrWhiteSpace(s.LatestChapter) ? "Đang cập nhật" : s.LatestChapter)}",
-                    OccurredAt = s.CreatedAt
+                    OccurredAt = s.UpdateDate
                 })
                 .ToList();
 

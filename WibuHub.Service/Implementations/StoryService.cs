@@ -255,6 +255,8 @@ namespace WibuHub.Service.Implementations
                 entity.CoverImage = dto.CoverImage;
             }
 
+            entity.UpdateDate = DateTime.UtcNow;
+
             _context.Stories.Update(entity);
             await _context.SaveChangesAsync();
             return true;

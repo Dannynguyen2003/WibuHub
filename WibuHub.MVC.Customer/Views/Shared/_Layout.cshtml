@@ -191,7 +191,8 @@
                     </div>
                     <div class="input-group">
                         <label>Mật khẩu</label>
-                        <input type="password" name="password" autocomplete="current-password" placeholder="••••••••" required>
+                        <input id="loginModalPassword" type="password" name="password" autocomplete="current-password" placeholder="••••••••" required>
+                        <button type="button" class="btn-secondary" style="margin-top: 8px; width: auto; padding: 8px 12px;" data-password-target="#loginModalPassword">Hiện mật khẩu</button>
                     </div>
                     <div class="login-meta">
                         <label class="remember-me"><input type="checkbox" name="rememberMe"> Ghi nhớ?</label>
@@ -233,11 +234,13 @@
                     </div>
                     <div class="input-group">
                         <label>Mật khẩu</label>
-                        <input type="password" name="password" autocomplete="new-password" placeholder="••••••••" required>
+                        <input id="registerModalPassword" type="password" name="password" autocomplete="new-password" placeholder="••••••••" required>
+                        <button type="button" class="btn-secondary" style="margin-top: 8px; width: auto; padding: 8px 12px;" data-password-target="#registerModalPassword">Hiện mật khẩu</button>
                     </div>
                     <div class="input-group">
                         <label>Xác nhận mật khẩu</label>
-                        <input type="password" name="confirmPassword" autocomplete="new-password" placeholder="••••••••" required>
+                        <input id="registerModalConfirmPassword" type="password" name="confirmPassword" autocomplete="new-password" placeholder="••••••••" required>
+                        <button type="button" class="btn-secondary" style="margin-top: 8px; width: auto; padding: 8px 12px;" data-password-target="#registerModalConfirmPassword">Hiện mật khẩu</button>
                     </div>
                     <button class="btn" type="submit">ĐĂNG KÝ</button>
                     <div class="switch-link">
@@ -638,6 +641,20 @@
 
                 document.getElementById('loginModalForm')?.addEventListener('submit', (e) => this.submitForm(e, false));
                 document.getElementById('registerModalForm')?.addEventListener('submit', (e) => this.submitForm(e, true));
+                this.initPasswordToggles();
+            },
+            initPasswordToggles: function() {
+                document.querySelectorAll('[data-password-target]').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const selector = button.getAttribute('data-password-target');
+                        const input = selector ? document.querySelector(selector) : null;
+                        if (!input) return;
+
+                        const isPassword = input.type === 'password';
+                        input.type = isPassword ? 'text' : 'password';
+                        button.textContent = isPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu';
+                    });
+                });
             },
             submitForm: async function(e, isRegister) {
                 e.preventDefault();
