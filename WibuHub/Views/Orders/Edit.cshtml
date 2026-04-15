@@ -1,10 +1,10 @@
 @model WibuHub.ApplicationCore.Entities.Order
 
 @{
-    ViewData["Title"] = "C?p nh?t ðõn hàng";
+    ViewData["Title"] = "Update Order";
 }
 
-<h1>C?p nh?t ðõn hàng</h1>
+<h1>Update Order</h1>
 
 <div class="row">
     <div class="col-md-6">
@@ -28,8 +28,8 @@
                 <textarea asp-for="Note" class="form-control"></textarea>
             </div>
             <div class="form-group">
-                <button type="submit" class="btn btn-primary">Lýu</button>
-                <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">H?y</a>
+                <button type="submit" class="btn btn-primary">Save</button>
+                <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">Cancel</a>
             </div>
         </form>
     </div>
@@ -37,8 +37,8 @@
         <dl class="row">
             <dt class="col-sm-4">User</dt>
             <dd class="col-sm-8">@Model.UserId</dd>
-            <dt class="col-sm-4">T?ng c?ng</dt>
-            <dd class="col-sm-8">@Model.TotalAmount.ToString("N0") ð</dd>
+            <dt class="col-sm-4">Total</dt>
+            <dd class="col-sm-8">@Model.TotalAmount.ToString("N0") â‚«</dd>
         </dl>
     </div>
 </div>

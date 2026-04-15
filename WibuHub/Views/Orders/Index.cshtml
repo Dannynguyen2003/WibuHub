@@ -1,26 +1,26 @@
 ﻿@model IEnumerable<WibuHub.ApplicationCore.Entities.Order>
 
 @{
-    ViewData["Title"] = "Quản lý đơn hàng";
+    ViewData["Title"] = "Order Management";
     var statuses = ViewBag.StatusOptions as IEnumerable<string> ?? Enumerable.Empty<string>();
     var selectedStatus = ViewBag.SelectedStatus as string;
 }
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center">
-        <h1>Quản lý đơn hàng</h1>
+        <h1>Order Management</h1>
         <div class="d-flex align-items-center" style="gap: 12px;">
-            <a asp-action="History" class="btn-secondary btn-sm">Lịch sử giao dịch</a>
+            <a asp-action="History" class="btn-secondary btn-sm">Transaction History</a>
             <form method="get" class="filter-bar filter-bar-inline">
-                <label for="status" class="form-label">Trạng thái thanh toán:</label>
+                <label for="status" class="form-label">Payment Status:</label>
                 <select id="status" name="status" class="form-control" style="max-width: 220px;">
-                    <option value="">Tất cả</option>
+                    <option value="">All</option>
                     @foreach (var status in statuses)
                     {
                         <option value="@status" selected="@(status == selectedStatus)">@status</option>
                     }
                 </select>
-                <button type="submit" class="btn-primary btn-sm">Lọc</button>
+                <button type="submit" class="btn-primary btn-sm">Filter</button>
             </form>
         </div>
     </div>
@@ -28,13 +28,13 @@
     <table class="data-table">
         <thead>
             <tr>
-                <th style="width: 28%">Mã đơn</th>
+                <th style="width: 28%">Order ID</th>
                 <th style="width: 16%">User</th>
-                <th style="width: 14%">Thời gian</th>
-                <th style="width: 14%">Tổng tiền</th>
-                <th style="width: 14%">Phương thức</th>
-                <th style="width: 12%">Trạng thái</th>
-                <th style="width: 14%" class="text-center">Thao tác</th>
+                <th style="width: 14%">Time</th>
+                <th style="width: 14%">Total</th>
+                <th style="width: 14%">Method</th>
+                <th style="width: 12%">Status</th>
+                <th style="width: 14%" class="text-center">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -50,7 +50,7 @@
                     <td>@item.PaymentMethod</td>
                     <td><span class="badge-status">@item.PaymentStatus</span></td>
                     <td class="action-cell">
-                        <a asp-action="Details" asp-route-id="@item.Id" class="btn-secondary btn-sm">Chi tiết</a>
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn-secondary btn-sm">Details</a>
                     </td>
                 </tr>
             }
@@ -58,7 +58,7 @@
         else
         {
             <tr>
-                <td colspan="7" class="text-center">Chưa có đơn hàng nào.</td>
+                <td colspan="7" class="text-center">No orders yet.</td>
             </tr>
         }
         </tbody>

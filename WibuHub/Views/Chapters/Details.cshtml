@@ -30,7 +30,7 @@
                 <dt class="col-sm-3 text-muted">@Html.DisplayNameFor(model => model.ViewCount)</dt>
                 <dd class="col-sm-9">@Html.DisplayFor(model => model.ViewCount)</dd>
 
-                <dt class="col-sm-3 text-muted">Danh sách ảnh</dt>
+                <dt class="col-sm-3 text-muted">Image List</dt>
                 <dd class="col-sm-9">
                     @if (Model.Images != null && Model.Images.Any())
                     {
@@ -46,7 +46,7 @@
                     }
                     else
                     {
-                        <span class="text-muted">Chưa có ảnh.</span>
+                        <span class="text-muted">No images yet.</span>
                     }
                 </dd>
 

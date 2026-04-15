@@ -1,13 +1,13 @@
 ﻿@{
-    ViewData["Title"] = "Quản lý Danh mục";
+    ViewData["Title"] = "Category Management";
 }
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center">
-        <h1>Quản lý Danh mục</h1>
+        <h1>Category Management</h1>
         <p>
             <a asp-action="Create" class="btn btn-success">
-                <i class="fas fa-plus"></i> Tạo mới
+                <i class="fas fa-plus"></i> Create New
             </a>
         </p>
     </div>
@@ -24,7 +24,7 @@
 @section Scripts {
     <script>
         function openModalDeleteCategory(idCategory) {
-            if (!confirm("Bạn có chắc chắn muốn xóa danh mục này không?")) {
+            if (!confirm("Are you sure you want to delete this category?")) {
                 return;
             }
             deleteCategory(idCategory);
@@ -32,7 +32,7 @@
         function deleteCategory(idCategory) {
             let inputToken = document.querySelector("#antiForgeryForm input[name='__RequestVerificationToken']");
             if (!inputToken) {
-                console.error("Không tìm thấy Token bảo mật!");
+                console.error("Security token not found!");
                 return;
             }
             $.ajax({
@@ -48,7 +48,7 @@
                     }
                 },
                 error: function () {
-                    alert("Có lỗi xảy ra khi kết nối với máy chủ.");
+                    alert("An error occurred while connecting to the server.");
                 }
             });
         }

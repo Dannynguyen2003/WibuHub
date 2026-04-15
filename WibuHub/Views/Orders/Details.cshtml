@@ -8,11 +8,11 @@
     // 1. VIỆT HÓA TRẠNG THÁI
     var statusText = (Model.PaymentStatus ?? string.Empty).ToLowerInvariant() switch
     {
-        "completed" => "Hoàn thành",
-        "pending" => "Đang chờ thanh toán",
-        "cancelled" => "Đã hủy",
-        "canceled" => "Đã hủy",
-        _ => string.IsNullOrWhiteSpace(Model.PaymentStatus) ? "Chưa cập nhật" : Model.PaymentStatus
+        "completed" => "Completed",
+        "pending" => "Pending Payment",
+        "cancelled" => "Cancelled",
+        "canceled" => "Cancelled",
+        _ => string.IsNullOrWhiteSpace(Model.PaymentStatus) ? "Not Updated" : Model.PaymentStatus
     };
 
     // 2. CSS CLASS
@@ -26,12 +26,12 @@
     };
 
     var customer = ViewBag.Customer as StoryUser;
-    var customerName = customer?.FullName ?? customer?.UserName ?? (string.IsNullOrWhiteSpace(Model.UserId) ? "Khách hàng" : Model.UserId);
-    var customerEmail = customer?.Email ?? Model.Email ?? "Chưa cập nhật";
-    var customerPhone = customer?.PhoneNumber ?? Model.Phone ?? "Chưa cập nhật";
+    var customerName = customer?.FullName ?? customer?.UserName ?? (string.IsNullOrWhiteSpace(Model.UserId) ? "Customer" : Model.UserId);
+    var customerEmail = customer?.Email ?? Model.Email ?? "Not Updated";
+    var customerPhone = customer?.PhoneNumber ?? Model.Phone ?? "Not Updated";
 
     // Đã gỡ bỏ ShippingAddress gây lỗi
-    var customerAddress = "Thanh toán trực tuyến (Sản phẩm số)";
+    var customerAddress = "Online Payment (Digital Product)";
 
     var customerAvatar = string.IsNullOrWhiteSpace(customer?.Avatar)
         ? "https://ui-avatars.com/api/?name=Anonymous&background=E2E8F0&color=475569"
@@ -41,18 +41,18 @@
 <link href="~/css/Order.css" rel="stylesheet" />
 <div class="order-container">
     <div class="breadcrumb">
-        <a asp-action="Index">Đơn hàng</a>
+        <a asp-action="Index">Orders</a>
         <i class="fas fa-chevron-right"></i>
-        <span>Chi tiết đơn #@Model.Id</span>
+        <span>Order Detail #@Model.Id</span>
     </div>
 
     <div class="order-header-card">
         <div class="order-info">
-            <h1>Đơn hàng #@Model.Id</h1>
+            <h1>Order #@Model.Id</h1>
             <div class="order-meta">
                 <span class="meta-item"><i class="fas fa-user"></i> @customerName</span>
-                <span class="meta-item"><i class="fas fa-credit-card"></i> @(string.IsNullOrWhiteSpace(Model.PaymentMethod) ? "Chưa cập nhật" : Model.PaymentMethod)</span>
-                <span class="meta-item"><i class="fas fa-hashtag"></i> @(string.IsNullOrWhiteSpace(Model.TransactionId) ? "Chưa cập nhật" : Model.TransactionId)</span>
+                <span class="meta-item"><i class="fas fa-credit-card"></i> @(string.IsNullOrWhiteSpace(Model.PaymentMethod) ? "Not Updated" : Model.PaymentMethod)</span>
+                <span class="meta-item"><i class="fas fa-hashtag"></i> @(string.IsNullOrWhiteSpace(Model.TransactionId) ? "Not Updated" : Model.TransactionId)</span>
                 <span class="meta-item"><i class="fas fa-clock"></i> @Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</span>
             </div>
         </div>
@@ -60,16 +60,16 @@
             <span class="@statusClass"><i class="fas fa-check-circle"></i> @statusText</span>
         </div>
         <div class="action-buttons">
-            <a class="btn-outline" asp-action="Index"><i class="fas fa-arrow-left"></i> Quay lại</a>
+            <a class="btn-outline" asp-action="Index"><i class="fas fa-arrow-left"></i> Back</a>
         </div>
     </div>
 
     <div class="order-grid">
         <div class="card">
-            <div class="card-title"><i class="fas fa-box"></i> Sản phẩm trong đơn</div>
+            <div class="card-title"><i class="fas fa-box"></i> Order Items</div>
             <table class="order-items">
                 <thead>
-                    <tr><th>Sản phẩm</th><th>Giá</th><th>Số lượng</th><th>Tổng</th></tr>
+                    <tr><th>Product</th><th>Price</th><th>Quantity</th><th>Total</th></tr>
                 </thead>
                 <tbody>
                     @if (Model.OrderDetails != null && Model.OrderDetails.Any())
@@ -77,7 +77,7 @@
                         foreach (var detail in Model.OrderDetails)
                         {
                             <tr>
-                                <td>@(detail.ItemName ?? detail.Story?.StoryName ?? "Chưa cập nhật")</td>
+                                <td>@(detail.ItemName ?? detail.Story?.StoryName ?? "Not Updated")</td>
                                 <td>@detail.UnitPrice.ToString("N0")đ</td>
                                 <td>@detail.Quantity</td>
                                 <td>@detail.Amount.ToString("N0")đ</td>
@@ -88,15 +88,15 @@
             </table>
             <div style="margin-top: 20px;">
                 <div class="summary-row">
-                    <span>Tạm tính</span>
+                    <span>Subtotal</span>
                     <span>@Model.Amount.ToString("N0")đ</span>
                 </div>
                 <div class="summary-row">
-                    <span>Thuế</span>
+                    <span>Tax</span>
                     <span>@Model.Tax.ToString("N0")đ</span>
                 </div>
                 <div class="summary-row total">
-                    <span>Tổng cộng</span>
+                    <span>Grand Total</span>
                     <span>@Model.TotalAmount.ToString("N0")đ</span>
                 </div>
             </div>
@@ -104,9 +104,9 @@
 
         <div>
             <div class="card" style="margin-bottom: 25px;">
-                <div class="card-title"><i class="fas fa-user-circle"></i> Khách hàng</div>
+                <div class="card-title"><i class="fas fa-user-circle"></i> Customer</div>
                 <div class="customer-row">
-                    <img src="@customerAvatar" class="customer-avatar" alt="Khách hàng">
+                    <img src="@customerAvatar" class="customer-avatar" alt="Customer">
                     <div class="customer-details">
                         <h4>@customerName</h4>
                         <p><i class="fas fa-envelope"></i> @customerEmail</p>
@@ -115,16 +115,16 @@
                 </div>
                 <ul class="info-list">
                     <li><i class="fas fa-map-marker-alt"></i> @customerAddress</li>
-                    <li><i class="fas fa-pen"></i> @(string.IsNullOrWhiteSpace(Model.Note) ? "Không có ghi chú" : Model.Note)</li>
+                    <li><i class="fas fa-pen"></i> @(string.IsNullOrWhiteSpace(Model.Note) ? "No notes" : Model.Note)</li>
                 </ul>
             </div>
 
             <div class="card">
-                <div class="card-title"><i class="fas fa-credit-card"></i> Thanh toán</div>
+                <div class="card-title"><i class="fas fa-credit-card"></i> Payment</div>
                 <ul class="info-list">
-                    <li><i class="fas fa-qrcode"></i> Mã giao dịch: <strong>@(string.IsNullOrWhiteSpace(Model.TransactionId) ? "Chưa cập nhật" : Model.TransactionId)</strong></li>
-                    <li><i class="fas fa-credit-card"></i> Phương thức: @(string.IsNullOrWhiteSpace(Model.PaymentMethod) ? "Chưa cập nhật" : Model.PaymentMethod)</li>
-                    <li><i class="fas fa-check-circle" style="color:#16a34a;"></i> Trạng thái: @statusText</li>
+                    <li><i class="fas fa-qrcode"></i> Transaction ID: <strong>@(string.IsNullOrWhiteSpace(Model.TransactionId) ? "Not Updated" : Model.TransactionId)</strong></li>
+                    <li><i class="fas fa-credit-card"></i> Method: @(string.IsNullOrWhiteSpace(Model.PaymentMethod) ? "Not Updated" : Model.PaymentMethod)</li>
+                    <li><i class="fas fa-check-circle" style="color:#16a34a;"></i> Status: @statusText</li>
                 </ul>
             </div>
         </div>

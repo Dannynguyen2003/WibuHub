@@ -24,7 +24,7 @@
                 <td>@user.Email</td>
                 <td>@(user.Roles.Count > 0 ? string.Join(", ", user.Roles) : "-")</td>
                 <td>
-                    <a class="btn-secondary" asp-action="Edit" asp-route-id="@user.UserId">C?p nh?t</a>
+                    <a class="btn-secondary" asp-action="Edit" asp-route-id="@user.UserId">Update</a>
                 </td>
             </tr>
         }

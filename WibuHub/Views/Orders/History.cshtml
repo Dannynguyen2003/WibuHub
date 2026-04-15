@@ -1,25 +1,25 @@
 ﻿@model IEnumerable<WibuHub.ApplicationCore.Entities.Order>
 
 @{
-    ViewData["Title"] = "Lịch sử giao dịch";
+    ViewData["Title"] = "Transaction History";
 }
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center">
-        <h1>Lịch sử giao dịch</h1>
-        <a asp-action="Index" class="btn-secondary btn-sm">Đơn hàng đang xử lý</a>
+        <h1>Transaction History</h1>
+        <a asp-action="Index" class="btn-secondary btn-sm">Pending Orders</a>
     </div>
 
     <table class="data-table">
         <thead>
             <tr>
-                <th style="width: 28%">Mã đơn</th>
+                <th style="width: 28%">Order ID</th>
                 <th style="width: 16%">User</th>
-                <th style="width: 14%">Thời gian</th>
-                <th style="width: 14%">Tổng tiền</th>
-                <th style="width: 14%">Phương thức</th>
-                <th style="width: 12%">Trạng thái</th>
-                <th style="width: 14%" class="text-center">Thao tác</th>
+                <th style="width: 14%">Time</th>
+                <th style="width: 14%">Total</th>
+                <th style="width: 14%">Method</th>
+                <th style="width: 12%">Status</th>
+                <th style="width: 14%" class="text-center">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -43,7 +43,7 @@
         else
         {
             <tr>
-                <td colspan="7" class="text-center">Chưa có giao dịch nào.</td>
+                <td colspan="7" class="text-center">No transactions yet.</td>
             </tr>
         }
         </tbody>

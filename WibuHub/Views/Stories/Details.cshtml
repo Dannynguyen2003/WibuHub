@@ -7,13 +7,13 @@
         : Model.CoverImage;
     var statusText = Model.Status switch
     {
-        1 => "Hoàn thành",
-        2 => "Tạm ngưng",
-        _ => "Đang tiến hành"
+        1 => "Completed",
+        2 => "Paused",
+        _ => "In Progress"
     };
     var authorName = !string.IsNullOrWhiteSpace(Model.AuthorName)
         ? Model.AuthorName
-        : Model.Author?.Name ?? "Đang cập nhật";
+        : Model.Author?.Name ?? "Updating";
     var createdDate = Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy");
     var updateDate = Model.UpdateDate.ToLocalTime().ToString("dd/MM/yyyy");
     var chapterCount = Model.Chapters?.Count ?? 0;
@@ -36,42 +36,42 @@
             <div class="story-detail-meta">
                 <div class="story-detail-meta-item">
                     <i class="fas fa-user"></i>
-                    <span class="label">Tác giả</span>
+                    <span class="label">Author</span>
                     <span class="value">@authorName</span>
                 </div>
                 <div class="story-detail-meta-item">
                     <i class="far fa-calendar-alt"></i>
-                    <span class="label">Ngày tạo</span>
+                    <span class="label">Created</span>
                     <span class="value">@createdDate</span>
                 </div>
                 <div class="story-detail-meta-item">
                     <i class="fas fa-history"></i>
-                    <span class="label">Cập nhật</span>
+                    <span class="label">Updated</span>
                     <span class="value">@updateDate</span>
                 </div>
                 <div class="story-detail-meta-item">
                     <i class="fas fa-list"></i>
-                    <span class="label">Tổng số chap</span>
+                    <span class="label">Total Chapters</span>
                     <span class="value">@chapterCount</span>
                 </div>
                 <div class="story-detail-meta-item">
                     <i class="fas fa-signal"></i>
-                    <span class="label">Tình trạng</span>
+                    <span class="label">Status</span>
                     <span class="value">@statusText</span>
                 </div>
                 <div class="story-detail-meta-item">
                     <i class="fas fa-heart"></i>
-                    <span class="label">Lượt theo dõi</span>
+                    <span class="label">Followers</span>
                     <span class="value">@Model.FollowCount</span>
                 </div>
                 <div class="story-detail-meta-item">
                     <i class="far fa-eye"></i>
-                    <span class="label">Lượt xem</span>
+                    <span class="label">Views</span>
                     <span class="value">@Model.ViewCount</span>
                 </div>
                 <div class="story-detail-meta-item">
                     <i class="fas fa-star"></i>
-                    <span class="label">Đánh giá</span>
+                    <span class="label">Rating</span>
                     <span class="value">@Model.RatingScore.ToString("0.0")</span>
                 </div>
             </div>
@@ -92,7 +92,7 @@
     </div>
 
     <div class="story-detail-chapters">
-        <h3>Danh sách chương</h3>
+        <h3>Chapter List</h3>
         @if (Model.Chapters != null && Model.Chapters.Any())
         {
             <div class="story-detail-chapter-list">
@@ -110,7 +110,7 @@
         }
         else
         {
-            <div class="story-detail-empty">Chưa có chương.</div>
+            <div class="story-detail-empty">No chapters yet.</div>
         }
     </div>
 </div>
