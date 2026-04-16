@@ -20,8 +20,8 @@
            Nếu ApplicationUser của bạn có thêm trường này, hãy mở comment đoạn dưới đây.
         *@
         @* <div class="form-group">
-            <label asp-for="Input.Name">Họ tên</label>
-            <input asp-for="Input.Name" class="form-control" placeholder="Nguyễn Văn A" />
+            <label asp-for="Input.Name">Full Name</label>
+            <input asp-for="Input.Name" class="form-control" placeholder="Nguyen Van A" />
             <span asp-validation-for="Input.Name" style="color: #dc2626; font-size: 0.85rem; margin-top: 5px; display: block;"></span>
         </div> 
         *@
@@ -34,16 +34,16 @@
         </div>
 
         <div class="form-group">
-            <label asp-for="Input.Password">Mật khẩu</label>
+            <label asp-for="Input.Password">Password</label>
             <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="••••••••" id="adminRegisterPassword" />
-            <button type="button" class="btn-auth" style="margin-top: 8px; width: auto; padding: 8px 14px;" data-password-target="#adminRegisterPassword">Hiện mật khẩu</button>
+            <button type="button" class="btn-auth" style="margin-top: 8px; width: auto; padding: 8px 14px;" data-password-target="#adminRegisterPassword">Show password</button>
             <span asp-validation-for="Input.Password" style="color: #dc2626; font-size: 0.85rem; margin-top: 5px; display: block;"></span>
         </div>
 
         <div class="form-group">
-            <label asp-for="Input.ConfirmPassword">Xác nhận mật khẩu</label>
+            <label asp-for="Input.ConfirmPassword">Confirm Password</label>
             <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="••••••••" id="adminRegisterConfirmPassword" />
-            <button type="button" class="btn-auth" style="margin-top: 8px; width: auto; padding: 8px 14px;" data-password-target="#adminRegisterConfirmPassword">Hiện mật khẩu</button>
+            <button type="button" class="btn-auth" style="margin-top: 8px; width: auto; padding: 8px 14px;" data-password-target="#adminRegisterConfirmPassword">Show password</button>
             <span asp-validation-for="Input.ConfirmPassword" style="color: #dc2626; font-size: 0.85rem; margin-top: 5px; display: block;"></span>
         </div>
 
@@ -70,7 +70,7 @@
 
                 const isPassword = input.type === 'password';
                 input.type = isPassword ? 'text' : 'password';
-                button.textContent = isPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu';
+                button.textContent = isPassword ? 'Hide password' : 'Show password';
             });
         });
     </script>

@@ -1,5 +1,5 @@
 ﻿@{
-    ViewData["Title"] = "Nâng cấp đặc quyền VIP";
+    ViewData["Title"] = "Upgrade VIP Privileges";
 }
 
 @section Styles {
@@ -8,46 +8,46 @@
 
 <div class="vip-container">
     <div class="vip-header">
-        <h1>Trải Nghiệm Không Giới Hạn</h1>
-        <p>Loại bỏ quảng cáo, đọc trước chương mới và sở hữu huy hiệu độc quyền.</p>
+        <h1>Unlimited Experience</h1>
+        <p>Remove ads, read new chapters early, and get exclusive badges.</p>
     </div>
 
     <div class="pricing-grid">
         <div class="pricing-card">
-            <div class="plan-name">VIP 1 Tháng</div>
-            <div class="plan-price">99,000 <span>VNĐ</span></div>
-            <p style="color: #6b7280; font-size: 0.9rem;">Tương đương 30 ngày</p>
+            <div class="plan-name">VIP 1 Month</div>
+            <div class="plan-price">99,000 <span>VND</span></div>
+            <p style="color: #6b7280; font-size: 0.9rem;">Equivalent to 30 days</p>
             <ul class="plan-features">
-                <li><i class="fas fa-check-circle"></i> Không quảng cáo</li>
-                <li><i class="fas fa-check-circle"></i> Đọc trước chương mới</li>
-                <li style="color: #9ca3af;"><i class="fas fa-times-circle" style="color: #9ca3af;"></i> Huy hiệu bình luận VIP</li>
+                <li><i class="fas fa-check-circle"></i> No Ads</li>
+                <li><i class="fas fa-check-circle"></i> Read chapters early</li>
+                <li style="color: #9ca3af;"><i class="fas fa-times-circle" style="color: #9ca3af;"></i> VIP comment badge</li>
             </ul>
-            <button class="btn-buy standard" onclick="addVipToCart('VIP_MONTH')">Thêm vào giỏ</button>
+            <button class="btn-buy standard" onclick="addVipToCart('VIP_MONTH')">Add to cart</button>
         </div>
 
         <div class="pricing-card popular">
-            <div class="popular-badge">ĐƯỢC ƯU CHUỘNG NHẤT</div>
-            <div class="plan-name" style="color: #d97706;">VIP 3 Tháng</div>
-            <div class="plan-price">249,000 <span>VNĐ</span></div>
-            <p style="color: #6b7280; font-size: 0.9rem;">Tiết kiệm hơn khi đăng ký 90 ngày</p>
+            <div class="popular-badge">MOST POPULAR</div>
+            <div class="plan-name" style="color: #d97706;">VIP 3 Months</div>
+            <div class="plan-price">249,000 <span>VND</span></div>
+            <p style="color: #6b7280; font-size: 0.9rem;">Save more with 90 days plan</p>
             <ul class="plan-features">
-                <li><i class="fas fa-check-circle"></i> Không quảng cáo</li>
-                <li><i class="fas fa-check-circle"></i> Đọc trước chương mới</li>
-                <li><i class="fas fa-check-circle"></i> Avatar viền vàng & Huy hiệu VIP</li>
+                <li><i class="fas fa-check-circle"></i> No Ads</li>
+                <li><i class="fas fa-check-circle"></i> Read chapters early</li>
+                <li><i class="fas fa-check-circle"></i> Gold avatar border & VIP badge</li>
             </ul>
-            <button class="btn-buy premium" onclick="addVipToCart('VIP_QUARTER')">Thêm vào giỏ</button>
+            <button class="btn-buy premium" onclick="addVipToCart('VIP_QUARTER')">Add to cart</button>
         </div>
 
         <div class="pricing-card">
-            <div class="plan-name">VIP 12 Tháng</div>
-            <div class="plan-price">799,000 <span>VNĐ</span></div>
-            <p style="color: #6b7280; font-size: 0.9rem;">Gói tiết kiệm nhất cho fan truyện</p>
+            <div class="plan-name">VIP 12 Months</div>
+            <div class="plan-price">799,000 <span>VND</span></div>
+            <p style="color: #6b7280; font-size: 0.9rem;">Best value plan for story fans</p>
             <ul class="plan-features">
-                <li><i class="fas fa-check-circle"></i> Tất cả đặc quyền Tiêu chuẩn</li>
-                <li><i class="fas fa-check-circle"></i> Đọc chương Extra Ngoại truyện</li>
-                <li><i class="fas fa-check-circle"></i> Tên màu đỏ trên BXH</li>
+                <li><i class="fas fa-check-circle"></i> All Standard Privileges</li>
+                <li><i class="fas fa-check-circle"></i> Read Extra Chapters</li>
+                <li><i class="fas fa-check-circle"></i> Red name on rankings</li>
             </ul>
-            <button class="btn-buy standard" onclick="addVipToCart('VIP_YEAR')">Thêm vào giỏ</button>
+            <button class="btn-buy standard" onclick="addVipToCart('VIP_YEAR')">Add to cart</button>
         </div>
     </div>
 </div>
@@ -60,7 +60,7 @@
 @section Scripts {
     <script>
         function addVipToCart(code) {
-            // Gán mã code của gói VIP vào input ẩn
+            // Assign VIP package code to hidden input
             document.getElementById('vipCodeInput').value = code;
             // Submit form
             document.getElementById('addVipForm').submit();

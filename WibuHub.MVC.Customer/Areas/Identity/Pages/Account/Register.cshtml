@@ -1,12 +1,12 @@
 ﻿@page
 @model RegisterModel
 @{
-    ViewData["Title"] = "Đăng ký";
+    ViewData["Title"] = "Register";
 }
 
 <div class="modal" style="display: flex; position: static; background: transparent; padding: 40px 0;">
     <div class="modal-content">
-        <div class="modal-title">Tạo tài khoản mới</div>
+        <div class="modal-title">Create new account</div>
         <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
             <div class="input-group">
@@ -15,27 +15,27 @@
                 <span asp-validation-for="Input.Email" class="text-danger"></span>
             </div>
             <div class="input-group">
-                <label asp-for="Input.Password">Mật khẩu</label>
+                <label asp-for="Input.Password">Password</label>
                 <input asp-for="Input.Password" type="password" autocomplete="new-password" aria-required="true" placeholder="••••••••" data-password-field="register-password" />
-                <button type="button" class="btn" data-password-toggle="register-password">Hiện mật khẩu</button>
+                <button type="button" class="btn" data-password-toggle="register-password">Show password</button>
                 <span asp-validation-for="Input.Password" class="text-danger"></span>
             </div>
             <div class="input-group">
-                <label asp-for="Input.ConfirmPassword">Xác nhận mật khẩu</label>
+                <label asp-for="Input.ConfirmPassword">Confirm Password</label>
                 <input asp-for="Input.ConfirmPassword" type="password" autocomplete="new-password" aria-required="true" placeholder="••••••••" data-password-field="register-confirm-password" />
-                <button type="button" class="btn" data-password-toggle="register-confirm-password">Hiện mật khẩu</button>
+                <button type="button" class="btn" data-password-toggle="register-confirm-password">Show password</button>
                 <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
             </div>
-            <button id="registerSubmit" type="submit" class="btn">Đăng ký</button>
+            <button id="registerSubmit" type="submit" class="btn">Register</button>
             <div class="switch-link">
-                Đã có tài khoản? <a asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl">Đăng nhập</a>
+                Already have an account? <a asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl">Login</a>
             </div>
         </form>
 
         @if ((Model.ExternalLogins?.Count ?? 0) > 0)
         {
             <div style="margin-top: 20px;">
-                <p style="text-align: center; color: #64748b; margin-bottom: 12px;">Hoặc đăng ký bằng</p>
+                <p style="text-align: center; color: #64748b; margin-bottom: 12px;">Or register with</p>
                 <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" style="display: flex; gap: 10px; flex-wrap: wrap;">
                     @foreach (var provider in Model.ExternalLogins!)
                     {
@@ -61,7 +61,7 @@
 
                 const isPassword = passwordInput.type === 'password';
                 passwordInput.type = isPassword ? 'text' : 'password';
-                button.textContent = isPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu';
+                button.textContent = isPassword ? 'Hide password' : 'Show password';
             });
         });
     </script>

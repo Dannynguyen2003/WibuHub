@@ -8,12 +8,12 @@
 <div class="category-page">
     <div class="category-page-header">
         <h2>@Model.Title</h2>
-        <span>@Model.Stories.Count truyện</span>
+        <span>@Model.Stories.Count stories</span>
     </div>
 
     @if (Model.Stories.Count == 0)
     {
-        <div class="category-empty">Chưa có truyện trong bảng xếp hạng này.</div>
+        <div class="category-empty">No stories in this ranking yet.</div>
     }
     else
     {
@@ -28,12 +28,12 @@
                 var createdAt = story.CreatedAt.ToLocalTime();
                 var timeSpan = DateTime.Now - createdAt;
                 var timeLabel = timeSpan.TotalHours < 24
-                    ? $"{Math.Max(1, (int)Math.Round(timeSpan.TotalHours))} Giờ Trước"
-                    : $"{Math.Max(1, (int)Math.Round(timeSpan.TotalDays))} Ngày Trước";
+                    ? $"{Math.Max(1, (int)Math.Round(timeSpan.TotalHours))} Hours Ago"
+                    : $"{Math.Max(1, (int)Math.Round(timeSpan.TotalDays))} Days Ago";
                 var latestChapter = story.Chapters?
                     .OrderByDescending(c => c.ChapterNumber)
                     .FirstOrDefault();
-                var chapterLabel = latestChapter != null ? $"Chương {latestChapter.ChapterNumber}" : "Chưa có chương";
+                var chapterLabel = latestChapter != null ? $"Chapter {latestChapter.ChapterNumber}" : "No chapters";
                 var storySlug = string.IsNullOrWhiteSpace(story.Slug) ? story.StoryName : story.Slug;
                 var storyUrl = Url.Action("Details", "Stories", new { id = story.Id }) ?? "#";
                 var isHot = story.ViewCount >= 10000;

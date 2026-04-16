@@ -1,6 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using WibuHub.ApplicationCore.Entities.Identity
-@* Nhớ đổi WibuHub.ApplicationCore... thành namespace chứa class StoryUser của bạn nếu khác nhé *@
+@* Make sure to change WibuHub.ApplicationCore... to your namespace containing StoryUser class if different *@
 
 @inject SignInManager<StoryUser> SignInManager
 @inject UserManager<StoryUser> UserManager
@@ -11,7 +11,7 @@
         <li>
             <button onclick="document.getElementById('coin-modal').classList.remove('hidden')"
                     class="flex items-center gap-2 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition-transform hover:scale-105">
-                <span>🪙 0</span> @* Chỗ này sau bạn map với dữ liệu xu thật của User *@
+                <span>🪙 0</span> @* Map this with actual User coins data later *@
             </button>
         </li>
 
@@ -30,7 +30,7 @@
                 <div class="py-1">
                     <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
                         <button type="submit" class="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            Đăng xuất
+                            Logout
                         </button>
                     </form>
                 </div>
@@ -42,13 +42,13 @@
         <li>
             <button onclick="document.getElementById('auth-modal').classList.remove('hidden')"
                     class="rounded-full bg-green-600 px-4 py-2 text-sm text-white hover:bg-green-700">
-                Đăng nhập
+                Login
             </button>
         </li>
         <li>
             <a asp-area="Identity" asp-page="/Account/Register"
                class="hidden sm:block rounded-full border border-green-600 px-4 py-2 text-sm text-green-600 hover:bg-green-50">
-                Đăng ký
+                Register
             </a>
         </li>
     }

@@ -51,7 +51,7 @@
     <ul style="display: flex; flex-wrap: wrap; list-style: none; padding: 0; margin: 0; font-size: 0.95rem; color: #6b7280; align-items: center; gap: 8px;">
         <li>
             <a href="/" style="color: #3b82f6; text-decoration: none; display: flex; align-items: center; gap: 4px;">
-                <i class="fas fa-home"></i> Trang chủ
+                <i class="fas fa-home"></i> Home
             </a>
         </li>
         <li><span style="margin: 0 2px;">/</span></li>
@@ -70,27 +70,27 @@
 <div class="chapter-read-page">
     <div class="chapter-read-header">
         <h2>@chapterTitle</h2>
-        <div class="chapter-updated">[Cập nhật lúc: @updatedAt]</div>
+        <div class="chapter-updated">[Updated at: @updatedAt]</div>
     </div>
 
     <div class="chapter-warning">
         <i class="fas fa-exclamation-triangle"></i>
-        Nếu không xem được truyện vui lòng đổi "SERVER ẢNH" bên dưới
+        If you cannot view the story, please change the "IMAGE SERVER" below
     </div>
 
     <div class="chapter-toolbar">
         <div class="chapter-servers">
-            <a class="chapter-server @(activeServer == "normal" ? "active" : "")" href="@Url.RouteUrl("ChapterReadSeo", new { storySlug, chapterNumber = chapter.ChapterNumber.ToString(CultureInfo.InvariantCulture), sv = "normal" })">Server thường</a>
+            <a class="chapter-server @(activeServer == "normal" ? "active" : "")" href="@Url.RouteUrl("ChapterReadSeo", new { storySlug, chapterNumber = chapter.ChapterNumber.ToString(CultureInfo.InvariantCulture), sv = "normal" })">Normal Server</a>
             @if (Model.IsVipUser)
             {
-                <a class="chapter-server @(activeServer == "vip" ? "active" : "")" href="@Url.RouteUrl("ChapterReadSeo", new { storySlug, chapterNumber = chapter.ChapterNumber.ToString(CultureInfo.InvariantCulture), sv = "vip" })">Server VIP</a>
+                <a class="chapter-server @(activeServer == "vip" ? "active" : "")" href="@Url.RouteUrl("ChapterReadSeo", new { storySlug, chapterNumber = chapter.ChapterNumber.ToString(CultureInfo.InvariantCulture), sv = "vip" })">VIP Server</a>
             }
             else
             {
-                <a class="chapter-server" href="@Url.Action("Upgrade", "Vip")">Server VIP</a>
+                <a class="chapter-server" href="@Url.Action("Upgrade", "Vip")">VIP Server</a>
             }
         </div>
-        <button class="chapter-report" type="button"><i class="fas fa-flag"></i> Báo lỗi</button>
+        <button class="chapter-report" type="button"><i class="fas fa-flag"></i> Report</button>
     </div>
 
     <div class="chapter-nav">
@@ -107,7 +107,7 @@
         <a class="chapter-nav-btn @(nextChapter == null ? "disabled" : "")" href="@(nextChapter == null ? "#" : BuildChapterUrl(nextChapter))">
             <i class="fas fa-chevron-right"></i>
         </a>
-        <div class="chapter-nav-hint">Sử dụng mũi tên trái (←) hoặc phải (→)) để chuyển chapter</div>
+        <div class="chapter-nav-hint">Use left (←) or right (→) arrow keys to navigate chapters</div>
     </div>
 
     <div class="chapter-content">
@@ -125,7 +125,7 @@
         }
         else
         {
-            <div class="chapter-placeholder">Trang 1 - Nội dung truyện sẽ hiển thị ở đây</div>
+            <div class="chapter-placeholder">Page 1 - Story content will be displayed here</div>
         }
     </div>
     <div class="chapter-bottom-bar">
@@ -139,7 +139,7 @@
                 @foreach (var item in orderedChapters)
                 {
                     var url = BuildChapterUrl(item);
-                    <option value="@url" selected="@(item.Id == chapter.Id)">Chương @item.ChapterNumber</option>
+                    <option value="@url" selected="@(item.Id == chapter.Id)">Chapter @item.ChapterNumber</option>
                 }
             </select>
             <a class="chapter-bar-btn @(nextChapter == null ? "disabled" : "")" href="@(nextChapter == null ? "#" : BuildChapterUrl(nextChapter))">
@@ -153,7 +153,7 @@
                     <input type="hidden" name="returnUrl" value="@Context.Request.Path" />
                     <button class="chapter-bar-follow" type="submit">
                         <i class="@(Model.IsFollowed ? "fas fa-heart" : "far fa-heart")"></i>
-                        @(Model.IsFollowed ? "Đã theo dõi" : "Theo dõi")
+                        @(Model.IsFollowed ? "Following" : "Follow")
                     </button>
                 </form>
             }
@@ -161,7 +161,7 @@
             {
                 <button class="chapter-bar-follow" type="button" data-open-login="true">
                     <i class="far fa-heart"></i>
-                    Theo dõi
+                    Follow
                 </button>
             }
         </div>

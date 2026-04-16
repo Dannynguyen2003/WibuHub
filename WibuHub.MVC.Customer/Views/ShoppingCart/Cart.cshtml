@@ -1,13 +1,13 @@
 ﻿@model WibuHub.MVC.ViewModels.ShoppingCart.Cart
 @{
-    ViewData["Title"] = "Giỏ hàng";
+    ViewData["Title"] = "Cart";
     var total = Model.Items.Sum(i => i.Total);
 }
 
 <div class="cart-page">
     <div class="cart-header">
-        <h1>Giỏ hàng của bạn</h1>
-        <a class="cart-checkout-link" asp-action="Index">Chọn thêm sản phẩm</a>
+        <h1>Your Cart</h1>
+        <a class="cart-checkout-link" asp-action="Index">Select more products</a>
     </div>
 
 @section Scripts {
@@ -51,7 +51,7 @@
             btn.addEventListener('click', function (e) {
                 e.stopPropagation();
                 this.closest('.cart-item')?.remove();
-                alert('Đã xóa sản phẩm khỏi giỏ hàng');
+                alert('Product removed from cart');
             });
         });
 
@@ -72,7 +72,7 @@
         document.querySelectorAll('.plan-select').forEach(btn => {
             btn.addEventListener('click', function () {
                 const plan = this.dataset.plan;
-                alert(`Bạn đã chọn gói ${plan?.toUpperCase()}. Vui lòng hoàn tất thanh toán.`);
+                alert(`You have selected ${plan?.toUpperCase()} plan. Please complete checkout.`);
             });
         });
 
@@ -111,7 +111,7 @@
     <section class="cart-section">
         @if (Model.Items.Count == 0)
         {
-            <p class="cart-empty">Giỏ hàng đang trống. Hãy chọn truyện hoặc gói VIP để mua.</p>
+            <p class="cart-empty">Your cart is empty. Please select a story or VIP package to purchase.</p>
         }
         else
         {
@@ -123,33 +123,33 @@
                             <div class="cart-item-title">@item.StoryTitle</div>
                         </div>
                         <div class="cart-item-actions">
-                            <span class="cart-price">@item.Price.ToString("N0") đ</span>
+                            <span class="cart-price">@item.Price.ToString("N0") ₫</span>
                             <form asp-action="UpdateQuantity" method="post" class="cart-qty-form">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="itemId" value="@item.Id" />
                                 <input type="number" name="quantity" value="@item.Quantity" min="0" />
-                                <button type="submit" class="cart-btn secondary">Cập nhật</button>
+                                <button type="submit" class="cart-btn secondary">Update</button>
                             </form>
                             <form asp-action="RemoveItem" method="post">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="itemId" value="@item.Id" />
-                                <button type="submit" class="cart-btn ghost">Xóa</button>
+                                <button type="submit" class="cart-btn ghost">Remove</button>
                             </form>
                         </div>
                     </div>
                 }
             </div>
             <div class="cart-summary">
-                <span>Tạm tính</span>
-                <strong>@total.ToString("N0") đ</strong>
+                <span>Subtotal</span>
+                <strong>@total.ToString("N0") ₫</strong>
             </div>
             @if (User.Identity?.IsAuthenticated ?? false)
             {
-                <a class="cart-checkout" asp-action="Checkout">Tiến hành thanh toán</a>
+                <a class="cart-checkout" asp-action="Checkout">Proceed to Checkout</a>
             }
             else
             {
-                <a class="cart-checkout" href="#" id="checkoutLoginBtn" data-open-login="true">Đăng nhập để thanh toán</a>
+                <a class="cart-checkout" href="#" id="checkoutLoginBtn" data-open-login="true">Login to Checkout</a>
             }
         }
     </section>

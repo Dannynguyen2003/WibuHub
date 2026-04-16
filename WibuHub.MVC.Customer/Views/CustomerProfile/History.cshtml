@@ -1,7 +1,7 @@
 ﻿@model List<WibuHub.MVC.Customer.ViewModels.HistoryItemVM>
 
 @{
-    ViewData["Title"] = "Lịch Sử Đọc Truyện";
+    ViewData["Title"] = "Reading History";
 }
 
 <link rel="stylesheet" href="~/css/CustomerProfile.css" asp-append-version="true">
@@ -11,22 +11,22 @@
 
         @* <div class="profile-sidebar">
             <a href="/CustomerProfile" class="profile-menu-item">
-                <i class="far fa-user-circle"></i> Quản lý tài khoản
+                <i class="far fa-user-circle"></i> Account Settings
             </a>
             <a href="/CustomerProfile/Followed" class="profile-menu-item">
-                <i class="fas fa-bookmark"></i> Truyện Theo Dõi
+                <i class="fas fa-bookmark"></i> Followed Stories
             </a>
             <a href="/CustomerProfile/History" class="profile-menu-item active">
-                <i class="fas fa-history"></i> Lịch Sử Đọc
+                <i class="fas fa-history"></i> Reading History
             </a>
             <a href="/CustomerProfile/ChangePassword" class="profile-menu-item">
-                <i class="fas fa-lock"></i> Đổi mật khẩu
+                <i class="fas fa-lock"></i> Change Password
             </a>
         </div> *@
 
         <div class="profile-content">
             <div class="pane-header">
-                <i class="fas fa-history" style="color: #6366f1;"></i> Lịch Sử Đọc Truyện
+                <i class="fas fa-history" style="color: #6366f1;"></i> Reading History
             </div>
 
             @if (Model != null && Model.Any())
@@ -34,23 +34,23 @@
                 <div class="truyen-grid">
                     @foreach (var item in Model)
                     {
-                        // LOGIC TÍNH TOÁN "THỜI GIAN TRƯỚC" (Đã thêm "Vừa xong")
+                        // TIME AGO LOGIC CALCULATION
                         var timeSpan = DateTime.UtcNow - item.ReadTime;
                         string timeAgo = "";
 
-                        if (timeSpan.TotalMinutes < 1) timeAgo = "Vừa xong";
-                        else if (timeSpan.TotalMinutes < 60) timeAgo = $"{(int)timeSpan.TotalMinutes} Phút Trước";
-                        else if (timeSpan.TotalHours < 24) timeAgo = $"{(int)timeSpan.TotalHours} Giờ Trước";
-                        else if (timeSpan.TotalDays < 30) timeAgo = $"{(int)timeSpan.TotalDays} Ngày Trước";
-                        else if (timeSpan.TotalDays < 365) timeAgo = $"{(int)(timeSpan.TotalDays / 30)} Tháng Trước";
-                        else timeAgo = $"{(int)(timeSpan.TotalDays / 365)} Năm Trước";
+                        if (timeSpan.TotalMinutes < 1) timeAgo = "Just now";
+                        else if (timeSpan.TotalMinutes < 60) timeAgo = $"{(int)timeSpan.TotalMinutes} mins ago";
+                        else if (timeSpan.TotalHours < 24) timeAgo = $"{(int)timeSpan.TotalHours} hours ago";
+                        else if (timeSpan.TotalDays < 30) timeAgo = $"{(int)timeSpan.TotalDays} days ago";
+                        else if (timeSpan.TotalDays < 365) timeAgo = $"{(int)(timeSpan.TotalDays / 30)} months ago";
+                        else timeAgo = $"{(int)(timeSpan.TotalDays / 365)} years ago";
 
                         <div class="truyen-card">
                             <div class="truyen-cover">
 
                                 <form asp-action="RemoveHistory" method="post" style="margin:0;">
                                     <input type="hidden" name="storyId" value="@item.StoryId" />
-                                    <button type="submit" class="btn-remove-card" title="Xóa khỏi lịch sử">
+                                    <button type="submit" class="btn-remove-card" title="Remove from history">
                                         <i class="fas fa-times"></i>
                                     </button>
                                 </form>
@@ -67,13 +67,13 @@
                             @if (item.ChapterNumber > 0)
                             {
                                 <a href="/Stories/Read?storyId=@item.StoryId&chapter=@item.ChapterNumber" class="truyen-chapter">
-                                    Đọc Tiếp Chapter @item.ChapterNumber
+                                    Continue Chapter @item.ChapterNumber
                                 </a>
                             }
                             else
                             {
                                 <span class="truyen-chapter" style="color: #ef4444; cursor: not-allowed;">
-                                    Lỗi Chapter
+                                    Chapter Error
                                 </span>
                             }
                         </div>
@@ -84,7 +84,7 @@
             {
                 <div style="text-align:center; padding: 40px; color:#94a3b8;">
                     <i class="fas fa-glasses" style="font-size: 40px; margin-bottom: 10px;"></i>
-                    <p>Bạn chưa đọc truyện nào gần đây.</p>
+                    <p>You haven't read any stories recently.</p>
                 </div>
             }
         </div>

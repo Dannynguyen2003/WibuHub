@@ -3,11 +3,11 @@
 ﻿
 
 @{
-    ViewData["Title"] = "Thêm mới Truyện";
-    bool isCreate = Model == null || Model.Id == Guid.Empty;
-    string actionString = isCreate ? "Create" : "Edit";
-    string buttonString = isCreate ? "Tạo mới" : "Cập nhật";
-    }
+ViewData["Title"] = "Add New Story";
+bool isCreate = Model == null || Model.Id == Guid.Empty;
+string actionString = isCreate ? "Create" : "Edit";
+string buttonString = isCreate ? "Create" : "Update";
+}
 
     <div class="container mt-4">
         <h1>Add New Stories</h1>
@@ -21,38 +21,38 @@
                         <input asp-for="Id" type="hidden" />
                     }
                     <div class="form-group mb-3">
-                        <label asp-for="Title" class="control-label fw-bold">Tiêu đề truyện</label>
-                        <input asp-for="Title" class="form-control" placeholder="Nhập tiêu đề truyện..." autofocus />
+                        <label asp-for="Title" class="control-label fw-bold">Story Title</label>
+                        <input asp-for="Title" class="form-control" placeholder="Enter story title..." autofocus />
                         <span asp-validation-for="Title" class="text-danger"></span>
                     </div>
                     <div class="form-group mb-3">
-                        <label asp-for="AlternativeName" class="control-label fw-bold">Tên khác</label>
-                        <input asp-for="AlternativeName" class="form-control" placeholder="Tên tiếng Anh, tên gốc..." />
+                        <label asp-for="AlternativeName" class="control-label fw-bold">Alternative Name</label>
+                        <input asp-for="AlternativeName" class="form-control" placeholder="English name, original name..." />
                         <span asp-validation-for="AlternativeName" class="text-danger"></span>
                     </div>
                 <div class="form-group mb-3">
-                    <label asp-for="Description" class="control-label fw-bold">Mô tả</label>
-                    <textarea asp-for="Description" class="form-control" rows="3" placeholder="Mô tả ngắn về truyện..."></textarea>
+                    <label asp-for="Description" class="control-label fw-bold">Description</label>
+                    <textarea asp-for="Description" class="form-control" rows="3" placeholder="Brief description of the story..."></textarea>
                     <span asp-validation-for="Description" class="text-danger"></span>
                 </div>
                 <div class="form-group mb-3">
-                    <label asp-for="Slug" class="control-label fw-bold">Đường dẫn (Slug)</label>
-                    <input asp-for="Slug" class="form-control" placeholder="tu-dong-sinh-ra-tu-tieu-de" id="txtSlug" />
-                    <small class="form-text text-muted">Đây là đường dẫn trên URL (không dấu, gạch ngang).</small>
+                    <label asp-for="Slug" class="control-label fw-bold">Slug URL</label>
+                    <input asp-for="Slug" class="form-control" placeholder="auto-generated-from-title" id="txtSlug" />
+                    <small class="form-text text-muted">This is the path on the URL (no accents, hyphenated).</small>
                     <span asp-validation-for="Slug" class="text-danger"></span>
                 </div>
                 <div class="form-group mb-3">
-                    <label asp-for="Price" class="control-label fw-bold">Giá bán</label>
+                    <label asp-for="Price" class="control-label fw-bold">Price</label>
                     <input asp-for="Price" asp-format="{0:0.####}" class="form-control" type="number" step="0.0001" min="0" />
                     <span asp-validation-for="Price" class="text-danger"></span>
                 </div>
                 <div class="form-group mb-3">
-                    <label asp-for="Discount" class="control-label fw-bold">Giảm giá</label>
+                    <label asp-for="Discount" class="control-label fw-bold">Discount</label>
                     <input asp-for="Discount" asp-format="{0:0.####}" class="form-control" type="number" step="0.0001" min="0" />
                     <span asp-validation-for="Discount" class="text-danger"></span>
                 </div>
                 <div class="form-group mb-3">
-                    <label asp-for="CoverImageFile" class="control-label fw-bold">Ảnh bìa</label>
+                    <label asp-for="CoverImageFile" class="control-label fw-bold">Cover Image</label>
                     <input asp-for="CoverImageFile" class="form-control" type="file" accept="image/*" />
                     <span asp-validation-for="CoverImageFile" class="text-danger"></span>
                     @if (!string.IsNullOrWhiteSpace(Model?.CoverImage))
@@ -63,21 +63,21 @@
                     }
                 </div>
                 <div class="form-group mb-3">
-                    <label asp-for="Status" class="control-label fw-bold">Trạng thái</label>
+                    <label asp-for="Status" class="control-label fw-bold">Status</label>
                     <select asp-for="Status" class="form-control">
-                        <option value="0">Đang tiến hành</option>
-                        <option value="1">Hoàn thành</option>
-                        <option value="2">Tạm ngưng</option>
+                        <option value="0">Ongoing</option>
+                        <option value="1">Completed</option>
+                        <option value="2">Paused</option>
                     </select>
                     <span asp-validation-for="Status" class="text-danger"></span>
                 </div>
                 <div class="form-group mb-3">
-                    <label asp-for="AuthorId" class="control-label fw-bold">Tác giả</label>
+                    <label asp-for="AuthorId" class="control-label fw-bold">Author</label>
                     <select asp-for="AuthorId" class="form-control" asp-items="ViewBag.AuthorId"></select>
                     <span asp-validation-for="AuthorId" class="text-danger"></span>
                 </div>
                 <div class="form-group mb-3">
-                    <label asp-for="CategoryIds" class="control-label fw-bold">Danh mục</label>
+                    <label asp-for="CategoryIds" class="control-label fw-bold">Categories</label>
                     <select asp-for="CategoryIds" class="form-control" asp-items="ViewBag.CategoryId" multiple size="6"></select>
                     <span asp-validation-for="CategoryIds" class="text-danger"></span>
                 </div>
@@ -97,7 +97,7 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
     <script>
-        // Tự động tạo Slug khi gõ Tiêu đề
+        // Automatically generate slug from Title
         document.getElementById("Title").addEventListener("keyup", function () {
             let name = this.value;
             let slug = generateSlug(name);
@@ -121,7 +121,7 @@
         </script>
         <script>
             function openModalDeleteStory(idStory) {
-                if (!confirm("Bạn có chắc chắn muốn xóa truyện này không?")) {
+                if (!confirm("Are you sure you want to delete this story?")) {
                     return;
                 }
                 deleteStory(idStory);
@@ -129,7 +129,7 @@
             function deleteStory(idStory) {
                 let inputToken = document.querySelector("input[name='__RequestVerificationToken']");
                 if (!inputToken) {
-                    console.error("Không tìm thấy Token bảo mật!");
+                    console.error("Security token not found!");
                     return;
                 }
                 $.ajax({
@@ -143,11 +143,11 @@
                         if (response.isOK) {
                             refreshStoryList();
                         } else {
-                            alert("Xóa thất bại!");
+                            alert("Deletion failed!");
                         }
                     },
                     error: function () {
-                        alert("Có lỗi xảy ra khi kết nối với máy chủ.");
+                        alert("An error occurred while connecting to the server.");
                     }
                 });
             }

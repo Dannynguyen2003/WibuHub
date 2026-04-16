@@ -1,7 +1,7 @@
 ﻿@model List<WibuHub.MVC.Customer.ViewModels.FollowItemVM>
 
 @{
-    ViewData["Title"] = "Truyện Đang Theo Dõi";
+    ViewData["Title"] = "Followed Stories";
 }
 
 <link rel="stylesheet" href="~/css/CustomerProfile.css" asp-append-version="true">
@@ -9,15 +9,15 @@
 <div class="profile-page-wrapper">
     <div class="profile-container">
         @* <div class="profile-sidebar">
-            <a href="/CustomerProfile" class="profile-menu-item"><i class="far fa-user-circle"></i> Quản lý tài khoản</a>
-            <a href="/CustomerProfile/Followed" class="profile-menu-item active"><i class="fas fa-bookmark"></i> Truyện Theo Dõi</a>
-            <a href="/CustomerProfile/History" class="profile-menu-item"><i class="fas fa-history"></i> Lịch Sử Đọc</a>
-            <a href="/CustomerProfile/ChangePassword" class="profile-menu-item"><i class="fas fa-lock"></i> Đổi mật khẩu</a>
+            <a href="/CustomerProfile" class="profile-menu-item"><i class="far fa-user-circle"></i> Manage Account</a>
+            <a href="/CustomerProfile/Followed" class="profile-menu-item active"><i class="fas fa-bookmark"></i> Followed Stories</a>
+            <a href="/CustomerProfile/History" class="profile-menu-item"><i class="fas fa-history"></i> Reading History</a>
+            <a href="/CustomerProfile/ChangePassword" class="profile-menu-item"><i class="fas fa-lock"></i> Change Password</a>
         </div> *@
 
         <div class="profile-content">
             <div class="pane-header">
-                <i class="fas fa-flag" style="color: #38bdf8;"></i> Truyện Đang Theo Dõi
+                <i class="fas fa-flag" style="color: #38bdf8;"></i> Followed Stories
             </div>
 
             @if (Model != null && Model.Any())
@@ -29,10 +29,10 @@
                             <div class="truyen-cover">
                                 <form asp-action="Unfollow" method="post" style="margin:0;">
                                     <input type="hidden" name="storyId" value="@item.StoryId" />
-                                    <button type="submit" class="btn-remove-card" title="Bỏ theo dõi"><i class="fas fa-times"></i></button>
+                                    <button type="submit" class="btn-remove-card" title="Unfollow"><i class="fas fa-times"></i></button>
                                 </form>
 
-                                <div class="tag-time">Mới Cập Nhật</div>
+                                <div class="tag-time">Updated</div>
 
                                 <a href="/Stories/Details/@item.StoryId">
                                     <img src="@item.CoverImage" alt="@item.StoryTitle">
@@ -45,13 +45,13 @@
                             {
                                 <a href="@Url.Action("Read", "Stories", new { storyId = item.StoryId, chapter = item.TotalChapters })"
                                    class="truyen-chapter">
-                                    Đọc Tiếp Chapter @item.TotalChapters
+                                    Continue Reading Chapter @item.TotalChapters
                                 </a>
                             }
                             else
                             {
                                 <span class="truyen-chapter" style="color: #ef4444; cursor: not-allowed;">
-                                    Chưa có Chapter
+                                    No Chapters
                                 </span>
                             }
                         </div>
@@ -62,7 +62,7 @@
             {
                 <div style="text-align:center; padding: 40px; color:#94a3b8;">
                     <i class="far fa-folder-open" style="font-size: 40px; margin-bottom: 10px;"></i>
-                    <p>Bạn chưa theo dõi truyện nào.</p>
+                    <p>You haven't followed any stories yet.</p>
                 </div>
             }
         </div>

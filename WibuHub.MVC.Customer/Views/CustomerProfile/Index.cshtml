@@ -1,7 +1,7 @@
 ﻿@model WibuHub.MVC.Customer.ViewModels.CustomerProfileVM
 
 @{
-    ViewData["Title"] = "Quản lý tài khoản";
+    ViewData["Title"] = "Manage Account";
 
     var avatarUrl = string.IsNullOrWhiteSpace(Model?.Avatar)
         ? "https://ui-avatars.com/api/?name=Anonymous&background=E2E8F0&color=475569"
@@ -19,10 +19,10 @@
 
         <div class="profile-sidebar">
             <a href="/CustomerProfile" class="profile-menu-item active">
-                <i class="far fa-user-circle"></i> Quản lý tài khoản
+                <i class="far fa-user-circle"></i> Manage Account
             </a>
             <a href="/CustomerProfile/ChangePassword" class="profile-menu-item">
-                <i class="fas fa-lock"></i> Đổi mật khẩu
+                <i class="fas fa-lock"></i> Change Password
             </a>
         </div>
 
@@ -41,54 +41,54 @@
                     <img id="avatarPreview" src="@avatarUrl" alt="@displayName" class="avatar-preview">
                     <br />
 
-                    <label for="AvatarFile" class="btn-choose-image"><i class="fas fa-camera"></i> Chọn hình mới</label>
+                    <label for="AvatarFile" class="btn-choose-image"><i class="fas fa-camera"></i> Choose new image</label>
                     <input asp-for="AvatarFile" type="file" id="AvatarFile" accept="image/*" onchange="previewAvatar(event)" style="display:none;" />
 
                     <input asp-for="Avatar" type="hidden" />
                     <div class="validation-error"><span asp-validation-for="AvatarFile"></span></div>
 
-                    <p class="warning-text"><i class="fas fa-exclamation-triangle"></i> Dùng hình 18+ sẽ bị khóa tài khoản vĩnh viễn.</p>
+                    <p class="warning-text"><i class="fas fa-exclamation-triangle"></i> Using 18+ images will result in permanent account ban.</p>
                 </div>
 
                 <div class="level-showcase">
-                    <span class="level-label">Cấp @Model.Level</span>
+                    <span class="level-label">Level @Model.Level</span>
                     <div class="level-progress-container">
                         <span class="level-percent">@Model.ExpPercentage% (@Model.RankTier)</span>
                         <div class="level-bar">
                             <div style="width: @Model.ExpPercentage%;"></div>
                         </div>
                     </div>
-                    <span class="level-label">Cấp @(Model.Level + 1)</span>
+                    <span class="level-label">Level @(Model.Level + 1)</span>
                 </div>
 
-                <h3 class="form-group-title">Thông tin tài khoản</h3>
+                <h3 class="form-group-title">Account Information</h3>
 
                 <div class="form-group">
-                    <label>Điểm tích lũy:</label>
-                    <input type="text" class="form-control" value="@Model.Points Xu" readonly disabled>
+                    <label>Accumulated Points:</label>
+                    <input type="text" class="form-control" value="@Model.Points Coins" readonly disabled>
                 </div>
 
                 <div class="form-group">
-                    <label>Email liên kết:</label>
+                    <label>Linked Email:</label>
                     <input type="email" class="form-control" value="@Model?.Email" readonly disabled>
                 </div>
 
-                <h3 class="form-group-title">Thông tin cá nhân</h3>
+                <h3 class="form-group-title">Personal Information</h3>
 
                 <div class="form-group">
-                    <label asp-for="FullName">Họ và Tên</label>
-                    <input asp-for="FullName" class="form-control" placeholder="Nhập họ và tên..." />
+                    <label asp-for="FullName">Full Name</label>
+                    <input asp-for="FullName" class="form-control" placeholder="Enter full name..." />
                     <div class="validation-error"><span asp-validation-for="FullName"></span></div>
                 </div>
 
                 <div class="form-group">
-                    <label asp-for="PhoneNumber">Số điện thoại</label>
-                    <input asp-for="PhoneNumber" class="form-control" placeholder="Nhập số điện thoại..." />
+                    <label asp-for="PhoneNumber">Phone Number</label>
+                    <input asp-for="PhoneNumber" class="form-control" placeholder="Enter phone number..." />
                     <div class="validation-error"><span asp-validation-for="PhoneNumber"></span></div>
                 </div>
 
                 <div class="btn-save-wrapper">
-                    <button type="submit" class="btn-save"><i class="fas fa-save"></i> Lưu Thay Đổi</button>
+                    <button type="submit" class="btn-save"><i class="fas fa-save"></i> Save Changes</button>
                 </div>
             </form>
         </div>

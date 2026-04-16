@@ -7,9 +7,9 @@
     var countsJson = JsonSerializer.Serialize(Model.ViewCounts);
     string GetStatusText(int status) => status switch
     {
-        1 => "Hoàn thành",
-        2 => "Tạm ngưng",
-        _ => "Đang tiến hành"
+        1 => "Completed",
+        2 => "Paused",
+        _ => "Ongoing"
     };
     string GetStatusClass(int status) => status switch
     {
@@ -22,17 +22,17 @@
         var span = DateTime.UtcNow - occurredAt;
         if (span.TotalMinutes < 1)
         {
-            return "Vừa xong";
+            return "Just now";
         }
         if (span.TotalHours < 1)
         {
-            return $"{(int)span.TotalMinutes} phút trước";
+            return $"{(int)span.TotalMinutes} mins ago";
         }
         if (span.TotalDays < 1)
         {
-            return $"{(int)span.TotalHours} giờ trước";
+            return $"{(int)span.TotalHours} hours ago";
         }
-        return $"{(int)span.TotalDays} ngày trước";
+        return $"{(int)span.TotalDays} days ago";
     }
     string GetRelativeTimeClient(DateTime occurredAt) => occurredAt.ToString("o");
 }
@@ -40,42 +40,42 @@
 <div class="stats-grid">
     <div class="stat-card">
         <div class="stat-left">
-            <h4>Tổng truyện</h4>
+            <h4>Total Stories</h4>
             <div class="value">@Model.TotalStories.ToString("N0")</div>
         </div>
         <div class="stat-right"><i class="fas fa-book"></i></div>
     </div>
     <div class="stat-card">
         <div class="stat-left">
-            <h4>Chapter</h4>
+            <h4>Chapters</h4>
             <div class="value">@Model.TotalChapters.ToString("N0")</div>
         </div>
         <div class="stat-right"><i class="fas fa-layer-group"></i></div>
     </div>
     <div class="stat-card">
         <div class="stat-left">
-            <h4>Người dùng</h4>
+            <h4>Users</h4>
             <div class="value">@Model.TotalUsers.ToString("N0")</div>
         </div>
         <div class="stat-right"><i class="fas fa-users"></i></div>
     </div>
     <div class="stat-card">
         <div class="stat-left">
-            <h4>Lượt xem</h4>
+            <h4>Views</h4>
             <div class="value">@Model.TotalViews.ToString("N0")</div>
         </div>
         <div class="stat-right"><i class="fas fa-eye"></i></div>
     </div>
     <div class="stat-card">
         <div class="stat-left">
-            <h4>Tổng đơn hàng</h4>
+            <h4>Total Orders</h4>
             <div class="value">@Model.TotalOrders.ToString("N0")</div>
         </div>
         <div class="stat-right"><i class="fas fa-receipt"></i></div>
     </div>
     <div class="stat-card">
         <div class="stat-left">
-            <h4>Tổng tiền bán</h4>
+            <h4>Total Revenue</h4>
             <div class="value">@Model.TotalRevenue.ToString("N0")</div>
         </div>
         <div class="stat-right"><i class="fas fa-wallet"></i></div>
@@ -83,16 +83,16 @@
 </div>
 
 <div class="row-chart-activity">
-    <div class="chart-box">
-        <div class="chart-header">
-            <h3><i class="fas fa-chart-bar" style="color:#2563eb;"></i> Lượt xem 7 ngày</h3>
-        </div>
-        <canvas id="viewsChart"></canvas>
+<div class="chart-box">
+    <div class="chart-header">
+        <h3><i class="fas fa-chart-bar" style="color:#2563eb;"></i> Views (7 days)</h3>
     </div>
-    <div class="activity-box">
-        <div class="chart-header">
-            <h3><i class="fas fa-clock" style="color:#2563eb;"></i> Hoạt động gần đây</h3>
-        </div>
+    <canvas id="viewsChart"></canvas>
+</div>
+<div class="activity-box">
+    <div class="chart-header">
+        <h3><i class="fas fa-clock" style="color:#2563eb;"></i> Recent Activity</h3>
+    </div>
         <ul class="activity-list">
             @if (Model.RecentActivities.Any())
             {
@@ -110,7 +110,7 @@
             else
             {
                 <li>
-                    <div class="text-muted">Chưa có hoạt động mới.</div>
+                    <div class="text-muted">No new activity.</div>
                 </li>
             }
         </ul>
@@ -118,21 +118,21 @@
 </div>
 
 <div class="chart-box">
-    <div class="chart-header">
-        <h3><i class="fas fa-star" style="color:#fbbf24;"></i> Truyện mới cập nhật</h3>
-    </div>
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th>Truyện</th>
-                <th>Tác giả</th>
-                <th>Chapter</th>
-                <th>Lượt xem</th>
-                <th>Trạng thái</th>
-                <th>Thao tác</th>
-            </tr>
-        </thead>
-        <tbody>
+<div class="chart-header">
+    <h3><i class="fas fa-star" style="color:#fbbf24;"></i> Recently Updated Stories</h3>
+</div>
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>Story</th>
+            <th>Author</th>
+            <th>Chapter</th>
+            <th>Views</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
             @if (Model.RecentStories.Any())
             {
                 foreach (var story in Model.RecentStories)
@@ -153,7 +153,7 @@
             else
             {
                 <tr>
-                    <td colspan="6" class="text-center text-muted">Chưa có dữ liệu.</td>
+                    <td colspan="6" class="text-center text-muted">No data available.</td>
                 </tr>
             }
         </tbody>
@@ -200,20 +200,20 @@
                 const diffMs = now - occurred;
                 const diffMinutes = Math.floor(diffMs / 60000);
                 if (diffMinutes < 1) {
-                    element.textContent = 'Vừa xong';
+                    element.textContent = 'Just now';
                     return;
                 }
                 if (diffMinutes < 60) {
-                    element.textContent = `${diffMinutes} phút trước`;
+                    element.textContent = `${diffMinutes} mins ago`;
                     return;
                 }
                 const diffHours = Math.floor(diffMinutes / 60);
                 if (diffHours < 24) {
-                    element.textContent = `${diffHours} giờ trước`;
+                    element.textContent = `${diffHours} hours ago`;
                     return;
                 }
                 const diffDays = Math.floor(diffHours / 24);
-                element.textContent = `${diffDays} ngày trước`;
+                element.textContent = `${diffDays} days ago`;
             });
         };
 

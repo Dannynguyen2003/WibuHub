@@ -22,9 +22,9 @@
         </div>
 
         <div class="form-group">
-            <label asp-for="Input.Password">Mật khẩu</label>
+            <label asp-for="Input.Password">Password</label>
             <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="••••••••" id="adminLoginPassword" />
-            <button type="button" class="btn-auth" style="margin-top: 8px; width: auto; padding: 8px 14px;" data-password-target="#adminLoginPassword">Hiện mật khẩu</button>
+            <button type="button" class="btn-auth" style="margin-top: 8px; width: auto; padding: 8px 14px;" data-password-target="#adminLoginPassword">Show password</button>
             <span asp-validation-for="Input.Password" class="error-message" style="display: block; color: #dc2626; font-size: 0.9rem; margin-top: 5px;"></span>
         </div>
 
@@ -60,7 +60,7 @@
 
                 const isPassword = input.type === 'password';
                 input.type = isPassword ? 'text' : 'password';
-                button.textContent = isPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu';
+                button.textContent = isPassword ? 'Hide password' : 'Show password';
             });
         });
     </script>

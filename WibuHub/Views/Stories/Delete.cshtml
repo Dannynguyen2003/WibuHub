@@ -15,19 +15,19 @@
             <input type="hidden" asp-for="Id" />
 
             <div class="form-group">
-                <label asp-for="Title" class="control-label">Tiêu đề</label>
+                <label asp-for="Title" class="control-label">Title</label>
                 <input asp-for="Title" class="form-control" />
                 <span asp-validation-for="Title" class="text-danger"></span>
             </div>
 
             <div class="form-group">
-                <label asp-for="AlternativeName" class="control-label">Tên khác</label>
+                <label asp-for="AlternativeName" class="control-label">Alternative Name</label>
                 <input asp-for="AlternativeName" class="form-control" />
                 <span asp-validation-for="AlternativeName" class="text-danger"></span>
             </div>
 
             <div class="form-group">
-                <label asp-for="Description" class="control-label">Mô tả</label>
+                <label asp-for="Description" class="control-label">Description</label>
                 <input asp-for="Description" class="form-control" />
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
@@ -45,25 +45,25 @@
             </div>
 
             <div class="form-group">
-                <label asp-for="Status" class="control-label">Trạng thái (0: Đang tiến hành, 1: Hoàn thành, 2: Tạm ngưng)</label>
+                <label asp-for="Status" class="control-label">Status (0: Ongoing, 1: Completed, 2: Paused)</label>
                 <input asp-for="Status" class="form-control" />
                 <span asp-validation-for="Status" class="text-danger"></span>
             </div>
 
             <div class="form-group">
-                <label asp-for="ViewCount" class="control-label">Lượt xem</label>
+                <label asp-for="ViewCount" class="control-label">View Count</label>
                 <input asp-for="ViewCount" class="form-control" />
                 <span asp-validation-for="ViewCount" class="text-danger"></span>
             </div>
 
             <div class="form-group">
-                <label asp-for="FollowCount" class="control-label">Lượt theo dõi</label>
+                <label asp-for="FollowCount" class="control-label">Follow Count</label>
                 <input asp-for="FollowCount" class="form-control" />
                 <span asp-validation-for="FollowCount" class="text-danger"></span>
             </div>
 
             <div class="form-group">
-                <label asp-for="RatingScore" class="control-label">Đánh giá</label>
+                <label asp-for="RatingScore" class="control-label">Rating</label>
                 <input asp-for="RatingScore" class="form-control" />
                 <span asp-validation-for="RatingScore" class="text-danger"></span>
             </div>
@@ -81,19 +81,19 @@
             </div>
 
             <div class="form-group">
-                <label asp-for="AuthorId" class="control-label">Tác giả</label>
+                <label asp-for="AuthorId" class="control-label">Author</label>
                 <select asp-for="AuthorId" class="form-control" asp-items="ViewBag.AuthorId">
-                    <option value="">-- Chọn tác giả --</option>
+                    <option value="">-- Select Author --</option>
                 </select>
                 <span asp-validation-for="AuthorId" class="text-danger"></span>
             </div>
 
             <div class="form-group">
-                <label asp-for="CategoryIds" class="control-label">Thể loại</label>
+                <label asp-for="CategoryIds" class="control-label">Categories</label>
                 <select asp-for="CategoryIds" class="form-control" asp-items="ViewBag.CategoryId" multiple="multiple" style="height: 150px;">
                 </select>
                 <span asp-validation-for="CategoryIds" class="text-danger"></span>
-                <small class="form-text text-muted">Giữ phím Ctrl (hoặc Cmd trên Mac) để chọn nhiều thể loại.</small>
+                <small class="form-text text-muted">Hold Ctrl (or Cmd on Mac) to select multiple categories.</small>
             </div>
 
             <div class="form-group mt-3">

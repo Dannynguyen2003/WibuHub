@@ -11,10 +11,10 @@
     var chapterTitle = $"{storyName} - Chapter {chapter.ChapterNumber}";
     var updatedAt = chapter.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss");
 
-    // Sắp xếp danh sách chương cho dropdown (mới nhất lên đầu)
+    // Sort chapters for dropdown (newest first)
     var orderedChapters = Model.Chapters.OrderByDescending(c => c.ChapterNumber).ToList();
 
-    // Hàm tạo URL SEO cho chương
+    // Generate SEO URL for chapter
     string BuildChapterUrl(WibuHub.ApplicationCore.Entities.Chapter item)
     {
         return Url.RouteUrl("ChapterReadSeo", new
@@ -24,7 +24,7 @@
         }) ?? "#";
     }
 
-    // Lấy thông tin chương trước/sau từ danh sách Model.Chapters
+    // Get previous/next chapter from Model.Chapters
     var previousChapter = Model.PreviousChapterId.HasValue
         ? Model.Chapters.FirstOrDefault(c => c.Id == Model.PreviousChapterId.Value)
         : null;
@@ -33,15 +33,15 @@
         : null;
 }
 
-@* Link đến file CSS đã gửi ở bước trước *@
+@* Link to CSS file *@
 <link rel="stylesheet" href="~/css/ChapterRead.css" asp-append-version="true">
 
-@* 1. Breadcrumb (Đường dẫn) *@
+@* 1. Breadcrumb *@
 <div style="padding: 15px 20px 20px 20px; max-width: 1200px; margin: 0 auto;">
     <ul style="display: flex; flex-wrap: wrap; list-style: none; padding: 0; margin: 0; font-size: 0.95rem; color: #6b7280; align-items: center; gap: 8px;">
         <li>
             <a href="/" style="color: #3b82f6; text-decoration: none; display: flex; align-items: center; gap: 4px;">
-                <i class="fas fa-home"></i> Trang chủ
+                <i class="fas fa-home"></i> Home
             </a>
         </li>
         <li><span style="margin: 0 2px;">/</span></li>
@@ -58,16 +58,16 @@
 </div>
 
 <div class="chapter-read-page">
-    @* 2. Header *@
-    <div class="chapter-read-header">
-        <h2>@chapterTitle</h2>
-        <div class="chapter-updated">[Cập nhật lúc: @updatedAt]</div>
-    </div>
+@* 2. Header *@
+<div class="chapter-read-header">
+    <h2>@chapterTitle</h2>
+    <div class="chapter-updated">[Updated at: @updatedAt]</div>
+</div>
 
-    @* 3. Alert Cảnh báo *@
-    <div class="chapter-warning">
+@* 3. Alert Warning *@
+<div class="chapter-warning">
         <i class="fas fa-exclamation-triangle"></i>
-        Nếu không xem được truyện vui lòng đổi "SERVER ẢNH" bên dưới
+        If you cannot view the story, please change the "IMAGE SERVER" below
     </div>
 
     @* 4. Server Toolbar *@
@@ -76,10 +76,10 @@
             <button class="chapter-server active" type="button">Server 1</button>
             <button class="chapter-server" type="button">Server 2</button>
         </div>
-        <button class="chapter-report" type="button"><i class="fas fa-flag"></i> Báo lỗi</button>
+        <button class="chapter-report" type="button"><i class="fas fa-flag"></i> Report error</button>
     </div>
 
-    @* 5. Navigation trên *@
+    @* 5. Top Navigation *@
     <div class="chapter-nav">
         <a class="chapter-nav-btn @(previousChapter == null ? "disabled" : "")"
            href="@(previousChapter == null ? "#" : BuildChapterUrl(previousChapter))">
@@ -98,10 +98,10 @@
            href="@(nextChapter == null ? "#" : BuildChapterUrl(nextChapter))">
             <i class="fas fa-chevron-right"></i>
         </a>
-        <div class="chapter-nav-hint">Sử dụng mũi tên trái (←) hoặc phải (→) để chuyển chapter</div>
+        <div class="chapter-nav-hint">Use left (←) or right (→) arrows to switch chapters</div>
     </div>
 
-    @* 6. Nội dung ảnh truyện *@
+    @* 6. Chapter Content Images *@
     <div class="chapter-content">
         @if (chapter.Images != null && chapter.Images.Any())
         {
@@ -121,22 +121,22 @@
         {
             <div class="chapter-placeholder">
                 <i class="fas fa-ghost"></i>
-                <p>Nội dung đang được cập nhật...</p>
+                <p>Content is being updated...</p>
             </div>
         }
     </div>
 
-    @* 7. Navigation dưới (giống cái trên) *@
+    @* 7. Bottom Navigation (Similar to top) *@
     <div class="chapter-nav" style="margin-top: 30px;">
-        @* Tương tự phần navigation trên nếu bạn muốn hiện cả 2 đầu *@
+        @* Similar to top navigation if you want it on both sides *@
     </div>
 </div>
 
-@* 8. Thanh Bottom Bar (Dính ở đáy màn hình) *@
+@* 8. Bottom Bar (Sticky to bottom) *@
 <div class="chapter-bottom-bar">
     <div class="chapter-bottom-bar-inner">
-        <a class="chapter-bar-btn" asp-controller="Home" asp-action="Index" title="Trang chủ"><i class="fas fa-home"></i></a>
-        <a class="chapter-bar-btn" asp-controller="Stories" asp-action="Details" asp-route-id="@chapter.StoryId" title="Quay lại"><i class="fas fa-undo"></i></a>
+        <a class="chapter-bar-btn" asp-controller="Home" asp-action="Index" title="Home"><i class="fas fa-home"></i></a>
+        <a class="chapter-bar-btn" asp-controller="Stories" asp-action="Details" asp-route-id="@chapter.StoryId" title="Go back"><i class="fas fa-undo"></i></a>
 
         <a class="chapter-bar-btn @(previousChapter == null ? "disabled" : "")"
            href="@(previousChapter == null ? "#" : BuildChapterUrl(previousChapter))">
@@ -147,7 +147,7 @@
             @foreach (var item in orderedChapters)
             {
                 var url = BuildChapterUrl(item);
-                <option value="@url" selected="@(item.Id == chapter.Id)">Chương @item.ChapterNumber</option>
+                <option value="@url" selected="@(item.Id == chapter.Id)">Chapter @item.ChapterNumber</option>
             }
         </select>
 
@@ -164,15 +164,15 @@
                 <input type="hidden" name="returnUrl" value="@Context.Request.Path" />
                 <button class="chapter-bar-follow" type="submit">
                     <i class="@(Model.IsFollowed ? "fas fa-heart" : "far fa-heart")"></i>
-                    <span>@(Model.IsFollowed ? "Đã theo dõi" : "Theo dõi")</span>
+                    <span>@(Model.IsFollowed ? "Following" : "Follow")</span>
                 </button>
             </form>
         }
         else
         {
-            <button class="chapter-bar-follow" type="button" onclick="alert('Vui lòng đăng nhập!')">
+            <button class="chapter-bar-follow" type="button" onclick="alert('Please login!')">
                 <i class="far fa-heart"></i>
-                <span>Theo dõi</span>
+                <span>Follow</span>
             </button>
         }
     </div>

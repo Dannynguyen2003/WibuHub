@@ -3,7 +3,7 @@
 <div class="p-3">
     <div class="alert alert-warning">
         <i class="fas fa-exclamation-triangle"></i>
-        <strong>Xác nhận:</strong> Bạn có chắc chắn muốn xóa truyện này không?
+        <strong>Confirm:</strong> Are you sure you want to delete this story?
     </div>
 
     <div>
@@ -37,7 +37,7 @@
             </dd>
 
             <dt class="col-sm-4">
-                Danh mục
+                Categories
             </dt>
             <dd class="col-sm-8">
                 @(Model.StoryCategories != null && Model.StoryCategories.Any(sc => sc.Category != null)
@@ -47,12 +47,12 @@
         </dl>
 
         <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" onclick="closeModal()">Hủy bỏ</button>
+            <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
             <form id="deleteForm">
                 @Html.AntiForgeryToken()
                 <input type="hidden" asp-for="Id" />
                 <button type="button" onclick="deleteStory('@Model.Id')" class="btn btn-danger">
-                    Xác nhận xóa
+                    Confirm Delete
                 </button>
             </form>
         </div>

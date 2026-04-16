@@ -16,17 +16,17 @@
 }
 
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Truyện Hay - WibuHub</title>
+    <title>Good Stories - WibuHub</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/css/layout.css" asp-append-version="true">
 
     <style>
-        /* CSS cho dropdown thông báo */
+        /* CSS for notification dropdown */
         .noti-item {
             padding: 12px 15px;
             border-bottom: 1px solid #f3f4f6;
@@ -85,7 +85,7 @@
             <div class="search-wrapper">
 
                 <div class="search-bar">
-                    <input type="text" placeholder="Tìm truyện, tác giả..." id="searchInput" autocomplete="off">
+                    <input type="text" placeholder="Search stories, authors..." id="searchInput" autocomplete="off">
                     <button id="searchBtn"><i class="fas fa-search"></i></button>
                 </div>
 
@@ -100,23 +100,23 @@
                     <div class="notification-wrapper" style="position: relative; display: inline-block;">
                         <a href="#" id="notificationBtn">
                             <i class="far fa-bell"></i>
-                            <span class="d-none d-md-inline">Thông báo</span>
+                            <span class="d-none d-md-inline">Notifications</span>
                             <span id="notiBadge" style="position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.7rem; font-weight: bold; display: none;">0</span>
                         </a>
 
                         <div id="notificationDropdown" class="dropdown-menu notification-dropdown" style="display: none; position: absolute; top: 100%; right: 0; width: 320px; max-height: 400px; overflow-y: auto; background: white; border: 1px solid #e5e7eb; border-radius: 8px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); z-index: 1000; padding: 0;">
                             <div style="padding: 10px 15px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
-                                <strong style="color: #1f2937;">Thông báo mới</strong>
-                                <button id="markAllReadBtn" style="background: none; border: none; color: #3b82f6; font-size: 0.85rem; cursor: pointer;">Đánh dấu đã đọc tất cả</button>
+                                <strong style="color: #1f2937;">New Notifications</strong>
+                                <button id="markAllReadBtn" style="background: none; border: none; color: #3b82f6; font-size: 0.85rem; cursor: pointer;">Mark all as read</button>
                             </div>
                             <ul id="notificationList" style="list-style: none; padding: 0; margin: 0;">
-                                <li style="padding: 20px; text-align: center; color: #9ca3af;">Đang tải...</li>
+                                <li style="padding: 20px; text-align: center; color: #9ca3af;">Loading...</li>
                             </ul>
                         </div>
                     </div>
                 }
 
-                <a href="/ShoppingCart/Cart" id="cartBtn"><i class="fas fa-shopping-cart"></i> <span class="d-none d-md-inline">Giỏ hàng</span></a>
+                <a href="/ShoppingCart/Cart" id="cartBtn"><i class="fas fa-shopping-cart"></i> <span class="d-none d-md-inline">Cart</span></a>
 
                 @if (User?.Identity?.IsAuthenticated ?? false)
                 {
@@ -127,7 +127,7 @@
                         avatarUrl = "https://ui-avatars.com/api/?name=" + (currentUser?.UserName ?? "User") + "&background=E2E8F0&color=475569";
                     }
 
-                    // Thêm logic check VIP
+                    // Add VIP check logic
                     bool isVip = currentUser?.IsVip ?? false;
 
                     <div class="user-account">
@@ -135,35 +135,35 @@
                             <img src="@avatarUrl" alt="Avatar" class="avatar-icon" style="@(isVip ? "border-radius: 50%; width: 40px; height: 40px; object-fit: cover;" : "")">
                             @if (isVip)
                             {
-                                <span class="vip-crown-badge" title="Tài khoản VIP"><i class="fas fa-crown"></i></span>
+                                <span class="vip-crown-badge" title="VIP Account"><i class="fas fa-crown"></i></span>
                             }
                         </div>
 
                         <ul class="dropdown-menu">
                             <li class="user-info-header" style="padding: 10px 15px; border-bottom: 1px solid #eee; margin-bottom: 5px;">
                                 <strong>@currentUser?.UserName</strong>
-                                <div style="font-size: 0.85rem; color: #666;">Xu: <span style="color: #f59e0b; font-weight: bold;">@currentUser?.Points <i class="fas fa-coins"></i></span></div>
+                                <div style="font-size: 0.85rem; color: #666;">Coins: <span style="color: #f59e0b; font-weight: bold;">@currentUser?.Points <i class="fas fa-coins"></i></span></div>
                             </li>
                             <li>
                                 <a href="/vip/upgrade" class="btn-upgrade-vip @(isVip ? "vip-active" : "")">
-                                    <i class="fas fa-gem"></i> @(isVip ? "Gia hạn VIP" : "Nâng cấp VIP")
+                                    <i class="fas fa-gem"></i> @(isVip ? "Renew VIP" : "Upgrade VIP")
                                 </a>
                             </li>
                             @if (isVip && currentUser?.VipExpireDate.HasValue == true)
                             {
                                 <li style="padding: 0 15px 10px; font-size: 0.8rem; color: #10b981; text-align: center;">
-                                    Hạn VIP: @currentUser.VipExpireDate.Value.ToLocalTime().ToString("dd/MM/yyyy")
+                                    VIP Expiry: @currentUser.VipExpireDate.Value.ToLocalTime().ToString("dd/MM/yyyy")
                                 </li>
                             }
                             <li class="divider"></li>
 
-                            <li><a asp-controller="CustomerProfile" asp-action="Followed"><i class="fas fa-bookmark"></i> Danh sách theo dõi</a></li>
-                            <li><a asp-controller="CustomerProfile" asp-action="History"><i class="fas fa-history"></i> Lịch sử đọc truyện</a></li>
-                            <li><a asp-controller="CustomerProfile" asp-action="Index"><i class="fas fa-cog"></i> Cài đặt thông tin</a></li>
+                            <li><a asp-controller="CustomerProfile" asp-action="Followed"><i class="fas fa-bookmark"></i> Following List</a></li>
+                            <li><a asp-controller="CustomerProfile" asp-action="History"><i class="fas fa-history"></i> Reading History</a></li>
+                            <li><a asp-controller="CustomerProfile" asp-action="Index"><i class="fas fa-cog"></i> Account Settings</a></li>
                             <li class="divider"></li>
                             <li>
                                 <form class="logout-form" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" style="margin: 0;">
-                                    <button type="submit" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
+                                    <button type="submit" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
                                 </form>
                             </li>
                         </ul>
@@ -171,8 +171,8 @@
                 }
                 else
                 {
-                    <a href="#" id="loginBtn"><i class="far fa-user"></i> <span class="d-none d-md-inline">Đăng nhập</span></a>
-                    <a href="#" id="registerBtn"><i class="fas fa-user-plus"></i> <span class="d-none d-md-inline">Đăng ký</span></a>
+                    <a href="#" id="loginBtn"><i class="far fa-user"></i> <span class="d-none d-md-inline">Login</span></a>
+                    <a href="#" id="registerBtn"><i class="fas fa-user-plus"></i> <span class="d-none d-md-inline">Register</span></a>
                 }
             </div>
         </header>
@@ -180,7 +180,7 @@
         <div id="authModal" class="modal">
             <div class="modal-content">
                 <span class="modal-close" id="closeModal">&times;</span>
-                <div class="modal-title">Đăng nhập</div>
+                <div class="modal-title">Login</div>
                 <form id="loginModalForm" action="/api/auth/login" method="post">
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="returnUrl" value="@returnUrl" />
@@ -190,22 +190,22 @@
                         <input type="email" name="email" autocomplete="username" placeholder="your@gmail.com" required>
                     </div>
                     <div class="input-group">
-                        <label>Mật khẩu</label>
+                        <label>Password</label>
                         <input id="loginModalPassword" type="password" name="password" autocomplete="current-password" placeholder="••••••••" required>
-                        <button type="button" class="btn-secondary" style="margin-top: 8px; width: auto; padding: 8px 12px;" data-password-target="#loginModalPassword">Hiện mật khẩu</button>
+                        <button type="button" class="btn-secondary" style="margin-top: 8px; width: auto; padding: 8px 12px;" data-password-target="#loginModalPassword">Show password</button>
                     </div>
                     <div class="login-meta">
-                        <label class="remember-me"><input type="checkbox" name="rememberMe"> Ghi nhớ?</label>
-                        <a asp-area="Identity" asp-page="/Account/ForgotPassword" class="forgot-link">Quên mật khẩu?</a>
+                        <label class="remember-me"><input type="checkbox" name="rememberMe"> Remember me?</label>
+                        <a asp-area="Identity" asp-page="/Account/ForgotPassword" class="forgot-link">Forgot password?</a>
                     </div>
-                    <button class="btn" type="submit">ĐĂNG NHẬP</button>
+                    <button class="btn" type="submit">LOGIN</button>
                     <div class="switch-link">
-                        Chưa có tài khoản? <a href="#" id="showRegisterModal">Đăng ký ngay</a>
+                        Don't have an account? <a href="#" id="showRegisterModal">Register now</a>
                     </div>
                     @if (externalSchemes.Count > 0)
                     {
                         <div class="external-auth">
-                            <div class="external-title">Hoặc đăng nhập với</div>
+                            <div class="external-title">Or login with</div>
                             <div class="external-buttons">
                                 @foreach (var scheme in externalSchemes)
                                 {
@@ -223,7 +223,7 @@
         <div id="registerModal" class="modal">
             <div class="modal-content">
                 <span class="modal-close" id="closeRegisterModal">&times;</span>
-                <div class="modal-title">Đăng ký</div>
+                <div class="modal-title">Register</div>
                 <form id="registerModalForm" action="/api/auth/register" method="post">
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="returnUrl" value="@returnUrl" />
@@ -233,23 +233,23 @@
                         <input type="email" name="email" autocomplete="username" placeholder="your@email.com" required>
                     </div>
                     <div class="input-group">
-                        <label>Mật khẩu</label>
+                        <label>Password</label>
                         <input id="registerModalPassword" type="password" name="password" autocomplete="new-password" placeholder="••••••••" required>
-                        <button type="button" class="btn-secondary" style="margin-top: 8px; width: auto; padding: 8px 12px;" data-password-target="#registerModalPassword">Hiện mật khẩu</button>
+                        <button type="button" class="btn-secondary" style="margin-top: 8px; width: auto; padding: 8px 12px;" data-password-target="#registerModalPassword">Show password</button>
                     </div>
                     <div class="input-group">
-                        <label>Xác nhận mật khẩu</label>
+                        <label>Confirm Password</label>
                         <input id="registerModalConfirmPassword" type="password" name="confirmPassword" autocomplete="new-password" placeholder="••••••••" required>
-                        <button type="button" class="btn-secondary" style="margin-top: 8px; width: auto; padding: 8px 12px;" data-password-target="#registerModalConfirmPassword">Hiện mật khẩu</button>
+                        <button type="button" class="btn-secondary" style="margin-top: 8px; width: auto; padding: 8px 12px;" data-password-target="#registerModalConfirmPassword">Show password</button>
                     </div>
-                    <button class="btn" type="submit">ĐĂNG KÝ</button>
+                    <button class="btn" type="submit">REGISTER</button>
                     <div class="switch-link">
-                        Đã có tài khoản? <a href="#" id="showLoginModal">Đăng nhập</a>
+                        Already have an account? <a href="#" id="showLoginModal">Login</a>
                     </div>
                     @if (externalSchemes.Count > 0)
                     {
                         <div class="external-auth">
-                            <div class="external-title">Hoặc đăng ký với</div>
+                            <div class="external-title">Or register with</div>
                             <div class="external-buttons">
                                 @foreach (var scheme in externalSchemes)
                                 {
@@ -269,23 +269,23 @@
             <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
             <div class="mobile-menu" id="mobileMenu">
                 <div class="mobile-menu-header">
-                    <span class="mobile-menu-logo">TRUYỆN<span>HAY</span></span>
+                    <span class="mobile-menu-logo">GOOD<span>STORIES</span></span>
                     <span class="close-menu" id="closeMenu"><i class="fas fa-times"></i></span>
                 </div>
-                <a asp-controller="Home" asp-action="Index" asp-area="" class="mobile-menu-item active" id="mobileHome"><i class="fas fa-home"></i> Trang chủ</a>
-                <a asp-controller="Categories" asp-action="Index" asp-route-id="" class="mobile-menu-item" id="mobileGenre"><i class="fas fa-tags"></i> Thể loại</a>
-                <a href="#" class="mobile-menu-item" id="mobileRank"><i class="fas fa-crown"></i> BXH</a>
-                <a href="#" class="mobile-menu-item" id="mobileGroups"><i class="fas fa-users"></i> Yêu cầu dịch</a>
+                <a asp-controller="Home" asp-action="Index" asp-area="" class="mobile-menu-item active" id="mobileHome"><i class="fas fa-home"></i> Home</a>
+                <a asp-controller="Categories" asp-action="Index" asp-route-id="" class="mobile-menu-item" id="mobileGenre"><i class="fas fa-tags"></i> Categories</a>
+                <a href="#" class="mobile-menu-item" id="mobileRank"><i class="fas fa-crown"></i> Rankings</a>
+                <a href="#" class="mobile-menu-item" id="mobileGroups"><i class="fas fa-users"></i> Translation Requests</a>
             </div>
         }
 
         <nav class="nav-tabs">
-            <a class="nav-item active" id="tabHome" asp-controller="Home" asp-action="Index" asp-area="">Trang chủ</a>
+            <a class="nav-item active" id="tabHome" asp-controller="Home" asp-action="Index" asp-area="">Home</a>
             <div class="nav-dropdown">
-                <span class="nav-item nav-item-static" id="tabGenre">Thể loại <i class="fas fa-chevron-down"></i></span>
+                <span class="nav-item nav-item-static" id="tabGenre">Categories <i class="fas fa-chevron-down"></i></span>
                 <div class="genre-dropdown">
                     <div class="genre-column">
-                        <a class="genre-link genre-link-all" asp-controller="Categories" asp-action="Index" asp-route-id="">Tất cả</a>
+                        <a class="genre-link genre-link-all" asp-controller="Categories" asp-action="Index" asp-route-id="">All</a>
                         @foreach (var category in categories.Take(categoriesPerColumn))
                         {
                             <a class="genre-link" asp-controller="Categories" asp-action="Index" asp-route-id="@category.Id">@category.Name</a>
@@ -304,19 +304,19 @@
                 </div>
             </div>
             <div class="nav-dropdown nav-dropdown-rank">
-                <span class="nav-item nav-item-static" id="tabRank">BXH <i class="fas fa-chevron-down"></i></span>
+                <span class="nav-item nav-item-static" id="tabRank">Rankings <i class="fas fa-chevron-down"></i></span>
                 <div class="rank-dropdown">
-                    <a class="rank-link" asp-controller="Rankings" asp-action="Index" asp-route-type="top-day">Top Ngày</a>
-                    <a class="rank-link" asp-controller="Rankings" asp-action="Index" asp-route-type="top-week">Top Tuần</a>
-                    <a class="rank-link" asp-controller="Rankings" asp-action="Index" asp-route-type="top-month">Top Tháng</a>
-                    <a class="rank-link" asp-controller="Rankings" asp-action="Index" asp-route-type="favorites">Yêu Thích</a>
-                    <a class="rank-link" asp-controller="Rankings" asp-action="Index" asp-route-type="latest">Mới Cập Nhật</a>
-                    <a class="rank-link" asp-controller="Rankings" asp-action="Index" asp-route-type="new">Truyện Mới</a>
-                    <a class="rank-link" asp-controller="Rankings" asp-action="Index" asp-route-type="full">Truyện Full</a>
-                    <a class="rank-link" asp-controller="Rankings" asp-action="Index" asp-route-type="random">Truyện Ngẫu Nhiên</a>
+                    <a class="rank-link" asp-controller="Rankings" asp-action="Index" asp-route-type="top-day">Top Day</a>
+                    <a class="rank-link" asp-controller="Rankings" asp-action="Index" asp-route-type="top-week">Top Week</a>
+                    <a class="rank-link" asp-controller="Rankings" asp-action="Index" asp-route-type="top-month">Top Month</a>
+                    <a class="rank-link" asp-controller="Rankings" asp-action="Index" asp-route-type="favorites">Favorites</a>
+                    <a class="rank-link" asp-controller="Rankings" asp-action="Index" asp-route-type="latest">Recently Updated</a>
+                    <a class="rank-link" asp-controller="Rankings" asp-action="Index" asp-route-type="new">New Stories</a>
+                    <a class="rank-link" asp-controller="Rankings" asp-action="Index" asp-route-type="full">Completed</a>
+                    <a class="rank-link" asp-controller="Rankings" asp-action="Index" asp-route-type="random">Random</a>
                 </div>
             </div>
-            <a class="nav-item" id="tabGroups" href="#">Yêu cầu dịch</a>
+            <a class="nav-item" id="tabGroups" href="#">Translation Requests</a>
         </nav>
 
         @if (isHomePage)
@@ -329,7 +329,7 @@
 
                             <ul id="list_suggest">
                                 <li style="flex: 0 0 100%; width: 100%; text-align: center; color: #9ca3af; font-size: 1.1rem; padding: 50px 0;">
-                                    <i class="fas fa-spinner fa-spin"></i> Đang tải dữ liệu Nổi Bật...
+                                    <i class="fas fa-spinner fa-spin"></i> Loading Featured data...
                                 </li>
                             </ul>
 
@@ -340,17 +340,17 @@
                             <div>
                                 <div>
                                     <div class="section-header" style="margin-top: 30px;">
-                                        <h2>Truyện Mới Cập Nhật</h2>
+                                        <h2>Recently Updated</h2>
                                         <div class="recommend-tabs">
-                                            <span class="recommend-tab active" data-recommend="all">Tất cả</span>
-                                            <span class="recommend-tab" data-recommend="popular">Phổ biến</span>
-                                            <span class="recommend-tab" data-recommend="latest">Mới nhất</span>
+                                            <span class="recommend-tab active" data-recommend="all">All</span>
+                                            <span class="recommend-tab" data-recommend="popular">Popular</span>
+                                            <span class="recommend-tab" data-recommend="latest">Latest</span>
                                         </div>
                                     </div>
                                     <div class="recommend-grid" id="recommendAll"></div>
 
                                     <div style="text-align: center; margin: 30px 0;">
-                                        <a class="view-more-btn" id="viewMoreBtn" style="cursor: pointer;">Xem thêm truyện <i class="fas fa-chevron-down"></i></a>
+                                        <a class="view-more-btn" id="viewMoreBtn" style="cursor: pointer;">Load More Stories <i class="fas fa-chevron-down"></i></a>
                                     </div>
                                 </div>
                             </div>
@@ -358,26 +358,26 @@
                             <div>
                                 <div class="top-list">
                                     <div class="section-header">
-                                        <h2>Xem Nhiều Nhất</h2>
+                                        <h2>Most Viewed</h2>
                                     </div>
                                     <div class="top-list-loading" style="text-align: center; padding: 20px; color: #9ca3af;">
-                                        <i class="fas fa-spinner fa-spin"></i> Đang tải...
+                                        <i class="fas fa-spinner fa-spin"></i> Loading...
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div id="newSection" class="content-section hidden"><h2>Nội dung Mới cập nhật</h2></div>
-                    <div id="hotSection" class="content-section hidden"><h2>Nội dung Hot nhất</h2></div>
-                    <div id="rankSection" class="content-section hidden"><h2>Nội dung BXH</h2></div>
-                    <div id="groupsSection" class="content-section hidden"><h2>Nội dung Nhóm dịch</h2></div>
+                    <div id="newSection" class="content-section hidden"><h2>Recently Updated</h2></div>
+                    <div id="hotSection" class="content-section hidden"><h2>Hottest Content</h2></div>
+                    <div id="rankSection" class="content-section hidden"><h2>Rankings Content</h2></div>
+                    <div id="groupsSection" class="content-section hidden"><h2>Translation Groups</h2></div>
                     <div id="detailSection" class="content-section hidden"></div>
                 </div>
 
                 <aside class="sidebar">
                     <div class="sidebar-card">
-                        <div class="sidebar-title"><i class="fas fa-tags"></i> Thể loại</div>
+                        <div class="sidebar-title"><i class="fas fa-tags"></i> Categories</div>
                         <div class="genre-tags">
                             @foreach (var category in categories)
                             {
@@ -390,14 +390,14 @@
 
             <div class="chatbox" id="chatbox">
                 <div class="chat-header" id="toggleChat">
-                    <h3><i class="fas fa-robot" style="color: #f97316;"></i> Trợ lý AI</h3>
+                    <h3><i class="fas fa-robot" style="color: #f97316;"></i> AI Assistant</h3>
                     <i class="fas fa-minus" id="chatIcon"></i>
                 </div>
                 <div class="chat-body" id="chatBody">
-                    <div class="message ai">Xin chào! Tôi là trợ lý AI của WibuHub. Bạn muốn tìm truyện gì hôm nay?</div>
+                    <div class="message ai">Hello! I am the WibuHub AI Assistant. What story do you want to find today?</div>
                 </div>
                 <div class="chat-footer">
-                    <input type="text" id="chatInput" placeholder="Nhập tin nhắn...">
+                    <input type="text" id="chatInput" placeholder="Type a message...">
                     <button id="sendChat"><i class="fas fa-paper-plane"></i></button>
                 </div>
             </div>
@@ -407,7 +407,7 @@
 
     <script>
         // ----------------------------------------------------
-        // UTILITIES: Hàm tiện ích dùng chung
+        // UTILITIES: Shared utility functions
         // ----------------------------------------------------
         const Utils = {
             formatViews: (views) => {
@@ -417,13 +417,13 @@
 
             buildStoryCardHTML: (story) => {
                 const id = story.id || story.Id;
-                const title = story.title || story.Title || 'Đang cập nhật';
+                const title = story.title || story.Title || 'Updating';
                 const cover = story.coverImage || story.CoverImage || 'https://via.placeholder.com/200x300';
-                const timeTag = story.timeAgo || story.TimeAgo || 'Mới cập nhật';
+                const timeTag = story.timeAgo || story.TimeAgo || 'Just updated';
                 const views = parseInt(story.viewCount || story.ViewCount || 0, 10);
                 const isHot = story.isHot || story.IsHot || (views > 1000);
 
-                let chapterText = 'Đang cập nhật';
+                let chapterText = 'Updating';
                 const totalChap = story.totalChapters ?? story.TotalChapters ?? 0;
                 if (totalChap > 0) chapterText = 'Chapter ' + totalChap;
 
@@ -455,13 +455,13 @@
 
             fetchAPI: async (url) => {
                 const res = await fetch(url);
-                if (!res.ok) throw new Error(`Lỗi gọi API: ${res.status}`);
+                if (!res.ok) throw new Error(`API Error: ${res.status}`);
                 return await res.json();
             }
         };
 
         // ----------------------------------------------------
-        // SEARCH CONTROLLER: Xử lý tìm kiếm & Live Search
+        // SEARCH CONTROLLER: Handle Search & Live Search
         // ----------------------------------------------------
         const SearchController = {
             init: function() {
@@ -472,7 +472,7 @@
 
                 if (!searchInput || !searchBtn || !suggestBox) return;
 
-                // Xử lý sự kiện gõ phím
+                // Handle key press
                 searchInput.addEventListener('input', (e) => {
                     clearTimeout(debounceTimer);
                     const keyword = e.target.value.trim();
@@ -482,9 +482,9 @@
                         return;
                     }
 
-                    // Tạm thời set background thành nền đen và hiện chữ Đang tìm kiếm
+                    // Temporary set background to black and show Searching text
                     suggestBox.className = 'search_result';
-                    suggestBox.innerHTML = '<div style="padding: 15px; text-align: center; color: #9ca3af;"><i class="fas fa-spinner fa-spin"></i> Đang tìm kiếm...</div>';
+                    suggestBox.innerHTML = '<div style="padding: 15px; text-align: center; color: #9ca3af;"><i class="fas fa-spinner fa-spin"></i> Searching...</div>';
                     suggestBox.style.display = 'block';
 
                     debounceTimer = setTimeout(async () => {
@@ -494,20 +494,20 @@
 
                             this.renderSuggestions(data, keyword);
                         } catch (error) {
-                            console.error("Lỗi khi tải gợi ý:", error);
-                            suggestBox.innerHTML = '<div style="padding: 15px; text-align: center; color: #ef4444;">Lỗi kết nối</div>';
+                            console.error("Error loading suggestions:", error);
+                            suggestBox.innerHTML = '<div style="padding: 15px; text-align: center; color: #ef4444;">Connection error</div>';
                         }
                     }, 300);
                 });
 
-                // Ẩn hộp gợi ý khi click ra chỗ khác
+                // Hide suggestion box when click outside
                 document.addEventListener('click', (e) => {
                     if (!searchInput.contains(e.target) && !suggestBox.contains(e.target)) {
                         suggestBox.style.display = 'none';
                     }
                 });
 
-                // Hiện lại hộp gợi ý khi focus lại
+                // Show suggestion box again when focus
                 searchInput.addEventListener('focus', () => {
                     if (searchInput.value.trim().length > 0 && suggestBox.innerHTML !== '') {
                         suggestBox.style.display = 'block';
@@ -529,9 +529,9 @@
 
                         suggestBox.style.display = 'block';
                     } catch (error) {
-                        console.error("Lỗi khi tìm kiếm:", error);
+                        console.error("Search error:", error);
                         suggestBox.className = 'search_result';
-                        suggestBox.innerHTML = '<div style="padding: 15px; text-align: center; color: #ef4444;">Lỗi kết nối</div>';
+                        suggestBox.innerHTML = '<div style="padding: 15px; text-align: center; color: #ef4444;">Connection error</div>';
                         suggestBox.style.display = 'block';
                     }
                 };
@@ -549,14 +549,14 @@
                 });
             },
 
-            // Hàm render HTML xuất ra cấu trúc UL > LI > A
+            // Render HTML to UL > LI > A structure
             renderSuggestions: function(data, keyword) {
                 const suggestBox = document.getElementById('searchSuggestions');
                 suggestBox.className = 'search_result';
                 suggestBox.innerHTML = '';
 
                 if (!data || data.length === 0) {
-                    suggestBox.innerHTML = '<div style="padding: 15px; text-align: center; color: #9ca3af;">Không tìm thấy truyện nào</div>';
+                    suggestBox.innerHTML = '<div style="padding: 15px; text-align: center; color: #9ca3af;">No stories found</div>';
                     return;
                 }
 
@@ -571,9 +571,9 @@
 
                     const categoryText = Array.isArray(item.categories) && item.categories.length > 0
                         ? item.categories.join(', ')
-                        : 'Chưa có thể loại';
+                        : 'No categories';
 
-                    let chapterText = 'Chưa có chapter';
+                    let chapterText = 'No chapters yet';
                     if (item.latestChapterLabel && item.latestChapterLabel.trim() !== '') {
                         chapterText = item.latestChapterLabel;
                     } else if (item.latestChapter !== null && item.latestChapter !== undefined) {
@@ -603,7 +603,7 @@
         };
 
         // ----------------------------------------------------
-        // AUTH CONTROLLER: Xử lý Đăng nhập / Đăng ký
+        // AUTH CONTROLLER: Handle Login / Register
         // ----------------------------------------------------
         const AuthController = {
             modals: {
@@ -652,7 +652,7 @@
 
                         const isPassword = input.type === 'password';
                         input.type = isPassword ? 'text' : 'password';
-                        button.textContent = isPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu';
+                        button.textContent = isPassword ? 'Hide password' : 'Show password';
                     });
                 });
             },
@@ -685,7 +685,7 @@
                             this.modals.auth.classList.add('active');
                             const loginErr = document.getElementById('loginError');
                             if (loginErr) {
-                                loginErr.textContent = payload.message || 'Đăng ký thành công! Vui lòng đăng nhập.';
+                                loginErr.textContent = payload.message || 'Registration successful! Please login.';
                                 loginErr.classList.add('active');
                                 loginErr.style.cssText = 'background-color: #d4edda; color: #155724;';
                             }
@@ -693,16 +693,16 @@
                             window.location.href = payload.redirectUrl || window.location.href;
                         }
                     } else {
-                        if (errorEl) { errorEl.textContent = payload.message || 'Thông tin không hợp lệ.'; errorEl.classList.add('active'); }
+                        if (errorEl) { errorEl.textContent = payload.message || 'Invalid information.'; errorEl.classList.add('active'); }
                     }
                 } catch (error) {
-                    if (errorEl) { errorEl.textContent = 'Mất kết nối tới máy chủ.'; errorEl.classList.add('active'); }
+                    if (errorEl) { errorEl.textContent = 'Disconnected from server.'; errorEl.classList.add('active'); }
                 }
             }
         };
 
         // ----------------------------------------------------
-        // UI CONTROLLER: Điều hướng & Giao diện (Tabs, Menu)
+        // UI CONTROLLER: Navigation & Interface (Tabs, Menu)
         // ----------------------------------------------------
         const UIController = {
             sections: ['homeSection', 'newSection', 'hotSection', 'rankSection', 'groupsSection', 'profilePageSection', 'detailSection'],
@@ -743,7 +743,7 @@
         };
 
         // ----------------------------------------------------
-        // DATA CONTROLLER: Quản lý API & Render List
+        // DATA CONTROLLER: Handle API & Render List
         // ----------------------------------------------------
         const DataController = {
             state: {
@@ -812,13 +812,13 @@
                     grid.innerHTML = '';
 
                     if (this.state.activeStoriesList.length === 0) {
-                        grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #fbbf24; padding: 20px;">Chưa có truyện nào!</div>';
+                        grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #fbbf24; padding: 20px;">No stories available!</div>';
                         document.getElementById('viewMoreBtn').style.display = 'none';
                         return;
                     }
                     this.renderGrid();
                 } catch (error) {
-                    grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #ef4444; padding: 20px;">Đã xảy ra lỗi khi tải dữ liệu!</div>';
+                    grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #ef4444; padding: 20px;">Error loading data!</div>';
                 }
             },
 
@@ -841,10 +841,10 @@
                         btn.style.display = 'none';
                     } else if (this.state.currentIndex >= this.state.MAX_ITEMS) {
                         btn.style.display = 'inline-block';
-                        btn.innerHTML = 'Xem tất cả truyện <i class="fas fa-arrow-right"></i>';
+                        btn.innerHTML = 'View All Stories <i class="fas fa-arrow-right"></i>';
                     } else {
                         btn.style.display = 'inline-block';
-                        btn.innerHTML = 'Xem thêm truyện <i class="fas fa-chevron-down"></i>';
+                        btn.innerHTML = 'Load More Stories <i class="fas fa-chevron-down"></i>';
                     }
                 }
             },
@@ -861,7 +861,7 @@
                     if (Array.isArray(data)) {
                         data.slice(0, 10).forEach((story, index) => {
                             const id = story.id || story.Id;
-                            const title = story.title || story.Title || 'Chưa có tên';
+                            const title = story.title || story.Title || 'Unnamed';
                             const views = story.viewCount || story.ViewCount || 0;
 
                             topList.insertAdjacentHTML('beforeend', `
@@ -869,14 +869,14 @@
                                     <span class="top-rank" style="font-size: 1.5rem; font-weight: bold; width: 30px; color: ${index < 3 ? '#ef4444' : '#9ca3af'};">${index + 1}</span>
                                     <div class="top-info" style="flex: 1; padding-left: 10px;">
                                         <div class="top-title" style="font-weight: 500;">${title}</div>
-                                        <div class="top-views" style="font-size: 0.85rem; color: #6b7280;">${Utils.formatViews(views)} lượt xem</div>
+                                        <div class="top-views" style="font-size: 0.85rem; color: #6b7280;">${Utils.formatViews(views)} views</div>
                                     </div>
                                 </a>
                             `);
                         });
                     }
                 } catch (err) {
-                    if (container) container.innerHTML = '<span style="color: #ef4444;">Lỗi tải dữ liệu</span>';
+                    if (container) container.innerHTML = '<span style="color: #ef4444;">Error loading data</span>';
                 }
             },
 
@@ -886,15 +886,15 @@
                 try {
                     const data = await Utils.fetchAPI('http://localhost:5136/api/stories/newest');
                     if (!Array.isArray(data) || data.length === 0) {
-                        list.innerHTML = '<li style="width:100%;text-align:center;padding:50px;">Chưa có truyện nào!</li>';
+                        list.innerHTML = '<li style="width:100%;text-align:center;padding:50px;">No stories available!</li>';
                         return;
                     }
 
                     list.innerHTML = '';
                     data.slice(0, 5).forEach(story => {
                         const id = story.id || story.Id;
-                        const title = story.title || story.Title || 'Chưa có tên';
-                        const desc = story.description || story.Description || 'Đang cập nhật...';
+                        const title = story.title || story.Title || 'Unnamed';
+                        const desc = story.description || story.Description || 'Updating...';
                         const cover = story.coverImage || story.CoverImage || 'https://via.placeholder.com/200x300';
                         const rating = story.rating || story.Rating || '5.0';
                         const views = Utils.formatViews(story.viewCount || story.ViewCount || 0);
@@ -903,14 +903,14 @@
                             <li class="suggest-slide" style="flex: 0 0 100%; width: 100%; box-sizing: border-box;">
                                 <div class="featured-box" style="display:flex; align-items:center; justify-content:space-between; padding:40px; gap:30px; width:100%;">
                                     <div class="featured-info" style="flex:1; color:white;">
-                                        <p class="tag-hot" style="color:#fbbf24; font-weight:bold; margin-bottom:10px;">NỔI BẬT</p>
+                                        <p class="tag-hot" style="color:#fbbf24; font-weight:bold; margin-bottom:10px;">FEATURED</p>
                                         <h2 style="font-size:2.5rem; margin:0 0 15px 0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">${title}</h2>
                                         <p class="desc" style="color:#9ca3af; margin-bottom:20px; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;">${desc}</p>
                                         <div class="stats" style="margin-bottom:25px;">
                                             <span style="margin-right:15px; color:#fbbf24;"><i class="fas fa-star"></i> ${rating}</span>
-                                            <span style="color:#9ca3af;"><i class="fas fa-eye"></i> ${views} lượt xem</span>
+                                            <span style="color:#9ca3af;"><i class="fas fa-eye"></i> ${views} views</span>
                                         </div>
-                                        <a href="/Stories/Details/${id}" class="btn-read" style="display:inline-block; background-color:#3b82f6; color:white; padding:12px 32px; border-radius:20px; font-weight:bold; text-decoration:none;">Đọc ngay</a>
+                                        <a href="/Stories/Details/${id}" class="btn-read" style="display:inline-block; background-color:#3b82f6; color:white; padding:12px 32px; border-radius:20px; font-weight:bold; text-decoration:none;">Read Now</a>
                                     </div>
                                     <div class="featured-cover" style="width:200px; height:300px; border-radius:12px; overflow:hidden; flex-shrink:0; background:#333; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);">
                                         <img src="${cover}" alt="${title}" style="width:100%; height:100%; object-fit:cover;">
@@ -922,7 +922,7 @@
 
                     this.initSliderLogic();
                 } catch (err) {
-                    list.innerHTML = '<li style="width:100%;text-align:center;padding:50px;color:#ef4444;">Lỗi tải dữ liệu</li>';
+                    list.innerHTML = '<li style="width:100%;text-align:center;padding:50px;color:#ef4444;">Error loading data</li>';
                 }
             },
 
@@ -952,7 +952,7 @@
         };
 
         // ----------------------------------------------------
-        // CHAT CONTROLLER: Xử lý giao tiếp AI
+        // CHAT CONTROLLER: AI Communication Handler
         // ----------------------------------------------------
         const ChatController = {
             elements: {
@@ -982,7 +982,7 @@
                 this.elements.input.value = '';
 
                 const typingId = 'typing-' + Date.now();
-                this.appendMessage('<i class="fas fa-ellipsis-h fa-fade"></i> Đang suy nghĩ...', 'ai', typingId);
+                this.appendMessage('<i class="fas fa-ellipsis-h fa-fade"></i> Thinking...', 'ai', typingId);
 
                 try {
                     const response = await fetch('http://localhost:5136/api/chatbot/ask', {
@@ -997,12 +997,12 @@
                     if (response.ok) {
                         this.appendMessage(data.reply.replace(/\n/g, '<br>'), 'ai');
                     } else {
-                        this.appendMessage('Lỗi: ' + (data.message || 'Không thể kết nối API.'), 'ai');
+                        this.appendMessage('Error: ' + (data.message || 'Cannot connect to API.'), 'ai');
                     }
                 } catch (error) {
                     console.error("Chat Error:", error);
                     document.getElementById(typingId)?.remove();
-                    this.appendMessage('Xin lỗi, hệ thống AI đang bận. Bạn thử lại sau nhé!', 'ai');
+                    this.appendMessage('Sorry, the AI system is busy. Please try again later!', 'ai');
                 }
             },
 
@@ -1020,7 +1020,7 @@
         };
 
         // ----------------------------------------------------
-        // NOTIFICATION CONTROLLER: Quản lý Thông báo
+        // NOTIFICATION CONTROLLER: Manage Notifications
         // ----------------------------------------------------
         const NotificationController = {
             isLoggedIn: @((User?.Identity?.IsAuthenticated ?? false).ToString().ToLower()),
@@ -1030,7 +1030,7 @@
             pollTimer: null,
 
             init: function() {
-                if (!this.isLoggedIn) return; // Nếu chưa đăng nhập thì không làm gì cả
+                if (!this.isLoggedIn) return; // Do nothing if not logged in
 
                 const btn = document.getElementById('notificationBtn');
                 const dropdown = document.getElementById('notificationDropdown');
@@ -1038,22 +1038,22 @@
 
                 if (!btn || !dropdown) return;
 
-                // 1. Tải số lượng badge ngay khi vào trang
+                // 1. Load badge count on page load
                 this.loadNotifications(true);
                 this.pollTimer = setInterval(() => this.loadNotifications(true), 20000);
 
-                // 2. Xử lý click nút Chuông
+                // 2. Handle Bell click
                 btn.addEventListener('click', (e) => {
                     e.preventDefault();
                     this.dropdownVisible = !this.dropdownVisible;
                     dropdown.style.display = this.dropdownVisible ? 'block' : 'none';
 
                     if (this.dropdownVisible) {
-                        this.loadNotifications(false); // Render chi tiết khi mở
+                        this.loadNotifications(false); // Render details when open
                     }
                 });
 
-                // 3. Ẩn dropdown khi click ra ngoài
+                // 3. Hide dropdown when click outside
                 document.addEventListener('click', (e) => {
                     if (!btn.contains(e.target) && !dropdown.contains(e.target)) {
                         this.dropdownVisible = false;
@@ -1061,7 +1061,7 @@
                     }
                 });
 
-                // 4. Đánh dấu tất cả đã đọc
+                // 4. Mark all as read
                 markAllBtn?.addEventListener('click', () => this.markAllAsRead());
             },
 
@@ -1072,13 +1072,13 @@
                     });
 
                     if (!response.ok) {
-                        document.getElementById('notificationList').innerHTML = '<li style="padding: 20px; text-align: center; color: #ef4444;">Lỗi tải dữ liệu</li>';
+                        document.getElementById('notificationList').innerHTML = '<li style="padding: 20px; text-align: center; color: #ef4444;">Error loading data</li>';
                         return;
                     }
 
                     const notifications = await response.json();
 
-                    // Đếm số lượng chưa đọc
+                    // Count unread
                     const unreadCount = notifications.filter(n => !n.isRead).length;
                     const badge = document.getElementById('notiBadge');
                     if (badge) {
@@ -1094,11 +1094,11 @@
 
                     if (isBadgeOnly) return;
 
-                    // Render danh sách
+                    // Render list
                     this.renderList(notifications);
 
                 } catch (error) {
-                    console.error("Lỗi tải thông báo:", error);
+                    console.error("Error loading notification:", error);
                 }
             },
 
@@ -1107,7 +1107,7 @@
                 if (!listEl) return;
 
                 if (!notifications || notifications.length === 0) {
-                    listEl.innerHTML = '<li style="padding: 20px; text-align: center; color: #9ca3af;">Chưa có thông báo nào</li>';
+                    listEl.innerHTML = '<li style="padding: 20px; text-align: center; color: #9ca3af;">No notifications yet</li>';
                     return;
                 }
 
@@ -1135,7 +1135,7 @@
                         method: 'PUT',
                         credentials: 'include'
                     });
-                    // Cập nhật lại số badge
+                    // Update badge count
                     const badge = document.getElementById('notiBadge');
                     if (badge) {
                         let count = parseInt(badge.textContent) - 1;
@@ -1174,7 +1174,7 @@
                     oscillator.start();
                     oscillator.stop(audioContext.currentTime + 0.2);
                 } catch (e) {
-                    console.error('Không phát được âm thanh thông báo:', e);
+                    console.error('Cannot play notification sound:', e);
                 }
             }
         };
@@ -1186,7 +1186,7 @@
             AuthController.init();
             ChatController.init();
             SearchController.init();
-            NotificationController.init(); // Đã thêm phần khởi tạo thông báo
+            NotificationController.init(); // Initialize notifications
 
             if (document.getElementById('homeSection') !== null) {
                 UIController.init();

@@ -1,6 +1,6 @@
 ﻿@model WibuHub.MVC.ViewModels.ShoppingCart.Cart
 @{
-    ViewData["Title"] = "Thanh toán";
+    ViewData["Title"] = "Checkout";
     var total = Model.Items.Sum(i => i.Total);
     var tax = total * 0.1m;
     var totalAmount = total + tax;
@@ -8,8 +8,8 @@
 
 <div class="cart-page">
     <div class="cart-header">
-        <h1>Thanh toán</h1>
-        <a class="cart-checkout-link" asp-action="Index">Quay lại giỏ hàng</a>
+        <h1>Checkout</h1>
+        <a class="cart-checkout-link" asp-action="Index">Back to cart</a>
     </div>
 
 @section Scripts {
@@ -32,28 +32,28 @@
                         <div class="cart-item-title">@item.StoryTitle</div>
                     </div>
                     <div class="cart-item-actions">
-                        <span class="cart-price">@item.Price.ToString("N0") đ</span>
+                        <span class="cart-price">@item.Price.ToString("N0") ₫</span>
                         <span>x @item.Quantity</span>
                     </div>
                 </div>
             }
         </div>
         <div class="cart-summary">
-            <span>Tạm tính</span>
-            <strong>@total.ToString("N0") đ</strong>
+            <span>Subtotal</span>
+            <strong>@total.ToString("N0") ₫</strong>
         </div>
         <div class="cart-summary">
-            <span>Thu (10%)</span>
-            <strong>@tax.ToString("N0") đ</strong>
+            <span>Tax (10%)</span>
+            <strong>@tax.ToString("N0") ₫</strong>
         </div>
         <div class="cart-summary total">
-            <span>Tổng cộng</span>
-            <strong>@totalAmount.ToString("N0") đ</strong>
+            <span>Total amount</span>
+            <strong>@totalAmount.ToString("N0") ₫</strong>
         </div>
 
         <form asp-action="PayWithMomo" method="post" data-unsaved-guard="true" data-unsaved-always="true">
             @Html.AntiForgeryToken()
-            <button type="submit" class="cart-checkout">Thanh toán bằng MoMo</button>
+            <button type="submit" class="cart-checkout">Pay with MoMo</button>
         </form>
     </div>
 </div>

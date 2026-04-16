@@ -17,14 +17,14 @@
 
     var statusText = Model.Status switch
     {
-        1 => "Hoàn thành",
-        2 => "Tạm ngưng",
-        _ => "Đang tiến hành"
+        1 => "Completed",
+        2 => "Paused",
+        _ => "Ongoing"
     };
 
     var authorName = !string.IsNullOrWhiteSpace(Model.AuthorName)
         ? Model.AuthorName
-        : Model.Author?.Name ?? "Đang cập nhật";
+        : Model.Author?.Name ?? "Updating";
 
     var createdDate = Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy");
 
@@ -64,7 +64,7 @@
         }) ?? "#"
         : "#";
 
-    // Đã sửa: Xóa logic check fallback Model.Category cũ và dùng thẳng StoryCategories an toàn
+    // Fixed: Remove old fallback Model.Category check and use StoryCategories directly
     var storyCategories = Model.StoryCategories?
         .Where(sc => sc.Category != null)
         .Select(sc => sc.Category!)
@@ -72,7 +72,7 @@
 
     var categoryDisplay = storyCategories.Any()
         ? string.Join(", ", storyCategories.Select(c => c.Name))
-        : "Đang cập nhật";
+        : "Updating";
 
     var ratingValue = Math.Clamp((int)Math.Round(Model.RatingScore), 0, 5);
     var isFollowed = (ViewData["IsFollowed"] as bool?) ?? false;
@@ -85,7 +85,7 @@
     <ul style="display: flex; flex-wrap: wrap; list-style: none; padding: 0; margin: 0; font-size: 0.95rem; color: #6b7280; align-items: center; gap: 8px;">
         <li>
             <a href="/Categories?id=@(storyCategories.FirstOrDefault()?.Id)" style="color: #3b82f6; text-decoration: none;">
-                @(storyCategories.FirstOrDefault()?.Name ?? "Thể loại")
+                @(storyCategories.FirstOrDefault()?.Name ?? "Category")
             </a>
         </li>
         <li><span style="margin: 0 2px;">/</span></li>
@@ -99,7 +99,7 @@
             }
             else
             {
-                <span>Thể loại</span>
+                <span>Category</span>
             }
         </li>
         <li><span style="margin: 0 2px;">/</span></li>
@@ -118,15 +118,15 @@
             <h1 class="story-detail-title">@Model.StoryName</h1>
             <div class="story-detail-stats">
                 <div class="story-detail-stat">
-                    <span class="stat-label">Tác giả</span>
+                    <span class="stat-label">Author</span>
                     <span class="stat-value">@authorName</span>
                 </div>
                 <div class="story-detail-stat">
-                    <span class="stat-label">Tình trạng</span>
+                    <span class="stat-label">Status</span>
                     <span class="stat-value">@statusText</span>
                 </div>
                 <div class="story-detail-stat">
-                    <span class="stat-label">Thể loại</span>
+                    <span class="stat-label">Category</span>
                     <span class="stat-value">
                         @if (storyCategories.Any())
                         {
@@ -141,12 +141,12 @@
                         }
                         else
                         {
-                            @("Đang cập nhật")
+                            @("Updating")
                         }
                     </span>
                 </div>
                 <div class="story-detail-stat">
-                    <span class="stat-label">Lượt xem</span>
+                    <span class="stat-label">Views</span>
                     <span class="stat-value">@Model.ViewCount</span>
                 </div>
             </div>
@@ -159,7 +159,7 @@
                 </div>
                 <span class="rating-text">@Model.RatingScore.ToString("0.0")/5</span>
                 <span class="rating-divider">-</span>
-                <span class="rating-meta">@ratingCount lượt đánh giá</span>
+                <span class="rating-meta">@ratingCount reviews</span>
             </div>
             @if (TempData["RatingMessage"] != null)
             {
@@ -184,12 +184,12 @@
                             }
                         </div>
 
-                        <button type="submit" class="story-follow-btn" style="padding: 8px 14px; font-size: 0.9rem;">Gửi đánh giá</button>
+                        <button type="submit" class="story-follow-btn" style="padding: 8px 14px; font-size: 0.9rem;">Submit Rating</button>
                     </form>
                 }
                 else
                 {
-                    <button type="button" id="ratingLoginBtn" class="story-follow-btn" style="padding: 8px 14px; font-size: 0.9rem;">Đăng nhập để đánh giá</button>
+                    <button type="button" id="ratingLoginBtn" class="story-follow-btn" style="padding: 8px 14px; font-size: 0.9rem;">Login to rate</button>
                 }
             </div>
 
@@ -201,22 +201,22 @@
                         <input type="hidden" name="storyId" value="@Model.Id" />
                         <input type="hidden" name="returnUrl" value="@Context.Request.Path" />
                         <button type="submit" class="story-follow-btn @(isFollowed ? "active" : "")">
-                            @(isFollowed ? "Đã theo dõi" : "Theo dõi")
+                            @(isFollowed ? "Following" : "Follow")
                         </button>
                     </form>
                 }
                 else
                 {
-                    <button type="button" id="followLoginBtn" class="story-follow-btn" data-open-login="true">Theo dõi</button>
+                    <button type="button" id="followLoginBtn" class="story-follow-btn" data-open-login="true">Follow</button>
                 }
-                <span>@Model.FollowCount.ToString("N0") Người đã theo dõi</span>
+                <span>@Model.FollowCount.ToString("N0") Followers</span>
             </div>
             <div class="story-detail-actions">
-                <a class="story-action primary" href="@firstChapterUrl">Đọc từ đầu</a>
-                <a class="story-action primary" href="@latestChapterUrl">Đọc mới nhất</a>
+                <a class="story-action primary" href="@firstChapterUrl">Read from start</a>
+                <a class="story-action primary" href="@latestChapterUrl">Read latest</a>
                 @if (User?.Identity?.IsAuthenticated == true && continueChapterNumber.HasValue)
                 {
-                    <a class="story-action outline" href="@continueChapterUrl">Đọc tiếp &gt;</a>
+                    <a class="story-action outline" href="@continueChapterUrl">Continue Reading &gt;</a>
                 }
             </div>
 
@@ -242,7 +242,7 @@
         if (followLoginBtn) {
             followLoginBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                alert('Bạn phải đăng nhập để theo dõi truyện.');
+                alert('You must sign in to follow the story.');
                 openLoginModal();
             });
         }
@@ -250,7 +250,7 @@
         if (ratingLoginBtn) {
             ratingLoginBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                alert('Bạn phải đăng nhập để đánh giá truyện.');
+                alert('You must sign in to rate the story.');
                 openLoginModal();
             });
         }
@@ -258,7 +258,7 @@
         if (commentLoginBtn) {
             commentLoginBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                alert('Bạn phải đăng nhập để bình luận truyện.');
+                alert('You must sign in to comment.');
                 openLoginModal();
             });
         }
@@ -289,11 +289,11 @@
 }
     </div>
     <div class="story-detail-description">
-        <h3>NỘI DUNG TRUYỆN</h3>
-        <p>@(string.IsNullOrWhiteSpace(Model.Description) ? "Chưa có mô tả." : Model.Description)</p>
+        <h3>STORY CONTENT</h3>
+        <p>@(string.IsNullOrWhiteSpace(Model.Description) ? "No description yet." : Model.Description)</p>
     </div>
     <div class="story-chapters">
-        <div class="story-chapters-header">Danh sách chương</div>
+        <div class="story-chapters-header">Chapter List</div>
         @if (orderedChapters.Any())
         {
             <div class="story-chapters-list">
@@ -306,7 +306,7 @@
                     });
                     chapterUrl ??= "#";
                     <a class="story-chapter-item" href="@chapterUrl">
-                        <span>Chương @chapter.ChapterNumber</span>
+                        <span>Chapter @chapter.ChapterNumber</span>
                         <span class="chapter-date">@chapter.CreatedAt.ToString("dd/MM/yyyy")</span>
                     </a>
                 }
@@ -314,12 +314,12 @@
         }
         else
         {
-            <div class="story-chapters-empty">Chưa có chương.</div>
+            <div class="story-chapters-empty">No chapters yet.</div>
         }
     </div>
 
     <div class="story-detail-description" style="margin-top: 18px;">
-        <h3>BÌNH LUẬN (@storyComments.Count)</h3>
+        <h3>COMMENTS (@storyComments.Count)</h3>
 
         @if (TempData["CommentMessage"] != null)
         {
@@ -332,15 +332,15 @@
                 @Html.AntiForgeryToken()
                 <input type="hidden" name="storyId" value="@Model.Id" />
                 <input type="hidden" name="returnUrl" value="@Context.Request.Path" />
-                <textarea name="content" rows="3" maxlength="1000" placeholder="Nhập bình luận của bạn..." style="width: 100%; border: 1px solid #d1d5db; border-radius: 10px; padding: 10px; resize: vertical;"></textarea>
+                <textarea name="content" rows="3" maxlength="1000" placeholder="Write your comment..." style="width: 100%; border: 1px solid #d1d5db; border-radius: 10px; padding: 10px; resize: vertical;"></textarea>
                 <div style="margin-top: 8px;">
-                    <button type="submit" class="story-follow-btn" style="padding: 8px 14px;">Gửi bình luận</button>
+                    <button type="submit" class="story-follow-btn" style="padding: 8px 14px;">Submit</button>
                 </div>
             </form>
         }
         else
         {
-            <button type="button" id="commentLoginBtn" class="story-follow-btn" style="padding: 8px 14px; margin-bottom: 12px;">Đăng nhập để bình luận</button>
+            <button type="button" id="commentLoginBtn" class="story-follow-btn" style="padding: 8px 14px; margin-bottom: 12px;">Login to comment</button>
         }
 
         @if (storyComments.Any())
@@ -365,7 +365,7 @@
         }
         else
         {
-            <p style="color: #6b7280; margin: 0;">Chưa có bình luận nào.</p>
+            <p style="color: #6b7280; margin: 0;">No comments yet.</p>
         }
     </div>
 </div>
