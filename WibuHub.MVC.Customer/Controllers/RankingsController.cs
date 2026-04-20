@@ -49,9 +49,18 @@ namespace WibuHub.MVC.Customer.Controllers
                     query = query.Where(s => s.Status == 1).OrderByDescending(s => s.UpdateDate);
                     break;
                 case "random":
-                    title = "Random Story";
-                    query = query.OrderBy(s => Guid.NewGuid());
-                    break;
+                    var randomStoryId = await _context.Stories
+                        .AsNoTracking()
+                        .OrderBy(s => Guid.NewGuid())
+                        .Select(s => s.Id)
+                        .FirstOrDefaultAsync();
+
+                    if (randomStoryId == Guid.Empty)
+                    {
+                        return RedirectToAction(nameof(Index), new { type = "top-day" });
+                    }
+
+                    return RedirectToAction("Details", "Stories", new { id = randomStoryId });
             }
 
             var stories = await query.Take(30).ToListAsync();

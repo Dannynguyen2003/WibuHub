@@ -1,5 +1,5 @@
 @{
-    ViewData["Title"] = "Thanh toán";
+    ViewData["Title"] = "Payment";
     var orderId = ViewBag.OrderId as string;
     var amountStr = ViewBag.Amount as string;
     var payUrl = ViewBag.PayUrl as string;
@@ -145,81 +145,81 @@
 
 <div class="payment-container">
     <div class="redirect-alert">
-        B?n c?ng có th? thanh toán tr?c ti?p qua c?ng MoMo: 
-        <a href="@payUrl" target="_blank" style="font-weight:bold;color:#0c5460;text-decoration:underline;">B?m vào ðây ð? m? MoMo</a>
+        You can also pay directly via the MoMo gateway:
+        <a href="@payUrl" target="_blank" style="font-weight:bold;color:#0c5460;text-decoration:underline;">Click here to open MoMo</a>
     </div>
 
     <div class="payment-row">
-        <!-- Chuy?n Kho?n Qua QR -->
+        <!-- QR Payment -->
         <div class="payment-card">
             <div class="payment-header">
-                <div>M? ðõn hàng</div>
+                <div>Order ID</div>
                 <div>@orderId</div>
             </div>
             <div class="payment-header">
-                <div>S? dý thanh toán</div>
+                <div>Payment Amount</div>
                 <div>@amountStr</div>
             </div>
             <div class="text-center" style="margin-top:20px; color:#555;">
-                Quét m? chuy?n ti?n qua MoMo (<span id="timerText">600s</span>)
+                Scan the QR code to pay via MoMo (<span id="timerText">600s</span>)
             </div>
             <div class="qr-box">
-                <img src="@qrCodeUrl" alt="M? QR Thanh Toán" id="qrImage" />
+                <img src="@qrCodeUrl" alt="Payment QR Code" id="qrImage" />
                 <br/>
-                <a href="@qrCodeUrl" download="qrcode-momo.png" class="btn-save-qr">LÝU M? QR</a>
+                <a href="@qrCodeUrl" download="qrcode-momo.png" class="btn-save-qr">SAVE QR CODE</a>
                 <div class="text-danger" style="margin-top: 10px; font-weight: bold; font-size: 14px;">
-                    <span id="countdown">600</span>s m? này s? không h?p l?
+                    This QR code will expire in <span id="countdown">600</span>s
                 </div>
                 <div style="font-size: 14px; color: #555; margin-top: 5px;">
-                    Quét ho?c ch?p lýu m? QR ð? quét
+                    Scan now or save this QR code for later use
                 </div>
             </div>
         </div>
 
-        <!-- Chuy?n Kho?n Th? Công -->
+        <!-- Manual Transfer -->
         <div class="payment-card">
-            <div class="label-title">N?I DUNG CHUY?N KHO?N (B?T BU?C)</div>
+            <div class="label-title">TRANSFER MESSAGE (REQUIRED)</div>
             <div class="input-group">
                 <input type="text" class="input-read" value="@orderId" id="copyContent" readonly />
-                <button class="btn-copy" onclick="copyText('copyContent')">NH?N Ð? SAO CHÉP</button>
+                <button class="btn-copy" onclick="copyText('copyContent')">COPY</button>
             </div>
 
-            <div class="label-title">Thông tin ngý?i th? hý?ng</div>
+            <div class="label-title">Beneficiary Name</div>
             <div class="input-group">
                 <input type="text" class="input-read" value="@bankAccountOptions.AccountName" id="copyName" readonly />
-                <button class="btn-copy" onclick="copyText('copyName')">NH?N Ð? SAO CHÉP</button>
+                <button class="btn-copy" onclick="copyText('copyName')">COPY</button>
             </div>
 
-            <div class="label-title">S? tài kho?n ngân hàng th? hý?ng</div>
+            <div class="label-title">Beneficiary Account Number</div>
             <div class="input-group">
                 <input type="text" class="input-read" value="@bankAccountOptions.AccountNumber" id="copyAcc" readonly />
-                <button class="btn-copy" onclick="copyText('copyAcc')">NH?N Ð? SAO CHÉP</button>
+                <button class="btn-copy" onclick="copyText('copyAcc')">COPY</button>
             </div>
 
-            <div class="label-title">Ngân hàng th? hý?ng</div>
+            <div class="label-title">Beneficiary Bank</div>
             <div class="input-group">
                 <input type="text" class="input-read" value="@bankAccountOptions.BankName" id="copyBank" readonly />
-                <button class="btn-copy" onclick="copyText('copyBank')">NH?N Ð? SAO CHÉP</button>
+                <button class="btn-copy" onclick="copyText('copyBank')">COPY</button>
             </div>
             
-            <div class="label-title">S? ti?n chuy?n kho?n</div>
+            <div class="label-title">Transfer Amount</div>
             <div class="input-group">
                 <input type="text" class="input-read" value="@amountStr" id="copyAmount" readonly />
-                <button class="btn-copy" onclick="copyText('copyAmount')">NH?N Ð? SAO CHÉP</button>
+                <button class="btn-copy" onclick="copyText('copyAmount')">COPY</button>
             </div>
             
             <div style="margin-top:auto; font-size:13px; color:#555; padding-top:20px;">
-                * S? d?ng thông tin chuy?n kho?n trên n?u b?n g?p l?i không th? quét ðý?c m? QR t? MoMo.
+                * Use the transfer details above if you cannot scan the MoMo QR code.
             </div>
         </div>
     </div>
 
-    <!-- Chú ? -->
+    <!-- Notes -->
     <div class="notice-box">
-        <div style="font-weight: bold; margin-bottom: 5px;">Danh m?c chú ?</div>
+        <div style="font-weight: bold; margin-bottom: 5px;">Important Notes</div>
         <div class="notice-content">
-            <p>Các b?n nh? nh?p ðúng chính xác n?i dung ghi chú chuy?n kho?n, n?u không s? không th? n?p ti?n thành công t? ð?ng</p>
-            <p>M? QR thanh toán và thông tin ch? ðý?c s? d?ng m?t l?n, không ðý?c s? d?ng l?i. N?u s? d?ng l?i s? không ðý?c chuy?n ð?n tài kho?n.</p>
+            <p>Please enter the transfer message exactly as shown, otherwise your top-up may not be processed automatically.</p>
+            <p>This payment QR code and transfer information are for one-time use only. Reusing them may cause payment issues.</p>
         </div>
     </div>
 </div>
@@ -231,7 +231,7 @@
             copyText.select();
             copyText.setSelectionRange(0, 99999);
             navigator.clipboard.writeText(copyText.value).then(function() {
-                alert("Ð? sao chép: " + copyText.value);
+                alert("Copied: " + copyText.value);
             });
         }
 
@@ -249,7 +249,7 @@
 
             if (timeLeft <= 0) {
                 clearInterval(timerId);
-                alert("Th?i gian thanh toán ð? h?t.");
+                alert("Payment time has expired.");
                 window.location.href = '/ShoppingCart/Checkout';
             }
         }, 1000);

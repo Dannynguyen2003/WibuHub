@@ -32,7 +32,6 @@
         .OrderBy(c => c.ChapterNumber)
         .ToList();
 
-    var chapterCount = orderedChapters.Count;
     var firstChapter = orderedChapters.FirstOrDefault();
     var latestChapter = orderedChapters.LastOrDefault();
 
@@ -84,8 +83,8 @@
 <div style="padding: 15px 20px 20px 20px; max-width: 1200px; margin: 0 auto;">
     <ul style="display: flex; flex-wrap: wrap; list-style: none; padding: 0; margin: 0; font-size: 0.95rem; color: #6b7280; align-items: center; gap: 8px;">
         <li>
-            <a href="/Categories?id=@(storyCategories.FirstOrDefault()?.Id)" style="color: #3b82f6; text-decoration: none;">
-                @(storyCategories.FirstOrDefault()?.Name ?? "Category")
+            <a href="/" style="color: #3b82f6; text-decoration: none;">
+                Trang chủ
             </a>
         </li>
         <li><span style="margin: 0 2px;">/</span></li>
@@ -172,7 +171,7 @@
                     <form asp-action="Rate" method="post" id="storyRatingForm" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="storyId" value="@Model.Id" />
-                        <input type="hidden" name="returnUrl" value="@Context.Request.Path" />
+                        <input type="hidden" name="returnUrl" value="@ViewContext.HttpContext.Request.Path" />
                         <input type="hidden" name="score" id="ratingScoreInput" value="@myRating" />
 
                         <div id="ratingStarsInput" style="display: inline-flex; gap: 6px;">
@@ -199,7 +198,7 @@
                     <form class="story-follow-form" asp-controller="Follows" asp-action="Toggle" method="post">
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="storyId" value="@Model.Id" />
-                        <input type="hidden" name="returnUrl" value="@Context.Request.Path" />
+                        <input type="hidden" name="returnUrl" value="@ViewContext.HttpContext.Request.Path" />
                         <button type="submit" class="story-follow-btn @(isFollowed ? "active" : "")">
                             @(isFollowed ? "Following" : "Follow")
                         </button>
@@ -331,7 +330,7 @@
             <form asp-action="AddComment" method="post" style="margin-bottom: 16px;">
                 @Html.AntiForgeryToken()
                 <input type="hidden" name="storyId" value="@Model.Id" />
-                <input type="hidden" name="returnUrl" value="@Context.Request.Path" />
+                <input type="hidden" name="returnUrl" value="@ViewContext.HttpContext.Request.Path" />
                 <textarea name="content" rows="3" maxlength="1000" placeholder="Write your comment..." style="width: 100%; border: 1px solid #d1d5db; border-radius: 10px; padding: 10px; resize: vertical;"></textarea>
                 <div style="margin-top: 8px;">
                     <button type="submit" class="story-follow-btn" style="padding: 8px 14px;">Submit</button>

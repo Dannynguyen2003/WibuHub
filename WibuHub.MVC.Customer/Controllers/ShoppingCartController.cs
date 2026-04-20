@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using System.Security.Claims;
 using WibuHub.ApplicationCore.Configuration;
 using WibuHub.ApplicationCore.DTOs.Shared;
 using WibuHub.ApplicationCore.Entities;
@@ -70,6 +71,48 @@ namespace WibuHub.MVC.Customer.Controllers
         {
             var cart = GetCart();
             return View(cart);
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> Orders(int page = 1)
+        {
+            var userName = User.Identity?.Name;
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            const int pageSize = 10;
+
+            if (page < 1)
+            {
+                page = 1;
+            }
+
+            var query = _context.Orders
+                .AsNoTracking()
+                .Where(o =>
+                    (!string.IsNullOrWhiteSpace(userName) && o.UserId == userName)
+                    || (!string.IsNullOrWhiteSpace(userId) && o.UserId == userId));
+
+            var totalOrders = await query.CountAsync();
+            var totalPages = totalOrders == 0 ? 1 : (int)Math.Ceiling(totalOrders / (double)pageSize);
+
+            if (page > totalPages)
+            {
+                page = totalPages;
+            }
+
+            var orders = await query
+                .Include(o => o.OrderDetails)
+                .OrderByDescending(o => o.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.PageSize = pageSize;
+            ViewBag.TotalOrders = totalOrders;
+
+            return View(orders);
         }
 
         [HttpPost]
