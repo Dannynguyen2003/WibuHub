@@ -1,12 +1,12 @@
 ﻿@page
 @model ResendEmailConfirmationModel
 @{
-    ViewData["Title"] = "Gửi lại email xác nhận";
+    ViewData["Title"] = "Resend confirmation email";
 }
 
 <div class="modal" style="display: flex; position: static; background: transparent; padding: 40px 0;">
     <div class="modal-content">
-        <div class="modal-title">Gửi lại email xác nhận</div>
+        <div class="modal-title">Resend confirmation email</div>
         <form method="post">
             <div asp-validation-summary="All" class="text-danger" role="alert"></div>
             <div class="input-group">
@@ -14,9 +14,9 @@
                 <input asp-for="Input.Email" type="email" aria-required="true" placeholder="name@example.com" />
                 <span asp-validation-for="Input.Email" class="text-danger"></span>
             </div>
-            <button type="submit" class="btn">Gửi lại</button>
+            <button type="submit" class="btn">Resend</button>
             <div class="switch-link">
-                <a asp-page="./Login">Quay lại đăng nhập</a>
+                <a asp-page="./Login">Back to login</a>
             </div>
         </form>
     </div>

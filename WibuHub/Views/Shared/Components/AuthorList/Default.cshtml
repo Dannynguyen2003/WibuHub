@@ -3,9 +3,9 @@
     <thead>
         <tr>
             <th style="width: 10%">Position</th>
-            <th style="width: 35%">Tên tác giả</th>
+            <th style="width: 35%">Author Name</th>
             <th style="width: 35%">Slug</th>
-            <th style="width: 20%" class="text-center">Thao tác</th>
+            <th style="width: 20%" class="text-center">Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -22,10 +22,10 @@
                     <td>@item.Slug</td>
                     <td class="action-cell">
                         <a asp-action="Edit" asp-route-id="@item.Id"
-                           class="btn-primary btn-sm">Sửa</a>
+                           class="btn-primary btn-sm">Edit</a>
                         <button type="button" onclick="openModalDeleteAuthor('@item.Id')"
                                 class="btn-danger btn-sm">
-                            Xóa
+                            Delete
                         </button>
                     </td>
                 </tr>
@@ -35,7 +35,7 @@
         else
         {
             <tr>
-                <td colspan="4" class="text-center">Chưa có tác giả nào được tạo.</td>
+                <td colspan="4" class="text-center">No authors created yet.</td>
             </tr>
         }
     </tbody>

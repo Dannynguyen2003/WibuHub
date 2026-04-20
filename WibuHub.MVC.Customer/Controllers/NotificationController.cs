@@ -7,7 +7,7 @@ namespace WibuHub.MVC.Customer.Controllers
 {
     [ApiController]
     [Authorize]
-    [Route("api/notification")]
+    [Route("api/notification")] // Consider changing to "api/notifications"
     public class NotificationController : ControllerBase
     {
         private readonly INotificationService _notificationService;
@@ -20,10 +20,9 @@ namespace WibuHub.MVC.Customer.Controllers
         [HttpGet]
         public async Task<IActionResult> GetMyNotifications()
         {
-            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrWhiteSpace(userIdString) || !Guid.TryParse(userIdString, out var userId))
+            if (!TryGetUserId(out var userId))
             {
-                return Unauthorized(new { message = "Không xác ð?nh ðý?c ngý?i dùng." });
+                return Unauthorized(new { message = "Unable to identify user." });
             }
 
             var notifications = await _notificationService.GetByUserIdAsync(userId);
@@ -33,16 +32,15 @@ namespace WibuHub.MVC.Customer.Controllers
         [HttpPut("{id:guid}/read")]
         public async Task<IActionResult> MarkAsRead(Guid id)
         {
-            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrWhiteSpace(userIdString) || !Guid.TryParse(userIdString, out var userId))
+            if (!TryGetUserId(out var userId))
             {
-                return Unauthorized(new { message = "Không xác ð?nh ðý?c ngý?i dùng." });
+                return Unauthorized(new { message = "Unable to identify user." });
             }
 
             var updated = await _notificationService.MarkAsReadAsync(id, userId);
             if (!updated)
             {
-                return BadRequest(new { success = false, message = "Không th? c?p nh?t thông báo." });
+                return BadRequest(new { success = false, message = "Failed to update the notification." });
             }
 
             return Ok(new { success = true });
@@ -51,14 +49,21 @@ namespace WibuHub.MVC.Customer.Controllers
         [HttpPut("read-all")]
         public async Task<IActionResult> MarkAllAsRead()
         {
-            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrWhiteSpace(userIdString) || !Guid.TryParse(userIdString, out var userId))
+            if (!TryGetUserId(out var userId))
             {
-                return Unauthorized(new { message = "Không xác ð?nh ðý?c ngý?i dùng." });
+                return Unauthorized(new { message = "Unable to identify user." });
             }
 
             await _notificationService.MarkAllAsReadAsync(userId);
             return Ok(new { success = true });
+        }
+
+        // --- Helper Methods ---
+
+        private bool TryGetUserId(out Guid userId)
+        {
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return Guid.TryParse(userIdString, out userId);
         }
     }
 }

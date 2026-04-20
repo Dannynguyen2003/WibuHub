@@ -130,6 +130,7 @@ namespace WibuHub.Areas.Admin.Controllers
                 }
 
                 await _context.SaveChangesAsync();
+                TempData["Success"] = "Tạo truyện thành công!";
                 return RedirectToAction(nameof(Create));
             }
 

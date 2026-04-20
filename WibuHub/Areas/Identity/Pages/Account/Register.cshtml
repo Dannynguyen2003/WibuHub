@@ -13,11 +13,11 @@
 
     <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
 
-        @* Hiển thị lỗi tổng quát (nếu có) *@
+        @* Show general summary errors (if any) *@
         <div asp-validation-summary="ModelOnly" class="error-message" style="display: block; margin-bottom: 15px; text-align: center;" role="alert"></div>
 
-        @* Ghi chú: Mặc định Identity không có trường Name (Họ tên). 
-           Nếu ApplicationUser của bạn có thêm trường này, hãy mở comment đoạn dưới đây.
+        @* Note: By default Identity does not have a Name field. 
+           If your ApplicationUser has this field, uncomment the code below.
         *@
         @* <div class="form-group">
             <label asp-for="Input.Name">Full Name</label>
@@ -29,7 +29,7 @@
         <div class="form-group">
             <label asp-for="Input.Email">Email</label>
             <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="admin@wibuhub.com" />
-            @* Span hiển thị lỗi validation của ASP.NET *@
+            @* Span to display ASP.NET validation error *@
             <span asp-validation-for="Input.Email" style="color: #dc2626; font-size: 0.85rem; margin-top: 5px; display: block;"></span>
         </div>
 

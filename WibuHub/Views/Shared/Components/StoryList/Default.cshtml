@@ -1,22 +1,22 @@
 ﻿@model WibuHub.ApplicationCore.DTOs.Shared.PagedResult<WibuHub.MVC.ViewModels.StoryVM>
 <table class="data-table">
-    <thead>
-        <tr>
-            <th style="width: 5%">Position</th>
-            <th style="width: 8%">Cover</th>
-            <th style="width: 14%">Tiêu đề</th>
-            <th style="width: 10%">Tác giả</th>
-            <th style="width: 10%">Danh mục</th>
-            <th style="width: 10%">Trạng thái</th>
-            <th style="width: 8%">Số chương</th>
-            <th style="width: 7%">Lượt xem</th>
-            <th style="width: 7%">Theo dõi</th>
-            <th style="width: 7%">Giá</th>
-            <th style="width: 7%">Giảm giá</th>
-            <th style="width: 8%">Ngày tạo</th>
-            <th style="width: 12%" class="text-center">Thao tác</th>
-        </tr>
-    </thead>
+<thead>
+    <tr>
+        <th style="width: 5%">Position</th>
+        <th style="width: 8%">Cover</th>
+        <th style="width: 14%">Title</th>
+        <th style="width: 10%">Author</th>
+        <th style="width: 10%">Categories</th>
+        <th style="width: 10%">Status</th>
+        <th style="width: 8%">Chapters</th>
+        <th style="width: 7%">Views</th>
+        <th style="width: 7%">Followers</th>
+        <th style="width: 7%">Price</th>
+        <th style="width: 7%">Discount</th>
+        <th style="width: 8%">Created Date</th>
+        <th style="width: 12%" class="text-center">Actions</th>
+    </tr>
+</thead>
     <tbody>
         @if (Model?.Items != null && Model.Items.Any())
         {
@@ -40,16 +40,16 @@
                         @switch (item.Status)
                         {
                             case 0:
-                                <span class="badge-status pending">Đang tiến hành</span>
+                                <span class="badge-status pending">Ongoing</span>
                                 break;
                             case 1:
-                                <span class="badge-status">Hoàn thành</span>
+                                <span class="badge-status">Completed</span>
                                 break;
                             case 2:
-                                <span class="badge-status pending">Tạm ngưng</span>
+                                <span class="badge-status pending">Paused</span>
                                 break;
                             default:
-                                <span class="badge-status">Không xác định</span>
+                                <span class="badge-status">Unknown</span>
                                 break;
                         }
                     </td>
@@ -63,12 +63,12 @@
                     <td>@item.CreatedAt.ToString("dd/MM/yyyy")</td>
                     <td class="action-cell">
                         <a asp-action="Edit" asp-route-id="@item.Id"
-                           class="btn-primary btn-sm">Sửa</a>
+                           class="btn-primary btn-sm">Edit</a>
                         <a asp-action="Details" asp-route-id="@item.Id"
-                           class="btn-secondary btn-sm">Chi tiết</a>
+                           class="btn-secondary btn-sm">Details</a>
                         <button type="button" onclick="openModalDeleteStory('@item.Id')"
                                 class="btn-danger btn-sm">
-                            Xóa
+                            Delete
                         </button>
                     </td>
                 </tr>
@@ -78,7 +78,7 @@
         else
         {
             <tr>
-                <td colspan="13" class="text-center">Chưa có truyện nào được tạo.</td>
+                <td colspan="13" class="text-center">No stories created yet.</td>
             </tr>
         }
     </tbody>

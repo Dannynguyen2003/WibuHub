@@ -3,14 +3,14 @@
     <thead>
         <tr>
             <th style="width: 8%">Position</th>
-            <th style="width: 8%">Số chương</th>
-            <th style="width: 15%">Tên chương</th>
-            <th style="width: 15%">Truyện</th>
-            <th style="width: 8%">Số ảnh</th>
+            <th style="width: 8%">Chapter Number</th>
+            <th style="width: 15%">Chapter Name</th>
+            <th style="width: 15%">Story</th>
+            <th style="width: 8%">Images</th>
             <th style="width: 12%">Slug</th>
-            <th style="width: 8%">Lượt xem</th>
-            <th style="width: 12%">Ngày tạo</th>
-            <th style="width: 12%" class="text-center">Thao tác</th>
+            <th style="width: 8%">Views</th>
+            <th style="width: 12%">Created Date</th>
+            <th style="width: 12%" class="text-center">Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -36,12 +36,12 @@
                     <td>@item.CreatedAt.ToString("dd/MM/yyyy")</td>
                     <td class="action-cell">
                         <a asp-action="Edit" asp-route-id="@item.Id"
-                           class="btn-primary btn-sm">Sửa</a>
+                           class="btn-primary btn-sm">Edit</a>
                         <a asp-action="Details" asp-route-id="@item.Id"
-                           class="btn-secondary btn-sm">Chi tiết</a>
+                           class="btn-secondary btn-sm">Details</a>
                         <button type="button" onclick="openModalDeleteChapter('@item.Id')"
                                 class="btn-danger btn-sm">
-                            Xóa
+                            Delete
                         </button>
                     </td>
                 </tr>
@@ -51,7 +51,7 @@
         else
         {
             <tr>
-                <td colspan="9" class="text-center">Chưa có chương nào được tạo.</td>
+                <td colspan="9" class="text-center">No chapters created yet.</td>
             </tr>
         }
     </tbody>

@@ -149,6 +149,7 @@ namespace WibuHub.Controllers
                 }
 
                 await _context.SaveChangesAsync();
+                TempData["Success"] = "Tạo chapter thành công!";
                 return RedirectToAction(nameof(Create));
             }
             ViewData["StoryId"] = new SelectList(_context.Stories.Where(s => !s.IsDeleted), "Id", "StoryName", chapterVM.StoryId);

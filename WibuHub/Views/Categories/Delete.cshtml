@@ -3,7 +3,7 @@
 <div class="p-3">
     <div class="alert alert-warning">
         <i class="fas fa-exclamation-triangle"></i>
-        <strong>Xác nhận:</strong> Bạn có chắc chắn muốn xóa danh mục này không? Thao tác này sẽ ẩn danh mục khỏi hệ thống.
+        <strong>Confirm:</strong> Are you sure you want to delete this category? This will hide the category from the system.
     </div>
 
     <div>
@@ -16,7 +16,7 @@
             </dd>
 
             <dt class="col-sm-4">
-                Slug (Đường dẫn)
+                Slug (URL)
             </dt>
             <dd class="col-sm-8 text-danger">
                 @Model.Slug
@@ -26,7 +26,7 @@
                 @Html.DisplayNameFor(model => model.Description)
             </dt>
             <dd class="col-sm-8">
-                @(string.IsNullOrEmpty(Model.Description) ? "Không có mô tả" : Model.Description)
+                @(string.IsNullOrEmpty(Model.Description) ? "No description" : Model.Description)
             </dd>
 
             <dt class="col-sm-4">
@@ -38,13 +38,13 @@
         </dl>
 
         <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" onclick="closeModal()">Hủy bỏ</button>
+            <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
             <form id="deleteForm">
                 @Html.AntiForgeryToken()
                 <input type="hidden" asp-for="Id" />
-                @* Gọi hàm deleteCategory đã viết trong script AJAX *@
+                @* Call deleteCategory from AJAX script *@
                 <button type="button" onclick="deleteCategory('@Model.Id')" class="btn btn-danger">
-                    Xác nhận xóa
+                    Confirm Delete
                 </button>
             </form>
         </div>

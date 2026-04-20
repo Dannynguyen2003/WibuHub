@@ -275,7 +275,7 @@
                 <a asp-controller="Home" asp-action="Index" asp-area="" class="mobile-menu-item active" id="mobileHome"><i class="fas fa-home"></i> Home</a>
                 <a asp-controller="Categories" asp-action="Index" asp-route-id="" class="mobile-menu-item" id="mobileGenre"><i class="fas fa-tags"></i> Categories</a>
                 <a href="#" class="mobile-menu-item" id="mobileRank"><i class="fas fa-crown"></i> Rankings</a>
-                <a href="#" class="mobile-menu-item" id="mobileGroups"><i class="fas fa-users"></i> Translation Requests</a>
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLSc3gIauY8q3Ta_McAnlhNVwAw8YLV_paFi7BQdL8Tr9LTYdow/viewform?usp=dialog" target="_blank" rel="noopener noreferrer" class="mobile-menu-item" id="mobileGroups"><i class="fas fa-users"></i> Translation Requests</a>
             </div>
         }
 
@@ -316,7 +316,7 @@
                     <a class="rank-link" asp-controller="Rankings" asp-action="Index" asp-route-type="random">Random</a>
                 </div>
             </div>
-            <a class="nav-item" id="tabGroups" href="#">Translation Requests</a>
+            <a class="nav-item" id="tabGroups" href="https://docs.google.com/forms/d/e/1FAIpQLSc3gIauY8q3Ta_McAnlhNVwAw8YLV_paFi7BQdL8Tr9LTYdow/viewform?usp=dialog" target="_blank" rel="noopener noreferrer">Translation Requests</a>
         </nav>
 
         @if (isHomePage)
@@ -722,7 +722,6 @@
 
                 // Nav Tabs
                 document.getElementById('tabHome')?.addEventListener('click', (e) => { e.preventDefault(); this.showSection('homeSection', 'tabHome'); });
-                document.getElementById('tabGroups')?.addEventListener('click', (e) => { e.preventDefault(); this.showSection('groupsSection', 'tabGroups'); });
                 document.getElementById('tabProfilePage')?.addEventListener('click', (e) => { e.preventDefault(); this.showSection('profilePageSection', 'tabProfilePage'); });
 
                 // Chatbox UI Toggle
@@ -793,11 +792,7 @@
             bindLoadMore: function() {
                 document.getElementById('viewMoreBtn')?.addEventListener('click', (e) => {
                     e.preventDefault();
-                    if (this.state.currentIndex >= this.state.MAX_ITEMS) {
-                        window.location.href = '/Categories';
-                        return;
-                    }
-                    this.renderGrid();
+                    window.location.href = '/Rankings?type=latest';
                 });
             },
 

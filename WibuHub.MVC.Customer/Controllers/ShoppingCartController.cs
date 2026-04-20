@@ -248,7 +248,10 @@ namespace WibuHub.MVC.Customer.Controllers
 
             if (response.ErrorCode == 0 && !string.IsNullOrWhiteSpace(response.PayUrl))
             {
-                return Redirect(response.PayUrl);
+                TempData["TransferOrderId"] = order.Id.ToString();
+                TempData["TransferAmount"] = order.TotalAmount.ToString("0");
+                TempData["TransferPayUrl"] = response.PayUrl;
+                return RedirectToAction(nameof(PaymentTransfer));
             }
 
             order.PaymentStatus = "Failed";
@@ -256,6 +259,27 @@ namespace WibuHub.MVC.Customer.Controllers
             HttpContext.Session.Remove(PendingMomoOrderSessionKey);
             TempData["PaymentError"] = response.Message;
             return RedirectToAction(nameof(Checkout));
+        }
+
+        [HttpGet]
+        [Authorize]
+        public IActionResult PaymentTransfer()
+        {
+            if (TempData["TransferOrderId"] == null)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            ViewBag.OrderId = TempData["TransferOrderId"];
+            ViewBag.Amount = TempData["TransferAmount"];
+            ViewBag.PayUrl = TempData["TransferPayUrl"];
+
+            // Keep TempData in case of refresh
+            TempData.Keep("TransferOrderId");
+            TempData.Keep("TransferAmount");
+            TempData.Keep("TransferPayUrl");
+
+            return View();
         }
 
         [HttpGet]
