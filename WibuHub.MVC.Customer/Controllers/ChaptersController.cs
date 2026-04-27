@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using WibuHub.ApplicationCore.Entities;
 using WibuHub.ApplicationCore.Entities.Identity;
+using WibuHub.Common.Contants;
 using WibuHub.DataLayer;
 using WibuHub.MVC.Customer.ViewModels;
 using WibuHub.Service.Implementation;
@@ -82,9 +83,11 @@ namespace WibuHub.MVC.Customer.Controllers
             }
 
             var requestedServer = HttpContext.Request.Query["sv"].ToString();
-            var activeServer = string.Equals(requestedServer, "vip", StringComparison.OrdinalIgnoreCase) && isVipUser
-                ? "vip"
-                : "normal";
+            var isVipServerRequest = string.Equals(requestedServer, AppConstants.ReadingServers.VipKey, StringComparison.OrdinalIgnoreCase)
+                || requestedServer == AppConstants.ReadingServers.VipId.ToString();
+            var activeServer = isVipServerRequest && isVipUser
+                ? AppConstants.ReadingServers.VipKey
+                : AppConstants.ReadingServers.NormalKey;
 
             await RecordViewAsync(chapter);
 

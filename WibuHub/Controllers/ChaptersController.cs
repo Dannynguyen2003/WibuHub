@@ -111,7 +111,7 @@ namespace WibuHub.Controllers
                            : chapterVM.Slug.Trim(),
                     ViewCount = 0,
                     Content = string.Join(Environment.NewLine, imageUrls),
-                    ServerId = chapterVM.ServerId,
+                    ServerId = AppConstants.ReadingServers.NormalId,
                     CreatedAt = DateTime.UtcNow,
                     ImageUrls = imageUrls,
                     Images = imageUrls
@@ -261,7 +261,6 @@ namespace WibuHub.Controllers
                     chapter.ChapterNumber = chapterVM.ChapterNumber;
                     chapter.Slug = chapterVM.Slug.Trim();
                     chapter.Content = string.Join(Environment.NewLine, imageUrls);
-                    chapter.ServerId = chapterVM.ServerId;
                     _context.ChapterImages.RemoveRange(chapter.Images);
                     chapter.Images = imageUrls
                         .Select((url, index) => new ChapterImage

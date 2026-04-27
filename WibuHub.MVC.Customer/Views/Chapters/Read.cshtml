@@ -80,14 +80,10 @@
 
     <div class="chapter-toolbar">
         <div class="chapter-servers">
-            <a class="chapter-server @(activeServer == "normal" ? "active" : "")" href="@Url.RouteUrl("ChapterReadSeo", new { storySlug, chapterNumber = chapter.ChapterNumber.ToString(CultureInfo.InvariantCulture), sv = "normal" })">Normal Server</a>
+            <a class="chapter-server @(activeServer == "normal" ? "active" : "")" href="@Url.RouteUrl("ChapterReadSeo", new { storySlug, chapterNumber = chapter.ChapterNumber.ToString(CultureInfo.InvariantCulture), sv = 1 })">Normal Server</a>
             @if (Model.IsVipUser)
             {
-                <a class="chapter-server @(activeServer == "vip" ? "active" : "")" href="@Url.RouteUrl("ChapterReadSeo", new { storySlug, chapterNumber = chapter.ChapterNumber.ToString(CultureInfo.InvariantCulture), sv = "vip" })">VIP Server</a>
-            }
-            else
-            {
-                <a class="chapter-server" href="@Url.Action("Upgrade", "Vip")">VIP Server</a>
+                <a class="chapter-server @(activeServer == "vip" ? "active" : "")" href="@Url.RouteUrl("ChapterReadSeo", new { storySlug, chapterNumber = chapter.ChapterNumber.ToString(CultureInfo.InvariantCulture), sv = 2 })">VIP Server</a>
             }
         </div>
         <button class="chapter-report" type="button"><i class="fas fa-flag"></i> Report</button>
