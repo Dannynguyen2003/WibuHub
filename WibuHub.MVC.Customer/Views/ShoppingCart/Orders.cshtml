@@ -11,6 +11,7 @@
         <h1 style="margin:0;font-size:1.8rem;color:#0f172a;">My Purchased Orders</h1>
         <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
             <span style="color:#64748b;font-size:0.95rem;">Total: @totalOrders order(s)</span>
+            <a asp-controller="ShoppingCart" asp-action="PurchasedStories" style="text-decoration:none;background:#0ea5e9;color:#fff;padding:8px 14px;border-radius:8px;">Purchased Stories</a>
             <a asp-controller="ShoppingCart" asp-action="Index" style="text-decoration:none;background:#2563eb;color:#fff;padding:8px 14px;border-radius:8px;">Back to Shop</a>
         </div>
     </div>
@@ -61,6 +62,15 @@
                                     @if (detail.StoryId.HasValue && detail.StoryId.Value != Guid.Empty)
                                     {
                                         <a asp-controller="Stories" asp-action="Details" asp-route-id="@detail.StoryId" style="text-decoration:none;color:#2563eb;">@(detail.ItemName ?? "Story")</a>
+                                        @if (status.Equals("Completed", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            <a asp-controller="ShoppingCart"
+                                               asp-action="DownloadStory"
+                                               asp-route-storyId="@detail.StoryId"
+                                               style="margin-left:10px;text-decoration:none;background:#16a34a;color:#fff;padding:4px 10px;border-radius:6px;font-size:0.82rem;display:inline-block;">
+                                                Download
+                                            </a>
+                                        }
                                     }
                                     else
                                     {

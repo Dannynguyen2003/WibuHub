@@ -66,6 +66,24 @@
     box-shadow: 0 4px 10px rgba(254, 240, 138, 0.5);
 }
 
+.vip-badge.badge-story {
+    background: #dbeafe;
+    color: #1d4ed8;
+    box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+}
+
+.vip-badge.badge-mixed {
+    background: #ede9fe;
+    color: #5b21b6;
+    box-shadow: 0 4px 10px rgba(124, 58, 237, 0.3);
+}
+
+.vip-badge.badge-default {
+    background: #f3f4f6;
+    color: #374151;
+    box-shadow: 0 4px 10px rgba(107, 114, 128, 0.2);
+}
+
 .result-message {
     font-size: 15px;
     color: #4b5563;

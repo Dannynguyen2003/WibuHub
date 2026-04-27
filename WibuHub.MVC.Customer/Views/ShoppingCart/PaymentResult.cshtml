@@ -1,5 +1,30 @@
 ﻿@{
     ViewData["Title"] = "Payment Result";
+    var isSuccess = (bool?)(ViewBag.IsSuccess) ?? false;
+    var hasVip = (bool?)(ViewBag.HasVip) ?? false;
+    var hasStory = (bool?)(ViewBag.HasStory) ?? false;
+    var transactionId = (string?)(ViewBag.TransactionId) ?? "N/A";
+
+    var isVipOnly = isSuccess && hasVip && !hasStory;
+    var isStoryOnly = isSuccess && !hasVip && hasStory;
+    var isMixed = isSuccess && hasVip && hasStory;
+
+    var title = isSuccess ? "Payment Successful!" : "Payment Failed";
+    var badgeText = isVipOnly
+        ? "<i class=\"fas fa-crown\"></i> VIP ACTIVATED"
+        : isStoryOnly
+            ? "<i class=\"fas fa-book\"></i> STORY PURCHASE COMPLETED"
+            : isMixed
+                ? "<i class=\"fas fa-gem\"></i> VIP + STORY PURCHASE COMPLETED"
+                : "<i class=\"fas fa-receipt\"></i> PAYMENT RESULT";
+
+    var badgeClass = isVipOnly
+        ? "badge-vip"
+        : isStoryOnly
+            ? "badge-story"
+            : isMixed
+                ? "badge-mixed"
+                : "badge-default";
 }
 <link rel="stylesheet" href="~/css/PaymentResult.css" asp-append-version="true" />
 
@@ -7,23 +32,42 @@
     <div class="result-container">
         <div class="icon-wrapper">
             <div class="fake-3d-icon">
-                <i class="fas fa-check"></i>
+                <i class="fas @(isSuccess ? "fa-check" : "fa-times")"></i>
             </div>
         </div>
 
-        <h1 class="result-title text-primary-blue">Payment Successful!</h1>
+        <h1 class="result-title text-primary-blue">@title</h1>
 
-        <div class="vip-badge">
-            <i class="fas fa-crown"></i> YOUR VIP HAS BEEN ACTIVATED!
-        </div>
+        <div class="vip-badge @badgeClass">@Html.Raw(badgeText)</div>
 
         <div class="result-message">
-            <p>The system has confirmed your payment.</p>
-            <p>The upgrade process is being completed...</p>
-            <p>Thank you for supporting WibuHub.</p>
-            <p>Enjoy your new privileges!</p>
+            @if (isVipOnly)
+            {
+                <p>Hệ thống đã xác nhận thanh toán gói VIP của bạn.</p>
+                <p>Quyền lợi VIP đã được kích hoạt.</p>
+            }
+            else if (isStoryOnly)
+            {
+                <p>Hệ thống đã xác nhận thanh toán truyện.</p>
+                <p>Bạn có thể bắt đầu đọc ngay trong thư viện cá nhân.</p>
+            }
+            else if (isMixed)
+            {
+                <p>Thanh toán thành công cho gói VIP và truyện.</p>
+                <p>Quyền lợi VIP đã kích hoạt và truyện đã được thêm vào tài khoản.</p>
+            }
+            else
+            {
+                <p>@ViewBag.Message</p>
+            }
+
+            @if (isSuccess)
+            {
+                <p>Cảm ơn bạn đã ủng hộ WibuHub.</p>
+            }
+
             <p class="transaction-id">
-                <i class="fas fa-link"></i> Transaction ID: [From MOMO...]
+                <i class="fas fa-link"></i> Transaction ID: @transactionId
             </p>
         </div>
 

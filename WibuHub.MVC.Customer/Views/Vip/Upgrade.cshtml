@@ -1,4 +1,5 @@
-﻿@{
+﻿@model WibuHub.MVC.Customer.ViewModels.Vip.VipUpgradeViewModel
+@{
     ViewData["Title"] = "Upgrade VIP Privileges";
 }
 
@@ -10,45 +11,82 @@
     <div class="vip-header">
         <h1>Unlimited Experience</h1>
         <p>Remove ads, read new chapters early, and get exclusive badges.</p>
+        <p style="font-size: 1rem; color: #111827; font-weight: 600; margin-top: 10px;">
+            Your Coins: @Model.CurrentCoins <i class="fas fa-coins" style="color:#f59e0b;"></i>
+        </p>
+    </div>
+
+    @if (TempData["VipSuccess"] != null)
+    {
+        <div style="max-width:600px;margin:0 auto 20px;background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;padding:10px 14px;border-radius:8px;">
+            @TempData["VipSuccess"]
+        </div>
+    }
+
+    @if (TempData["VipError"] != null)
+    {
+        <div style="max-width:600px;margin:0 auto 20px;background:#fef2f2;color:#991b1b;border:1px solid #fecaca;padding:10px 14px;border-radius:8px;">
+            @TempData["VipError"]
+        </div>
+    }
+
+    <div style="max-width:700px;margin:0 auto 24px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px 16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+            <div>
+                <div style="font-weight:700;color:#0f172a;">Daily Check-in</div>
+                <div style="font-size:0.9rem;color:#64748b;">Nhận +@Model.DailyCheckInRewardCoins coins mỗi ngày.</div>
+            </div>
+            <form asp-controller="Vip" asp-action="CheckInDaily" method="post" style="margin:0;">
+                @Html.AntiForgeryToken()
+                <button type="submit"
+                        class="btn-buy"
+                        style="width:auto;padding:10px 16px;background:@(Model.HasCheckedInToday ? "#d1d5db" : "#2563eb");color:@(Model.HasCheckedInToday ? "#6b7280" : "#fff");"
+                        disabled="@Model.HasCheckedInToday">
+                    @(Model.HasCheckedInToday ? "Checked in today" : "Check in now")
+                </button>
+            </form>
+        </div>
+        <div style="margin-top:8px;font-size:0.85rem;color:#475569;">Tip: Mua đơn hàng cũng được cộng coin nhiều hơn trước.</div>
     </div>
 
     <div class="pricing-grid">
-        <div class="pricing-card">
-            <div class="plan-name">VIP 1 Month</div>
-            <div class="plan-price">99,000 <span>VND</span></div>
-            <p style="color: #6b7280; font-size: 0.9rem;">Equivalent to 30 days</p>
-            <ul class="plan-features">
-                <li><i class="fas fa-check-circle"></i> No Ads</li>
-                <li><i class="fas fa-check-circle"></i> Read chapters early</li>
-                <li style="color: #9ca3af;"><i class="fas fa-times-circle" style="color: #9ca3af;"></i> VIP comment badge</li>
-            </ul>
-            <button class="btn-buy standard" onclick="addVipToCart('VIP_MONTH')">Add to cart</button>
-        </div>
+        @foreach (var package in Model.Packages)
+        {
+            var isPopular = package.Code == "VIP_QUARTER";
+            var canRedeem = Model.CurrentCoins >= package.CoinCost;
+            <div class="pricing-card @(isPopular ? "popular" : string.Empty)">
+                @if (isPopular)
+                {
+                    <div class="popular-badge">MOST POPULAR</div>
+                }
 
-        <div class="pricing-card popular">
-            <div class="popular-badge">MOST POPULAR</div>
-            <div class="plan-name" style="color: #d97706;">VIP 3 Months</div>
-            <div class="plan-price">249,000 <span>VND</span></div>
-            <p style="color: #6b7280; font-size: 0.9rem;">Save more with 90 days plan</p>
-            <ul class="plan-features">
-                <li><i class="fas fa-check-circle"></i> No Ads</li>
-                <li><i class="fas fa-check-circle"></i> Read chapters early</li>
-                <li><i class="fas fa-check-circle"></i> Gold avatar border & VIP badge</li>
-            </ul>
-            <button class="btn-buy premium" onclick="addVipToCart('VIP_QUARTER')">Add to cart</button>
-        </div>
+                <div class="plan-name" style="@(isPopular ? "color: #d97706;" : string.Empty)">@package.Name</div>
+                <div class="plan-price">@package.Price.ToString("N0") <span>VND</span></div>
+                <p style="color: #6b7280; font-size: 0.9rem;">Equivalent to @package.DurationDays days</p>
+                <p style="color: @(canRedeem ? "#059669" : "#b45309"); font-size: 0.95rem; font-weight: 600;">
+                    Redeem: @package.CoinCost coins
+                </p>
 
-        <div class="pricing-card">
-            <div class="plan-name">VIP 12 Months</div>
-            <div class="plan-price">799,000 <span>VND</span></div>
-            <p style="color: #6b7280; font-size: 0.9rem;">Best value plan for story fans</p>
-            <ul class="plan-features">
-                <li><i class="fas fa-check-circle"></i> All Standard Privileges</li>
-                <li><i class="fas fa-check-circle"></i> Read Extra Chapters</li>
-                <li><i class="fas fa-check-circle"></i> Red name on rankings</li>
-            </ul>
-            <button class="btn-buy standard" onclick="addVipToCart('VIP_YEAR')">Add to cart</button>
-        </div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check-circle"></i> No Ads</li>
+                    <li><i class="fas fa-check-circle"></i> Read chapters early</li>
+                    <li><i class="fas fa-check-circle"></i> VIP privileges</li>
+                </ul>
+
+                <button class="btn-buy @(isPopular ? "premium" : "standard")" onclick="addVipToCart('@package.Code')">Add to cart</button>
+
+                <form asp-controller="Vip" asp-action="RedeemByCoins" method="post" style="margin-top:10px;">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="code" value="@package.Code" />
+                    <button type="submit"
+                            class="btn-buy"
+                            style="background:@(canRedeem ? "#059669" : "#d1d5db");color:@(canRedeem ? "#fff" : "#6b7280");"
+                            disabled="@(!canRedeem)">
+                        Redeem by Coins
+                    </button>
+                </form>
+            </div>
+        }
     </div>
 </div>
 

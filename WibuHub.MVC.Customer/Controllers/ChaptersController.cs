@@ -6,6 +6,7 @@ using WibuHub.ApplicationCore.Entities;
 using WibuHub.ApplicationCore.Entities.Identity;
 using WibuHub.DataLayer;
 using WibuHub.MVC.Customer.ViewModels;
+using WibuHub.Service.Implementation;
 
 namespace WibuHub.MVC.Customer.Controllers
 {
@@ -14,12 +15,18 @@ namespace WibuHub.MVC.Customer.Controllers
         private readonly StoryDbContext _context;
         private readonly UserManager<StoryUser> _userManager;
         private readonly IConfiguration _configuration;
+        private readonly IRewardService _rewardService;
 
-        public ChaptersController(StoryDbContext context, UserManager<StoryUser> userManager, IConfiguration configuration)
+        public ChaptersController(
+            StoryDbContext context,
+            UserManager<StoryUser> userManager,
+            IConfiguration configuration,
+            IRewardService rewardService)
         {
             _context = context;
             _userManager = userManager;
             _configuration = configuration;
+            _rewardService = rewardService;
         }
 
         public async Task<IActionResult> Read(Guid id)
@@ -91,13 +98,22 @@ namespace WibuHub.MVC.Customer.Controllers
                 .ExecuteUpdateAsync(s => s.SetProperty(story => story.ViewCount, story => story.ViewCount + 1));
 
             Guid? userId = null;
+            string? userIdValue = null;
             if (User?.Identity?.IsAuthenticated == true)
             {
-                var userIdValue = _userManager.GetUserId(User);
+                userIdValue = _userManager.GetUserId(User);
                 if (!string.IsNullOrWhiteSpace(userIdValue) && Guid.TryParse(userIdValue, out var userGuid))
                 {
                     userId = userGuid;
                 }
+            }
+
+            var isFirstTimeRead = true;
+            if (userId.HasValue)
+            {
+                isFirstTimeRead = !await _context.Histories
+                    .AsNoTracking()
+                    .AnyAsync(h => h.UserId == userId.Value && h.ChapterId == chapter.Id);
             }
 
             _context.Histories.Add(new History
@@ -108,6 +124,11 @@ namespace WibuHub.MVC.Customer.Controllers
             });
 
             await _context.SaveChangesAsync();
+
+            if (isFirstTimeRead && !string.IsNullOrWhiteSpace(userIdValue))
+            {
+                await _rewardService.AddExpAndPointsAsync(userIdValue, 1, 0);
+            }
         }
 
         private async Task<ChapterReadViewModel> BuildReadViewModelAsync(Chapter chapter, bool isVipUser, string activeServer)

@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using System.IO.Compression;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Security.Claims;
 using WibuHub.ApplicationCore.Configuration;
 using WibuHub.ApplicationCore.DTOs.Shared;
@@ -115,11 +118,191 @@ namespace WibuHub.MVC.Customer.Controllers
             return View(orders);
         }
 
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> PurchasedStories(int page = 1)
+        {
+            var userName = User.Identity?.Name;
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            const int pageSize = 12;
+
+            if (page < 1)
+            {
+                page = 1;
+            }
+
+            var purchasedStoriesQuery = _context.OrderDetails
+                .AsNoTracking()
+                .Where(d => d.StoryId.HasValue
+                    && d.StoryId.Value != Guid.Empty
+                    && d.Order.PaymentStatus == "Completed"
+                    && ((!string.IsNullOrWhiteSpace(userName) && d.Order.UserId == userName)
+                        || (!string.IsNullOrWhiteSpace(userId) && d.Order.UserId == userId)))
+                .GroupBy(d => new
+                {
+                    StoryId = d.StoryId!.Value,
+                    StoryTitle = d.Story != null ? d.Story.StoryName : (d.ItemName ?? "Story"),
+                    CoverImage = d.Story != null ? d.Story.CoverImage : null
+                })
+                .Select(g => new PurchasedStoryItemViewModel
+                {
+                    StoryId = g.Key.StoryId,
+                    StoryTitle = g.Key.StoryTitle,
+                    CoverImage = g.Key.CoverImage,
+                    TotalPurchasedQuantity = g.Sum(x => x.Quantity),
+                    TotalSpent = g.Sum(x => x.Amount),
+                    LastPurchasedAt = g.Max(x => x.Order.CreatedAt)
+                });
+
+            var totalItems = await purchasedStoriesQuery.CountAsync();
+            var totalPages = totalItems == 0 ? 1 : (int)Math.Ceiling(totalItems / (double)pageSize);
+
+            if (page > totalPages)
+            {
+                page = totalPages;
+            }
+
+            var purchasedStories = await purchasedStoriesQuery
+                .OrderByDescending(x => x.LastPurchasedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.TotalItems = totalItems;
+            ViewBag.PageSize = pageSize;
+
+            return View(purchasedStories);
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> DownloadStory(Guid storyId)
+        {
+            if (storyId == Guid.Empty)
+            {
+                return BadRequest();
+            }
+
+            var userName = User.Identity?.Name;
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var hasPurchased = await _context.Orders
+                .AsNoTracking()
+                .Where(o => o.PaymentStatus == "Completed"
+                    && ((!string.IsNullOrWhiteSpace(userName) && o.UserId == userName)
+                        || (!string.IsNullOrWhiteSpace(userId) && o.UserId == userId)))
+                .SelectMany(o => o.OrderDetails)
+                .AnyAsync(d => d.StoryId == storyId);
+
+            if (!hasPurchased)
+            {
+                return Forbid();
+            }
+
+            var story = await _context.Stories
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.Id == storyId && !s.IsDeleted);
+
+            if (story == null)
+            {
+                return NotFound();
+            }
+
+            var chapters = await _context.Chapters
+                .AsNoTracking()
+                .Where(c => c.StoryId == storyId && !c.IsDeleted)
+                .Include(c => c.Images)
+                .OrderBy(c => c.ChapterNumber)
+                .ToListAsync();
+
+            if (chapters.Count == 0)
+            {
+                return NotFound();
+            }
+
+            using var archiveStream = new MemoryStream();
+            using (var archive = new ZipArchive(archiveStream, ZipArchiveMode.Create, true))
+            {
+                var storyFolder = SanitizeFileName(story.StoryName);
+                if (string.IsNullOrWhiteSpace(storyFolder))
+                {
+                    storyFolder = "story";
+                }
+
+                var indexEntry = archive.CreateEntry($"{storyFolder}/README.txt");
+                await using (var indexStream = indexEntry.Open())
+                await using (var writer = new StreamWriter(indexStream, Encoding.UTF8))
+                {
+                    await writer.WriteLineAsync($"Story: {story.StoryName}");
+                    await writer.WriteLineAsync($"Downloaded at (UTC): {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}");
+                    await writer.WriteLineAsync($"Total chapters: {chapters.Count}");
+                }
+
+                using var httpClient = new HttpClient();
+
+                foreach (var chapter in chapters)
+                {
+                    var chapterFileName = $"{chapter.ChapterNumber:0.##}-{SanitizeFileName(chapter.Name)}";
+                    if (string.IsNullOrWhiteSpace(chapterFileName))
+                    {
+                        chapterFileName = chapter.Id.ToString();
+                    }
+
+                    var chapterFolder = $"{storyFolder}/{chapterFileName}";
+
+                    if (!string.IsNullOrWhiteSpace(chapter.Content))
+                    {
+                        var contentEntry = archive.CreateEntry($"{chapterFolder}/content.txt");
+                        await using var contentStream = contentEntry.Open();
+                        await using var contentWriter = new StreamWriter(contentStream, Encoding.UTF8);
+                        await contentWriter.WriteAsync(chapter.Content);
+                    }
+
+                    var images = chapter.Images?
+                        .OrderBy(i => i.OrderIndex)
+                        .ToList() ?? new List<ChapterImage>();
+
+                    for (var imageIndex = 0; imageIndex < images.Count; imageIndex++)
+                    {
+                        var image = images[imageIndex];
+                        var imageUrl = ResolveImageUrl(image.ImageUrl);
+                        if (string.IsNullOrWhiteSpace(imageUrl))
+                        {
+                            continue;
+                        }
+
+                        try
+                        {
+                            var imageBytes = await httpClient.GetByteArrayAsync(imageUrl);
+                            var extension = Path.GetExtension(image.ImageUrl);
+                            if (string.IsNullOrWhiteSpace(extension))
+                            {
+                                extension = ".jpg";
+                            }
+
+                            var imageEntry = archive.CreateEntry($"{chapterFolder}/images/{imageIndex + 1:D3}{extension}");
+                            await using var imageStream = imageEntry.Open();
+                            await imageStream.WriteAsync(imageBytes, 0, imageBytes.Length);
+                        }
+                        catch
+                        {
+                        }
+                    }
+                }
+            }
+
+            archiveStream.Position = 0;
+            var outputName = $"{SanitizeFileName(story.StoryName)}-{DateTime.UtcNow:yyyyMMddHHmmss}.zip";
+            return File(archiveStream.ToArray(), "application/zip", outputName);
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddStory(Guid idStory, int quantity = 1)
         {
-            if (quantity < 1) quantity = 1;
+            quantity = 1;
 
             var story = await _context.Stories.AsNoTracking().FirstOrDefaultAsync(s => s.Id == idStory);
             if (story == null) return NotFound();
@@ -137,14 +320,16 @@ namespace WibuHub.MVC.Customer.Controllers
                     Price = story.Price,
                     Quantity = quantity
                 });
+
+                TempData["CartMessage"] = "Đã thêm vào giỏ hàng.";
             }
             else
             {
-                item.Quantity += quantity;
+                item.Quantity = 1;
+                TempData["CartMessage"] = "Truyện đã có trong giỏ hàng.";
             }
 
             SaveCart(cart);
-            TempData["CartMessage"] = "Đã thêm vào giỏ hàng.";
             return RedirectToAction(nameof(Cart));
         }
 
@@ -181,13 +366,29 @@ namespace WibuHub.MVC.Customer.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult UpdateQuantity(Guid itemId, int quantity)
+        public async Task<IActionResult> UpdateQuantity(Guid itemId, int quantity)
         {
             var cart = GetCart();
             var item = cart.Items.FirstOrDefault(i => i.Id == itemId);
             if (item == null) return RedirectToAction(nameof(Index));
 
-            if (quantity <= 0) cart.Items.Remove(item);
+            if (item.StoryId != Guid.Empty)
+            {
+                if (quantity <= 0)
+                {
+                    cart.Items.Remove(item);
+                    await MarkPendingOrderAsFailedIfNeededAsync();
+                    SaveCart(cart);
+                }
+
+                return RedirectToAction(nameof(Cart));
+            }
+
+            if (quantity <= 0)
+            {
+                cart.Items.Remove(item);
+                await MarkPendingOrderAsFailedIfNeededAsync();
+            }
             else item.Quantity = quantity;
 
             SaveCart(cart);
@@ -196,13 +397,14 @@ namespace WibuHub.MVC.Customer.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult RemoveItem(Guid itemId)
+        public async Task<IActionResult> RemoveItem(Guid itemId)
         {
             var cart = GetCart();
             var item = cart.Items.FirstOrDefault(i => i.Id == itemId);
             if (item != null)
             {
                 cart.Items.Remove(item);
+                await MarkPendingOrderAsFailedIfNeededAsync();
                 SaveCart(cart);
             }
             return RedirectToAction(nameof(Cart));
@@ -328,6 +530,11 @@ namespace WibuHub.MVC.Customer.Controllers
         [HttpGet]
         public async Task<IActionResult> PaymentResult([FromQuery] int resultCode, [FromQuery] string orderId)
         {
+            ViewBag.IsSuccess = resultCode == 0;
+            ViewBag.HasVip = false;
+            ViewBag.HasStory = false;
+            ViewBag.TransactionId = orderId;
+
             if (resultCode == 0)
             {
                 ViewBag.Message = "Hệ thống đã xác nhận thanh toán và đang nâng cấp VIP cho bạn...";
@@ -338,51 +545,65 @@ namespace WibuHub.MVC.Customer.Controllers
                 {
                     var order = await _context.Orders.Include(o => o.OrderDetails).FirstOrDefaultAsync(o => o.Id == orderGuid);
 
-                    if (order != null && order.PaymentStatus != "Completed")
+                    if (order != null)
                     {
-                        order.PaymentStatus = "Completed";
+                        ViewBag.HasVip = order.OrderDetails.Any(d => d.StoryId == null || d.StoryId == Guid.Empty);
+                        ViewBag.HasStory = order.OrderDetails.Any(d => d.StoryId != null && d.StoryId != Guid.Empty);
+                        ViewBag.TransactionId = string.IsNullOrWhiteSpace(order.TransactionId)
+                            ? order.Id.ToString()
+                            : order.TransactionId;
 
-                        var userManager = HttpContext.RequestServices.GetService<UserManager<StoryUser>>();
-                        var signInManager = HttpContext.RequestServices.GetService<SignInManager<StoryUser>>();
-                        var currentUser = await userManager.GetUserAsync(User);
+                        var shouldGrantRewards = await ShouldGrantRewardsForOrderAsync(order);
 
-                        if (currentUser != null)
+                        if (order.PaymentStatus != "Completed")
                         {
-                            var availableVipPackages = BuildVipPackages();
-                            int totalVipDaysBought = 0;
+                            order.PaymentStatus = "Completed";
+                        }
 
-                            foreach (var detail in order.OrderDetails)
+                        if (shouldGrantRewards)
+                        {
+                            var userManager = HttpContext.RequestServices.GetService<UserManager<StoryUser>>();
+                            var signInManager = HttpContext.RequestServices.GetService<SignInManager<StoryUser>>();
+                            var currentUser = await ResolveOrderUserAsync(userManager, order.UserId);
+
+                            if (currentUser != null)
                             {
-                                if (detail.StoryId == null || detail.StoryId == Guid.Empty)
+                                var availableVipPackages = BuildVipPackages();
+                                int totalVipDaysBought = 0;
+
+                                foreach (var detail in order.OrderDetails)
                                 {
-                                    var pkg = availableVipPackages.FirstOrDefault(p => p.Price == detail.UnitPrice);
-                                    if (pkg != null)
+                                    if (detail.StoryId == null || detail.StoryId == Guid.Empty)
                                     {
-                                        totalVipDaysBought += (pkg.DurationDays * detail.Quantity);
+                                        var pkg = availableVipPackages.FirstOrDefault(p => p.Price == detail.UnitPrice);
+                                        if (pkg != null)
+                                        {
+                                            totalVipDaysBought += (pkg.DurationDays * detail.Quantity);
+                                        }
                                     }
                                 }
-                            }
 
-                            if (totalVipDaysBought > 0)
-                            {
-                                var currentVipEnd = currentUser.VipExpireDate.HasValue && currentUser.VipExpireDate.Value > DateTime.UtcNow
-                                                    ? currentUser.VipExpireDate.Value
-                                                    : DateTime.UtcNow;
-
-                                currentUser.VipExpireDate = currentVipEnd.AddDays(totalVipDaysBought);
-
-                                // Đã xóa dòng gán IsVip = true vì property này là ReadOnly tự tính toán
-                                await userManager.UpdateAsync(currentUser);
-
-                                // Làm mới Cookie trình duyệt
-                                if (signInManager != null)
+                                if (totalVipDaysBought > 0)
                                 {
-                                    await signInManager.RefreshSignInAsync(currentUser);
-                                }
-                            }
+                                    var currentVipEnd = currentUser.VipExpireDate.HasValue && currentUser.VipExpireDate.Value > DateTime.UtcNow
+                                                        ? currentUser.VipExpireDate.Value
+                                                        : DateTime.UtcNow;
 
-                            await GrantOrderRewardsAsync(currentUser.Id, order.TotalAmount);
-                            await CreateOrderNotificationIfNeededAsync(currentUser, order);
+                                    currentUser.VipExpireDate = currentVipEnd.AddDays(totalVipDaysBought);
+
+                                    // Đã xóa dòng gán IsVip = true vì property này là ReadOnly tự tính toán
+                                    await userManager.UpdateAsync(currentUser);
+
+                                    // Làm mới Cookie trình duyệt
+                                    if (signInManager != null)
+                                    {
+                                        await signInManager.RefreshSignInAsync(currentUser);
+                                    }
+                                }
+
+                                await GrantOrderRewardsAsync(currentUser.Id, order.TotalAmount);
+                                await CreateOrderNotificationIfNeededAsync(currentUser, order);
+                            }
                         }
 
                         await _context.SaveChangesAsync();
@@ -529,6 +750,23 @@ namespace WibuHub.MVC.Customer.Controllers
             HttpContext.Session.SetObject(CartSessionKey, cart);
         }
 
+        private async Task MarkPendingOrderAsFailedIfNeededAsync()
+        {
+            if (!Guid.TryParse(HttpContext.Session.GetString(PendingMomoOrderSessionKey), out var pendingOrderId))
+            {
+                return;
+            }
+
+            var pendingOrder = await _context.Orders.FirstOrDefaultAsync(o => o.Id == pendingOrderId);
+            if (pendingOrder != null && pendingOrder.PaymentStatus == "Pending")
+            {
+                pendingOrder.PaymentStatus = "Failed";
+                await _context.SaveChangesAsync();
+            }
+
+            HttpContext.Session.Remove(PendingMomoOrderSessionKey);
+        }
+
         private static List<VipPackageItem> BuildVipPackages()
         {
             return new List<VipPackageItem>
@@ -557,6 +795,33 @@ namespace WibuHub.MVC.Customer.Controllers
             return vipItems.Count == 0 ? "Thanh toán truyện" : "Đăng ký VIP: " + string.Join(", ", vipItems.Select(i => i.StoryTitle));
         }
 
+        private string ResolveImageUrl(string? imageUrl)
+        {
+            if (string.IsNullOrWhiteSpace(imageUrl))
+            {
+                return string.Empty;
+            }
+
+            if (Uri.TryCreate(imageUrl, UriKind.Absolute, out var absoluteUri))
+            {
+                return absoluteUri.ToString();
+            }
+
+            return $"{Request.Scheme}://{Request.Host}{(imageUrl.StartsWith('/') ? imageUrl : '/' + imageUrl)}";
+        }
+
+        private static string SanitizeFileName(string? input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                return string.Empty;
+            }
+
+            var invalidChars = Regex.Escape(new string(Path.GetInvalidFileNameChars()));
+            var invalidRegex = $"[{invalidChars}]";
+            return Regex.Replace(input.Trim(), invalidRegex, "_");
+        }
+
         private async Task GrantOrderRewardsAsync(string userId, decimal totalAmount)
         {
             if (string.IsNullOrWhiteSpace(userId) || totalAmount <= 0)
@@ -565,7 +830,7 @@ namespace WibuHub.MVC.Customer.Controllers
             }
 
             var expAdded = Math.Max(1, (int)Math.Floor(totalAmount / 10000m));
-            var pointsAdded = Math.Max(1, (int)Math.Floor(totalAmount / 50000m));
+            var pointsAdded = Math.Max(3, (int)Math.Floor(totalAmount / 20000m));
 
             await _rewardService.AddExpAndPointsAsync(userId, expAdded, pointsAdded);
         }
@@ -600,6 +865,51 @@ namespace WibuHub.MVC.Customer.Controllers
                 IsRead = false,
                 CreateDate = DateTime.UtcNow
             });
+        }
+
+        private async Task<bool> ShouldGrantRewardsForOrderAsync(Order order)
+        {
+            if (string.IsNullOrWhiteSpace(order.UserId))
+            {
+                return false;
+            }
+
+            var userManager = HttpContext.RequestServices.GetService<UserManager<StoryUser>>();
+            var user = await ResolveOrderUserAsync(userManager, order.UserId);
+            if (user == null || !Guid.TryParse(user.Id, out var userGuid))
+            {
+                return false;
+            }
+
+            var orderCode = order.Id.ToString()[..8].ToUpperInvariant();
+            var targetUrl = $"/ShoppingCart/PaymentResult?resultCode=0&orderId={order.Id}";
+            var title = $"Đơn hàng #{orderCode} đã thanh toán";
+
+            var existed = await _context.Notifications.AnyAsync(n =>
+                n.UserId == userGuid
+                && n.Title == title
+                && n.TargetUrl == targetUrl);
+
+            return !existed;
+        }
+
+        private async Task<StoryUser?> ResolveOrderUserAsync(UserManager<StoryUser>? userManager, string? orderUserId)
+        {
+            if (userManager == null || string.IsNullOrWhiteSpace(orderUserId))
+            {
+                return null;
+            }
+
+            if (Guid.TryParse(orderUserId, out _))
+            {
+                var byId = await userManager.FindByIdAsync(orderUserId);
+                if (byId != null)
+                {
+                    return byId;
+                }
+            }
+
+            return await userManager.FindByNameAsync(orderUserId);
         }
         #endregion
     }

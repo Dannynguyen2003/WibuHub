@@ -118,18 +118,26 @@
             <div class="cart-items">
                 @foreach (var item in Model.Items)
                 {
+                    var isVipItem = item.StoryId == Guid.Empty;
                     <div class="cart-item">
                         <div>
                             <div class="cart-item-title">@item.StoryTitle</div>
                         </div>
                         <div class="cart-item-actions">
                             <span class="cart-price">@item.Price.ToString("N0") ₫</span>
-                            <form asp-action="UpdateQuantity" method="post" class="cart-qty-form">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="itemId" value="@item.Id" />
-                                <input type="number" name="quantity" value="@item.Quantity" min="0" />
-                                <button type="submit" class="cart-btn secondary">Update</button>
-                            </form>
+                            @if (isVipItem)
+                            {
+                                <form asp-action="UpdateQuantity" method="post" class="cart-qty-form">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="itemId" value="@item.Id" />
+                                    <input type="number" name="quantity" value="@item.Quantity" min="0" />
+                                    <button type="submit" class="cart-btn secondary">Update</button>
+                                </form>
+                            }
+                            else
+                            {
+                                <span style="color:#64748b;">Qty: 1</span>
+                            }
                             <form asp-action="RemoveItem" method="post">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="itemId" value="@item.Id" />
