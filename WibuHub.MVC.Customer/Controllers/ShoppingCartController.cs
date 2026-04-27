@@ -44,13 +44,29 @@ namespace WibuHub.MVC.Customer.Controllers
             _momoSettings = momoSettings.Value;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1)
         {
+            const int pageSize = 12;
+            if (page < 1)
+            {
+                page = 1;
+            }
+
             var cart = GetCart();
-            var stories = await _context.Stories
+            var storiesQuery = _context.Stories
                 .AsNoTracking()
-                .OrderByDescending(s => s.CreatedAt)
-                .Take(12)
+                .OrderByDescending(s => s.CreatedAt);
+
+            var totalStories = await storiesQuery.CountAsync();
+            var totalPages = totalStories == 0 ? 1 : (int)Math.Ceiling(totalStories / (double)pageSize);
+            if (page > totalPages)
+            {
+                page = totalPages;
+            }
+
+            var stories = await storiesQuery
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .Select(s => new StoryCatalogItem
                 {
                     Id = s.Id,
@@ -58,6 +74,10 @@ namespace WibuHub.MVC.Customer.Controllers
                     Price = s.Price
                 })
                 .ToListAsync();
+
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.TotalStories = totalStories;
 
             var model = new ShoppingCartViewModel
             {
@@ -105,6 +125,7 @@ namespace WibuHub.MVC.Customer.Controllers
 
             var orders = await query
                 .Include(o => o.OrderDetails)
+                .ThenInclude(d => d.Story)
                 .OrderByDescending(o => o.CreatedAt)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -135,6 +156,7 @@ namespace WibuHub.MVC.Customer.Controllers
                 .AsNoTracking()
                 .Where(d => d.StoryId.HasValue
                     && d.StoryId.Value != Guid.Empty
+                    && d.Story != null
                     && d.Order.PaymentStatus == "Completed"
                     && ((!string.IsNullOrWhiteSpace(userName) && d.Order.UserId == userName)
                         || (!string.IsNullOrWhiteSpace(userId) && d.Order.UserId == userId)))
@@ -182,7 +204,7 @@ namespace WibuHub.MVC.Customer.Controllers
         {
             if (storyId == Guid.Empty)
             {
-                return BadRequest();
+                return RedirectWithDownloadError("Liên kết tải truyện không hợp lệ.");
             }
 
             var userName = User.Identity?.Name;
@@ -198,7 +220,7 @@ namespace WibuHub.MVC.Customer.Controllers
 
             if (!hasPurchased)
             {
-                return Forbid();
+                return RedirectWithDownloadError("Bạn chưa mua truyện này nên không thể tải xuống.");
             }
 
             var story = await _context.Stories
@@ -207,7 +229,7 @@ namespace WibuHub.MVC.Customer.Controllers
 
             if (story == null)
             {
-                return NotFound();
+                return RedirectWithDownloadError("Truyện hiện không khả dụng để tải xuống.");
             }
 
             var chapters = await _context.Chapters
@@ -219,7 +241,7 @@ namespace WibuHub.MVC.Customer.Controllers
 
             if (chapters.Count == 0)
             {
-                return NotFound();
+                return RedirectWithDownloadError("Truyện chưa có chapter để tải xuống.");
             }
 
             using var archiveStream = new MemoryStream();
@@ -568,20 +590,7 @@ namespace WibuHub.MVC.Customer.Controllers
 
                             if (currentUser != null)
                             {
-                                var availableVipPackages = BuildVipPackages();
-                                int totalVipDaysBought = 0;
-
-                                foreach (var detail in order.OrderDetails)
-                                {
-                                    if (detail.StoryId == null || detail.StoryId == Guid.Empty)
-                                    {
-                                        var pkg = availableVipPackages.FirstOrDefault(p => p.Price == detail.UnitPrice);
-                                        if (pkg != null)
-                                        {
-                                            totalVipDaysBought += (pkg.DurationDays * detail.Quantity);
-                                        }
-                                    }
-                                }
+                                var totalVipDaysBought = CalculateVipDaysFromOrderDetails(order.OrderDetails);
 
                                 if (totalVipDaysBought > 0)
                                 {
@@ -653,30 +662,7 @@ namespace WibuHub.MVC.Customer.Controllers
                             order.TransactionId = callback.TransId.ToString();
 
                             // 2. LOGIC CẤP QUYỀN VIP
-                            var availableVipPackages = BuildVipPackages();
-                            int totalVipDaysBought = 0;
-
-                            foreach (var detail in order.OrderDetails)
-                            {
-                                if (detail.StoryId == null || detail.StoryId == Guid.Empty)
-                                {
-                                    var pkg = availableVipPackages.FirstOrDefault(p => p.Name == detail.ItemName);
-
-                                    if (pkg == null)
-                                    {
-                                        pkg = availableVipPackages.FirstOrDefault(p => p.Price == detail.UnitPrice);
-                                    }
-
-                                    if (pkg != null)
-                                    {
-                                        totalVipDaysBought += (pkg.DurationDays * detail.Quantity);
-                                    }
-                                }
-                                else
-                                {
-                                    // Xử lý lưu Truyện vào lịch sử mua nếu có
-                                }
-                            }
+                            var totalVipDaysBought = CalculateVipDaysFromOrderDetails(order.OrderDetails);
 
                             // 3. Nếu có mua VIP, cộng ngày cho User
                             if (totalVipDaysBought > 0 && !string.IsNullOrEmpty(order.UserId))
@@ -795,6 +781,36 @@ namespace WibuHub.MVC.Customer.Controllers
             return vipItems.Count == 0 ? "Thanh toán truyện" : "Đăng ký VIP: " + string.Join(", ", vipItems.Select(i => i.StoryTitle));
         }
 
+        private static int CalculateVipDaysFromOrderDetails(IEnumerable<OrderDetail> orderDetails)
+        {
+            var availableVipPackages = BuildVipPackages();
+            var totalVipDaysBought = 0;
+
+            foreach (var detail in orderDetails)
+            {
+                if (detail.StoryId != null && detail.StoryId != Guid.Empty)
+                {
+                    continue;
+                }
+
+                var pkg = availableVipPackages.FirstOrDefault(p =>
+                    !string.IsNullOrWhiteSpace(detail.ItemName)
+                    && string.Equals(p.Name, detail.ItemName, StringComparison.OrdinalIgnoreCase));
+
+                if (pkg == null)
+                {
+                    pkg = availableVipPackages.FirstOrDefault(p => p.Price == detail.UnitPrice);
+                }
+
+                if (pkg != null)
+                {
+                    totalVipDaysBought += (pkg.DurationDays * Math.Max(1, detail.Quantity));
+                }
+            }
+
+            return totalVipDaysBought;
+        }
+
         private string ResolveImageUrl(string? imageUrl)
         {
             if (string.IsNullOrWhiteSpace(imageUrl))
@@ -820,6 +836,29 @@ namespace WibuHub.MVC.Customer.Controllers
             var invalidChars = Regex.Escape(new string(Path.GetInvalidFileNameChars()));
             var invalidRegex = $"[{invalidChars}]";
             return Regex.Replace(input.Trim(), invalidRegex, "_");
+        }
+
+        private IActionResult RedirectWithDownloadError(string message)
+        {
+            TempData["DownloadError"] = message;
+
+            var referer = Request.Headers.Referer.ToString();
+            if (!string.IsNullOrWhiteSpace(referer)
+                && Uri.TryCreate(referer, UriKind.Absolute, out var refererUri))
+            {
+                var path = refererUri.AbsolutePath;
+                if (path.Contains("/ShoppingCart/Orders", StringComparison.OrdinalIgnoreCase))
+                {
+                    return RedirectToAction(nameof(Orders));
+                }
+
+                if (path.Contains("/ShoppingCart/PurchasedStories", StringComparison.OrdinalIgnoreCase))
+                {
+                    return RedirectToAction(nameof(PurchasedStories));
+                }
+            }
+
+            return RedirectToAction(nameof(PurchasedStories));
         }
 
         private async Task GrantOrderRewardsAsync(string userId, decimal totalAmount)

@@ -2,6 +2,9 @@
 @{
     ViewData["Title"] = "Cart";
     var total = Model.Cart.Items.Sum(i => i.Total);
+    var currentPage = ViewBag.CurrentPage is int cp ? cp : 1;
+    var totalPages = ViewBag.TotalPages is int tp ? tp : 1;
+    var totalStories = ViewBag.TotalStories is int ts ? ts : (Model.Stories?.Count ?? 0);
 }
 
 <div class="cart-page">
@@ -13,6 +16,7 @@
     <div class="cart-grid">
         <section class="cart-section">
             <h2>Select story to buy</h2>
+            <div style="margin-bottom:10px;color:#64748b;font-size:0.95rem;">Total stories: @totalStories</div>
             <div class="cart-list">
                 @if (Model.Stories.Count == 0)
                 {
@@ -39,6 +43,20 @@
                     }
                 }
             </div>
+
+            @if (totalPages > 1)
+            {
+                <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center;margin-top:14px;">
+                    @for (int p = 1; p <= totalPages; p++)
+                    {
+                        <a asp-action="Index"
+                           asp-route-page="@p"
+                           style="text-decoration:none;padding:7px 12px;border-radius:8px;border:1px solid #d1d5db;@(p == currentPage ? "background:#2563eb;color:#fff;border-color:#2563eb;" : "background:#fff;color:#1f2937;")">
+                            @p
+                        </a>
+                    }
+                </div>
+            }
         </section>
 
         <section class="cart-section">

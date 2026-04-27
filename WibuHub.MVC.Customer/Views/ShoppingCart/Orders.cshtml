@@ -6,6 +6,13 @@
     var totalOrders = ViewBag.TotalOrders is int to ? to : (Model?.Count ?? 0);
 }
 
+    @if (TempData["DownloadError"] != null)
+    {
+        <div style="max-width: 1100px; margin: 0 auto 16px; padding: 10px 14px; border-radius: 8px; background: #fef2f2; color: #991b1b; border: 1px solid #fecaca;">
+            @TempData["DownloadError"]
+        </div>
+    }
+
 <div style="max-width: 1100px; margin: 24px auto; padding: 0 16px;">
     <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px;">
         <h1 style="margin:0;font-size:1.8rem;color:#0f172a;">My Purchased Orders</h1>
@@ -59,7 +66,7 @@
                         {
                             <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;">
                                 <div style="color:#1f2937;font-weight:500;">
-                                    @if (detail.StoryId.HasValue && detail.StoryId.Value != Guid.Empty)
+                                    @if (detail.StoryId.HasValue && detail.StoryId.Value != Guid.Empty && detail.Story != null)
                                     {
                                         <a asp-controller="Stories" asp-action="Details" asp-route-id="@detail.StoryId" style="text-decoration:none;color:#2563eb;">@(detail.ItemName ?? "Story")</a>
                                         @if (status.Equals("Completed", StringComparison.OrdinalIgnoreCase))
