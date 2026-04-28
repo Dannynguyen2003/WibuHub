@@ -61,6 +61,13 @@ namespace WibuHub.Service.Implementations
             return true;
         }
 
+        public async Task<int> DeleteReadAsync(Guid userId)
+        {
+            return await _context.Notifications
+                .Where(n => n.UserId == userId && n.IsRead)
+                .ExecuteDeleteAsync();
+        }
+
         // Hàm helper giữ nguyên
         private static string CalculateTimeAgo(DateTime createDate)
         {

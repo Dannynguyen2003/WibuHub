@@ -107,7 +107,10 @@
                         <div id="notificationDropdown" class="dropdown-menu notification-dropdown" style="display: none; position: absolute; top: 100%; right: 0; width: 320px; max-height: 400px; overflow-y: auto; background: white; border: 1px solid #e5e7eb; border-radius: 8px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); z-index: 1000; padding: 0;">
                             <div style="padding: 10px 15px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
                                 <strong style="color: #1f2937;">New Notifications</strong>
-                                <button id="markAllReadBtn" style="background: none; border: none; color: #3b82f6; font-size: 0.85rem; cursor: pointer;">Mark all as read</button>
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <button id="deleteReadBtn" style="background: none; border: none; color: #ef4444; font-size: 0.85rem; cursor: pointer;">Delete read</button>
+                                    <button id="markAllReadBtn" style="background: none; border: none; color: #3b82f6; font-size: 0.85rem; cursor: pointer;">Mark all as read</button>
+                                </div>
                             </div>
                             <ul id="notificationList" style="list-style: none; padding: 0; margin: 0;">
                                 <li style="padding: 20px; text-align: center; color: #9ca3af;">Loading...</li>
@@ -193,12 +196,16 @@
                     </div>
                     <div class="input-group">
                         <label>Password</label>
-                        <input id="loginModalPassword" type="password" name="password" autocomplete="current-password" placeholder="••••••••" required>
-                        <button type="button" class="btn-secondary" style="margin-top: 8px; width: auto; padding: 8px 12px;" data-password-target="#loginModalPassword">Show password</button>
+                        <div style="position: relative; display: flex; align-items: center;">
+                            <input id="loginModalPassword" type="password" name="password" autocomplete="current-password" placeholder="••••••••" data-password-field="customer-login-password" style="padding-right: 40px;" required>
+                            <button type="button" data-password-toggle="customer-login-password" style="position: absolute; right: 10px; background: transparent; border: none; cursor: pointer; color: #a0aec0; padding: 0; display: flex; align-items: center; justify-content: center;" aria-label="Toggle password visibility">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            </button>
+                        </div>
                     </div>
                     <div class="login-meta">
                         <label class="remember-me"><input type="checkbox" name="rememberMe"> Remember me?</label>
-                        <a asp-area="Identity" asp-page="/Account/ForgotPassword" class="forgot-link">Forgot password?</a>
+                        <a href="#" id="showForgotModal" class="forgot-link">Forgot password?</a>
                     </div>
                     <button class="btn" type="submit">LOGIN</button>
                     <div class="switch-link">
@@ -236,13 +243,21 @@
                     </div>
                     <div class="input-group">
                         <label>Password</label>
-                        <input id="registerModalPassword" type="password" name="password" autocomplete="new-password" placeholder="••••••••" required>
-                        <button type="button" class="btn-secondary" style="margin-top: 8px; width: auto; padding: 8px 12px;" data-password-target="#registerModalPassword">Show password</button>
+                        <div style="position: relative; display: flex; align-items: center;">
+                            <input id="registerModalPassword" type="password" name="password" autocomplete="new-password" placeholder="••••••••" data-password-field="customer-register-password" style="padding-right: 40px;" required>
+                            <button type="button" data-password-toggle="customer-register-password" style="position: absolute; right: 10px; background: transparent; border: none; cursor: pointer; color: #a0aec0; padding: 0; display: flex; align-items: center; justify-content: center;" aria-label="Toggle password visibility">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            </button>
+                        </div>
                     </div>
                     <div class="input-group">
                         <label>Confirm Password</label>
-                        <input id="registerModalConfirmPassword" type="password" name="confirmPassword" autocomplete="new-password" placeholder="••••••••" required>
-                        <button type="button" class="btn-secondary" style="margin-top: 8px; width: auto; padding: 8px 12px;" data-password-target="#registerModalConfirmPassword">Show password</button>
+                        <div style="position: relative; display: flex; align-items: center;">
+                            <input id="registerModalConfirmPassword" type="password" name="confirmPassword" autocomplete="new-password" placeholder="••••••••" data-password-field="customer-register-confirm-password" style="padding-right: 40px;" required>
+                            <button type="button" data-password-toggle="customer-register-confirm-password" style="position: absolute; right: 10px; background: transparent; border: none; cursor: pointer; color: #a0aec0; padding: 0; display: flex; align-items: center; justify-content: center;" aria-label="Toggle password visibility">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            </button>
+                        </div>
                     </div>
                     <button class="btn" type="submit">REGISTER</button>
                     <div class="switch-link">
@@ -262,6 +277,25 @@
                             </div>
                         </div>
                     }
+                </form>
+            </div>
+        </div>
+
+        <div id="forgotModal" class="modal">
+            <div class="modal-content">
+                <span class="modal-close" id="closeForgotPasswordModal">&times;</span>
+                <div class="modal-title">Forgot Password</div>
+                <form id="forgotModalForm" action="/api/auth/forgot-password" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="form-error" id="forgotError"></div>
+                    <div class="input-group">
+                        <label>Email</label>
+                        <input type="email" name="email" autocomplete="username" placeholder="your@email.com" required>
+                    </div>
+                    <button class="btn" type="submit">SEND RESET LINK</button>
+                    <div class="switch-link">
+                        Remembered your password? <a href="#" id="showLoginFromForgot">Login</a>
+                    </div>
                 </form>
             </div>
         </div>
@@ -610,21 +644,26 @@
         const AuthController = {
             modals: {
                 auth: document.getElementById('authModal'),
-                register: document.getElementById('registerModal')
+                register: document.getElementById('registerModal'),
+                forgot: document.getElementById('forgotModal')
             },
             init: function() {
                 const toggles = [
                     { btn: 'loginBtn', show: this.modals.auth, hide: this.modals.register },
                     { btn: 'registerBtn', show: this.modals.register, hide: this.modals.auth },
                     { btn: 'showRegisterModal', show: this.modals.register, hide: this.modals.auth },
-                    { btn: 'showLoginModal', show: this.modals.auth, hide: this.modals.register }
+                    { btn: 'showLoginModal', show: this.modals.auth, hide: this.modals.register },
+                    { btn: 'showForgotModal', show: this.modals.forgot, hide: this.modals.auth },
+                    { btn: 'showLoginFromForgot', show: this.modals.auth, hide: this.modals.forgot }
                 ];
 
                 toggles.forEach(t => {
                     const el = document.getElementById(t.btn);
                     if (el) el.addEventListener('click', (e) => {
                         e.preventDefault();
-                        if (t.hide) t.hide.classList.remove('active');
+                        this.modals.auth?.classList.remove('active');
+                        this.modals.register?.classList.remove('active');
+                        this.modals.forgot?.classList.remove('active');
                         if (t.show) t.show.classList.add('active');
                     });
                 });
@@ -633,28 +672,36 @@
                     btn.addEventListener('click', () => {
                         this.modals.auth?.classList.remove('active');
                         this.modals.register?.classList.remove('active');
+                        this.modals.forgot?.classList.remove('active');
                     });
                 });
 
                 window.addEventListener('click', (e) => {
                     if (e.target === this.modals.auth) this.modals.auth.classList.remove('active');
                     if (e.target === this.modals.register) this.modals.register.classList.remove('active');
+                    if (e.target === this.modals.forgot) this.modals.forgot.classList.remove('active');
                 });
 
                 document.getElementById('loginModalForm')?.addEventListener('submit', (e) => this.submitForm(e, false));
                 document.getElementById('registerModalForm')?.addEventListener('submit', (e) => this.submitForm(e, true));
+                document.getElementById('forgotModalForm')?.addEventListener('submit', (e) => this.submitForgotForm(e));
                 this.initPasswordToggles();
             },
             initPasswordToggles: function() {
-                document.querySelectorAll('[data-password-target]').forEach(button => {
+                document.querySelectorAll('[data-password-toggle]').forEach(button => {
                     button.addEventListener('click', () => {
-                        const selector = button.getAttribute('data-password-target');
-                        const input = selector ? document.querySelector(selector) : null;
+                        const fieldName = button.getAttribute('data-password-toggle');
+                        const input = fieldName ? document.querySelector('[data-password-field="' + fieldName + '"]') : null;
                         if (!input) return;
 
                         const isPassword = input.type === 'password';
                         input.type = isPassword ? 'text' : 'password';
-                        button.textContent = isPassword ? 'Hide password' : 'Show password';
+
+                        if (isPassword) {
+                            button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';
+                        } else {
+                            button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+                        }
                     });
                 });
             },
@@ -662,7 +709,7 @@
                 e.preventDefault();
                 const form = e.target;
                 const errorEl = document.getElementById(isRegister ? 'registerError' : 'loginError');
-                if (errorEl) { errorEl.classList.remove('active'); errorEl.textContent = ''; }
+                if (errorEl) { errorEl.classList.remove('active'); errorEl.textContent = ''; errorEl.style.cssText = ''; }
 
                 const formData = new FormData(form);
                 const dataObject = Object.fromEntries(formData.entries());
@@ -694,6 +741,40 @@
                         } else {
                             window.location.href = payload.redirectUrl || window.location.href;
                         }
+                    } else {
+                        if (errorEl) { errorEl.textContent = payload.message || 'Invalid information.'; errorEl.classList.add('active'); }
+                    }
+                } catch (error) {
+                    if (errorEl) { errorEl.textContent = 'Disconnected from server.'; errorEl.classList.add('active'); }
+                }
+            },
+            submitForgotForm: async function(e) {
+                e.preventDefault();
+                const form = e.target;
+                const errorEl = document.getElementById('forgotError');
+                if (errorEl) { errorEl.classList.remove('active'); errorEl.textContent = ''; errorEl.style.cssText = ''; }
+
+                const formData = new FormData(form);
+                const dataObject = Object.fromEntries(formData.entries());
+
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': dataObject['__RequestVerificationToken']
+                        },
+                        body: JSON.stringify(dataObject)
+                    });
+                    const payload = await response.json().catch(() => ({}));
+
+                    if (response.ok && payload.success) {
+                        if (errorEl) {
+                            errorEl.textContent = payload.message || 'If the email exists, a reset link has been sent.';
+                            errorEl.classList.add('active');
+                            errorEl.style.cssText = 'background-color: #d4edda; color: #155724;';
+                        }
+                        form.reset();
                     } else {
                         if (errorEl) { errorEl.textContent = payload.message || 'Invalid information.'; errorEl.classList.add('active'); }
                     }
@@ -1032,6 +1113,7 @@
                 const btn = document.getElementById('notificationBtn');
                 const dropdown = document.getElementById('notificationDropdown');
                 const markAllBtn = document.getElementById('markAllReadBtn');
+                const deleteReadBtn = document.getElementById('deleteReadBtn');
 
                 if (!btn || !dropdown) return;
 
@@ -1060,6 +1142,7 @@
 
                 // 4. Mark all as read
                 markAllBtn?.addEventListener('click', () => this.markAllAsRead());
+                deleteReadBtn?.addEventListener('click', () => this.deleteReadNotifications());
             },
 
             loadNotifications: async function(isBadgeOnly) {
@@ -1147,6 +1230,16 @@
                 try {
                     await fetch('/api/notification/read-all', {
                         method: 'PUT',
+                        credentials: 'include'
+                    });
+                    this.loadNotifications(false);
+                } catch (e) { console.error(e); }
+            },
+
+            deleteReadNotifications: async function() {
+                try {
+                    await fetch('/api/notification/read', {
+                        method: 'DELETE',
                         credentials: 'include'
                     });
                     this.loadNotifications(false);

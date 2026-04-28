@@ -52,12 +52,18 @@ namespace WibuHub.MVC.Admin.Areas.Identity.Pages.Account
 
         public async Task<IActionResult> OnPostAsync()
         {
+            var isAjax = string.Equals(Request.Headers["X-Requested-With"], "XMLHttpRequest", StringComparison.OrdinalIgnoreCase);
+
             if (ModelState.IsValid)
             {
                 var user = await _userManager.FindByEmailAsync(Input.Email);
                 if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
                 {
                     // Don't reveal that the user does not exist or is not confirmed
+                    if (isAjax)
+                    {
+                        return new JsonResult(new { success = true, message = "If the email exists, a reset link has been sent." });
+                    }
                     return RedirectToPage("./ForgotPasswordConfirmation");
                 }
 
@@ -71,14 +77,31 @@ namespace WibuHub.MVC.Admin.Areas.Identity.Pages.Account
                     values: new { area = "Identity", code },
                     protocol: Request.Scheme);
 
+                var encodedCallbackUrl = HtmlEncoder.Default.Encode(callbackUrl);
+                var emailBody = $@"<div style='font-family: Arial, sans-serif; line-height: 1.6;'>
+<h2 style='color: #1f2937;'>Reset your password</h2>
+<p>We received a request to reset your WibuHub admin password.</p>
+<p><a href='{encodedCallbackUrl}' style='display: inline-block; padding: 10px 18px; background: #2563eb; color: #ffffff; text-decoration: none; border-radius: 6px;'>Reset password</a></p>
+<p>If you did not request a password reset, you can safely ignore this email.</p>
+<p style='color: #6b7280; font-size: 12px;'>This link will expire soon for your security.</p>
+</div>";
+
                 await _emailSender.SendEmailAsync(
                     Input.Email,
-                    "Reset Password",
-                    $"Please reset your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                    "Reset your WibuHub admin password",
+                    emailBody);
 
+                if (isAjax)
+                {
+                    return new JsonResult(new { success = true, message = "If the email exists, a reset link has been sent." });
+                }
                 return RedirectToPage("./ForgotPasswordConfirmation");
             }
 
+            if (isAjax)
+            {
+                return BadRequest(new { success = false, message = "Email is invalid." });
+            }
             return Page();
         }
     }

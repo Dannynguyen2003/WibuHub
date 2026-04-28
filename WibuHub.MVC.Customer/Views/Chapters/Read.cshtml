@@ -146,7 +146,7 @@
                 <form class="chapter-bar-follow-form" asp-controller="Follows" asp-action="Toggle" method="post">
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="storyId" value="@chapter.StoryId" />
-                    <input type="hidden" name="returnUrl" value="@Context.Request.Path" />
+                    <input type="hidden" name="returnUrl" value="@($"{Context.Request.Path}{Context.Request.QueryString}")" />
                     <button class="chapter-bar-follow" type="submit">
                         <i class="@(Model.IsFollowed ? "fas fa-heart" : "far fa-heart")"></i>
                         @(Model.IsFollowed ? "Following" : "Follow")

@@ -13,5 +13,8 @@ namespace WibuHub.Service.Interface
 
         // Đánh dấu toàn bộ thông báo của user đó là đã đọc
         Task<bool> MarkAllAsReadAsync(Guid userId);
+
+        // Xóa toàn bộ thông báo đã đọc của user
+        Task<int> DeleteReadAsync(Guid userId);
     }
 }

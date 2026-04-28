@@ -71,10 +71,19 @@ namespace WibuHub.MVC.Customer.Areas.Identity.Pages.Account
                     values: new { area = "Identity", code },
                     protocol: Request.Scheme);
 
+                var encodedCallbackUrl = HtmlEncoder.Default.Encode(callbackUrl);
+                var emailBody = $@"<div style='font-family: Arial, sans-serif; line-height: 1.6;'>
+<h2 style='color: #1f2937;'>Đặt lại mật khẩu</h2>
+<p>Chúng tôi đã nhận yêu cầu đặt lại mật khẩu tài khoản WibuHub của bạn.</p>
+<p><a href='{encodedCallbackUrl}' style='display: inline-block; padding: 10px 18px; background: #2563eb; color: #ffffff; text-decoration: none; border-radius: 6px;'>Đặt lại mật khẩu</a></p>
+<p>Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email này.</p>
+<p style='color: #6b7280; font-size: 12px;'>Liên kết chỉ có hiệu lực trong thời gian ngắn để đảm bảo an toàn.</p>
+</div>";
+
                 await _emailSender.SendEmailAsync(
                     Input.Email,
-                    "Reset Password",
-                    $"Please reset your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                    "Đặt lại mật khẩu WibuHub",
+                    emailBody);
 
                 return RedirectToPage("./ForgotPasswordConfirmation");
             }

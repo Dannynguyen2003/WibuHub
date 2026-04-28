@@ -79,5 +79,17 @@ namespace WibuHub.API.Controllers
 
             return Ok(new { success = true });
         }
+
+        [HttpDelete("read")]
+        [Authorize]
+        public async Task<IActionResult> DeleteReadNotifications()
+        {
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out Guid userId))
+                return Unauthorized();
+
+            var deletedCount = await _notificationService.DeleteReadAsync(userId);
+            return Ok(new { success = true, deletedCount });
+        }
     }
 }

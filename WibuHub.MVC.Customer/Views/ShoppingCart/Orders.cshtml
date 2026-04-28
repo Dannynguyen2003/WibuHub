@@ -96,6 +96,38 @@
         @if (totalPages > 1)
         {
             <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center;margin-top:18px;">
+                @if (currentPage > 1)
+                {
+                    <a asp-action="Orders"
+                       asp-route-page="1"
+                       aria-label="First page"
+                       style="text-decoration:none;padding:7px 12px;border-radius:8px;border:1px solid #d1d5db;background:#fff;color:#1f2937;">
+                        <i class="fas fa-angles-left"></i>
+                    </a>
+                }
+                else
+                {
+                    <span style="padding:7px 12px;border-radius:8px;border:1px solid #e5e7eb;background:#f8fafc;color:#94a3b8;cursor:not-allowed;">
+                        <i class="fas fa-angles-left"></i>
+                    </span>
+                }
+
+                @if (currentPage > 1)
+                {
+                    <a asp-action="Orders"
+                       asp-route-page="@(currentPage - 1)"
+                       aria-label="Previous page"
+                       style="text-decoration:none;padding:7px 12px;border-radius:8px;border:1px solid #d1d5db;background:#fff;color:#1f2937;">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                }
+                else
+                {
+                    <span style="padding:7px 12px;border-radius:8px;border:1px solid #e5e7eb;background:#f8fafc;color:#94a3b8;cursor:not-allowed;">
+                        <i class="fas fa-chevron-left"></i>
+                    </span>
+                }
+
                 @for (int p = 1; p <= totalPages; p++)
                 {
                     <a asp-action="Orders"
@@ -103,6 +135,38 @@
                        style="text-decoration:none;padding:7px 12px;border-radius:8px;border:1px solid #d1d5db;@(p == currentPage ? "background:#2563eb;color:#fff;border-color:#2563eb;" : "background:#fff;color:#1f2937;")">
                         @p
                     </a>
+                }
+
+                @if (currentPage < totalPages)
+                {
+                    <a asp-action="Orders"
+                       asp-route-page="@(currentPage + 1)"
+                       aria-label="Next page"
+                       style="text-decoration:none;padding:7px 12px;border-radius:8px;border:1px solid #d1d5db;background:#fff;color:#1f2937;">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                }
+                else
+                {
+                    <span style="padding:7px 12px;border-radius:8px;border:1px solid #e5e7eb;background:#f8fafc;color:#94a3b8;cursor:not-allowed;">
+                        <i class="fas fa-chevron-right"></i>
+                    </span>
+                }
+
+                @if (currentPage < totalPages)
+                {
+                    <a asp-action="Orders"
+                       asp-route-page="@totalPages"
+                       aria-label="Last page"
+                       style="text-decoration:none;padding:7px 12px;border-radius:8px;border:1px solid #d1d5db;background:#fff;color:#1f2937;">
+                        <i class="fas fa-angles-right"></i>
+                    </a>
+                }
+                else
+                {
+                    <span style="padding:7px 12px;border-radius:8px;border:1px solid #e5e7eb;background:#f8fafc;color:#94a3b8;cursor:not-allowed;">
+                        <i class="fas fa-angles-right"></i>
+                    </span>
                 }
             </div>
         }

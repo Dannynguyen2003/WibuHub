@@ -23,8 +23,12 @@
 
         <div class="form-group">
             <label asp-for="Input.Password">Password</label>
-            <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="••••••••" id="adminLoginPassword" />
-            <button type="button" class="btn-auth" style="margin-top: 8px; width: auto; padding: 8px 14px;" data-password-target="#adminLoginPassword">Show password</button>
+            <div style="position: relative; display: flex; align-items: center;">
+                <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="••••••••" data-password-field="admin-login-password" style="padding-right: 40px;" />
+                <button type="button" data-password-toggle="admin-login-password" style="position: absolute; right: 10px; background: transparent; border: none; cursor: pointer; color: #a0aec0; padding: 0; display: flex; align-items: center; justify-content: center;" aria-label="Toggle password visibility">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                </button>
+            </div>
             <span asp-validation-for="Input.Password" class="error-message" style="display: block; color: #dc2626; font-size: 0.9rem; margin-top: 5px;"></span>
         </div>
 
@@ -43,25 +47,197 @@
     <div class="auth-footer">
         Don't have an account? <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Register Now</a>
         <br />
-        <a id="forgot-password" asp-page="./ForgotPassword" style="font-size: 0.9rem; margin-top: 10px; display: inline-block;">Forgot the password</a>
+        <a id="forgot-password" href="#" style="font-size: 0.9rem; margin-top: 10px; display: inline-block;">Forgot the password</a>
     </div>
 </div>
+
+<div id="forgotPasswordModal" class="admin-modal-backdrop">
+    <div class="admin-modal-card">
+        <button type="button" class="admin-modal-close" id="closeForgotPasswordModal" aria-label="Close">&times;</button>
+        <h3 class="admin-modal-title">Forgot Password</h3>
+        <p class="admin-modal-subtitle">Enter your email and we'll send you a reset link.</p>
+
+        <form id="forgotPasswordForm" asp-page="./ForgotPassword" method="post">
+            @Html.AntiForgeryToken()
+            <div id="forgotPasswordMessage" class="error-message" style="display: none; margin-bottom: 12px; text-align: center;"></div>
+            <div class="form-group">
+                <label for="forgotPasswordEmail">Email</label>
+                <input id="forgotPasswordEmail" name="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="admin@wibuhub.com" />
+            </div>
+            <button type="submit" class="btn-auth">
+                <i class="fas fa-paper-plane" style="margin-right: 8px;"></i>Send reset link
+            </button>
+        </form>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .admin-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            padding: 16px;
+        }
+
+        .admin-modal-backdrop.active {
+            display: flex;
+        }
+
+        .admin-modal-card {
+            width: 100%;
+            max-width: 520px;
+            background: #fff;
+            border-radius: 24px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.25);
+            padding: 30px 26px;
+            position: relative;
+            animation: adminModalFadeInUp 0.25s ease;
+        }
+
+        .admin-modal-close {
+            position: absolute;
+            right: 16px;
+            top: 12px;
+            border: 0;
+            background: transparent;
+            color: #94a3b8;
+            font-size: 30px;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .admin-modal-title {
+            margin: 0 0 8px 0;
+            color: #0f172a;
+            font-size: 2rem;
+        }
+
+        .admin-modal-subtitle {
+            margin: 0 0 18px 0;
+            color: #64748b;
+        }
+
+        @@keyframes adminModalFadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(14px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+}
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        document.querySelectorAll('[data-password-target]').forEach(function (button) {
+        document.querySelectorAll('[data-password-toggle]').forEach(function (button) {
             button.addEventListener('click', function () {
-                const selector = button.getAttribute('data-password-target');
-                const input = selector ? document.querySelector(selector) : null;
-                if (!input) {
+                const fieldName = button.getAttribute('data-password-toggle');
+                const passwordInput = document.querySelector('[data-password-field="' + fieldName + '"]');
+
+                if (!passwordInput) {
                     return;
                 }
 
-                const isPassword = input.type === 'password';
-                input.type = isPassword ? 'text' : 'password';
-                button.textContent = isPassword ? 'Hide password' : 'Show password';
+                const isPassword = passwordInput.type === 'password';
+                passwordInput.type = isPassword ? 'text' : 'password';
+
+                if (isPassword) {
+                    button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';
+                } else {
+                    button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+                }
             });
         });
+
+        (function () {
+            const forgotLink = document.getElementById('forgot-password');
+            const modal = document.getElementById('forgotPasswordModal');
+            const closeModal = document.getElementById('closeForgotPasswordModal');
+            const forgotForm = document.getElementById('forgotPasswordForm');
+            const message = document.getElementById('forgotPasswordMessage');
+
+            function showModal() {
+                if (modal) {
+                    modal.classList.add('active');
+                }
+            }
+
+            function hideModal() {
+                if (modal) {
+                    modal.classList.remove('active');
+                }
+            }
+
+            function showMessage(text, success) {
+                if (!message) {
+                    return;
+                }
+
+                message.textContent = text;
+                message.style.display = 'block';
+                message.style.background = success ? '#dcfce7' : '#fee2e2';
+                message.style.color = success ? '#166534' : '#b91c1c';
+                message.style.padding = '10px 12px';
+                message.style.borderRadius = '12px';
+            }
+
+            forgotLink?.addEventListener('click', function (event) {
+                event.preventDefault();
+                if (message) {
+                    message.style.display = 'none';
+                }
+                showModal();
+            });
+
+            closeModal?.addEventListener('click', hideModal);
+
+            modal?.addEventListener('click', function (event) {
+                if (event.target === modal) {
+                    hideModal();
+                }
+            });
+
+            forgotForm?.addEventListener('submit', async function (event) {
+                event.preventDefault();
+                if (!forgotForm) {
+                    return;
+                }
+
+                const formData = new FormData(forgotForm);
+                const token = formData.get('__RequestVerificationToken');
+
+                try {
+                    const response = await fetch(forgotForm.action, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'RequestVerificationToken': token ? token.toString() : ''
+                        },
+                        body: formData
+                    });
+
+                    const payload = await response.json().catch(function () { return {}; });
+                    if (response.ok && payload.success) {
+                        showMessage(payload.message || 'If the email exists, a reset link has been sent.', true);
+                        forgotForm.reset();
+                    } else {
+                        showMessage(payload.message || 'Unable to send reset link.', false);
+                    }
+                } catch (error) {
+                    showMessage('Cannot connect to server.', false);
+                }
+            });
+        })();
     </script>
 }

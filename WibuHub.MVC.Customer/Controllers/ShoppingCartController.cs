@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.IO.Compression;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Security.Claims;
@@ -104,6 +105,8 @@ namespace WibuHub.MVC.Customer.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             const int pageSize = 10;
 
+            await ExpireStalePendingOrdersAsync(userName, userId);
+
             if (page < 1)
             {
                 page = 1;
@@ -146,6 +149,8 @@ namespace WibuHub.MVC.Customer.Controllers
             var userName = User.Identity?.Name;
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             const int pageSize = 12;
+
+            await ExpireStalePendingOrdersAsync(userName, userId);
 
             if (page < 1)
             {
@@ -552,20 +557,19 @@ namespace WibuHub.MVC.Customer.Controllers
         [HttpGet]
         public async Task<IActionResult> PaymentResult([FromQuery] int resultCode, [FromQuery] string orderId)
         {
-            ViewBag.IsSuccess = resultCode == 0;
+            ViewBag.IsSuccess = false;
             ViewBag.HasVip = false;
             ViewBag.HasStory = false;
             ViewBag.TransactionId = orderId;
 
             if (resultCode == 0)
             {
-                ViewBag.Message = "Hệ thống đã xác nhận thanh toán và đang nâng cấp VIP cho bạn...";
-                HttpContext.Session.Remove(CartSessionKey);
-                HttpContext.Session.Remove(PendingMomoOrderSessionKey);
-
                 if (!string.IsNullOrEmpty(orderId) && Guid.TryParse(orderId, out Guid orderGuid))
                 {
-                    var order = await _context.Orders.Include(o => o.OrderDetails).FirstOrDefaultAsync(o => o.Id == orderGuid);
+                    var order = await _context.Orders
+                        .AsNoTracking()
+                        .Include(o => o.OrderDetails)
+                        .FirstOrDefaultAsync(o => o.Id == orderGuid);
 
                     if (order != null)
                     {
@@ -575,48 +579,38 @@ namespace WibuHub.MVC.Customer.Controllers
                             ? order.Id.ToString()
                             : order.TransactionId;
 
-                        var shouldGrantRewards = await ShouldGrantRewardsForOrderAsync(order);
-
-                        if (order.PaymentStatus != "Completed")
+                        if (string.Equals(order.PaymentStatus, "Completed", StringComparison.OrdinalIgnoreCase))
                         {
-                            order.PaymentStatus = "Completed";
-                        }
+                            ViewBag.IsSuccess = true;
+                            ViewBag.Message = "Thanh toán thành công. Hệ thống đã nâng cấp và ghi nhận đơn hàng của bạn.";
 
-                        if (shouldGrantRewards)
-                        {
-                            var userManager = HttpContext.RequestServices.GetService<UserManager<StoryUser>>();
-                            var signInManager = HttpContext.RequestServices.GetService<SignInManager<StoryUser>>();
-                            var currentUser = await ResolveOrderUserAsync(userManager, order.UserId);
-
-                            if (currentUser != null)
+                            if (User?.Identity?.IsAuthenticated == true)
                             {
-                                var totalVipDaysBought = CalculateVipDaysFromOrderDetails(order.OrderDetails);
-
-                                if (totalVipDaysBought > 0)
+                                var userManager = HttpContext.RequestServices.GetService<UserManager<StoryUser>>();
+                                var currentUser = await ResolveOrderUserAsync(userManager, order.UserId);
+                                if (currentUser != null)
                                 {
-                                    var currentVipEnd = currentUser.VipExpireDate.HasValue && currentUser.VipExpireDate.Value > DateTime.UtcNow
-                                                        ? currentUser.VipExpireDate.Value
-                                                        : DateTime.UtcNow;
-
-                                    currentUser.VipExpireDate = currentVipEnd.AddDays(totalVipDaysBought);
-
-                                    // Đã xóa dòng gán IsVip = true vì property này là ReadOnly tự tính toán
-                                    await userManager.UpdateAsync(currentUser);
-
-                                    // Làm mới Cookie trình duyệt
-                                    if (signInManager != null)
-                                    {
-                                        await signInManager.RefreshSignInAsync(currentUser);
-                                    }
+                                    await CreateOrderNotificationIfNeededAsync(currentUser, order);
+                                    await _context.SaveChangesAsync();
                                 }
-
-                                await GrantOrderRewardsAsync(currentUser.Id, order.TotalAmount);
-                                await CreateOrderNotificationIfNeededAsync(currentUser, order);
                             }
-                        }
 
-                        await _context.SaveChangesAsync();
+                            HttpContext.Session.Remove(CartSessionKey);
+                            HttpContext.Session.Remove(PendingMomoOrderSessionKey);
+                        }
+                        else
+                        {
+                            ViewBag.Message = "Đã nhận kết quả thanh toán, hệ thống đang chờ xác nhận từ cổng MoMo. Vui lòng thử tải lại sau vài giây.";
+                        }
                     }
+                    else
+                    {
+                        ViewBag.Message = "Không tìm thấy đơn hàng tương ứng.";
+                    }
+                }
+                else
+                {
+                    ViewBag.Message = "Thông tin đơn hàng không hợp lệ.";
                 }
             }
             else
@@ -647,6 +641,11 @@ namespace WibuHub.MVC.Customer.Controllers
 
             try
             {
+                if (!IsValidMomoCallbackSignature(callback))
+                {
+                    return NoContent();
+                }
+
                 if (callback.ResultCode == 0) // Giao dịch MoMo thành công
                 {
                     if (Guid.TryParse(callback.OrderId, out Guid orderGuid))
@@ -668,10 +667,11 @@ namespace WibuHub.MVC.Customer.Controllers
                             if (totalVipDaysBought > 0 && !string.IsNullOrEmpty(order.UserId))
                             {
                                 var userManager = HttpContext.RequestServices.GetService<UserManager<StoryUser>>();
+                                var signInManager = HttpContext.RequestServices.GetService<SignInManager<StoryUser>>();
 
                                 if (userManager != null)
                                 {
-                                    var user = await userManager.FindByNameAsync(order.UserId);
+                                    var user = await ResolveOrderUserAsync(userManager, order.UserId);
                                     if (user != null)
                                     {
                                         var currentVipEnd = user.VipExpireDate.HasValue && user.VipExpireDate.Value > DateTime.UtcNow
@@ -680,6 +680,11 @@ namespace WibuHub.MVC.Customer.Controllers
 
                                         user.VipExpireDate = currentVipEnd.AddDays(totalVipDaysBought);
                                         await userManager.UpdateAsync(user);
+
+                                        if (signInManager != null)
+                                        {
+                                            await signInManager.RefreshSignInAsync(user);
+                                        }
 
                                         await GrantOrderRewardsAsync(user.Id, order.TotalAmount);
                                         await CreateOrderNotificationIfNeededAsync(user, order);
@@ -691,7 +696,7 @@ namespace WibuHub.MVC.Customer.Controllers
                                 var userManager = HttpContext.RequestServices.GetService<UserManager<StoryUser>>();
                                 if (userManager != null)
                                 {
-                                    var user = await userManager.FindByNameAsync(order.UserId);
+                                    var user = await ResolveOrderUserAsync(userManager, order.UserId);
                                     if (user != null)
                                     {
                                         await GrantOrderRewardsAsync(user.Id, order.TotalAmount);
@@ -751,6 +756,18 @@ namespace WibuHub.MVC.Customer.Controllers
             }
 
             HttpContext.Session.Remove(PendingMomoOrderSessionKey);
+        }
+
+        private async Task ExpireStalePendingOrdersAsync(string? userName, string? userId)
+        {
+            var expireBefore = DateTime.UtcNow.AddMinutes(-30);
+
+            await _context.Orders
+                .Where(o => o.PaymentStatus == "Pending"
+                    && o.CreatedAt <= expireBefore
+                    && ((!string.IsNullOrWhiteSpace(userName) && o.UserId == userName)
+                        || (!string.IsNullOrWhiteSpace(userId) && o.UserId == userId)))
+                .ExecuteUpdateAsync(setters => setters.SetProperty(o => o.PaymentStatus, "Failed"));
         }
 
         private static List<VipPackageItem> BuildVipPackages()
@@ -949,6 +966,43 @@ namespace WibuHub.MVC.Customer.Controllers
             }
 
             return await userManager.FindByNameAsync(orderUserId);
+        }
+
+        private bool IsValidMomoCallbackSignature(Momopayment.MomoCallbackRequest callback)
+        {
+            if (string.IsNullOrWhiteSpace(callback.Signature)
+                || string.IsNullOrWhiteSpace(callback.PartnerCode)
+                || !string.Equals(callback.PartnerCode, _momoSettings.PartnerCode, StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            var rawSignature = $"accessKey={_momoSettings.AccessKey}" +
+                               $"&amount={callback.Amount}" +
+                               $"&extraData={callback.ExtraData ?? string.Empty}" +
+                               $"&message={callback.Message}" +
+                               $"&orderId={callback.OrderId}" +
+                               $"&orderInfo={callback.OrderInfo}" +
+                               $"&orderType={callback.OrderType}" +
+                               $"&partnerCode={callback.PartnerCode}" +
+                               $"&payType={callback.PayType}" +
+                               $"&requestId={callback.RequestId}" +
+                               $"&responseTime={callback.ResponseTime}" +
+                               $"&resultCode={callback.ResultCode}" +
+                               $"&transId={callback.TransId}";
+
+            var expectedSignature = ComputeHmacSha256(rawSignature, _momoSettings.SecretKey);
+            return string.Equals(callback.Signature, expectedSignature, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static string ComputeHmacSha256(string message, string secretKey)
+        {
+            var keyBytes = Encoding.UTF8.GetBytes(secretKey);
+            var messageBytes = Encoding.UTF8.GetBytes(message);
+
+            using var hmac = new HMACSHA256(keyBytes);
+            var hashBytes = hmac.ComputeHash(messageBytes);
+            return BitConverter.ToString(hashBytes).Replace("-", string.Empty).ToLowerInvariant();
         }
         #endregion
     }

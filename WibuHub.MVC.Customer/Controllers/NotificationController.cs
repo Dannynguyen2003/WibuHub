@@ -58,6 +58,18 @@ namespace WibuHub.MVC.Customer.Controllers
             return Ok(new { success = true });
         }
 
+        [HttpDelete("read")]
+        public async Task<IActionResult> DeleteReadNotifications()
+        {
+            if (!TryGetUserId(out var userId))
+            {
+                return Unauthorized(new { message = "Unable to identify user." });
+            }
+
+            var deletedCount = await _notificationService.DeleteReadAsync(userId);
+            return Ok(new { success = true, deletedCount });
+        }
+
         // --- Helper Methods ---
 
         private bool TryGetUserId(out Guid userId)

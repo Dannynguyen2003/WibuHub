@@ -1,5 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
+using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -103,25 +104,12 @@ namespace WibuHub.MVC.Customer.Controllers
 
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-            //    var callbackUrl = Url.Page(
-            //      "/Account/ConfirmEmail",
-            //      pageHandler: null,
-            //      values: new { area = "Identity", userId = user.Id, code = encodedToken, returnUrl = GetReturnUrl(request.ReturnUrl) },
-            //      protocol: Request.Scheme);
-
-            //    if (!string.IsNullOrWhiteSpace(callbackUrl))
-            //    {
-            //        await _emailSender.SendEmailAsync(request.Email, "Xác nhận email", $"Vui lòng xác nhận tài khoản bằng cách <a href='{callbackUrl}'>b?m vào đây</a>.");
-            //    }
-
-            //    return Json(new AuthResponse(true, "Đăng ký thành công. Vui lòng kiểm tra email đã xác nhận tài khoản.", GetReturnUrl(request.ReturnUrl)));
             var callbackUrl = Url.Page(
     "/Account/ConfirmEmail",
     pageHandler: null,
     values: new { area = "Identity", userId = user.Id, code = encodedToken, returnUrl = GetReturnUrl(request.ReturnUrl) },
     protocol: Request.Scheme);
 
-            // BỌC TRY-CATCH VÀO ĐÂY
             try
             {
                 if (!string.IsNullOrWhiteSpace(callbackUrl))
@@ -131,14 +119,52 @@ namespace WibuHub.MVC.Customer.Controllers
             }
             catch (Exception ex)
             {
-                // Log lỗi ra để dev biết đường sửa, không làm chết app
                 Console.WriteLine($"[LỖI GỬI EMAIL]: {ex.Message}");
-
-                // Mặc dù gửi mail lỗi nhưng tài khoản ĐÃ VÀO DATABASE, nên vẫn phải báo thành công!
                 return Json(new AuthResponse(true, "Đăng ký thành công nhưng hệ thống đang lỗi gửi mail xác nhận. Vui lòng thử đăng nhập!"));
             }
 
             return Json(new AuthResponse(true, "Đăng ký thành công. Vui lòng kiểm tra email đã xác nhận tài khoản.", GetReturnUrl(request.ReturnUrl)));
+        }
+
+        [HttpPost("forgot-password")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
+        {
+            if (!TryValidateModel(request))
+            {
+                return Json(new AuthResponse(false, "Email chưa hợp lệ."));
+            }
+
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user != null && await _userManager.IsEmailConfirmedAsync(user))
+            {
+                var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+                code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                var callbackUrl = Url.Page(
+                    "/Account/ResetPassword",
+                    pageHandler: null,
+                    values: new { area = "Identity", code },
+                    protocol: Request.Scheme);
+
+                if (!string.IsNullOrWhiteSpace(callbackUrl))
+                {
+                    var encodedCallbackUrl = HtmlEncoder.Default.Encode(callbackUrl);
+                    var emailBody = $@"<div style='font-family: Arial, sans-serif; line-height: 1.6;'>
+<h2 style='color: #1f2937;'>Đặt lại mật khẩu</h2>
+<p>Chúng tôi đã nhận yêu cầu đặt lại mật khẩu tài khoản WibuHub của bạn.</p>
+<p><a href='{encodedCallbackUrl}' style='display: inline-block; padding: 10px 18px; background: #2563eb; color: #ffffff; text-decoration: none; border-radius: 6px;'>Đặt lại mật khẩu</a></p>
+<p>Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email này.</p>
+<p style='color: #6b7280; font-size: 12px;'>Liên kết chỉ có hiệu lực trong thời gian ngắn để đảm bảo an toàn.</p>
+</div>";
+
+                    await _emailSender.SendEmailAsync(
+                        request.Email,
+                        "Đặt lại mật khẩu WibuHub",
+                        emailBody);
+                }
+            }
+
+            return Json(new AuthResponse(true, "Nếu email tồn tại trong hệ thống, chúng tôi đã gửi liên kết đặt lại mật khẩu."));
         }
 
         private string GetReturnUrl(string? returnUrl)
@@ -180,6 +206,13 @@ namespace WibuHub.MVC.Customer.Controllers
             public string ConfirmPassword { get; init; } = string.Empty;
 
             public string? ReturnUrl { get; init; }
+        }
+
+        public sealed class ForgotPasswordRequest
+        {
+            [Required]
+            [EmailAddress]
+            public string Email { get; init; } = string.Empty;
         }
     }
 }

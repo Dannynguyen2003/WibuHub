@@ -61,6 +61,8 @@ namespace WibuHub.MVC.Customer.Controllers
                 return NotFound();
             }
 
+            const double chapterNumberTolerance = 0.000001d;
+
             var chapter = await _context.Chapters
                 .AsNoTracking()
                 .Include(c => c.Story)
@@ -68,7 +70,7 @@ namespace WibuHub.MVC.Customer.Controllers
                 .FirstOrDefaultAsync(c => !c.IsDeleted
                     && c.Story != null
                     && c.Story.Slug == storySlug
-                    && c.ChapterNumber == chapterNumber);
+                    && Math.Abs(c.ChapterNumber - chapterNumber) < chapterNumberTolerance);
 
             if (chapter == null)
             {
