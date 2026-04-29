@@ -209,7 +209,7 @@ namespace WibuHub.MVC.Customer.Controllers
         {
             if (storyId == Guid.Empty)
             {
-                return RedirectWithDownloadError("Liên kết tải truyện không hợp lệ.");
+                return RedirectWithDownloadError("Invalid story download link.");
             }
 
             var userName = User.Identity?.Name;
@@ -225,7 +225,7 @@ namespace WibuHub.MVC.Customer.Controllers
 
             if (!hasPurchased)
             {
-                return RedirectWithDownloadError("Bạn chưa mua truyện này nên không thể tải xuống.");
+                return RedirectWithDownloadError("You have not purchased this story, so you cannot download it.");
             }
 
             var story = await _context.Stories
@@ -234,7 +234,7 @@ namespace WibuHub.MVC.Customer.Controllers
 
             if (story == null)
             {
-                return RedirectWithDownloadError("Truyện hiện không khả dụng để tải xuống.");
+                return RedirectWithDownloadError("The story is currently unavailable for download.");
             }
 
             var chapters = await _context.Chapters
@@ -246,7 +246,7 @@ namespace WibuHub.MVC.Customer.Controllers
 
             if (chapters.Count == 0)
             {
-                return RedirectWithDownloadError("Truyện chưa có chapter để tải xuống.");
+                return RedirectWithDownloadError("The story has no chapters to download.");
             }
 
             using var archiveStream = new MemoryStream();
@@ -348,12 +348,12 @@ namespace WibuHub.MVC.Customer.Controllers
                     Quantity = quantity
                 });
 
-                TempData["CartMessage"] = "Đã thêm vào giỏ hàng.";
+                TempData["CartMessage"] = "Added to cart.";
             }
             else
             {
                 item.Quantity = 1;
-                TempData["CartMessage"] = "Truyện đã có trong giỏ hàng.";
+                TempData["CartMessage"] = "Story is already in the cart.";
             }
 
             SaveCart(cart);
@@ -387,7 +387,7 @@ namespace WibuHub.MVC.Customer.Controllers
             }
 
             SaveCart(cart);
-            TempData["CartMessage"] = "Đã thêm gói VIP vào giỏ hàng.";
+            TempData["CartMessage"] = "Added VIP package to cart.";
             return RedirectToAction(nameof(Cart));
         }
 
@@ -468,11 +468,11 @@ namespace WibuHub.MVC.Customer.Controllers
                 string.IsNullOrWhiteSpace(_momoSettings.SecretKey) ||
                 string.IsNullOrWhiteSpace(_momoSettings.PartnerCode))
             {
-                TempData["PaymentError"] = "Cấu hình MoMo không hợp lệ.";
+                TempData["PaymentError"] = "Invalid MoMo configuration.";
                 return RedirectToAction(nameof(Checkout));
             }
 
-            // BƯỚC 1: TẠO ĐƠN HÀNG
+            // STEP 1: CREATE ORDER
             var order = new Order
             {
                 Id = Guid.NewGuid(),
@@ -489,7 +489,7 @@ namespace WibuHub.MVC.Customer.Controllers
             order.Tax = amount * 0.1m;
             order.TotalAmount = order.Amount + order.Tax;
 
-            // BƯỚC 2: THÊM CHI TIẾT VÀO ĐƠN HÀNG
+            // STEP 2: ADD DETAILS TO ORDER
             foreach (var item in cart.Items)
             {
                 order.OrderDetails.Add(new OrderDetail
@@ -507,12 +507,12 @@ namespace WibuHub.MVC.Customer.Controllers
             await _context.SaveChangesAsync();
             HttpContext.Session.SetString(PendingMomoOrderSessionKey, order.Id.ToString());
 
-            // BƯỚC 3: GỬI REQUEST THANH TOÁN
+            // STEP 3: SEND PAYMENT REQUEST
             var request = new Momopayment.MomoPaymentRequest
             {
                 OrderId = order.Id.ToString(),
                 FullName = order.UserId,
-                OrderInfo = $"Thanh toán đơn hàng WibuHub #{order.Id}",
+                OrderInfo = $"WibuHub order payment #{order.Id}",
                 Amount = (long)order.TotalAmount
             };
 
@@ -582,7 +582,7 @@ namespace WibuHub.MVC.Customer.Controllers
                         if (string.Equals(order.PaymentStatus, "Completed", StringComparison.OrdinalIgnoreCase))
                         {
                             ViewBag.IsSuccess = true;
-                            ViewBag.Message = "Thanh toán thành công. Hệ thống đã nâng cấp và ghi nhận đơn hàng của bạn.";
+                            ViewBag.Message = "Payment successful. The system has upgraded your account and recorded your order.";
 
                             if (User?.Identity?.IsAuthenticated == true)
                             {
@@ -600,17 +600,17 @@ namespace WibuHub.MVC.Customer.Controllers
                         }
                         else
                         {
-                            ViewBag.Message = "Đã nhận kết quả thanh toán, hệ thống đang chờ xác nhận từ cổng MoMo. Vui lòng thử tải lại sau vài giây.";
+                            ViewBag.Message = "Payment result received. The system is waiting for confirmation from MoMo. Please try reloading in a few seconds.";
                         }
                     }
                     else
                     {
-                        ViewBag.Message = "Không tìm thấy đơn hàng tương ứng.";
+                        ViewBag.Message = "Corresponding order not found.";
                     }
                 }
                 else
                 {
-                    ViewBag.Message = "Thông tin đơn hàng không hợp lệ.";
+                    ViewBag.Message = "Invalid order information.";
                 }
             }
             else
@@ -626,13 +626,13 @@ namespace WibuHub.MVC.Customer.Controllers
                 }
 
                 HttpContext.Session.Remove(PendingMomoOrderSessionKey);
-                ViewBag.Message = "Giao dịch không thành công hoặc đã bị hủy.";
+                ViewBag.Message = "Transaction failed or has been canceled.";
             }
 
             return View();
         }
 
-        // HÀM XỬ LÝ CALLBACK TỪ MOMO
+        // MOMO CALLBACK HANDLER
         [HttpPost]
         [AllowAnonymous]
         public async Task<IActionResult> MomoCallback([FromBody] Momopayment.MomoCallbackRequest callback)
@@ -646,7 +646,7 @@ namespace WibuHub.MVC.Customer.Controllers
                     return NoContent();
                 }
 
-                if (callback.ResultCode == 0) // Giao dịch MoMo thành công
+                if (callback.ResultCode == 0) // MoMo transaction successful
                 {
                     if (Guid.TryParse(callback.OrderId, out Guid orderGuid))
                     {
@@ -656,14 +656,14 @@ namespace WibuHub.MVC.Customer.Controllers
 
                         if (order != null && order.PaymentStatus != "Completed")
                         {
-                            // 1. Cập nhật trạng thái đơn hàng
+                            // 1. Update order status
                             order.PaymentStatus = "Completed";
                             order.TransactionId = callback.TransId.ToString();
 
-                            // 2. LOGIC CẤP QUYỀN VIP
+                            // 2. VIP PRIVILEGE LOGIC
                             var totalVipDaysBought = CalculateVipDaysFromOrderDetails(order.OrderDetails);
 
-                            // 3. Nếu có mua VIP, cộng ngày cho User
+                            // 3. If VIP is purchased, add days to User
                             if (totalVipDaysBought > 0 && !string.IsNullOrEmpty(order.UserId))
                             {
                                 var userManager = HttpContext.RequestServices.GetService<UserManager<StoryUser>>();
@@ -775,18 +775,18 @@ namespace WibuHub.MVC.Customer.Controllers
             return new List<VipPackageItem>
             {
                 new VipPackageItem { Code = "VIP_MONTH",
-                                     Name = "VIP 1 Tháng",
-                                     Description = "Đọc không giới hạn trong 30 ngày",
+                                     Name = "1 Month VIP",
+                                     Description = "Unlimited reading for 30 days",
                                      Price = 99000,
                                      DurationDays = 30 },
                 new VipPackageItem { Code = "VIP_QUARTER",
-                                     Name = "VIP 3 Tháng",
-                                     Description = "Tiết kiệm hơn khi đăng ký 90 ngày",
+                                     Name = "3 Months VIP",
+                                     Description = "Save more with a 90-day subscription",
                                      Price = 249000,
                                      DurationDays = 90 },
                 new VipPackageItem { Code = "VIP_YEAR",
-                                     Name = "VIP 12 Tháng",
-                                     Description = "Gói tiết kiệm nhất cho fan truyện",
+                                     Name = "12 Months VIP",
+                                     Description = "Most economical package for story fans",
                                      Price = 799000,
                                      DurationDays = 365 }
             };
@@ -795,7 +795,7 @@ namespace WibuHub.MVC.Customer.Controllers
         private static string BuildVipNote(Cart cart)
         {
             var vipItems = cart.Items.Where(i => i.StoryId == Guid.Empty).ToList();
-            return vipItems.Count == 0 ? "Thanh toán truyện" : "Đăng ký VIP: " + string.Join(", ", vipItems.Select(i => i.StoryTitle));
+            return vipItems.Count == 0 ? "Story payment" : "VIP Subscription: " + string.Join(", ", vipItems.Select(i => i.StoryTitle));
         }
 
         private static int CalculateVipDaysFromOrderDetails(IEnumerable<OrderDetail> orderDetails)
@@ -900,7 +900,7 @@ namespace WibuHub.MVC.Customer.Controllers
 
             var orderCode = order.Id.ToString()[..8].ToUpperInvariant();
             var targetUrl = $"/ShoppingCart/PaymentResult?resultCode=0&orderId={order.Id}";
-            var title = $"Đơn hàng #{orderCode} đã thanh toán";
+            var title = $"Order #{orderCode} paid successfully";
 
             var existed = await _context.Notifications.AnyAsync(n =>
                 n.UserId == userId
@@ -916,7 +916,7 @@ namespace WibuHub.MVC.Customer.Controllers
             {
                 UserId = userId,
                 Title = title,
-                Message = $"Thanh toán thành công đơn hàng {orderCode}. Tổng tiền: {order.TotalAmount:N0}đ",
+                Message = $"Successfully paid order {orderCode}. Total amount: {order.TotalAmount:N0} VND",
                 TargetUrl = targetUrl,
                 IsRead = false,
                 CreateDate = DateTime.UtcNow
@@ -939,7 +939,7 @@ namespace WibuHub.MVC.Customer.Controllers
 
             var orderCode = order.Id.ToString()[..8].ToUpperInvariant();
             var targetUrl = $"/ShoppingCart/PaymentResult?resultCode=0&orderId={order.Id}";
-            var title = $"Đơn hàng #{orderCode} đã thanh toán";
+            var title = $"Order #{orderCode} paid successfully";
 
             var existed = await _context.Notifications.AnyAsync(n =>
                 n.UserId == userGuid
