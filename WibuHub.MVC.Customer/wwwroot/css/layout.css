@@ -1965,6 +1965,17 @@ body {
     margin-bottom: 40px;
 }
 
+/* Keep the "Recently Updated" column away from the viewport edge */
+#homeSection .home-grid > div:first-child > div {
+    padding-left: 14px;
+    padding-right: 14px;
+}
+
+/* Slightly indent the "Most Viewed" card for visual balance */
+#homeSection .home-grid > div:last-child > .top-list {
+    margin-left: 8px;
+}
+
 .section-header {
     display: flex;
     justify-content: space-between;
@@ -2092,7 +2103,7 @@ body {
 .top-list {
     background: white;
     border-radius: 16px;
-    padding: 20px;
+    padding: 20px 26px;
 }
 
 .top-item {
