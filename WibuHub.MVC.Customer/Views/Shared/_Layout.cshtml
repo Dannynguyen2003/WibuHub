@@ -25,282 +25,24 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/css/layout.css" asp-append-version="true">
 
-    <style>
-        /* CSS for notification dropdown */
-        .noti-item {
-            padding: 12px 15px;
-            border-bottom: 1px solid #f3f4f6;
-            display: block;
-            text-decoration: none;
-            transition: background 0.2s;
-        }
-
-            .noti-item:hover {
-                background: #f9fafb;
-            }
-
-            .noti-item.unread {
-                background: #eff6ff;
-            }
-
-        .noti-title {
-            color: #111827;
-            font-weight: 600;
-            font-size: 0.9rem;
-            margin: 0 0 4px 0;
-        }
-
-        .noti-msg {
-            color: #4b5563;
-            font-size: 0.85rem;
-            margin: 0 0 4px 0;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .noti-time {
-            color: #9ca3af;
-            font-size: 0.75rem;
-            margin: 0;
-        }
-
-        /* Global 30/4 theme */
-        body.theme-304 {
-            background: linear-gradient(180deg, #fff7ed 0%, #fff1f2 38%, #fff 100%);
-        }
-
-        body.theme-304 .app {
-            padding-top: 10px;
-            width: 100% !important;
-            max-width: none !important;
-            margin: 0 !important;
-        }
-
-        body.theme-304 .header {
-            background: linear-gradient(110deg, #9f1239 0%, #be123c 38%, #dc2626 100%);
-            border: 1px solid rgba(251, 191, 36, 0.45);
-            border-radius: 18px;
-            width: calc(100% - 24px) !important;
-            max-width: none !important;
-            margin: 0 12px 10px !important;
-            box-shadow: 0 14px 30px rgba(127, 29, 29, 0.2);
-            padding: 16px 18px;
-        }
-
-        body.theme-304 .logo,
-        body.theme-304 .logo span,
-        body.theme-304 .user-actions a,
-        body.theme-304 .nav-item {
-            color: #fff !important;
-        }
-
-        body.theme-304 .nav-tabs {
-            background: linear-gradient(90deg, #9f1239 0%, #be123c 62%, #b91c1c 100%);
-            border: 1px solid rgba(253, 186, 116, 0.45);
-            border-radius: 16px;
-            width: calc(100% - 24px) !important;
-            max-width: none !important;
-            margin: 0 12px 18px !important;
-            padding: 8px;
-            box-shadow: 0 10px 24px rgba(136, 19, 55, 0.18);
-            gap: 8px;
-        }
-
-        body.theme-304 .nav-item.active {
-            background: #f59e0b;
-            color: #422006 !important;
-            border-radius: 10px;
-            box-shadow: 0 6px 16px rgba(245, 158, 11, 0.35);
-        }
-
-        body.theme-304 .nav-item {
-            border-radius: 10px;
-            padding: 10px 16px;
-            transition: background-color 0.2s ease, transform 0.2s ease;
-        }
-
-        body.theme-304 .nav-item:not(.active) {
-            background: rgba(255, 255, 255, 0.08);
-        }
-
-        body.theme-304 .nav-item:not(.active):hover {
-            background: rgba(255, 255, 255, 0.18);
-            transform: translateY(-1px);
-        }
-
-        body.theme-304 .search-bar {
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            box-shadow: 0 8px 18px rgba(127, 29, 29, 0.24);
-            background: #fff;
-            border-radius: 999px;
-        }
-
-        body.theme-304 .search-bar input {
-            background: #fff;
-            color: #334155;
-        }
-
-        body.theme-304 .search-bar button {
-            background: linear-gradient(120deg, #fb923c, #f59e0b);
-            color: #7c2d12;
-        }
-
-        #themeToggleBtn {
-            border: 1px solid rgba(255, 255, 255, 0.45);
-            background: rgba(255, 255, 255, 0.12);
-            color: #fff;
-            border-radius: 999px;
-            width: 34px;
-            height: 34px;
-            padding: 0;
-            font-size: 0.95rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        #themeToggleBtn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-1px);
-        }
-
-        body:not(.theme-304) #themeToggleBtn {
-            background: rgba(15, 23, 42, 0.08);
-            color: #0f172a;
-            border: 1px solid rgba(15, 23, 42, 0.18);
-        }
-
-        body.theme-304 .main-content,
-        body.theme-304 .section-title,
-        body.theme-304 .recommend-card,
-        body.theme-304 .top-list,
-        body.theme-304 .side-categories {
-            border-color: #fecaca !important;
-        }
-
-        /* Indent Recently Updated block for cleaner alignment */
-        body.theme-304 #homeSection .home-grid > div:first-child > div {
-            padding-left: 14px;
-            padding-right: 14px;
-        }
-
-        body.theme-304 .btn-read,
-        body.theme-304 .btn,
-        body.theme-304 button[type="submit"] {
-            background: linear-gradient(90deg, #dc2626, #ef4444) !important;
-            border-color: #dc2626 !important;
-            color: #fff !important;
-        }
-
-        /* Intro animation overlay */
-        .intro-304-overlay {
-            position: fixed;
-            inset: 0;
-            z-index: 99999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #7f1d1d 0%, #b91c1c 45%, #dc2626 100%);
-            overflow: hidden;
-            transition: opacity 0.9s ease, visibility 0.9s ease;
-        }
-
-        .intro-304-content {
-            text-align: center;
-            color: #fff7ed;
-            animation: introPulse 1.8s ease-in-out infinite;
-            padding: 20px;
-        }
-
-        .intro-304-star {
-            color: #facc15;
-            font-size: 3.6rem;
-            line-height: 1;
-            display: block;
-            margin-bottom: 10px;
-        }
-
-        .intro-304-title {
-            font-size: clamp(1.5rem, 4vw, 2.5rem);
-            font-weight: 800;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-        }
-
-        .intro-304-subtitle {
-            color: #fee2e2;
-            font-size: clamp(0.9rem, 2.2vw, 1.15rem);
-        }
-
-        .intro-304-overlay::before,
-        .intro-304-overlay::after {
-            content: "";
-            position: absolute;
-            width: 320px;
-            height: 320px;
-            border-radius: 50%;
-            background: rgba(250, 204, 21, 0.15);
-            filter: blur(4px);
-            animation: floatOrb 6s ease-in-out infinite;
-        }
-
-        .intro-304-overlay::before {
-            top: -100px;
-            left: -70px;
-        }
-
-        .intro-304-overlay::after {
-            right: -90px;
-            bottom: -120px;
-            animation-delay: 1.4s;
-        }
-
-        body.preloader-active .app {
-            visibility: hidden;
-        }
-
-        body.intro-304-done .intro-304-overlay {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-        }
-
-        body.intro-304-done .app {
-            visibility: visible;
-        }
-
-        @@keyframes introPulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.03); opacity: 0.93; }
-        }
-
-        @@keyframes floatOrb {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
-        }
-    </style>
-
     @await RenderSectionAsync("Styles", required: false)
 </head>
-<body class="preloader-active">
+<body class="preloader-active intro-304-done">
     @{
         var isHomePage = string.Equals(ViewContext.RouteData.Values["controller"]?.ToString(), "Home", StringComparison.OrdinalIgnoreCase)
         && string.Equals(ViewContext.RouteData.Values["action"]?.ToString(), "Index", StringComparison.OrdinalIgnoreCase);
         var isIdentityArea = string.Equals(ViewContext.RouteData.Values["area"]?.ToString(), "Identity", StringComparison.OrdinalIgnoreCase);
     }
-    <div id="intro304" class="intro-304-overlay" aria-hidden="true">
-        <div class="intro-304-content">
-            <span class="intro-304-star">*</span>
-            <div class="intro-304-title">Chao mung Dai le 30/4</div>
-            <div class="intro-304-subtitle">Thong nhat dat nuoc - Truyen cam hung den moi trang truyen</div>
+    @if (isHomePage)
+    {
+        <div id="intro304" class="intro-304-overlay" aria-hidden="true">
+            <div class="intro-304-content">
+                <span class="intro-304-star">🇻🇳</span>
+                <div class="intro-304-title">Chao mung Dai le 30/4</div>
+                <div class="intro-304-subtitle">Thong nhat dat nuoc - Truyen cam hung den moi trang truyen</div>
+            </div>
         </div>
-    </div>
+    }
 
     <div class="app" style="width:100%;max-width:none;margin:0;padding:10px 0 0;">
         <header class="header" style="width:calc(100% - 24px);max-width:none;margin:0 12px 10px;">
@@ -312,7 +54,7 @@
             <div class="search-wrapper">
 
                 <div class="search-bar">
-                    <input type="text" placeholder="Search stories, authors..." id="searchInput" autocomplete="off">
+                    <input type="text" placeholder="Search stories" id="searchInput" autocomplete="off">
                     <button id="searchBtn"><i class="fas fa-search"></i></button>
                 </div>
 
@@ -1498,37 +1240,32 @@
         };
 
         const IntroController = {
-            sessionCookieKey: 'wibuhub_intro_304_seen',
+            storageKey: 'wibuhub_intro_304_shown',
 
-            hasSeenInCurrentSession: function() {
-                return document.cookie
-                    .split(';')
-                    .map(c => c.trim())
-                    .some(c => c === `${this.sessionCookieKey}=1`);
+            init: function(isHomePage) {
+                document.body.classList.remove('preloader-active');
+                document.body.classList.add('intro-304-done');
             },
 
-            markSeenForCurrentSession: function() {
-                document.cookie = `${this.sessionCookieKey}=1; path=/; SameSite=Lax`;
-            },
+            play: function(options = {}) {
+                const shouldForce = options.force === true;
+                if (!shouldForce && sessionStorage.getItem(this.storageKey) === '1') {
+                    return;
+                }
 
-            init: function() {
                 const overlay = document.getElementById('intro304');
                 if (!overlay) {
                     document.body.classList.remove('preloader-active');
                     return;
                 }
 
-                const hasSeenIntro = this.hasSeenInCurrentSession();
-                if (hasSeenIntro) {
-                    document.body.classList.add('intro-304-done');
-                    document.body.classList.remove('preloader-active');
-                    return;
-                }
+                sessionStorage.setItem(this.storageKey, '1');
+                document.body.classList.remove('intro-304-done');
+                document.body.classList.add('preloader-active');
 
                 const done = () => {
                     document.body.classList.add('intro-304-done');
                     document.body.classList.remove('preloader-active');
-                    this.markSeenForCurrentSession();
                 };
 
                 setTimeout(done, 5000);
@@ -1548,7 +1285,8 @@
                 if (!btn) return;
                 btn.addEventListener('click', () => {
                     const active = document.body.classList.contains('theme-304');
-                    this.applyTheme(!active);
+                    const nextState = !active;
+                    this.applyTheme(nextState);
                 });
             },
 
@@ -1564,12 +1302,21 @@
         // BOOTSTRAP APP
         // ----------------------------------------------------
         document.addEventListener('DOMContentLoaded', () => {
-            ThemeController.init();
+            const isHomePage = @isHomePage.ToString().ToLower();
             IntroController.init();
+            ThemeController.init();
             AuthController.init();
             ChatController.init();
             SearchController.init();
             NotificationController.init(); // Initialize notifications
+
+            const isThemeEnabled = (localStorage.getItem(ThemeController.storageKey) ?? '1') === '1';
+            const shouldPlayIntro = isHomePage
+                && isThemeEnabled
+                && sessionStorage.getItem(IntroController.storageKey) !== '1';
+            if (shouldPlayIntro) {
+                IntroController.play();
+            }
 
             if (document.getElementById('homeSection') !== null) {
                 UIController.init();
