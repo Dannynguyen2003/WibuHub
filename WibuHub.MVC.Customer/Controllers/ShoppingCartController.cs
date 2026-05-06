@@ -25,6 +25,7 @@ namespace WibuHub.MVC.Customer.Controllers
     {
         private const string CartSessionKey = "CartSession";
         private const string PendingMomoOrderSessionKey = "PendingMomoOrderId";
+        private const string BenefitMarker = "[BENEFITS_GRANTED]";
         private readonly StoryDbContext _context;
         private readonly IPaymentService _paymentService;
         private readonly IRewardService _rewardService;
@@ -473,10 +474,15 @@ namespace WibuHub.MVC.Customer.Controllers
             }
 
             // STEP 1: CREATE ORDER
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userIdentifier = !string.IsNullOrWhiteSpace(userId)
+                ? userId
+                : _httpContextAccessor.HttpContext?.User?.Identity?.Name ?? string.Empty;
+
             var order = new Order
             {
                 Id = Guid.NewGuid(),
-                UserId = _httpContextAccessor.HttpContext?.User?.Identity?.Name ?? string.Empty,
+                UserId = userIdentifier,
                 PaymentMethod = "MoMo",
                 PaymentStatus = "Pending",
                 Note = BuildVipNote(cart),
@@ -567,17 +573,37 @@ namespace WibuHub.MVC.Customer.Controllers
                 if (!string.IsNullOrEmpty(orderId) && Guid.TryParse(orderId, out Guid orderGuid))
                 {
                     var order = await _context.Orders
-                        .AsNoTracking()
                         .Include(o => o.OrderDetails)
                         .FirstOrDefaultAsync(o => o.Id == orderGuid);
 
                     if (order != null)
                     {
+                        var expAdded = Math.Max(1, (int)Math.Floor(order.TotalAmount / 10000m));
+                        var pointsAdded = Math.Max(3, (int)Math.Floor(order.TotalAmount / 20000m));
+                        ViewBag.RewardExp = expAdded;
+                        ViewBag.RewardCoins = pointsAdded;
+
                         ViewBag.HasVip = order.OrderDetails.Any(d => d.StoryId == null || d.StoryId == Guid.Empty);
                         ViewBag.HasStory = order.OrderDetails.Any(d => d.StoryId != null && d.StoryId != Guid.Empty);
                         ViewBag.TransactionId = string.IsNullOrWhiteSpace(order.TransactionId)
                             ? order.Id.ToString()
                             : order.TransactionId;
+
+                        if (User?.Identity?.IsAuthenticated == true)
+                        {
+                            var userManager = HttpContext.RequestServices.GetService<UserManager<StoryUser>>();
+                            if (userManager != null)
+                            {
+                                var currentUser = await userManager.GetUserAsync(User);
+                                if (currentUser != null
+                                    && (string.Equals(order.UserId, currentUser.Id, StringComparison.OrdinalIgnoreCase)
+                                        || string.Equals(order.UserId, currentUser.UserName, StringComparison.OrdinalIgnoreCase)))
+                                {
+                                    await BackfillMissingBenefitsForUserAsync(currentUser, userManager);
+                                    await FinalizePaidOrderAsync(order, currentUser, userManager);
+                                }
+                            }
+                        }
 
                         if (string.Equals(order.PaymentStatus, "Completed", StringComparison.OrdinalIgnoreCase))
                         {
@@ -654,58 +680,19 @@ namespace WibuHub.MVC.Customer.Controllers
                                                   .Include(o => o.OrderDetails)
                                                   .FirstOrDefaultAsync(o => o.Id == orderGuid);
 
-                        if (order != null && order.PaymentStatus != "Completed")
+                        if (order != null && !string.IsNullOrEmpty(order.UserId))
                         {
-                            // 1. Update order status
-                            order.PaymentStatus = "Completed";
                             order.TransactionId = callback.TransId.ToString();
 
-                            // 2. VIP PRIVILEGE LOGIC
-                            var totalVipDaysBought = CalculateVipDaysFromOrderDetails(order.OrderDetails);
-
-                            // 3. If VIP is purchased, add days to User
-                            if (totalVipDaysBought > 0 && !string.IsNullOrEmpty(order.UserId))
+                            var userManager = HttpContext.RequestServices.GetService<UserManager<StoryUser>>();
+                            if (userManager != null)
                             {
-                                var userManager = HttpContext.RequestServices.GetService<UserManager<StoryUser>>();
-                                var signInManager = HttpContext.RequestServices.GetService<SignInManager<StoryUser>>();
-
-                                if (userManager != null)
+                                var user = await ResolveOrderUserAsync(userManager, order.UserId);
+                                if (user != null)
                                 {
-                                    var user = await ResolveOrderUserAsync(userManager, order.UserId);
-                                    if (user != null)
-                                    {
-                                        var currentVipEnd = user.VipExpireDate.HasValue && user.VipExpireDate.Value > DateTime.UtcNow
-                                                            ? user.VipExpireDate.Value
-                                                            : DateTime.UtcNow;
-
-                                        user.VipExpireDate = currentVipEnd.AddDays(totalVipDaysBought);
-                                        await userManager.UpdateAsync(user);
-
-                                        if (signInManager != null)
-                                        {
-                                            await signInManager.RefreshSignInAsync(user);
-                                        }
-
-                                        await GrantOrderRewardsAsync(user.Id, order.TotalAmount);
-                                        await CreateOrderNotificationIfNeededAsync(user, order);
-                                    }
+                                    await FinalizePaidOrderAsync(order, user, userManager);
                                 }
                             }
-                            else if (!string.IsNullOrEmpty(order.UserId))
-                            {
-                                var userManager = HttpContext.RequestServices.GetService<UserManager<StoryUser>>();
-                                if (userManager != null)
-                                {
-                                    var user = await ResolveOrderUserAsync(userManager, order.UserId);
-                                    if (user != null)
-                                    {
-                                        await GrantOrderRewardsAsync(user.Id, order.TotalAmount);
-                                        await CreateOrderNotificationIfNeededAsync(user, order);
-                                    }
-                                }
-                            }
-
-                            await _context.SaveChangesAsync();
                         }
                     }
                 }
@@ -921,6 +908,103 @@ namespace WibuHub.MVC.Customer.Controllers
                 IsRead = false,
                 CreateDate = DateTime.UtcNow
             });
+        }
+
+        private async Task FinalizePaidOrderAsync(Order order, StoryUser user, UserManager<StoryUser> userManager)
+        {
+            var isCompleted = string.Equals(order.PaymentStatus, "Completed", StringComparison.OrdinalIgnoreCase);
+            var benefitGranted = IsBenefitGranted(order);
+
+            if (isCompleted && benefitGranted)
+            {
+                return;
+            }
+
+            if (!isCompleted)
+            {
+                order.PaymentStatus = "Completed";
+            }
+
+            if (!benefitGranted)
+            {
+                var totalVipDaysBought = CalculateVipDaysFromOrderDetails(order.OrderDetails);
+                if (totalVipDaysBought > 0)
+                {
+                    var currentVipEnd = user.VipExpireDate.HasValue && user.VipExpireDate.Value > DateTime.UtcNow
+                        ? user.VipExpireDate.Value
+                        : DateTime.UtcNow;
+
+                    user.VipExpireDate = currentVipEnd.AddDays(totalVipDaysBought);
+                    await userManager.UpdateAsync(user);
+
+                    var signInManager = HttpContext.RequestServices.GetService<SignInManager<StoryUser>>();
+                    if (signInManager != null)
+                    {
+                        await signInManager.RefreshSignInAsync(user);
+                    }
+                }
+
+                await GrantOrderRewardsAsync(user.Id, order.TotalAmount);
+                MarkBenefitGranted(order);
+            }
+
+            await CreateOrderNotificationIfNeededAsync(user, order);
+            await _context.SaveChangesAsync();
+        }
+
+        private static bool IsBenefitGranted(Order order)
+        {
+            if (order == null || string.IsNullOrWhiteSpace(order.Note))
+            {
+                return false;
+            }
+
+            return order.Note.Contains(BenefitMarker, StringComparison.Ordinal);
+        }
+
+        private static void MarkBenefitGranted(Order order)
+        {
+            if (order == null)
+            {
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(order.Note))
+            {
+                order.Note = BenefitMarker;
+                return;
+            }
+
+            if (!order.Note.Contains(BenefitMarker, StringComparison.Ordinal))
+            {
+                order.Note = $"{order.Note} {BenefitMarker}";
+            }
+        }
+
+        private async Task BackfillMissingBenefitsForUserAsync(StoryUser user, UserManager<StoryUser> userManager)
+        {
+            if (user == null)
+            {
+                return;
+            }
+
+            var fromDate = DateTime.UtcNow.AddDays(-2);
+            var completedOrders = await _context.Orders
+                .Include(o => o.OrderDetails)
+                .Where(o =>
+                    o.PaymentStatus == "Completed"
+                    && o.CreatedAt >= fromDate
+                    && (o.UserId == user.Id || o.UserId == user.UserName))
+                .OrderBy(o => o.CreatedAt)
+                .ToListAsync();
+
+            foreach (var order in completedOrders)
+            {
+                if (!IsBenefitGranted(order))
+                {
+                    await FinalizePaidOrderAsync(order, user, userManager);
+                }
+            }
         }
 
         private async Task<bool> ShouldGrantRewardsForOrderAsync(Order order)

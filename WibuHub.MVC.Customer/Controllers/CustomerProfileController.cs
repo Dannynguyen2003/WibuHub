@@ -61,7 +61,9 @@ namespace WibuHub.MVC.Customer.Controllers
                 UserName = user.UserName,
                 Level = user.Level,
                 Points = user.Points,
-                ExpPercentage = percentage
+                ExpPercentage = percentage,
+                CurrentExperience = user.Experience,
+                ExpPerLevel = expPerLevel
             };
 
             return View(model);
@@ -81,8 +83,9 @@ namespace WibuHub.MVC.Customer.Controllers
             model.UserName = user.UserName;
             model.Level = user.Level;
             model.Points = user.Points;
-
             int expPerLevel = 100;
+            model.CurrentExperience = user.Experience;
+            model.ExpPerLevel = expPerLevel;
             // FIX LỖI ÉP KIỂU AN TOÀN TẠI ĐÂY:
             double rawPercentage = ((double)user.Experience / expPerLevel) * 100;
             int percentage = (int)Math.Round(rawPercentage);

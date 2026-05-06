@@ -12,6 +12,7 @@ using WibuHub.ApplicationCore.Configuration;
 using WibuHub.ApplicationCore.Entities.Identity;
 using WibuHub.DataLayer;
 using WibuHub.Service.EmailSender;
+using WibuHub.Service.Implementation;
 using WibuHub.Service.Implementations;
 using WibuHub.Service.Implementations.ChatBot;
 using WibuHub.Service.Implementations.EmailSender;
@@ -33,6 +34,7 @@ builder.Services.AddDbContext<StoryIdentityDbContext>(options =>
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IStoryService, StoryService>();
 builder.Services.AddScoped<IChapterService, ChapterService>();
+builder.Services.AddScoped<IRewardService, RewardService>();
 
 // 3. Configure MoMo Settings
 builder.Services.Configure<MomoSettings>(builder.Configuration.GetSection("MomoSettings"));

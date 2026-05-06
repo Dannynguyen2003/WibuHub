@@ -102,6 +102,10 @@
 
                     // Add VIP check logic
                     bool isVip = currentUser?.IsVip ?? false;
+                    var vipExpireLocal = currentUser?.VipExpireDate?.ToLocalTime();
+                    var vipDaysRemaining = vipExpireLocal.HasValue
+                        ? Math.Max(0, (int)Math.Ceiling((vipExpireLocal.Value - DateTime.Now).TotalDays))
+                        : 0;
 
                     <div class="user-account">
                         <div class="avatar-wrapper @(isVip ? "is-vip" : "")" style="position: relative;">
@@ -125,7 +129,8 @@
                             @if (isVip && currentUser?.VipExpireDate.HasValue == true)
                             {
                                 <li style="padding: 0 15px 10px; font-size: 0.8rem; color: #10b981; text-align: center;">
-                                    VIP Expiry: @currentUser.VipExpireDate.Value.ToLocalTime().ToString("dd/MM/yyyy")
+                                    VIP Expiry: @vipExpireLocal?.ToString("dd/MM/yyyy HH:mm")<br />
+                                    Remaining: @vipDaysRemaining day(s)
                                 </li>
                             }
                             <li class="divider"></li>

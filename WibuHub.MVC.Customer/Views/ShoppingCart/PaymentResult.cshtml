@@ -4,6 +4,8 @@
     var hasVip = (bool?)(ViewBag.HasVip) ?? false;
     var hasStory = (bool?)(ViewBag.HasStory) ?? false;
     var transactionId = (string?)(ViewBag.TransactionId) ?? "N/A";
+    var rewardExp = (int?)(ViewBag.RewardExp) ?? 0;
+    var rewardCoins = (int?)(ViewBag.RewardCoins) ?? 0;
 
     var isVipOnly = isSuccess && hasVip && !hasStory;
     var isStoryOnly = isSuccess && !hasVip && hasStory;
@@ -64,6 +66,7 @@
             @if (isSuccess)
             {
                 <p>Cảm ơn bạn đã ủng hộ WibuHub.</p>
+                <p><strong>Reward:</strong> +@rewardExp EXP, +@rewardCoins Coins</p>
             }
 
             <p class="transaction-id">

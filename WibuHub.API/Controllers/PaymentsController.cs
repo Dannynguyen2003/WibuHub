@@ -85,6 +85,13 @@ namespace WibuHub.API.Controllers
 
                 var (isSuccess, message) = await _paymentService.HandleMomoCallbackAsync(callback);
 
+                _logger.LogInformation(
+                    "MoMo callback processed for OrderId: {OrderId}, ResultCode: {ResultCode}, IsSuccess: {IsSuccess}, Message: {Message}",
+                    callback.OrderId,
+                    callback.ResultCode,
+                    isSuccess,
+                    message);
+
                 if (!isSuccess)
                 {
                     _logger.LogWarning("MoMo callback processing failed: {Message} for OrderId: {OrderId}",
